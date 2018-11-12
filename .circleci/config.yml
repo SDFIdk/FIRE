@@ -8,10 +8,10 @@ jobs:
       - checkout
       - run:
           name: Install Debian dependencies
-          command: sudo apt install python-pip
+          command: sudo apt install python-pip nmap
 #      - setup_remote_docker: 
 #          docker_layer_caching: true
       - run:
-          name: Run tests
+          name: nmap localhost
           command: |
-            echo "wohoo!"
+            nmap localhost
