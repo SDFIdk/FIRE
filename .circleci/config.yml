@@ -1,0 +1,16 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8-stretch
+    steps:
+      - checkout
+      - run:
+          name: Install Debian dependencies
+          command: sudo apt install python-pip
+#      - setup_remote_docker: 
+#          docker_layer_caching: true
+      - run:
+          name: Run tests
+          command: |
+            echo "wohoo!"
