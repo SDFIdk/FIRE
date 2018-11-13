@@ -43,4 +43,4 @@ jobs:
       - run:
           name: Initialize database and schema
           command: |
-            python test/runsql.py
+            python test/runsql.py test/sql/init.sql

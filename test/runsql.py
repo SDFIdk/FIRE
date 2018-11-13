@@ -1,13 +1,16 @@
+#!/usr/bin/python3
+
 # runsql.py
 
-from __future__ import print_function
-
+import sys
 import cx_Oracle
+
+sqlfile = open(sys.argv[1],'r')
+sql = sqlfile.read()
 
 connection = cx_Oracle.connect("system", "oracle", "localhost/xe")
 
 cursor = connection.cursor()
-cursor.execute("""
-    SELECT 1""")
+cursor.execute(sql)
 for v in cursor:
     print("Value:", v)
