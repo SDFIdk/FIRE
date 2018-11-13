@@ -10,7 +10,7 @@ jobs:
       - run:
           name: Install Oracle Linux deps
           command: |
-            yum -y install wget
+            yum -y install wget sudo
       - run:
           name: Update Oracle Linux yum server repo
           command: |
@@ -35,4 +35,4 @@ jobs:
       - run:
           name: nmap localhost
           command: |
-            nmap localhost
+            sudo nmap localhost
