@@ -35,4 +35,4 @@ jobs:
       - run:
           name: nmap localhost
           command: |
-            sudo nmap localhost
+            sqlplus system/oracle@//localhost:1521/xe -S / as sysdba @/tmp/impdp.sql
