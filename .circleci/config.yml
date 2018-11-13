@@ -7,9 +7,9 @@ jobs:
 #      - image: septimaps/oracle-12c-bootstrapped
     steps:
       - checkout
-#      - run:
-#          name: Install Oracle Linux dependencies
-#          command: sudo apt install nmap
+      - run:
+          name: Install Oracle Linux dependencies
+          command: sudo yum install nmap
 #      - setup_remote_docker: 
 #          docker_layer_caching: true
       - run:
