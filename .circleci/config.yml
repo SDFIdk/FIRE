@@ -27,7 +27,7 @@ jobs:
           name: Enable Oracle Linux yum server repo
           command: |
             yum install -y yum-utils
-            yum-config-manager --enable ol7_oracle_instantclient
+            yum-config-manager --enable ol7_developer_EPEL ol7_oracle_instantclient
       - run:
           name: Install Oracle Linux deps
           command: |
