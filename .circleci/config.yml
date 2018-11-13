@@ -10,7 +10,7 @@ jobs:
       - run:
           name: Install Oracle Linux deps
           command: |
-            yum -y install wget sudo python-pip
+            yum -y install wget
       - run:
           name: Update Oracle Linux yum server repo
           command: |
@@ -18,22 +18,23 @@ jobs:
             mv public-yum-ol7.repo public-yum-ol7.repo.bak  
             wget http://yum.oracle.com/public-yum-ol7.repo
       - run:
-          name: Update Oracle Linux yum server repo
-          command: |
-            cd /etc/yum.repos.d
-            mv public-yum-ol7.repo public-yum-ol7.repo.bak  
-            wget http://yum.oracle.com/public-yum-ol7.repo
-      - run:
-          name: Enable Oracle Linux yum server repo
+          name: Enable additional Oracle Linux yum server repos
           command: |
             yum install -y yum-utils
             yum-config-manager --enable ol7_developer_EPEL ol7_oracle_instantclient
       - run:
           name: Install Oracle Linux deps
           command: |
-            yum -y install python36 python36-pip oracle-instantclient18.3-basiclite.x86_64
-            python3.6 -m venv py36env
-            source py36env/bin/activate
+            yum -y install python36 oracle-instantclient18.3-basiclite.x86_64
+      - run:
+          name: Make Python 3.6 default
+          command: |
+            alternatives --install /usr/bin/python python /usr/bin/python3.6 60
+      - run:
+          name: Install pip
+          command: |
+            wget https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            python get-pip.py
       - run:
           name: Install cx_Oracle
           command: |
@@ -41,4 +42,4 @@ jobs:
       - run:
           name: Initialize schema
           command: |
-            python ....
+            python --version
