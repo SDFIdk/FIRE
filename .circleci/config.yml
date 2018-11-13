@@ -41,10 +41,14 @@ jobs:
           command: |
             python -m pip install cx_Oracle --upgrade
       - run:
-          name: Execute init.sql
+          name: Execute helloworld.sql
           command: |
-            python test/runsql.py system oracle test/sql/init.sql
-      - run:
-          name: Execute 20181023.v0.4.FikspunktForvaltning.sql
-          command: |
-            python test/runsql.py system oracle test/sql/20181023.v0.4.FikspunktForvaltning.sql
+            python test/runsql.py system oracle test/sql/helloworld.sql
+#      - run:
+#          name: Execute init.sql
+#          command: |
+#            python test/runsql.py system oracle test/sql/init.sql
+#      - run:
+#          name: Execute 20181023.v0.4.FikspunktForvaltning.sql
+#          command: |
+#            python test/runsql.py system oracle test/sql/20181023.v0.4.FikspunktForvaltning.sql

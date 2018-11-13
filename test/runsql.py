@@ -12,8 +12,6 @@ path = sys.argv[3]
 sqlfile = open(path,'r')
 sql = sqlfile.read()
 
-print(sql)
-
 connection = cx_Oracle.connect(user, password, "localhost/xe")
 
 cursor = connection.cursor()
