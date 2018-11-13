@@ -2,13 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:8-stretch
-      - image: 478520491926.dkr.ecr.eu-central-1.amazonaws.com/fikspunktsregister
+      - image: circleci/python:3.6.7
+      - image: septimaps/oracle-12c-bootstrapped
     steps:
       - checkout
       - run:
           name: Install Debian dependencies
-          command: sudo apt install python-pip nmap
+          command: sudo apt install nmap
 #      - setup_remote_docker: 
 #          docker_layer_caching: true
       - run:
