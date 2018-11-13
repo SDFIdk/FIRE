@@ -32,6 +32,8 @@ jobs:
           name: Install Oracle Linux deps
           command: |
             yum -y install python36 python36-pip oracle-instantclient18.3-basiclite.x86_64
+            python3.6 -m venv py36env
+            source py36env/bin/activate
       - run:
           name: Install cx_Oracle
           command: |
