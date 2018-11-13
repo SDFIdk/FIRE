@@ -1,6 +1,5 @@
 -- Create user fire with password fire
-CREATE USER fire
-  IDENTIFIED BY fire;
+CREATE USER fire IDENTIFIED BY fire;
 
 -- Grant
 GRANT create session TO fire;

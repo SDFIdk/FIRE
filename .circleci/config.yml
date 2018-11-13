@@ -41,6 +41,10 @@ jobs:
           command: |
             python -m pip install cx_Oracle --upgrade
       - run:
-          name: Initialize database and schema
+          name: Execute init.sql
           command: |
-            python test/runsql.py test/sql/init.sql
+            python test/runsql.py system oracle test/sql/init.sql
+      - run:
+          name: Execute 20181023.v0.4.FikspunktForvaltning.sql
+          command: |
+            python test/runsql.py system oracle test/sql/20181023.v0.4.FikspunktForvaltning.sql

@@ -5,12 +5,16 @@
 import sys
 import cx_Oracle
 
-sqlfile = open(sys.argv[1],'r')
+user = sys.argv[1]
+password = sys.argv[2]
+path = sys.argv[3]
+
+sqlfile = open(path,'r')
 sql = sqlfile.read()
 
-connection = cx_Oracle.connect("system", "oracle", "localhost/xe")
+print(sql)
+
+connection = cx_Oracle.connect(user, password, "localhost/xe")
 
 cursor = connection.cursor()
 cursor.execute(sql)
-for v in cursor:
-    print("Value:", v)
