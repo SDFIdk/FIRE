@@ -2,9 +2,8 @@ version: 2
 jobs:
   build:
     docker:
-       - image: oraclelinux:7
-#      - image: circleci/python:3.6.7
-#      - image: septimaps/oracle-12c-bootstrapped
+      - image: oraclelinux:7
+      - image: septimaps/oracle-12c-bootstrapped
     steps:
       - checkout
       - run:
@@ -26,6 +25,8 @@ jobs:
           name: Install Oracle Linux deps
           command: |
             yum -y install python36 oracle-instantclient18.3-basiclite.x86_64
+            sh -c "echo /usr/lib/oracle/18.3/client64/lib > /etc/ld.so.conf.d/oracle-instantclient.conf"
+            ldconfig
       - run:
           name: Make Python 3.6 default
           command: |
