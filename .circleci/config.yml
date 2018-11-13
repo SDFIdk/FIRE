@@ -40,6 +40,6 @@ jobs:
           command: |
             python -m pip install cx_Oracle --upgrade
       - run:
-          name: Initialize schema
+          name: Initialize database and schema
           command: |
-            python --version
+            python test/runsql.py
