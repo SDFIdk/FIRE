@@ -8,10 +8,26 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Oracle Linux dependencies
-          command: yum -y install nmap
-#      - setup_remote_docker: 
-#          docker_layer_caching: true
+          name: Update Oracle Linux yum server repo
+          command: |
+            cd /etc/yum.repos.d
+            mv public-yum-ol7.repo public-yum-ol7.repo.bak  
+            wget http://yum.oracle.com/public-yum-ol7.repo
+      - run:
+          name: Update Oracle Linux yum server repo
+          command: |
+            cd /etc/yum.repos.d
+            mv public-yum-ol7.repo public-yum-ol7.repo.bak  
+            wget http://yum.oracle.com/public-yum-ol7.repo
+      - run:
+          name: Enable Oracle Linux yum server repo
+          command: |
+            yum install -y yum-utils
+            yum-config-manager --enable ol7_oracle_instantclient
+      - run:
+          name: Install Oracle Linux deps
+          command: |
+            yum -y install nmap oracle-instantclient18.3-basic.x86_64
       - run:
           name: nmap localhost
           command: |
