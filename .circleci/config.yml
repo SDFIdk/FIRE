@@ -33,7 +33,7 @@ jobs:
       - run:
           name: Install pip
           command: |
-            wget https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            wget https://bootstrap.pypa.io/get-pip.py
             python get-pip.py
       - run:
           name: Install cx_Oracle
