@@ -8,6 +8,10 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install Oracle Linux deps
+          command: |
+            yum -y install wget
+      - run:
           name: Update Oracle Linux yum server repo
           command: |
             cd /etc/yum.repos.d
