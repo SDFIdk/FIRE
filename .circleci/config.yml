@@ -31,8 +31,8 @@ jobs:
       - run:
           name: Install Oracle Linux deps
           command: |
-            yum -y install nmap oracle-instantclient18.3-basiclite.x86_64 oracle-instantclient18.3-sqlplus.x86_64
+            yum -y install oracle-instantclient18.3-basic.x86_64 oracle-instantclient18.3-sqlplus.x86_64
       - run:
-          name: nmap localhost
+          name: Initialize schema
           command: |
             sqlplus system/oracle@//localhost:1521/xe -S / as sysdba @/tmp/impdp.sql
