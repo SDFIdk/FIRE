@@ -9,7 +9,7 @@ jobs:
       - checkout
       - run:
           name: Install Oracle Linux dependencies
-          command: sudo yum install nmap
+          command: yum install nmap
 #      - setup_remote_docker: 
 #          docker_layer_caching: true
       - run:
