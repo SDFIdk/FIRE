@@ -2,13 +2,14 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.6.7
-      - image: septimaps/oracle-12c-bootstrapped
+       - image: oraclelinux:7
+#      - image: circleci/python:3.6.7
+#      - image: septimaps/oracle-12c-bootstrapped
     steps:
       - checkout
-      - run:
-          name: Install Debian dependencies
-          command: sudo apt install nmap
+#      - run:
+#          name: Install Oracle Linux dependencies
+#          command: sudo apt install nmap
 #      - setup_remote_docker: 
 #          docker_layer_caching: true
       - run:
