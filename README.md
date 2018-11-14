@@ -8,13 +8,15 @@ API til SDFEs kommende fikspunktsregister.
 
 Requires Docker and Docker Compose. Supplies an environment with Oracle Linux 7 and an instance of Oracle XE 12c.
 
-Checkout the repository then prep the environment by running `docker-compose up'.
+NOTE: Be aware that the image to run Oracle XE 12c is around 8GB so be careful about not running out of space.
 
-In a separate terminal you can now execute commands on Oracle Linux. (optionally you could detach `docker-compose up` and reuse that terminal)
+Checkout the repository then bring up the containers by running `docker-compose up` with or without detach.
+
+If detached you can now execute commands on Oracle Linux, if not detached you'll need a separate terminal.
 
 ## Initialize development environment
 
-The environment supplied by `docker-compose.yml` needs additional setup to include a functional Python 3.6 with proper Oracle drivers and database schema/data to run code/tests against.
+The environment supplied by `docker-compose.yml` needs additional "one time" setup to include a functional Python 3.6 with proper Oracle drivers and database schema/data to run code/tests against.
 
 These steps only needs to be run once as long as the docker-compose service containers are not deleted on your host.
 
