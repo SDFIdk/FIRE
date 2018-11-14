@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Install Oracle Linux deps
           command: |
-            yum -y install python36 oracle-instantclient18.3-basiclite.x86_64
+            yum -y install python36 oracle-instantclient18.3-basic.x86_64 oracle-instantclient18.3-sqlplus.x86_64
             sh -c "echo /usr/lib/oracle/18.3/client64/lib > /etc/ld.so.conf.d/oracle-instantclient.conf"
             ldconfig
       - run:
@@ -40,14 +40,14 @@ jobs:
           name: Install cx_Oracle
           command: |
             python -m pip install cx_Oracle --upgrade
-      - run:
-          name: Execute helloworld.sql
-          command: |
-            python test/runsql.py system oracle test/sql/helloworld.sql
 #      - run:
-#          name: Execute init.sql
+#          name: Execute helloworld.sql
 #          command: |
-#            python test/runsql.py system oracle test/sql/init.sql
+#            python test/runsql.py system oracle test/sql/helloworld.sql
+      - run:
+          name: Execute init.sql
+          command: |
+            sqlplus64 system/oracle@//localhost:1521/xe -S / as system @test/sql/init.sql
 #      - run:
 #          name: Execute 20181023.v0.4.FikspunktForvaltning.sql
 #          command: |
