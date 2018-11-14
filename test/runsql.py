@@ -12,7 +12,10 @@ path = sys.argv[3]
 sqlfile = open(path,'r')
 sql = sqlfile.read()
 
-connection = cx_Oracle.connect(user, password, "localhost/xe")
+connection = cx_Oracle.connect(user, password, "oracledb/xe")
 
 cursor = connection.cursor()
 cursor.execute(sql)
+
+for val in cursor:
+    print("Values:", val)

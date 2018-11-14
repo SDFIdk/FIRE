@@ -1,0 +1,12 @@
+version: "3.2"
+
+services:
+  oraclelinux:
+    image: oraclelinux:7
+    tty: true
+    volumes:
+      - type: bind
+        source: ./
+        target: /fikspunktsregister
+  oracledb:
+    image: septimaps/oracle-12c-bootstrapped
