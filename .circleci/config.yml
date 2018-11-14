@@ -13,3 +13,7 @@ jobs:
           name: Execute init.sql
           command: |
             sqlplus64 -S system/oracle@//localhost:1521/xe @test/sql/init.sql
+      - run:
+          name: Execute 20181023.v0.4.FikspunktForvaltning.sql
+          command: |
+            sqlplus64 -S fire/fire@//localhost:1521/xe @test/sql/20181023.v0.4.FikspunktForvaltning.sql
