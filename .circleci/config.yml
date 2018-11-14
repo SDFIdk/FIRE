@@ -7,48 +7,9 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Oracle Linux deps
-          command: |
-            yum -y install wget
-      - run:
-          name: Update Oracle Linux yum server repo
-          command: |
-            cd /etc/yum.repos.d
-            mv public-yum-ol7.repo public-yum-ol7.repo.bak  
-            wget http://yum.oracle.com/public-yum-ol7.repo
-      - run:
-          name: Enable additional Oracle Linux yum server repos
-          command: |
-            yum install -y yum-utils
-            yum-config-manager --enable ol7_developer_EPEL ol7_oracle_instantclient
-      - run:
-          name: Install Oracle Linux deps
-          command: |
-            yum -y install python36 oracle-instantclient18.3-basic.x86_64 oracle-instantclient18.3-sqlplus.x86_64
-            sh -c "echo /usr/lib/oracle/18.3/client64/lib > /etc/ld.so.conf.d/oracle-instantclient.conf"
-            ldconfig
-      - run:
-          name: Make Python 3.6 default
-          command: |
-            alternatives --install /usr/bin/python python /usr/bin/python3.6 60
-      - run:
-          name: Install pip
-          command: |
-            wget https://bootstrap.pypa.io/get-pip.py
-            python get-pip.py
-      - run:
-          name: Install cx_Oracle
-          command: |
-            python -m pip install cx_Oracle --upgrade
-#      - run:
-#          name: Execute helloworld.sql
-#          command: |
-#            python test/runsql.py system oracle test/sql/helloworld.sql
+          name: Setup Oracle Linux 7 with instant client and Python 3.6
+          command: test/setup.sh
       - run:
           name: Execute init.sql
           command: |
-            sqlplus64 system/oracle@//localhost:1521/xe -S / as system @test/sql/init.sql
-#      - run:
-#          name: Execute 20181023.v0.4.FikspunktForvaltning.sql
-#          command: |
-#            python test/runsql.py system oracle test/sql/20181023.v0.4.FikspunktForvaltning.sql
+            sqlplus64 -S system/oracle@//localhost:1521/xe @test/sql/init.sql
