@@ -20,5 +20,4 @@ jobs:
       - run:
           name: Run tests
           command: |
-            cd project
             ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=oracledb pytest
