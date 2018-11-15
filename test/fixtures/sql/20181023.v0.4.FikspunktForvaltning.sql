@@ -185,3 +185,5 @@ COMMENT ON COLUMN SAGSHAENDELSE.BESKRIVELSE IS 'Kort beskrivelse af en fikspunkt
 COMMENT ON COLUMN SAGSHAENDELSE.ID IS 'Persistent unik nøgle.';
 COMMENT ON COLUMN SAGSHAENDELSE.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
 COMMENT ON COLUMN SAGSHAENDELSE.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+
+exit;

@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Setup Oracle Linux 7 with instant client and Python 3.6
-          command: test/setup.sh
+          command: misc/oraclelinux/setup.sh
       - run:
           name: Execute init.sql
           command: |
@@ -17,3 +17,8 @@ jobs:
           name: Execute 20181023.v0.4.FikspunktForvaltning.sql
           command: |
             sqlplus64 -S fire/fire@//localhost:1521/xe @test/sql/20181023.v0.4.FikspunktForvaltning.sql
+      - run:
+          name: Run tests
+          command: |
+            cd project
+            ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=oracledb pytest

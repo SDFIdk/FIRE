@@ -10,4 +10,4 @@ ldconfig
 alternatives --install /usr/bin/python python /usr/bin/python3.6 60
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
-python -m pip install cx_Oracle --upgrade
+python -m pip install cx_Oracle pytest --upgrade
