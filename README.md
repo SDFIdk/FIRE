@@ -45,7 +45,7 @@ To setup db user named fire:
 > docker-compose exec oraclelinux sqlplus64 -S system/oracle@//oracledb:1521/xe @test/fixtures/sql/init.sql
 
 To setup db schema (demo data forthcoming):
-> docker-compose exec oraclelinux sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/20181023.v0.4.FikspunktForvaltning.sql
+> docker-compose exec oraclelinux sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/fikspunkt_forvaltning.sql
 
 ### Running Python code
 
