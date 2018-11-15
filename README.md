@@ -39,7 +39,7 @@ The environment supplied by `docker-compose.yml` needs additional "one time" set
 These steps only needs to be run once as long as the docker-compose service containers are not deleted on your host.
 
 To setup Oracle Linux 7 with Oracle instant client driver and Python 3.6 run:
-> docker-compose exec oraclelinux fikspunktsregister/test/setup.sh
+> docker-compose exec oraclelinux fikspunktsregister/misc/oraclelinux/setup.sh
 
 To setup db user named fire:
 > docker-compose exec oraclelinux sqlplus64 -S system/oracle@//oracledb:1521/xe @test/fixtures/sql/init.sql
@@ -49,6 +49,6 @@ To setup db schema (demo data forthcoming):
 
 ### Running Python code
 
-After setting up the environment as detailed above, Python code accessing the Oracle DB can now be run from your host:
+After setting up the environment as detailed above `pytest` should be runnable as follows from your host:
 
-> docker-compose exec oraclelinux python fikspunktsregister/test/runsql.py system oracle fikspunktsregister/test/sql/helloworld.sql
+> docker-compose exec oraclelinux cd fikspunktsregister && ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest
