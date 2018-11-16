@@ -1,0 +1,23 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from .model import *
+
+DEBUG = True
+
+class FireDb(object):
+    def __init__(self, connectionstring):
+        """
+
+        Parameters
+        ----------
+        connectionstring : str
+            Connection string for the oracle database where the FIRE database resides. Of the general form 'user:pass@host:port/dbname[?key=value&key=value...]'
+        """
+        self.dialect = "oracle+cx_oracle"
+        self.connectionstring = connectionstring
+        self.engine = create_engine(f"{self.dialect}://{self.connectionstring}", echo=DEBUG)
+        self.sessionmaker = sessionmaker(bind=self.engine)
+        self.session = self.sessionmaker()
+
+    def hent_alle_punkter(self):
+        self.session.query(Punkt).all()

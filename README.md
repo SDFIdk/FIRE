@@ -4,6 +4,16 @@
 
 API til SDFEs kommende fikspunktsregister.
 
+## API
+Work in progress:
+```python
+from fireapi import FireDb
+db = FireDb("fire:fire@localhost:1521/xe")
+punkter = db.hent_alle_punkter()
+```
+
+For now there are no data in the database so `punkter` is an empty list.
+
 ## Local development
 
 ## Windows
