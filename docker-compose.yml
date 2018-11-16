@@ -10,3 +10,5 @@ services:
         target: /fikspunktsregister
   oracledb:
     image: septimaps/oracle-12c-bootstrapped
+    ports:
+      - 1521:1521
