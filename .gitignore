@@ -110,3 +110,4 @@ venv.bak/
 /share
 /bin
 cx_Oracle-doc
+.vscode/settings.json
