@@ -20,4 +20,7 @@ class FireDb(object):
         self.session = self.sessionmaker()
 
     def hent_alle_punkter(self):
-        self.session.query(Punkt).all()
+        return self.session.query(Punkt).all()
+
+    def hent_alle_sager(self):
+        return self.session.query(Sag).all()
