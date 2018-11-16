@@ -8,6 +8,10 @@ services:
       - type: bind
         source: ./
         target: /fikspunktsregister
+    working_dir: /fikspunktsregister
+    command: ./docker-compose.sh
+    depends_on:
+      - oracledb
   oracledb:
     image: septimaps/oracle-12c-bootstrapped
     ports:

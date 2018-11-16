@@ -42,20 +42,7 @@ Checkout the repository then bring up the containers by running `docker-compose 
 
 If detached you can now execute commands on Oracle Linux, if not detached you'll need a separate terminal.
 
-### Initialize development environment
-
-The environment supplied by `docker-compose.yml` needs additional "one time" setup to include a functional Python 3.6 with proper Oracle drivers and database schema/data to run code/tests against.
-
-These steps only needs to be run once as long as the docker-compose service containers are not deleted on your host.
-
-To setup Oracle Linux 7 with Oracle instant client driver and Python 3.6 run:
-> docker-compose exec oraclelinux fikspunktsregister/misc/oraclelinux/setup.sh
-
-To setup db user named fire:
-> docker-compose exec oraclelinux sqlplus64 -S system/oracle@//oracledb:1521/xe @test/fixtures/sql/init.sql
-
-To setup db schema (demo data forthcoming):
-> docker-compose exec oraclelinux sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/fikspunkt_forvaltning.sql
+If you need a fresh start run `docker-compose down` and remove file `CONTAINER_ALREADY_STARTED_PLACEHOLDER` to make sure setup scripts runs again.
 
 ### Running Python code
 
