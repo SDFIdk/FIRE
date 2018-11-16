@@ -103,6 +103,9 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# PyCharm and friends
+.idea
+
 # manual additions
 /share
 /bin
