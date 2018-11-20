@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine, func, event
 from sqlalchemy.orm import sessionmaker
 from .model import *
 
@@ -20,6 +20,13 @@ class FireDb(object):
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.session = self.sessionmaker()
 
+        @event.listens_for(self.sessionmaker, 'before_flush')
+        def listener(thissession, flush_context, instances):
+            for obj in thissession.deleted:
+                if isinstance(obj, RegisteringTidObjekt):
+                    obj.registreringtil = func.sysdate()
+                    thissession.add(obj)
+
     def hent_alle_punkter(self):
         return self.session.query(Punkt).all()
 
@@ -29,4 +36,8 @@ class FireDb(object):
     def soeg_geometriobjekt(self, bbox):
         if not isinstance(bbox, Bbox):
             bbox = Bbox(bbox)
-        return self.session.query(GeometriObjekt).filter(func.sdo_filter(GeometriObjekt.geometri, bbox) == 'TRUE').all()
+        return self.session.query(GeometriObjekt)\
+            .filter(func.sdo_filter(GeometriObjekt.geometri, bbox) == 'TRUE').all()
+
+
+
