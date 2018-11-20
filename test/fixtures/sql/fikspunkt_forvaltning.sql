@@ -273,5 +273,3 @@ COMMENT ON COLUMN SAGSEVENT_RAPPORTHTML.RAPPORTHTML IS 'Generisk operatørlæsba
 COMMENT ON TABLE SRIDTYPE IS 'Udfaldsrum for SRID-koordinatbeskrivelser';
 COMMENT ON COLUMN SRIDTYPE.BESKRIVELSE IS 'Generel beskrivelse af systemet.';
 COMMENT ON COLUMN SRIDTYPE.SRID IS 'Den egentlige referencesystemindikator.';
-                                                                                                                                      
-exit;                                                                                                                                     
