@@ -3,7 +3,7 @@
 import sqlalchemy.ext.declarative
 from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from .typer import Point
+from . import columntypes
 
 
 class ReprBase(object):
@@ -98,8 +98,10 @@ class Koordinat(FikspunktregisterObjekt):
 
 class GeometriObjekt(FikspunktregisterObjekt):
     __tablename__ = "geometriobjekt"
-    geometri = Column(Point(2, 4326), nullable=False)
+    geometri = Column(columntypes.Point(2, 4326), nullable=False)
     sagseventid = Column(Integer, ForeignKey('sagsevent.objectid'), nullable=False)
     sagsevent = relationship("Sagsevent", back_populates="geometriobjekter")
     punktid = Column(Integer, ForeignKey('punkt.objectid'), nullable=False)
     punkt = relationship("Punkt", back_populates="geometriobjekter")
+
+
