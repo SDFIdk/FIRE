@@ -24,6 +24,8 @@ TODO
 
 Script to setup Oracle drivers can be found [here](misc/debian).
 
+Script to setup Oracle database can be found [here](misc/oracle).
+
 Unit/integration tests are implemented with [pytest](https://pytest.org).
 
 ### Python 3 virtual env
