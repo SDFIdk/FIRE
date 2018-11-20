@@ -15,20 +15,6 @@ class Geometry(UserDefinedType):
         self.dimension = dimension
         self.srid = srid
 
-    class comparator_factory(UserDefinedType.Comparator):
-        """Define custom operations for geometry types."""
-
-        # override the __eq__() operator
-        def __eq__(self, other):
-            return self.op('~=')(other)
-
-        # add a custom operator
-        def intersects(self, other):
-            return self.op('&&')(other)
-
-        # any number of GIS operators can be overridden/added here
-        # using the techniques above.
-
     def _coerce_compared_value(self, op, value):
         return self
 
