@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from .model import *
 
@@ -11,7 +11,8 @@ class FireDb(object):
         Parameters
         ----------
         connectionstring : str
-            Connection string for the oracle database where the FIRE database resides. Of the general form 'user:pass@host:port/dbname[?key=value&key=value...]'
+            Connection string for the oracle database where the FIRE database resides.
+            Of the general form 'user:pass@host:port/dbname[?key=value&key=value...]'
         """
         self.dialect = "oracle+cx_oracle"
         self.connectionstring = connectionstring
@@ -24,3 +25,8 @@ class FireDb(object):
 
     def hent_alle_sager(self):
         return self.session.query(Sag).all()
+
+    def soeg_geometriobjekt(self, bbox):
+        if not isinstance(bbox, Bbox):
+            bbox = Bbox(bbox)
+        return self.session.query(GeometriObjekt).filter(func.sdo_filter(GeometriObjekt.geometri, bbox) == 'TRUE').all()

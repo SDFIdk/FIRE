@@ -5,7 +5,6 @@ from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from . import columntypes
 
-
 class ReprBase(object):
     """Extend the base class
     Provides a nicer representation when a class instance is printed.
@@ -105,3 +104,5 @@ class GeometriObjekt(FikspunktregisterObjekt):
     punkt = relationship("Punkt", back_populates="geometriobjekter")
 
 
+# Import necessary geometry types
+from .geometry import *
