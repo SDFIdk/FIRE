@@ -8,7 +8,6 @@ sh -c "echo /usr/lib/oracle/18.3/client64/lib > /etc/ld.so.conf.d/oracle-instant
 ldconfig
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
-source $HOME/miniconda/bin/activate
-wget https://bootstrap.pypa.io/get-pip.py
-python get-pip.py
-python -m pip install cx_Oracle pytest --upgrade
+source $HOME/miniconda/bin/activate fikspunktsregister
+conda env create -f environment.yml
+source activate fikspunktsregister
