@@ -20,4 +20,5 @@ jobs:
       - run:
           name: Run tests
           command: |
+            source $HOME/miniconda/bin/activate
             ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest

@@ -1,7 +1,7 @@
 """SQLAlchemy models for the application
 """
 import sqlalchemy.ext.declarative
-from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
 from . import columntypes
 
@@ -28,7 +28,7 @@ class RegisteringTidObjekt(DeclarativeBase):
     # If class is not declared abstract then SQLAlchemy whines about missing table declaration.
     __abstract__ = True
     objectid = Column(Integer, primary_key=True)
-    registreringfra = Column(DateTime(timezone=True), nullable=False)
+    registreringfra = Column(DateTime(timezone=True), nullable=False, default=func.sysdate())
     registreringtil = Column(DateTime(timezone=True))
 
 
