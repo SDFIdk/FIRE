@@ -9,4 +9,4 @@ ldconfig
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
 source $HOME/miniconda/bin/activate
-conda install -c anaconda sqlalchemy cx_oracle
+conda install -c anaconda sqlalchemy cx_oracle pytest
