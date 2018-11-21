@@ -7,7 +7,6 @@ dependencies:
   - ca-certificates=2018.03.07
   - certifi=2018.10.15
   - cx_oracle=7.0.0
-  - libcxx
   - libedit=3.1.20170329
   - libffi=3.2.1
   - more-itertools=4.3.0
