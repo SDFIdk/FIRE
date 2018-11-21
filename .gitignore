@@ -111,3 +111,5 @@ venv.bak/
 /bin
 cx_Oracle-doc
 .vscode/settings.json
+/CONTAINER_ALREADY_STARTED_PLACEHOLDER
+/get-pip.py
