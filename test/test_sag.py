@@ -2,9 +2,11 @@ import pytest
 from fireapi.model import Sag
 
 
-@pytest.mark.skip(reason="Sag cannot be inseted atm because of missing mapping of sagstype")
+@pytest.mark.skip(
+    reason="Sag cannot be inserted atm because of missing mapping of sagstype"
+)
 def test_soft_delete(firedb):
-    s0 = Sag(id='xxx', behandler='yyy')
+    s0 = Sag(id="xxx", behandler="yyy")
     firedb.session.add(s0)
     firedb.session.commit()
 
@@ -18,4 +20,3 @@ def test_soft_delete(firedb):
     s2 = firedb.session.query(Sag).filter(Sag.id == s0.id).one()
     assert s0 is s1 is s2
     assert s2.registreringtil is not None
-

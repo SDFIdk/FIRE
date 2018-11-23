@@ -28,12 +28,12 @@ class Geometry(UserDefinedType):
         return func.SDO_UTIL.TO_WKTGEOMETRY(col, type_=self)
 
     def bind_processor(self, dialect):
-
         def process(value):
             if isinstance(value, geometry.Geometry):
                 return value.wkt
             else:
                 return value
+
         return process
 
     def result_processor(self, dialect, coltype):
@@ -44,6 +44,7 @@ class Geometry(UserDefinedType):
                 return fac(value, self.srid)
             else:
                 return value
+
         return process
 
     def adapt(self, impltype):
@@ -51,12 +52,12 @@ class Geometry(UserDefinedType):
 
 
 class Point(Geometry):
-    name = 'POINT'
+    name = "POINT"
 
 
 class Curve(Geometry):
-    name = 'CURVE'
+    name = "CURVE"
 
 
 class LineString(Curve):
-    name = 'LINESTRING'
+    name = "LINESTRING"
