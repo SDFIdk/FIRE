@@ -4,6 +4,7 @@ from .model import *
 
 DEBUG = True
 
+
 class FireDb(object):
     def __init__(self, connectionstring):
         """
@@ -16,11 +17,13 @@ class FireDb(object):
         """
         self.dialect = "oracle+cx_oracle"
         self.connectionstring = connectionstring
-        self.engine = create_engine(f"{self.dialect}://{self.connectionstring}", echo=DEBUG)
+        self.engine = create_engine(
+            f"{self.dialect}://{self.connectionstring}", echo=DEBUG
+        )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.session = self.sessionmaker()
 
-        @event.listens_for(self.sessionmaker, 'before_flush')
+        @event.listens_for(self.sessionmaker, "before_flush")
         def listener(thissession, flush_context, instances):
             for obj in thissession.deleted:
                 if isinstance(obj, RegisteringTidObjekt):
@@ -36,8 +39,8 @@ class FireDb(object):
     def soeg_geometriobjekt(self, bbox):
         if not isinstance(bbox, Bbox):
             bbox = Bbox(bbox)
-        return self.session.query(GeometriObjekt)\
-            .filter(func.sdo_filter(GeometriObjekt.geometri, bbox) == 'TRUE').all()
-
-
-
+        return (
+            self.session.query(GeometriObjekt)
+            .filter(func.sdo_filter(GeometriObjekt.geometri, bbox) == "TRUE")
+            .all()
+        )

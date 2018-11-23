@@ -4,7 +4,7 @@ import re
 from sqlalchemy.sql import expression
 from . import columntypes
 
-__all__ = ['Point', 'Bbox']
+__all__ = ["Point", "Bbox"]
 
 
 class Geometry(object):
@@ -18,7 +18,9 @@ class Geometry(object):
             self._geom = geometry
             self._wkt = None
         else:
-            raise TypeError("p must me either a coordinate, a WKT string or a geojson like dictionary")
+            raise TypeError(
+                "p must me either a coordinate, a WKT string or a geojson like dictionary"
+            )
 
         self.srid = srid
 
@@ -49,22 +51,33 @@ class Point(Geometry, expression.Function):
         elif isinstance(p, (str, dict)):
             geom = p
         else:
-            raise TypeError("p must me either a coordinate, a WKT string or a geojson like dictionary")
+            raise TypeError(
+                "p must me either a coordinate, a WKT string or a geojson like dictionary"
+            )
         super(Point, self).__init__(geom, srid)
-        expression.Function.__init__(self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry)
+        expression.Function.__init__(
+            self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry
+        )
 
 
 class Bbox(Geometry, expression.Function):
     def __init__(self, bounds, srid=4326):
-        geom = dict(type="Polygon", coordinates=[[
-            [bounds[0], bounds[1]],
-            [bounds[2], bounds[1]],
-            [bounds[2], bounds[3]],
-            [bounds[0], bounds[3]],
-            [bounds[0], bounds[1]]
-        ]])
+        geom = dict(
+            type="Polygon",
+            coordinates=[
+                [
+                    [bounds[0], bounds[1]],
+                    [bounds[2], bounds[1]],
+                    [bounds[2], bounds[3]],
+                    [bounds[0], bounds[3]],
+                    [bounds[0], bounds[1]],
+                ]
+            ],
+        )
         super(Bbox, self).__init__(geom, srid)
-        expression.Function.__init__(self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry)
+        expression.Function.__init__(
+            self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry
+        )
 
 
 def geometry_factory(geom, srid=4326):
@@ -83,7 +96,7 @@ def geometry_factory(geom, srid=4326):
 
 def from_wkt(geom):
     """wkt helper: converts from WKT to a GeoJSON-like geometry."""
-    wkt_linestring_match = re.compile(r'\(([^()]+)\)')
+    wkt_linestring_match = re.compile(r"\(([^()]+)\)")
     re_space = re.compile(r"\s+")
 
     coords = []
@@ -116,7 +129,7 @@ def from_wkt(geom):
     elif geom.startswith("POLYGON"):
         geomtype = "Polygon"
     else:
-        geomtype = geom[:geom.index("(")]
+        geomtype = geom[: geom.index("(")]
         raise Exception("Unsupported geometry type %s" % geomtype)
 
     return {"type": geomtype, "coordinates": coords}
@@ -150,9 +163,13 @@ def to_wkt(geom):
     elif geom["type"] == "MultiPolygon":
         poly_str = []
         for coord_list in coords:
-            poly_str.append("((" + ",".join(coords_to_wkt((ring,)) for ring in coord_list) + "))")
+            poly_str.append(
+                "((" + ",".join(coords_to_wkt((ring,)) for ring in coord_list) + "))"
+            )
         return "MultiPolygon(%s)" % ", ".join(poly_str)
 
     else:
-        raise Exception("Couldn't create WKT from geometry of type %s (%s). Only Point, Line, Polygon are supported." %
-                        (geom['type'], geom))
+        raise Exception(
+            "Couldn't create WKT from geometry of type %s (%s). Only Point, Line, Polygon are supported."
+            % (geom["type"], geom)
+        )
