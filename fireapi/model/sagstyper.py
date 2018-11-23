@@ -3,9 +3,13 @@ from sqlalchemy.orm import relationship
 
 from . import RegisteringTidObjekt
 
+# TODO: Sag and Sagsevent are supposed to get remodeled into Sag, SagInfo, Sagevent and SageventInfo
+
 
 class Sag(RegisteringTidObjekt):
     __tablename__ = "sag"
+    # TODO: Sagstype is foreign key
+    sagstype = Column(String, nullable=False)
     id = Column(String, nullable=False)
     journalnummer = Column(String)
     behandler = Column(String, nullable=False)
@@ -13,7 +17,6 @@ class Sag(RegisteringTidObjekt):
     sagsevents = relationship(
         "Sagsevent", order_by="Sagsevent.objectid", back_populates="sag"
     )
-    # TODO: Sagstype
 
 
 class Sagsevent(RegisteringTidObjekt):
@@ -34,4 +37,12 @@ class Sagsevent(RegisteringTidObjekt):
     geometriobjekter = relationship(
         "GeometriObjekt", order_by="GeometriObjekt.objectid", back_populates="sagsevent"
     )
-    # TODO: Beregninger, Observationer, PunktInfoer
+    observationer = relationship(
+        "Observation", order_by="Observation.objectid", back_populates="sagsevent"
+    )
+    punktinformationer = relationship(
+        "PunktInformation",
+        order_by="PunktInformation.objectid",
+        back_populates="sagsevent",
+    )
+    # TODO: Beregninger

@@ -22,7 +22,10 @@ class Punkt(FikspunktregisterObjekt):
     geometriobjekter = relationship(
         "GeometriObjekt", order_by="GeometriObjekt.objectid", back_populates="punkt"
     )
-    # TODO: Observationer, PunktInfoer
+    punktinformationer = relationship(
+        "PunktInformation", order_by="PunktInformation.objectid", back_populates="punkt"
+    )
+    # TODO: Observationer (Note Observation has three references to Punkt. How to handle this?)
 
 
 class Koordinat(FikspunktregisterObjekt):
@@ -51,3 +54,46 @@ class GeometriObjekt(FikspunktregisterObjekt):
     sagsevent = relationship("Sagsevent", back_populates="geometriobjekter")
     punktid = Column(Integer, ForeignKey("punkt.objectid"), nullable=False)
     punkt = relationship("Punkt", back_populates="geometriobjekter")
+
+
+class Observation(FikspunktregisterObjekt):
+    __tablename__ = "observation"
+    value1 = Column(Float, nullable=False)
+    value2 = Column(Float)
+    value3 = Column(Float)
+    value4 = Column(Float)
+    value5 = Column(Float)
+    value6 = Column(Float)
+    value7 = Column(Float)
+    value8 = Column(Float)
+    value9 = Column(Float)
+    value10 = Column(Float)
+    value11 = Column(Float)
+    value12 = Column(Float)
+    value13 = Column(Float)
+    value14 = Column(Float)
+    value15 = Column(Float)
+    sagseventid = Column(Integer, ForeignKey("sagsevent.objectid"), nullable=False)
+    sagsevent = relationship("Sagsevent", back_populates="observationer")
+    antal = Column(Integer, nullable=False)
+    gruppe = Column(Integer)
+    # TODO: observationstype is foreign key
+    observationstype = Column(String, nullable=False)
+    sigtepunktid1 = Column(Integer, ForeignKey("punkt.objectid"))
+    sigtepunkt1 = relationship("Punkt", foreign_keys=[sigtepunktid1])
+    sigtepunktid2 = Column(Integer, ForeignKey("punkt.objectid"))
+    sigtepunkt2 = relationship("Punkt", foreign_keys=[sigtepunktid2])
+    opstillingspunktid = Column(Integer, ForeignKey("punkt.objectid"))
+    opstillingspunkt = relationship("Punkt", foreign_keys=[opstillingspunktid])
+
+
+class PunktInformation(FikspunktregisterObjekt):
+    __tablename__ = "punktinfo"
+    sagseventid = Column(Integer, ForeignKey("sagsevent.objectid"), nullable=False)
+    sagsevent = relationship("Sagsevent", back_populates="punktinformationer")
+    # TODO: Infotype is foreign key
+    infotype = Column(String, nullable=False)
+    reeltal = Column(Float)
+    tekst = Column(String)
+    punktid = Column(Integer, ForeignKey("punkt.objectid"), nullable=False)
+    punkt = relationship("Punkt", back_populates="punktinformationer")
