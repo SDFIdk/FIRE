@@ -32,10 +32,21 @@ class RegisteringTidObjekt(DeclarativeBase):
     # If class is not declared abstract then SQLAlchemy whines about missing table declaration.
     __abstract__ = True
     objectid = Column(Integer, primary_key=True)
-    registreringfra = Column(
-        DateTime(timezone=True), nullable=False, default=func.sysdate()
+    _registreringfra = Column(
+        "registreringfra",
+        DateTime(timezone=True),
+        nullable=False,
+        default=func.sysdate(),
     )
-    registreringtil = Column(DateTime(timezone=True))
+    _registreringtil = Column("registreringtil", DateTime(timezone=True))
+
+    @property
+    def registreringfra(self):
+        return self._registreringfra
+
+    @property
+    def registreringtil(self):
+        return self._registreringtil
 
 
 # Expose these types
