@@ -26,6 +26,7 @@ class Punkt(FikspunktregisterObjekt):
         "PunktInformation", order_by="PunktInformation.objectid", back_populates="punkt"
     )
     # TODO: Observationer (Note Observation has three references to Punkt. How to handle this?)
+    # Maybe use: "observationer_til" referencing Observation.Sigtepunkt and "observationer_fra" referencing Observation.opstillingspunkt
 
 
 class Koordinat(FikspunktregisterObjekt):
