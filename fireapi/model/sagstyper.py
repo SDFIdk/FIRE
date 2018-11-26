@@ -2,6 +2,8 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 from . import RegisteringTidObjekt
+from . import RegisteringFraObjekt
+from . import FikspunktregisterObjekt
 
 # TODO: Sag and Sagsevent are supposed to get remodeled into Sag, SagInfo, Sagevent and SageventInfo
 
@@ -9,22 +11,22 @@ from . import RegisteringTidObjekt
 class Sag(RegisteringTidObjekt):
     __tablename__ = "sag"
     # TODO: Sagstype is foreign key
-    sagstype = Column(String, nullable=False)
+#    sagstype = Column(String, nullable=False)
     id = Column(String, nullable=False)
-    journalnummer = Column(String)
-    behandler = Column(String, nullable=False)
-    beskrivelse = Column(String)
+#    journalnummer = Column(String)
+#    behandler = Column(String, nullable=False)
+#    beskrivelse = Column(String)
     sagsevents = relationship(
         "Sagsevent", order_by="Sagsevent.objectid", back_populates="sag"
     )
 
 
-class Sagsevent(RegisteringTidObjekt):
+class Sagsevent(RegisteringFraObjekt):
     __tablename__ = "sagsevent"
     id = Column(String, nullable=False)
     event = Column(String, nullable=False)
-    beskrivelse = Column(String)
-    sagid = Column(Integer, ForeignKey("sag.objectid"), nullable=False)
+    #beskrivelse = Column(String)
+    sagid = Column(String, ForeignKey("sag.id"), nullable=False)
     sag = relationship("Sag", back_populates="sagsevents")
     # TODO: Eventtype, materiale, and rapporthtml
     # Fikspunktregisterobjekter
