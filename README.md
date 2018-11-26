@@ -28,12 +28,6 @@ Script to setup Oracle database can be found [here](misc/oracle).
 
 Unit/integration tests are implemented with [pytest](https://pytest.org).
 
-### Python 3 virtual env
-
-> sudo apt install -y python3-venv
-> python3.6 -m venv .venv/fikspunktsregister
-> source .venv/fikspunktsregister/bin/activate
-
 ## Docker
 
 Supplies an environment with Oracle Linux 7 and an instance of Oracle XE 12c.
@@ -46,8 +40,14 @@ If detached you can now execute commands on Oracle Linux, if not detached you'll
 
 If you need a fresh start run `docker-compose down` and remove file `CONTAINER_ALREADY_STARTED_PLACEHOLDER` to make sure setup scripts runs again.
 
-### Running Python code
+To get an interactive bash prompt:
 
-After setting up the environment as detailed above `pytest` should be runnable as follows from your host:
+> docker-compose exec oraclelinux bash
 
-> docker-compose exec oraclelinux cd fikspunktsregister && ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest
+Then active the conda environment with:
+
+> source $HOME/miniconda/bin/activate fikspunktsregister
+
+At this point you should be able to execute `pytest` as follows:
+
+> ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=oracledb pytest
