@@ -23,7 +23,8 @@ def guid():
 
 @pytest.fixture()
 def sag(firedb, guid):
-    s0 = Sag(id=guid, sagstype="dummy", behandler="yyy")
+    s0 = Sag(id=guid)
+    #s0 = Sag(id=guid, sagstype="dummy", behandler="yyy")
     firedb.session.add(s0)
     return s0
 

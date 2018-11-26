@@ -6,7 +6,8 @@ from fireapi.model import Sag
     reason="Sag cannot be inserted atm because of missing mapping of sagstype"
 )
 def test_soft_delete(firedb):
-    s0 = Sag(id="xxx", behandler="yyy")
+    s0 = Sag(id="xxx")
+    #s0 = Sag(id="xxx", behandler="yyy")
     firedb.session.add(s0)
     firedb.session.commit()
 
