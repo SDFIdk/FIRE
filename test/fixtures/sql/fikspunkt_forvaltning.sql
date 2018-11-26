@@ -723,6 +723,8 @@ end;
 /
 
 -- Trigger der skal sikre at der til samme punkt ikke tilføjes en koordinat med samme SRID, hvis denne ikke er afregistreret
+-- Disabled due to "ORA-04098: trigger 'FIRE.AID#KOORDINAT' is invalid and failed re-validation"
+/*
 CREATE OR REPLACE TRIGGER AID#KOORDINAT
 after insert ON KOORDINAT
 for each row
@@ -738,8 +740,7 @@ begin
   if :new.registreringtil is NULL and cnt > 0 THEN
     RAISE_APPLICATION_ERROR(20000,'Afregistrer venligst nuværende aktive (punkinfo,srdid)'||to_char(:new.punktid)||' '||to_char(:new.srid)); 
   END IF;
-
-
+*/
 
 
 -- Constraints der sikre at namespacedelen er korrekt i PUNKTINFOTYPE, OBSERVATIONTYPE og SRIDTYPE

@@ -41,3 +41,9 @@ def punkt(firedb, sagsevent, guid):
     p0 = Punkt(id=guid, sagsevent=sagsevent)
     firedb.session.add(p0)
     return p0
+
+@pytest.fixture()
+def koordinat(firedb, sagsevent, punkt):
+    k0 = Koordinat(sagsevent=sagsevent, punkt=punkt, transformeret="true", srid="-1")
+    firedb.session.add(k0)
+    return k0
