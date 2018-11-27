@@ -103,6 +103,7 @@ class Observation(FikspunktregisterObjekt):
     value15 = Column(Float)
     sagseventid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
     sagsevent = relationship("Sagsevent", back_populates="observationer")
+    observationstidspunkt = Column(DateTime(timezone=True), nullable=False)
     antal = Column(Integer, nullable=False)
     gruppe = Column(Integer)
     observationstypeid = Column("observationstype", String, ForeignKey("observationtype.observationstype"))

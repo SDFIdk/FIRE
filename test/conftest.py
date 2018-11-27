@@ -52,7 +52,14 @@ def observationstype(firedb):
 
 @pytest.fixture()
 def observation(firedb, sagsevent, observationstype, punkt):
-    o0 = Observation(sagsevent=sagsevent, value1=0, antal=0, observationstype=observationstype, opstillingspunkt=punkt, sigtepunkt=punkt)
+    o0 = Observation(
+        sagsevent=sagsevent,
+        value1=0,
+        antal=0,
+        observationstidspunkt=func.sysdate(),
+        observationstype=observationstype,
+        opstillingspunkt=punkt,
+        sigtepunkt=punkt)
     firedb.session.add(o0)
     return o0
 
