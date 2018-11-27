@@ -1,10 +1,12 @@
 from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
-from . import RegisteringTidObjekt, columntypes
+#DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
+
+from . import RegisteringTidObjekt, DeclarativeBase, columntypes
 
 # Eksports
-__all__ = ["FikspunktregisterObjekt", "Punkt", "Koordinat", "GeometriObjekt"]
+__all__ = ["FikspunktregisterObjekt", "Punkt", "Koordinat", "GeometriObjekt", "ObservationType", "Observation"]
 
 
 class FikspunktregisterObjekt(RegisteringTidObjekt):
@@ -57,6 +59,31 @@ class GeometriObjekt(FikspunktregisterObjekt):
     punkt = relationship("Punkt", back_populates="geometriobjekter")
 
 
+class ObservationType(DeclarativeBase):
+    __tablename__ = "observationtype"
+    objectid = Column(Integer, primary_key=True)
+    observationstype = Column(String, nullable=False)
+    beskrivelse = Column(String, nullable=False)
+    value1 = Column(String, nullable=False)
+    value2 = Column(String)
+    value3 = Column(String)
+    value4 = Column(String)
+    value5 = Column(String)
+    value6 = Column(String)
+    value7 = Column(String)
+    value8 = Column(String)
+    value9 = Column(String)
+    value10 = Column(String)
+    value11 = Column(String)
+    value12 = Column(String)
+    value13 = Column(String)
+    value14 = Column(String)
+    value15 = Column(String)
+    sigtepunktid = Column(String, nullable=False)
+    observationer = relationship(
+        "Observation", order_by="Observation.objectid", back_populates="observationstype"
+    )
+
 class Observation(FikspunktregisterObjekt):
     __tablename__ = "observation"
     value1 = Column(Float, nullable=False)
@@ -78,13 +105,11 @@ class Observation(FikspunktregisterObjekt):
     sagsevent = relationship("Sagsevent", back_populates="observationer")
     antal = Column(Integer, nullable=False)
     gruppe = Column(Integer)
-    # TODO: observationstype is foreign key
-    observationstype = Column(String, nullable=False)
-    sigtepunktid1 = Column(String, ForeignKey("punkt.id"))
-    sigtepunkt1 = relationship("Punkt", foreign_keys=[sigtepunktid1])
-    sigtepunktid2 = Column(String, ForeignKey("punkt.id"))
-    sigtepunkt2 = relationship("Punkt", foreign_keys=[sigtepunktid2])
-    opstillingspunktid = Column(String, ForeignKey("punkt.id"))
+    observationstypeid = Column("observationstype", String, ForeignKey("observationtype.observationstype"))
+    observationstype = relationship("ObservationType", back_populates="observationer")
+    sigtepunktid = Column(String, ForeignKey("punkt.id"))
+    sigtepunkt = relationship("Punkt", foreign_keys=[sigtepunktid])
+    opstillingspunktid = Column(String, ForeignKey("punkt.id"), )
     opstillingspunkt = relationship("Punkt", foreign_keys=[opstillingspunktid])
 
 
