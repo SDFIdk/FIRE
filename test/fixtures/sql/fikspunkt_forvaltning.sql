@@ -76,6 +76,7 @@ CREATE TABLE OBSERVATION (
    VALUE14 NUMBER,
    VALUE15 NUMBER,
    SAGSEVENTID VARCHAR2(36) NOT NULL,
+   OBSERVATIONSTIDSPUNKT TIMESTAMP WITH TIME ZONE NOT NULL,
    ANTAL INTEGER NOT NULL,
    GRUPPE INTEGER,
    OBSERVATIONSTYPE VARCHAR2(4000) NOT NULL,
@@ -261,6 +262,7 @@ COMMENT ON COLUMN KOORDINAT.X IS 'Førstekoordinat.';
 COMMENT ON COLUMN KOORDINAT.Y IS 'Andenkoordinat.';
 COMMENT ON COLUMN KOORDINAT.Z IS 'Tredjekoordinat.';
 COMMENT ON TABLE OBSERVATION IS 'Generisk observationsobjekt indeholdende informationer om en observation.';
+COMMENT ON COLUMN OBSERVATION.OBSERVATIONSTIDSPUNKT IS 'Tidspunktet hvor observationen er foretaget';
 COMMENT ON COLUMN OBSERVATION.OBSERVATIONSTYPE IS 'Kortnavn for observationstypen, fx dH';
 COMMENT ON COLUMN OBSERVATION.OPSTILLINGSPUNKTID IS 'Udpegning af det punkt der er anvendt ved opstilling ved en observation.';
 COMMENT ON COLUMN OBSERVATION.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
@@ -723,10 +725,8 @@ end;
 /
 
 -- Trigger der skal sikre at der til samme punkt ikke tilføjes en koordinat med samme SRID, hvis denne ikke er afregistreret
--- Disabled due to "ORA-04098: trigger 'FIRE.AID#KOORDINAT' is invalid and failed re-validation"
-/*
 CREATE OR REPLACE TRIGGER AID#KOORDINAT
-after insert ON KOORDINAT
+after insert ON FIRE_TEST.KOORDINAT
 for each row
 declare
    cnt number := 0;
@@ -738,9 +738,118 @@ begin
           and :new.punktid = punktid;
 
   if :new.registreringtil is NULL and cnt > 0 THEN
-    RAISE_APPLICATION_ERROR(20000,'Afregistrer venligst nuværende aktive (punkinfo,srdid)'||to_char(:new.punktid)||' '||to_char(:new.srid)); 
-  END IF;
-*/
+    RAISE_APPLICATION_ERROR(20000,'Afregistrer venligst nuværende aktive (punkinfo,srdid)'||to_char(:new.punktid)||' '||to_char(:new.srid));
+  end if; 
+end;
+/
+
+-- Trigger der skal sikre at inholdet i Observation tabellen matcher hvad der er defineret observationtype
+CREATE OR REPLACE TRIGGER AID#OBSERVATION
+after insert Or UPDATE ON OBSERVATION
+for each row
+declare
+   val1 number := 0;
+   val2 number := 0;
+   val3 number := 0;
+   val4 number := 0;
+   val5 number := 0;
+   val6 number := 0;
+   val7 number := 0;
+   val8 number := 0;
+   val9 number := 0;
+   val10 number := 0;
+   val11 number := 0;
+   val12 number := 0;
+   val13 number := 0;
+   val14 number := 0;
+   val15 number := 0;
+begin
+
+  select value1,
+         value2,
+         value3,
+         value4,
+         value5,
+         value6,
+         value7,
+         value8,
+         value9,
+         value10,
+         value11,
+         value12,
+         value13,
+         value14,
+         value15 into
+         val1,
+         val2,
+         val3,
+         val4,
+         val5,
+         val6,
+         val7,
+         val8,
+         val9,
+         val10,
+         val11,
+         val12,
+         val13,
+         val14,
+         val15
+  from observationtype a
+  where A.OBSERVATIONSTYPE = :new.observationstype;
+         
+
+  if :new.value1 is null and val1 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value1 må ikke være NULL'); 
+  end if;
+  if :new.value2 is null and val2 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value2 må ikke være NULL'); 
+  end if;
+  if :new.value3 is null and val3 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value3 må ikke være NULL'); 
+  end if;
+  if :new.value4 is null and val4 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value4 må ikke være NULL'); 
+  end if;
+  if :new.value5 is null and val5 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value5 må ikke være NULL'); 
+  end if;
+  if :new.value6 is null and val6 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value6 må ikke være NULL'); 
+  end if;
+  if :new.value7 is null and val7 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value7 må ikke være NULL'); 
+  end if;
+  if :new.value8 is null and val8 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value8 må ikke være NULL'); 
+  end if;
+  if :new.value9 is null and val9 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value9 må ikke være NULL'); 
+  end if;
+  if :new.value10 is null and val10 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value10 må ikke være NULL'); 
+  end if;
+  if :new.value11 is null and val11 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value11 må ikke være NULL'); 
+  end if;
+  if :new.value12 is null and val12 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value12 må ikke være NULL'); 
+  end if;
+  if :new.value13 is null and val13 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value13 må ikke være NULL'); 
+  end if;
+  if :new.value14 is null and val14 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value14 må ikke være NULL'); 
+  end if;
+  if :new.value15 is null and val15 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value15 må ikke være NULL'); 
+  end if;
+  
+  
+end;
+/
+
+
 
 
 -- Constraints der sikre at namespacedelen er korrekt i PUNKTINFOTYPE, OBSERVATIONTYPE og SRIDTYPE
@@ -859,5 +968,31 @@ VALUES ('4f8f29c8-c38f-4c69-ae28-c7737178de1f', SYSDATE, NULL, 'REFGEO migrering
 
 INSERT INTO SAGSTYPE (BESKRIVELSE, SAGSTYPE)
 VALUES ('Sagstype anvendt til migrering af data fra REFGEO til FIRE', 'REFGEO migrering');
+
+-- End
+-- Oprettelse af sagsevent til anvendelsem med migrering fra REFGEO til FIRE samt tilhørende sagsevent relaterede tabeller
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('Indsættelse af en eller flere koordinater', 'koordinat tilføjet');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('Indsættelse af en eller flere observationer', 'observation tilføjet');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('Indsættelse af en eller flere pinktinformationer', 'punktinfo tilføjet');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('Oprettelse af et punkt i FIRE', 'punkt oprettet');
+
+INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
+VALUES ('7f2952b7-7729-4952-8f05-b4f372abe939', SYSDATE, 'koordinat tilføjet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+
+INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
+VALUES ('d4a8c021-3b6a-4efb-86fb-2e1b9d6dd694', SYSDATE, 'observation tilføjet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+
+INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
+VALUES ('15101d43-ac91-4c7c-9e58-c7a0b5367910', SYSDATE, 'punktinfo tilføjet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+
+INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
+VALUES ('e964cca6-7b16-414a-9538-8639eacaac3d', SYSDATE, 'punkt oprettete', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
 
 -- End
