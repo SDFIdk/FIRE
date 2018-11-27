@@ -724,25 +724,6 @@ IF :new.BESKRIVELSE != :old.BESKRIVELSE THEN RAISE_APPLICATION_ERROR(20000,'You 
 end;
 /
 
--- Trigger der skal sikre at der til samme punkt ikke tilføjes en koordinat med samme SRID, hvis denne ikke er afregistreret
-CREATE OR REPLACE TRIGGER AID#KOORDINAT
-after insert ON FIRE_TEST.KOORDINAT
-for each row
-declare
-   cnt number := 0;
-begin
-
-  select count(*) into cnt from koordinat
-  where registreringtil is null 
-          and :new.srid      = srid
-          and :new.punktid = punktid;
-
-  if :new.registreringtil is NULL and cnt > 0 THEN
-    RAISE_APPLICATION_ERROR(20000,'Afregistrer venligst nuværende aktive (punkinfo,srdid)'||to_char(:new.punktid)||' '||to_char(:new.srid));
-  end if; 
-end;
-/
-
 -- Trigger der skal sikre at inholdet i Observation tabellen matcher hvad der er defineret observationtype
 CREATE OR REPLACE TRIGGER AID#OBSERVATION
 after insert Or UPDATE ON OBSERVATION
