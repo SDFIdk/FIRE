@@ -1,15 +1,14 @@
 version: "3.2"
 
 services:
-  oraclelinux:
-    image: oraclelinux:7
+  devenv:
+    image: septimaps/fikspunktsregister:ubuntu-18.04-devenv
     tty: true
     volumes:
       - type: bind
         source: ./
         target: /fikspunktsregister
     working_dir: /fikspunktsregister
-    command: ./docker-compose.sh
     environment:
       - ORACLE_PATH=/fikspunktsregister/misc/oracle
     depends_on:

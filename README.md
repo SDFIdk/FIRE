@@ -14,6 +14,7 @@ punkter = db.hent_alle_punkter()
 
 For now there are no data in the database so `punkter` is an empty list.
 
+
 ## Local development
 
 ## Windows
@@ -30,23 +31,23 @@ Unit/integration tests are implemented with [pytest](https://pytest.org).
 
 ## Docker
 
-Supplies an environment with Oracle Linux 7 and an instance of Oracle XE 12c.
+Supplies an environment with Ubuntu 18.04 LTS + dependencies and an instance of Oracle XE 12c.
 
 NOTE: Be aware that the image to run Oracle XE 12c is around 8GB so be careful about not running out of space.
 
 Checkout the repository then bring up the containers by running `docker-compose up` with or without detach.
 
-If detached you can now execute commands on Oracle Linux, if not detached you'll need a separate terminal.
+If detached you can now execute commands on Ubuntu, if not detached you'll need a separate terminal.
 
 If you need a fresh start run `docker-compose down` and remove file `CONTAINER_ALREADY_STARTED_PLACEHOLDER` to make sure setup scripts runs again.
 
 To get an interactive bash prompt:
 
-> docker-compose exec oraclelinux bash
+> docker-compose exec devenv bash
 
 Then active the conda environment with:
 
-> source $HOME/miniconda/bin/activate fikspunktsregister
+> source /opt/conda/bin/activate fikspunktsregister
 
 At this point you should be able to execute `pytest` as follows:
 

@@ -2,13 +2,10 @@ version: 2
 jobs:
   build:
     docker:
-      - image: oraclelinux:7
+      - image: septimaps/fikspunktsregister:ubuntu-18.04-devenv
       - image: septimaps/oracle-12c-bootstrapped
     steps:
       - checkout
-      - run:
-          name: Setup Oracle Linux 7 with instant client and Python 3.6
-          command: misc/oraclelinux/setup.sh
       - run:
           name: Execute init.sql
           command: |
@@ -20,5 +17,5 @@ jobs:
       - run:
           name: Run tests
           command: |
-            source $HOME/miniconda/bin/activate fikspunktsregister
+            source /opt/conda/bin/activate fikspunktsregister
             ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest
