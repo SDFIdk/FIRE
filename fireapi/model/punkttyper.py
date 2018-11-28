@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey
+from sqlalchemy import Table, Column, String, Integer, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
 #DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 from . import RegisteringTidObjekt, DeclarativeBase, columntypes
 
 # Eksports
-__all__ = ["FikspunktregisterObjekt", "Punkt", "Koordinat", "GeometriObjekt", "ObservationType", "Observation"]
+__all__ = ["FikspunktregisterObjekt", "Punkt", "Koordinat", "GeometriObjekt", "Beregning", "ObservationType", "Observation"]
 
 
 class FikspunktregisterObjekt(RegisteringTidObjekt):
@@ -58,6 +58,23 @@ class GeometriObjekt(FikspunktregisterObjekt):
     punktid = Column(String, ForeignKey("punkt.id"), nullable=False)
     punkt = relationship("Punkt", back_populates="geometriobjekter")
 
+beregning_koordinat = Table('beregning_koordinat', DeclarativeBase.metadata,
+    Column('beregningobjectid', Integer, ForeignKey('beregning.objectid')),
+    Column('koordinatobjectid', Integer, ForeignKey('koordinat.objectid'))
+)
+
+beregning_observation = Table('beregning_observation', DeclarativeBase.metadata,
+    Column('beregningobjectid', Integer, ForeignKey('beregning.objectid')),
+    Column('observationobjectid', Integer, ForeignKey('observation.objectid'))
+)
+
+class Beregning(FikspunktregisterObjekt):
+    __tablename__ = "beregning"
+    objectid = Column(Integer, primary_key=True)
+    sagseventid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship("Sagsevent", back_populates="beregninger")
+    koordinater = relationship("Koordinat", secondary=beregning_koordinat)
+    observationer = relationship("Observation", secondary=beregning_observation)
 
 class ObservationType(DeclarativeBase):
     __tablename__ = "observationtype"

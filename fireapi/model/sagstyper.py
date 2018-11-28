@@ -47,4 +47,9 @@ class Sagsevent(RegisteringFraObjekt):
         order_by="PunktInformation.objectid",
         back_populates="sagsevent",
     )
+    beregninger = relationship(
+        "Beregning",
+        order_by="Beregning.objectid",
+        back_populates="sagsevent"
+    )
     # TODO: Beregninger

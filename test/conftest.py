@@ -63,3 +63,9 @@ def observation(firedb, sagsevent, observationstype, punkt):
     firedb.session.add(o0)
     return o0
 
+@pytest.fixture()
+def beregning(firedb, sagsevent):
+    b0 = Beregning(
+        sagsevent=sagsevent)
+    firedb.session.add(b0)
+    return b0
