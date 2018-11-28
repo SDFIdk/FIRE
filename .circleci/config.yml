@@ -6,7 +6,7 @@ jobs:
       - image: septimaps/oracle-12c-bootstrapped
     steps:
       - checkout
-      - run:	
+      - run:
           name: Sleep 30 seconds to allow Oracle DB to ready itself
           command: sleep 30
       - run:
