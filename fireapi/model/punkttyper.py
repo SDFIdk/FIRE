@@ -1,12 +1,20 @@
 from sqlalchemy import Table, Column, String, Integer, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
-#DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
+# DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
 
 from . import RegisteringTidObjekt, DeclarativeBase, columntypes
 
 # Eksports
-__all__ = ["FikspunktregisterObjekt", "Punkt", "Koordinat", "GeometriObjekt", "Beregning", "ObservationType", "Observation"]
+__all__ = [
+    "FikspunktregisterObjekt",
+    "Punkt",
+    "Koordinat",
+    "GeometriObjekt",
+    "Beregning",
+    "ObservationType",
+    "Observation",
+]
 
 
 class FikspunktregisterObjekt(RegisteringTidObjekt):
@@ -58,15 +66,21 @@ class GeometriObjekt(FikspunktregisterObjekt):
     punktid = Column(String, ForeignKey("punkt.id"), nullable=False)
     punkt = relationship("Punkt", back_populates="geometriobjekter")
 
-beregning_koordinat = Table('beregning_koordinat', DeclarativeBase.metadata,
-    Column('beregningobjectid', Integer, ForeignKey('beregning.objectid')),
-    Column('koordinatobjectid', Integer, ForeignKey('koordinat.objectid'))
+
+beregning_koordinat = Table(
+    "beregning_koordinat",
+    DeclarativeBase.metadata,
+    Column("beregningobjectid", Integer, ForeignKey("beregning.objectid")),
+    Column("koordinatobjectid", Integer, ForeignKey("koordinat.objectid")),
 )
 
-beregning_observation = Table('beregning_observation', DeclarativeBase.metadata,
-    Column('beregningobjectid', Integer, ForeignKey('beregning.objectid')),
-    Column('observationobjectid', Integer, ForeignKey('observation.objectid'))
+beregning_observation = Table(
+    "beregning_observation",
+    DeclarativeBase.metadata,
+    Column("beregningobjectid", Integer, ForeignKey("beregning.objectid")),
+    Column("observationobjectid", Integer, ForeignKey("observation.objectid")),
 )
+
 
 class Beregning(FikspunktregisterObjekt):
     __tablename__ = "beregning"
@@ -75,6 +89,7 @@ class Beregning(FikspunktregisterObjekt):
     sagsevent = relationship("Sagsevent", back_populates="beregninger")
     koordinater = relationship("Koordinat", secondary=beregning_koordinat)
     observationer = relationship("Observation", secondary=beregning_observation)
+
 
 class ObservationType(DeclarativeBase):
     __tablename__ = "observationtype"
@@ -98,8 +113,11 @@ class ObservationType(DeclarativeBase):
     value15 = Column(String)
     sigtepunktid = Column(String, nullable=False)
     observationer = relationship(
-        "Observation", order_by="Observation.objectid", back_populates="observationstype"
+        "Observation",
+        order_by="Observation.objectid",
+        back_populates="observationstype",
     )
+
 
 class Observation(FikspunktregisterObjekt):
     __tablename__ = "observation"
@@ -123,11 +141,13 @@ class Observation(FikspunktregisterObjekt):
     observationstidspunkt = Column(DateTime(timezone=True), nullable=False)
     antal = Column(Integer, nullable=False)
     gruppe = Column(Integer)
-    observationstypeid = Column("observationstype", String, ForeignKey("observationtype.observationstype"))
+    observationstypeid = Column(
+        "observationstype", String, ForeignKey("observationtype.observationstype")
+    )
     observationstype = relationship("ObservationType", back_populates="observationer")
     sigtepunktid = Column(String, ForeignKey("punkt.id"))
     sigtepunkt = relationship("Punkt", foreign_keys=[sigtepunktid])
-    opstillingspunktid = Column(String, ForeignKey("punkt.id"), )
+    opstillingspunktid = Column(String, ForeignKey("punkt.id"))
     opstillingspunkt = relationship("Punkt", foreign_keys=[opstillingspunktid])
 
 

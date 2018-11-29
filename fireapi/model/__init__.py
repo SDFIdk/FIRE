@@ -26,6 +26,7 @@ class ReprBase(object):
 # base class for SQLAlchemy declarative models. Inherits ReprBase to get nicer __repr__ behaviour
 DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
 
+
 class RegisteringFraObjekt(DeclarativeBase):
     # SQLALchemy knows abstract classes do not map to a table.
     # If class is not declared abstract then SQLAlchemy whines about missing table declaration.
@@ -41,6 +42,7 @@ class RegisteringFraObjekt(DeclarativeBase):
     @property
     def registreringfra(self):
         return self._registreringfra
+
 
 class RegisteringTidObjekt(DeclarativeBase):
     # SQLALchemy knows abstract classes do not map to a table.

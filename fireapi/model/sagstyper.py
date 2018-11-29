@@ -11,11 +11,11 @@ from . import FikspunktregisterObjekt
 class Sag(RegisteringTidObjekt):
     __tablename__ = "sag"
     # TODO: Sagstype is foreign key
-#    sagstype = Column(String, nullable=False)
+    #    sagstype = Column(String, nullable=False)
     id = Column(String, nullable=False)
-#    journalnummer = Column(String)
-#    behandler = Column(String, nullable=False)
-#    beskrivelse = Column(String)
+    #    journalnummer = Column(String)
+    #    behandler = Column(String, nullable=False)
+    #    beskrivelse = Column(String)
     sagsevents = relationship(
         "Sagsevent", order_by="Sagsevent.objectid", back_populates="sag"
     )
@@ -25,7 +25,7 @@ class Sagsevent(RegisteringFraObjekt):
     __tablename__ = "sagsevent"
     id = Column(String, nullable=False)
     event = Column(String, nullable=False)
-    #beskrivelse = Column(String)
+    # beskrivelse = Column(String)
     sagid = Column(String, ForeignKey("sag.id"), nullable=False)
     sag = relationship("Sag", back_populates="sagsevents")
     # TODO: Eventtype, materiale, and rapporthtml
@@ -48,8 +48,6 @@ class Sagsevent(RegisteringFraObjekt):
         back_populates="sagsevent",
     )
     beregninger = relationship(
-        "Beregning",
-        order_by="Beregning.objectid",
-        back_populates="sagsevent"
+        "Beregning", order_by="Beregning.objectid", back_populates="sagsevent"
     )
-    # TODO: Beregninger
+
