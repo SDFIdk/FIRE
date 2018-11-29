@@ -7,7 +7,7 @@ from fireapi.model import Sag
 )
 def test_soft_delete(firedb):
     s0 = Sag(id="xxx")
-    #s0 = Sag(id="xxx", behandler="yyy")
+    # s0 = Sag(id="xxx", behandler="yyy")
     firedb.session.add(s0)
     firedb.session.commit()
 

@@ -15,16 +15,19 @@ db = os.environ.get("ORA_db") or "xe"
 def firedb():
     return FireDb(f"{user}:{password}@{host}:{port}/{db}")
 
+
 @pytest.fixture()
 def guid():
     return str(uuid.uuid4())
 
+
 @pytest.fixture()
 def sag(firedb, guid):
     s0 = Sag(id=guid)
-    #s0 = Sag(id=guid, sagstype="dummy", behandler="yyy")
+    # s0 = Sag(id=guid, sagstype="dummy", behandler="yyy")
     firedb.session.add(s0)
     return s0
+
 
 @pytest.fixture()
 def sagsevent(firedb, sag, guid):
@@ -32,11 +35,13 @@ def sagsevent(firedb, sag, guid):
     firedb.session.add(e0)
     return e0
 
+
 @pytest.fixture()
 def punkt(firedb, sagsevent, guid):
     p0 = Punkt(id=guid, sagsevent=sagsevent)
     firedb.session.add(p0)
     return p0
+
 
 @pytest.fixture()
 def koordinat(firedb, sagsevent, punkt):
@@ -44,11 +49,12 @@ def koordinat(firedb, sagsevent, punkt):
     firedb.session.add(k0)
     return k0
 
+
 @pytest.fixture()
 def observationstype(firedb):
-    ot0 = ObservationType(observationstype="test", beskrivelse="test", value1="test", sigtepunktid='true')
-    firedb.session.add(ot0)
+    ot0 = firedb.session.query(ObservationType).first()
     return ot0
+
 
 @pytest.fixture()
 def observation(firedb, sagsevent, observationstype, punkt):
@@ -59,7 +65,14 @@ def observation(firedb, sagsevent, observationstype, punkt):
         observationstidspunkt=func.sysdate(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
-        sigtepunkt=punkt)
+        sigtepunkt=punkt,
+    )
     firedb.session.add(o0)
     return o0
 
+
+@pytest.fixture()
+def beregning(firedb, sagsevent):
+    b0 = Beregning(sagsevent=sagsevent)
+    firedb.session.add(b0)
+    return b0
