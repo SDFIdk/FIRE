@@ -46,8 +46,7 @@ def koordinat(firedb, sagsevent, punkt):
 
 @pytest.fixture()
 def observationstype(firedb):
-    ot0 = ObservationType(observationstype="test", beskrivelse="test", value1="test", sigtepunktid='true')
-    firedb.session.add(ot0)
+    ot0 = firedb.session.query(ObservationType).first()
     return ot0
 
 @pytest.fixture()
