@@ -714,7 +714,7 @@ CREATE UNIQUE INDEX KOOR_UNIQ_001 ON KOORDINAT
 
 -- Trigger der skal sikre at inholdet i Observation-tabellen matcher hvad der er defineret observationtype-tabellen
 CREATE OR REPLACE TRIGGER AID#OBSERVATION
-after insert Or UPDATE ON FIRE_TEST.OBSERVATION
+after insert or UPDATE ON OBSERVATION
 for each row
 declare
    val1 varchar2(4000):= '';
