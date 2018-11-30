@@ -60,7 +60,7 @@ CREATE TABLE OBSERVATION (
    OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
-   VALUE1 NUMBER NOT NULL,
+   VALUE1 NUMBER,
    VALUE2 NUMBER,
    VALUE3 NUMBER,
    VALUE4 NUMBER,
@@ -76,10 +76,10 @@ CREATE TABLE OBSERVATION (
    VALUE14 NUMBER,
    VALUE15 NUMBER,
    SAGSEVENTID VARCHAR2(36) NOT NULL,
-   OBSERVATIONSTIDSPUNKT TIMESTAMP WITH TIME ZONE NOT NULL,
    ANTAL INTEGER NOT NULL,
-   GRUPPE INTEGER,
    OBSERVATIONSTYPE VARCHAR2(4000) NOT NULL,
+   GRUPPE INTEGER,
+   OBSERVATIONSTIDSPUNKT TIMESTAMP WITH TIME ZONE NOT NULL,
    OPSTILLINGSPUNKTID VARCHAR2(36) NOT NULL,
    SIGTEPUNKTID VARCHAR2(36)
 );
@@ -89,8 +89,8 @@ CREATE TABLE OBSERVATIONTYPE (
    OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    BESKRIVELSE VARCHAR2(4000) NOT NULL,
    OBSERVATIONSTYPE VARCHAR2(4000) NOT NULL,
-   SIGTEPUNKTID VARCHAR2(36) NOT NULL,
-   VALUE1 VARCHAR2(4000) NOT NULL,
+   SIGTEPUNKT VARCHAR2(5) NOT NULL,
+   VALUE1 VARCHAR2(4000),
    VALUE2 VARCHAR2(4000),
    VALUE3 VARCHAR2(4000),
    VALUE4 VARCHAR2(4000),
@@ -138,9 +138,9 @@ CREATE TABLE PUNKTINFO (
 CREATE TABLE PUNKTINFOTYPE (
 
    OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   INFOTYPE VARCHAR2(4000) NOT NULL,
    ANVENDELSE VARCHAR2(9) NOT NULL,
-   BESKRIVELSE VARCHAR2(4000) NOT NULL,
-   INFOTYPE VARCHAR2(4000) NOT NULL
+   BESKRIVELSE VARCHAR2(4000) NOT NULL
 );
 
 CREATE TABLE PUNKTINFOTYPENAMESPACE (
@@ -154,8 +154,7 @@ CREATE TABLE SAG (
 
    OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    ID VARCHAR2(36) NOT NULL,
-   REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
-   REGISTRERINGTIL TIMESTAMP WITH TIME ZONE
+   REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE TABLE SAGSEVENT (
@@ -170,10 +169,10 @@ CREATE TABLE SAGSEVENT (
 CREATE TABLE SAGSEVENTINFO (
 
    OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
-   SAGSEVENTID VARCHAR2(36) NOT NULL,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
-   BESKRIVELSE VARCHAR2(4000)
+   BESKRIVELSE VARCHAR2(4000),
+   SAGSEVENTID VARCHAR2(36) NOT NULL
 );
 
 CREATE TABLE SAGSEVENTINFO_MATERIALE (
@@ -193,40 +192,34 @@ CREATE TABLE SAGSEVENTINFO_RAPPORTHTML (
 CREATE TABLE SAGSINFO (
 
    OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
-   SAGID VARCHAR2(36) NOT NULL,
+   AKTIV VARCHAR2(5) NOT NULL,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
-   SAGSTYPE VARCHAR2(21) NOT NULL,
    JOURNALNUMMER VARCHAR2(4000),
    BEHANDLER VARCHAR2(4000) NOT NULL,
-   BESKRIVELSE VARCHAR2(4000)
-);
-
-CREATE TABLE SAGSTYPE (
-
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
-   BESKRIVELSE VARCHAR2(4000) NOT NULL,
-   SAGSTYPE VARCHAR2(4000) NOT NULL
+   BESKRIVELSE VARCHAR2(4000),
+   SAGID VARCHAR2(36) NOT NULL
 );
 
 CREATE TABLE SRIDNAMESPACE (
 
    OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
-   BESKRIVELSE VARCHAR2(4000) NOT NULL,
-   NAMESPACE VARCHAR2(4000) NOT NULL
+   NAMESPACE VARCHAR2(4000) NOT NULL,
+   BESKRIVELSE VARCHAR2(4000) NOT NULL
 );
 
 CREATE TABLE SRIDTYPE (
 
    OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
-   BESKRIVELSE VARCHAR2(4000) NOT NULL,
-   SRID VARCHAR2(36) NOT NULL
+   SRID VARCHAR2(36) NOT NULL,
+   BESKRIVELSE VARCHAR2(4000) NOT NULL
 );
 
 
 ALTER TABLE KOORDINAT ADD CONSTRAINT CK_KOORDINAT_TRANSFORMER248 CHECK (TRANSFORMERET IN ('true', 'false'));
-ALTER TABLE OBSERVATIONTYPE ADD CONSTRAINT CK_OBSERVATION_SIGTEPUNKTI105 CHECK (SIGTEPUNKTID IN ('true', 'false'));
+ALTER TABLE OBSERVATIONTYPE ADD CONSTRAINT CK_OBSERVATION_SIGTEPUNKT085 CHECK (SIGTEPUNKT IN ('true', 'false'));
 ALTER TABLE PUNKTINFOTYPE ADD CONSTRAINT CK_PUNKTINFOTY_ANVENDELSE138 CHECK (ANVENDELSE IN ('FLAG', 'TAL', 'TEKST'));
+ALTER TABLE SAGSINFO ADD CONSTRAINT CK_SAGSINFO_AKTIV060 CHECK (AKTIV IN ('true', 'false'));
 
 INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID) VALUES ('GEOMETRIOBJEKT', 'GEOMETRI', MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('Longitude', -180.0000, 180.0000, 0.005), MDSYS.SDO_DIM_ELEMENT('Latitude', -90.0000, 90.0000, 0.005)), 4326);
 
@@ -287,7 +280,7 @@ COMMENT ON COLUMN OBSERVATION.VALUE9 IS 'En værdi for en observation.';
 COMMENT ON TABLE OBSERVATIONTYPE IS 'Objekttype til beskrivelse af hvorledes en Observation skal læses, ud fra typen af observation.';
 COMMENT ON COLUMN OBSERVATIONTYPE.BESKRIVELSE IS 'Overordnet beskrivelse af denne observationstype.';
 COMMENT ON COLUMN OBSERVATIONTYPE.OBSERVATIONSTYPE IS 'Kortnavn for observationstypen, fx dH';
-COMMENT ON COLUMN OBSERVATIONTYPE.SIGTEPUNKTID IS 'Indikator for om Sigtepunkt 1 anvendes for denne observationstype.';
+COMMENT ON COLUMN OBSERVATIONTYPE.SIGTEPUNKT IS 'Indikator for om Sigtepunkt 1 anvendes for denne observationstype.';
 COMMENT ON COLUMN OBSERVATIONTYPE.VALUE1 IS 'Beskrivelse af første observationselement.';
 COMMENT ON COLUMN OBSERVATIONTYPE.VALUE10 IS 'Beskrivelse af første observationselement.';
 COMMENT ON COLUMN OBSERVATIONTYPE.VALUE11 IS 'Beskrivelse af første observationselement.';
@@ -329,7 +322,6 @@ COMMENT ON COLUMN PUNKTINFOTYPENAMESPACE.NAMESPACE IS 'Navn på et lovlige namsp
 COMMENT ON TABLE SAG IS 'Samling af administrativt relaterede sagshændelser.';
 COMMENT ON COLUMN SAG.ID IS 'Persistent unik nøgle.';
 COMMENT ON COLUMN SAG.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN SAG.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
 COMMENT ON TABLE SAGSEVENT IS 'Udvikling i sag som kan, men ikke behøver, medføre opdateringer af fikspunktregisterobjekter.';
 COMMENT ON COLUMN SAGSEVENT.EVENT IS 'Generisk beskrivelse af fremdriftens art.';
 COMMENT ON COLUMN SAGSEVENT.ID IS 'Persistent unik nøgle.';
@@ -342,15 +334,12 @@ COMMENT ON COLUMN SAGSEVENTINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny regis
 COMMENT ON COLUMN SAGSEVENTINFO_MATERIALE.MATERIALE IS 'Generisk materiale tilknyttet sagsevent - typisk en filmappe URI.';
 COMMENT ON COLUMN SAGSEVENTINFO_RAPPORTHTML.RAPPORTHTML IS 'Generisk operatørlæsbart orienterende rapportmateriale.';
 COMMENT ON TABLE SAGSINFO IS 'Samling af administrativt relaterede sagshændelser.';
+COMMENT ON COLUMN SAGSINFO.AKTIV IS 'Markerer om sagen er åben eller lukket.';
 COMMENT ON COLUMN SAGSINFO.BEHANDLER IS 'Angivelse af en sagsbehandler.';
 COMMENT ON COLUMN SAGSINFO.BESKRIVELSE IS 'Kort beskrivelse af en fikspunktssag.';
 COMMENT ON COLUMN SAGSINFO.JOURNALNUMMER IS 'Sagsmappeidentifikation i opmålings- og beregningssagsregistret.';
 COMMENT ON COLUMN SAGSINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
 COMMENT ON COLUMN SAGSINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN SAGSINFO.SAGSTYPE IS 'Inddeling af fikspunktsager ud fra opgavetype.';
-COMMENT ON TABLE SAGSTYPE IS 'Liste over typer af sager i fikspunktsregisterforvaltningssystemet med beskrivelse af hvad sagstypen dækker over.';
-COMMENT ON COLUMN SAGSTYPE.BESKRIVELSE IS 'Lkort beskrivelse af hvad sagstypen dækker over.';
-COMMENT ON COLUMN SAGSTYPE.SAGSTYPE IS 'Lovlig navn for en sagstype.';
 COMMENT ON TABLE SRIDNAMESPACE IS 'Type der afgrænser de lovlige namspaces der kan anvendes i SRIDtype, samt en beskrivese af denne.';
 COMMENT ON COLUMN SRIDNAMESPACE.BESKRIVELSE IS 'Kort beskrivelse af hvad der dækkes af et SRIDnamespace.';
 COMMENT ON COLUMN SRIDNAMESPACE.NAMESPACE IS 'Navn på et lovlige namspace for en SRID.';
@@ -442,12 +431,6 @@ CONSTRAINT PUNKTINFO_con_0001
 CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
 ENABLE
 VALIDATE;
-
-
-ALTER TABLE SAG ADD  
-  CONSTRAINT SAG_CON_0001
-  CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
-  ENABLE VALIDATE;
 
 ALTER TABLE SAG ADD ( 
   CONSTRAINT SAG_U01
@@ -713,7 +696,7 @@ IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(200
 
 --IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
 
-IF :new.SAGSTYPE != :old.SAGSTYPE THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.AKTIV != :old.AKTIV THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
 
 IF :new.JOURNALNUMMER != :old.JOURNALNUMMER THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
 
@@ -721,6 +704,116 @@ IF :new.BEHANDLER != :old.BEHANDLER THEN RAISE_APPLICATION_ERROR(20000,'You cann
 
 IF :new.BESKRIVELSE != :old.BESKRIVELSE THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
 
+end;
+/
+
+-- Index der skal sikre at der til samme punkt ikke tilføjes en koordinat med samme SRID, hvis denne ikke er afregistreret
+CREATE UNIQUE INDEX KOOR_UNIQ_001 ON KOORDINAT
+(SRID, PUNKTID, REGISTRERINGTIL);
+
+
+-- Trigger der skal sikre at inholdet i Observation-tabellen matcher hvad der er defineret observationtype-tabellen
+CREATE OR REPLACE TRIGGER AID#OBSERVATION
+after insert Or UPDATE ON FIRE_TEST.OBSERVATION
+for each row
+declare
+   val1 varchar2(4000):= '';
+   val2 varchar2(4000):= '';
+   val3 varchar2(4000):= '';
+   val4 varchar2(4000):= '';
+   val5 varchar2(4000):= '';
+   val6 varchar2(4000):= '';
+   val7 varchar2(4000):= '';
+   val8 varchar2(4000):= '';
+   val9 varchar2(4000):= '';
+   val10 varchar2(4000):= '';
+   val11 varchar2(4000):= '';
+   val12 varchar2(4000):= '';
+   val13 varchar2(4000):= '';
+   val14 varchar2(4000):= '';
+   val15 varchar2(4000):= '';
+begin
+
+  select value1,
+         value2,
+         value3,
+         value4,
+         value5,
+         value6,
+         value7,
+         value8,
+         value9,
+         value10,
+         value11,
+         value12,
+         value13,
+         value14,
+         value15 into
+         val1,
+         val2,
+         val3,
+         val4,
+         val5,
+         val6,
+         val7,
+         val8,
+         val9,
+         val10,
+         val11,
+         val12,
+         val13,
+         val14,
+         val15
+  from observationtype a
+  where A.OBSERVATIONSTYPE = :new.observationstype;
+         
+
+  if :new.value1 is null and val1 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value1 må ikke være NULL'); 
+  end if;
+  if :new.value2 is null and val2 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value2 må ikke være NULL'); 
+  end if;
+  if :new.value3 is null and val3 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value3 må ikke være NULL'); 
+  end if;
+  if :new.value4 is null and val4 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value4 må ikke være NULL'); 
+  end if;
+  if :new.value5 is null and val5 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value5 må ikke være NULL'); 
+  end if;
+  if :new.value6 is null and val6 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value6 må ikke være NULL'); 
+  end if;
+  if :new.value7 is null and val7 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value7 må ikke være NULL'); 
+  end if;
+  if :new.value8 is null and val8 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value8 må ikke være NULL'); 
+  end if;
+  if :new.value9 is null and val9 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value9 må ikke være NULL'); 
+  end if;
+  if :new.value10 is null and val10 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value10 må ikke være NULL'); 
+  end if;
+  if :new.value11 is null and val11 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value11 må ikke være NULL'); 
+  end if;
+  if :new.value12 is null and val12 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value12 må ikke være NULL'); 
+  end if;
+  if :new.value13 is null and val13 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value13 må ikke være NULL'); 
+  end if;
+  if :new.value14 is null and val14 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value14 må ikke være NULL'); 
+  end if;
+  if :new.value15 is null and val15 is not null THEN
+    RAISE_APPLICATION_ERROR(20000,'Value15 må ikke være NULL'); 
+  end if;
+  
 end;
 /
 
@@ -813,61 +906,102 @@ VALIDATE;
 
 
 -- Indehold til observationtype
-INSERT INTO observationtype (beskrivelse, observationstype, sigtepunktID, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk ', 'geometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Variabel vedr. eta_1 (refraktion) [m^3]', 'Afstandsafhængig varians koteforskel pr. målt koteforskel [m^2/m]', 'Afstandsuafhængig varians koteforskel pr. målt koteforskel [m^2]', 'Total varians koteforskel [m^2]', 'Præcisionsnivellement [0,1,2,3]', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, observationstype, sigtepunktID, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt trigonometrisk' , 'trigonometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Afstandsafhængig varians pr. målt koteforskel [m^2/m^2]', 'Afstandsuafhængig varians pr. målt koteforskel [m^2]', 'Total varians koteforskel [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, observationstype, sigtepunktID, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Horisontal retning med uret fra opstilling til sigtepunkt (reduceret til ellipsoiden)' , 'retning', 'true','Retning [m]', 'Varians  retning hidrørende instrument, pr. sats  [rad^2]', 'Samlet centreringsvarians for instrument prisme [m^2]', 'Total varians retning [rad^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, observationstype, sigtepunktID, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Horisontal afstand mellem opstilling og sigtepunkt (reduceret til ellipsoiden)' , 'horisontalafstand', 'true','Afstand [m]', 'Afstandsafhængig varians afstandsmåler [m^2/m^2]', 'Samlet varians for centrering af instrument og prisme, samt grundfejl på afstandsmåler [m^2]', 'Total varians horisontalafstand [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, observationstype, sigtepunktID, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Skråafstand mellem opstilling og sigtepunkt' , 'skråafstand', 'true','Afstand [m]', 'Afstandsafhængig varians afstandsmåler pr. måling [m^2/m^2]', 'Samlet varians for centrering af instrument og prisme, samt grundfejl på afstandsmåler pr. måling [m^2]', 'Total varians skråafstand [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, observationstype, sigtepunktID, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Zenitvinkel mellem opstilling og sigtepunkt' , 'zenitvinkel', 'true','Zenitvinkel [rad]', 'Instrumenthøjde [m]', 'Højde sigtepunkt [m]', 'Varians zenitvinkel hidrørende instrument, pr. sats  [rad^2]', 'Samlet varians instrumenthøjde/højde sigtepunkt [m^2]', 'Total varians zenitvinkel [rad^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, observationstype, sigtepunktID, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 1 (v2-v1)' , 'vektor', 'true','dx [m]', 'dy [m]', 'dz [m]', 'Afstandsafhængig varians [m^2/m^2]', 'Samlet varians for centrering af antenner [m^2]', 'Total varians [m^2]', 'Varians dx [m^2]', 'Varians dy [m^2]', 'Varians dz [m^2]', 'Covarians dx, dy [m^2]', 'Covarians dx, dz [m^2]', 'Covarians dy, dz [m^2]', NULL, NULL, NULL);
 
--- Oprettelse af første sag samt tilhørende sagsrelaterede tabeller
+INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+VALUES ('observation nummer nul, indlagt fra start i observationstabellen, så der kan refereres til den i de mange beregningsevents der fører til population af koordinattabellen' , 'nulobservation', 'false', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+commit;
+-- Oprettelse af første sag samt tilhørende sagsrelaterede informationer
 INSERT INTO SAG (ID, REGISTRERINGFRA)
 VALUES ('4f8f29c8-c38f-4c69-ae28-c7737178de1f', SYSDATE);
 
-INSERT INTO SAGSINFO (SAGID, REGISTRERINGFRA, REGISTRERINGTIL, SAGSTYPE, JOURNALNUMMER, BEHANDLER, BESKRIVELSE)
-VALUES ('4f8f29c8-c38f-4c69-ae28-c7737178de1f', SYSDATE, NULL, 'REFGEO migrering', NULL, 'Thomas Knudsen', 'Sagen er oprette i forbindelse med migrering af data fra REFGEO til FIRE');
+INSERT INTO SAGSINFO (AKTIV, SAGID, REGISTRERINGFRA, REGISTRERINGTIL, JOURNALNUMMER, BEHANDLER, BESKRIVELSE)
+VALUES ('true','4f8f29c8-c38f-4c69-ae28-c7737178de1f', SYSDATE, NULL,  NULL, 'Thomas Knudsen', 'Sagen er oprette i forbindelse med migrering af data fra REFGEO til FIRE');
 
-INSERT INTO SAGSTYPE (BESKRIVELSE, SAGSTYPE)
-VALUES ('Sagstype anvendt til migrering af data fra REFGEO til FIRE', 'REFGEO migrering');
-
--- End
--- Oprettelse af sagsevent til anvendelsem med migrering fra REFGEO til FIRE samt tilhørende sagsevent relaterede tabeller
-INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
-VALUES ('Indsættelse af en eller flere koordinater', 'koordinat tilføjet');
-
-INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
-VALUES ('Indsættelse af en eller flere observationer', 'observation tilføjet');
-
-INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
-VALUES ('Indsættelse af en eller flere pinktinformationer', 'punktinfo tilføjet');
-
-INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
-VALUES ('Oprettelse af et punkt i FIRE', 'punkt oprettet');
+commit;
+-- Nulobservationspunkt:
+-- Første punkt i Punkt-tabellen. Udelukkende til brug for at at nulobservatioen kan henvise til det.
 
 INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
-VALUES ('7f2952b7-7729-4952-8f05-b4f372abe939', SYSDATE, 'koordinat tilføjet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+VALUES ('ce5d92cb-e890-411b-a836-0b3f19564500', SYSDATE, 'punkt_oprettet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+
+INSERT INTO PUNKT (ID, REGISTRERINGFRA, REGISTRERINGTIL, SAGSEVENTID)
+VALUES ('cb29ee7b-d5ab-4903-aecd-3860a80caf0b', SYSDATE, NULL, 'ce5d92cb-e890-411b-a836-0b3f19564500');
+
+commit;
+-- Første række i observationstabellen. 
+-- Udelukkende til brug for at beregninger uden egentlige observationer kan overholde modellen.
 
 INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
-VALUES ('d4a8c021-3b6a-4efb-86fb-2e1b9d6dd694', SYSDATE, 'observation tilføjet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+VALUES ('a36bc4c3-cb99-4d69-b891-52f976d69451', SYSDATE, 'observation_indsat', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+
+INSERT INTO OBSERVATION (REGISTRERINGFRA, SAGSEVENTID, OBSERVATIONSTIDSPUNKT, ANTAL, OBSERVATIONSTYPE, OPSTILLINGSPUNKTID)
+VALUES (SYSDATE, 'a36bc4c3-cb99-4d69-b891-52f976d69451', SYSDATE , 0, 'nulobservation', 'cb29ee7b-d5ab-4903-aecd-3860a80caf0b');
+
+commit;
+
+
+-- Oprettelse af sagsevents til anvendelsem ved migrering fra REFGEO til FIRE samt tilhørende sagsevent relaterede tabeller
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('bruges når koordinater indsættes efter en beregning', 'koordinat_beregnet');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('bruges når en koordinat nedlægges', 'koordinat_nedlagt');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('Indsættelse af en eller flere observationer', 'observation_indsat');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('bruges når en observation aflyses fordi den er fejlbehæftet', 'observation_nedlagt');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('bruges når der tilføjes Punkinfo til et eller flere punkter', 'punktinfo_tilføjet');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('bruges når Punktinfo fjernes fra et eller flere punkter', 'punktinfo_fjernet');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('bruges når et punkt og tilhørende geometri oprettes', 'punkt_oprettet');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('bruges når et punkt og tilhørende geometri nedlægges', 'punkt_nedlagt');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('bruges når nye koordinater skabes. Knytter observationer til koordinater', 'beregning');
+
+INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
+VALUES ('bruges til at tilføje fritekst kommentarer til sagen i tilfælde af at der er behov for at påhæfte sagen yderligere information som ikke passer i andre hændelser. Bruges fx også til påhæftning af materiale på sagen.', 'kommentar');
 
 INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
-VALUES ('15101d43-ac91-4c7c-9e58-c7a0b5367910', SYSDATE, 'punktinfo tilføjet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+VALUES ('7f2952b7-7729-4952-8f05-b4f372abe939', SYSDATE, 'koordinat_beregnet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
 
 INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
-VALUES ('e964cca6-7b16-414a-9538-8639eacaac3d', SYSDATE, 'punkt oprettete', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+VALUES ('d4a8c021-3b6a-4efb-86fb-2e1b9d6dd694', SYSDATE, 'observation_indsat', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+
+INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
+VALUES ('15101d43-ac91-4c7c-9e58-c7a0b5367910', SYSDATE, 'punktinfo_tilføjet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+
+INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
+VALUES ('e964cca6-7b16-414a-9538-8639eacaac3d', SYSDATE, 'punkt_oprettet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
 
 -- End
