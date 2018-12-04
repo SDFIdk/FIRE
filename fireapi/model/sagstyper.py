@@ -8,7 +8,7 @@ from . import FikspunktregisterObjekt
 # TODO: Sag and Sagsevent are supposed to get remodeled into Sag, SagInfo, Sagevent and SageventInfo
 
 
-class Sag(RegisteringTidObjekt):
+class Sag(RegisteringFraObjekt):
     __tablename__ = "sag"
     # TODO: Sagstype is foreign key
     #    sagstype = Column(String, nullable=False)

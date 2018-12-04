@@ -114,7 +114,7 @@ class ObservationType(DeclarativeBase):
     value13 = Column(String)
     value14 = Column(String)
     value15 = Column(String)
-    sigtepunktid = Column(String, nullable=False)
+    sigtepunkt = Column(String, nullable=False)
     observationer = relationship(
         "Observation",
         order_by="Observation.objectid",
