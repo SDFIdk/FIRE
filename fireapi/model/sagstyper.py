@@ -13,13 +13,22 @@ class Sag(RegisteringFraObjekt):
     # TODO: Sagstype is foreign key
     #    sagstype = Column(String, nullable=False)
     id = Column(String, nullable=False)
-    #    journalnummer = Column(String)
-    #    behandler = Column(String, nullable=False)
-    #    beskrivelse = Column(String)
     sagsevents = relationship(
         "Sagsevent", order_by="Sagsevent.objectid", back_populates="sag"
     )
+    sagsinfos = relationship(
+        "Sagsinfo", order_by="Sagsinfo.objectid", back_populates="sag"
+    )
 
+class Sagsinfo(RegisteringTidObjekt):
+    __tablename__ = "sagsinfo"
+    objectid = Column(Integer, primary_key=True)
+    aktiv = Column(String, nullable=False)
+    journalnummer = Column(String)
+    behandler = Column(String, nullable=False)
+    beskrivelse = Column(String)
+    sagid = Column(String, ForeignKey("sag.id"), nullable=False)
+    sag = relationship("Sag", back_populates="sagsinfos")
 
 class Sagsevent(RegisteringFraObjekt):
     __tablename__ = "sagsevent"

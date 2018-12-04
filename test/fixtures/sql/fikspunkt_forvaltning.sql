@@ -484,14 +484,14 @@ CREATE OR REPLACE TRIGGER AUD#BEREGNING
 after update ON BEREGNING
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+--IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 
-IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 end;
 /
@@ -501,18 +501,18 @@ CREATE OR REPLACE TRIGGER AUD#GEOMETRIOBJEKT
 after update ON GEOMETRIOBJEKT
 for each row
 begin
---IF :new.GEOMETRI != :old.GEOMETRI THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+--IF :new.GEOMETRI != :old.GEOMETRI THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 
--- IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+-- IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.PUNKTID != :old.PUNKTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.PUNKTID != :old.PUNKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 end;
 /
@@ -521,35 +521,35 @@ CREATE OR REPLACE TRIGGER AUD#KOORDINAT
 after update ON KOORDINAT
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
--- IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+-- IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SRID != :old.SRID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.SRID != :old.SRID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SX != :old.SX THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.SX != :old.SX THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SY != :old.SY THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
-
-
-IF :new.SZ != :old.SZ THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
-
-IF :new.T != :old.T THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
-
-IF :new.TRANSFORMERET != :old.TRANSFORMERET THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
-
-IF :new.X != :old.X THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.SY != :old.SY THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 
-IF :new.Y != :old.Y THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.SZ != :old.SZ THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.Z != :old.Z THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.T != :old.T THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.TRANSFORMERET != :old.TRANSFORMERET THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.PUNKTID != :old.PUNKTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.X != :old.X THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+
+
+IF :new.Y != :old.Y THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+
+IF :new.Z != :old.Z THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+
+IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+
+IF :new.PUNKTID != :old.PUNKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 end;
 /
@@ -559,55 +559,55 @@ CREATE OR REPLACE TRIGGER AUD#OBSERVATION
 after update ON OBSERVATION
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+--IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.ANTAL != :old.ANTAL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.ANTAL != :old.ANTAL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.GRUPPE != :old.GRUPPE THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
-
-
-IF :new.OBSERVATIONSTYPE != :old.OBSERVATIONSTYPE THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
-
-IF :new.VALUE1 != :old.VALUE1 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
-
-IF :new.VALUE2 != :old.VALUE2 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
-
-IF :new.VALUE3 != :old.VALUE3 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.GRUPPE != :old.GRUPPE THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 
-IF :new.VALUE4 != :old.VALUE4 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.OBSERVATIONSTYPE != :old.OBSERVATIONSTYPE THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE5 != :old.VALUE5 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE1 != :old.VALUE1 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE6 != :old.VALUE6 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE2 != :old.VALUE2 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE7 != :old.VALUE7 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE3 != :old.VALUE3 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE8 != :old.VALUE8 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE9 != :old.VALUE9 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE4 != :old.VALUE4 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE10 != :old.VALUE10 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE5 != :old.VALUE5 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE11 != :old.VALUE11 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE6 != :old.VALUE6 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE12 != :old.VALUE12 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE7 != :old.VALUE7 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE13 != :old.VALUE13 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE8 != :old.VALUE8 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE14 != :old.VALUE14 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE9 != :old.VALUE9 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.VALUE15 != :old.VALUE15 THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE10 != :old.VALUE10 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE11 != :old.VALUE11 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.OPSTILLINGSPUNKTID != :old.OPSTILLINGSPUNKTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE12 != :old.VALUE12 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SIGTEPUNKTID != :old.SIGTEPUNKTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.VALUE13 != :old.VALUE13 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+
+IF :new.VALUE14 != :old.VALUE14 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+
+IF :new.VALUE15 != :old.VALUE15 THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+
+IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+
+IF :new.OPSTILLINGSPUNKTID != :old.OPSTILLINGSPUNKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+
+IF :new.SIGTEPUNKTID != :old.SIGTEPUNKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 end;
 /
@@ -617,15 +617,15 @@ CREATE OR REPLACE TRIGGER AUD#PUNKT
 after update ON PUNKT
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+--IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 end;
 /
@@ -635,32 +635,32 @@ CREATE OR REPLACE TRIGGER AUD#SAG
 before update ON SAG
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 
-IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+--IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 end;
 /
 
 
 CREATE OR REPLACE TRIGGER AUD#SAGSEVENT
-before update ON SAGSEVENT
+after update ON SAGSEVENT
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(a) '); END IF;
 
-IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(b) '); END IF;
 
-IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(c) '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+--IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SAGID != :old.SAGID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.SAGID != :old.SAGID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(d) '); END IF;
 
 end;
 /
@@ -670,15 +670,15 @@ CREATE OR REPLACE TRIGGER AUD#SAGSEVENTINFO
 before update ON SAGSEVENTINFO
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+--IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.BESKRIVELSE != :old.BESKRIVELSE THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.BESKRIVELSE != :old.BESKRIVELSE THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 end;
 /
@@ -688,28 +688,162 @@ CREATE OR REPLACE TRIGGER AUD#SAGSINFO
 before update ON SAGSINFO
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SAGID != :old.SAGID THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.SAGID != :old.SAGID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+--IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.AKTIV != :old.AKTIV THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.AKTIV != :old.AKTIV THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.JOURNALNUMMER != :old.JOURNALNUMMER THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.JOURNALNUMMER != :old.JOURNALNUMMER THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.BEHANDLER != :old.BEHANDLER THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.BEHANDLER != :old.BEHANDLER THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.BESKRIVELSE != :old.BESKRIVELSE THEN RAISE_APPLICATION_ERROR(20000,'You cannot update this column '); END IF;
+IF :new.BESKRIVELSE != :old.BESKRIVELSE THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 end;
 /
 
+
+-- Trigger der sikre at sageevents kun knyttes til en aktiv sag
+CREATE OR REPLACE TRIGGER AID#SAGSEVENT
+after insert ON SAGSEVENT
+for each row
+declare
+cnt number := 0;
+begin
+
+  begin
+    select 1 into cnt
+    from sagsinfo
+    where aktiv = 'true'
+    and registreringtil is null
+    and sagid = :new.sagid;
+  exception when no_data_found then cnt:=0;
+  end;
+  
+  if cnt = 0 then
+    RAISE_APPLICATION_ERROR(-20000,'Ingen aktiv sag fundet paa sagid'||:new.sagid); 
+  END IF;
+
+end;
+/
+
+
 -- Index der skal sikre at der til samme punkt ikke tilføjes en koordinat med samme SRID, hvis denne ikke er afregistreret
 CREATE UNIQUE INDEX KOOR_UNIQ_001 ON KOORDINAT
 (SRID, PUNKTID, REGISTRERINGTIL);
+
+
+-- Trigger der skal sikre at inholdet i Observation-tabellen matcher hvad der er defineret observationtype-tabellen
+CREATE OR REPLACE TRIGGER AID#OBSERVATION
+after insert Or UPDATE ON OBSERVATION
+for each row
+declare
+   val1 varchar2(4000):= '';
+   val2 varchar2(4000):= '';
+   val3 varchar2(4000):= '';
+   val4 varchar2(4000):= '';
+   val5 varchar2(4000):= '';
+   val6 varchar2(4000):= '';
+   val7 varchar2(4000):= '';
+   val8 varchar2(4000):= '';
+   val9 varchar2(4000):= '';
+   val10 varchar2(4000):= '';
+   val11 varchar2(4000):= '';
+   val12 varchar2(4000):= '';
+   val13 varchar2(4000):= '';
+   val14 varchar2(4000):= '';
+   val15 varchar2(4000):= '';
+begin
+
+  select value1,
+         value2,
+         value3,
+         value4,
+         value5,
+         value6,
+         value7,
+         value8,
+         value9,
+         value10,
+         value11,
+         value12,
+         value13,
+         value14,
+         value15 into
+         val1,
+         val2,
+         val3,
+         val4,
+         val5,
+         val6,
+         val7,
+         val8,
+         val9,
+         val10,
+         val11,
+         val12,
+         val13,
+         val14,
+         val15
+  from observationtype a
+  where A.OBSERVATIONSTYPE = :new.observationstype;
+         
+
+  if :new.value1 is null and val1 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value1 må ikke være NULL'); 
+  end if;
+  if :new.value2 is null and val2 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value2 må ikke være NULL'); 
+  end if;
+  if :new.value3 is null and val3 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value3 må ikke være NULL'); 
+  end if;
+  if :new.value4 is null and val4 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value4 må ikke være NULL'); 
+  end if;
+  if :new.value5 is null and val5 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value5 må ikke være NULL'); 
+  end if;
+  if :new.value6 is null and val6 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value6 må ikke være NULL'); 
+  end if;
+  if :new.value7 is null and val7 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value7 må ikke være NULL'); 
+  end if;
+  if :new.value8 is null and val8 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value8 må ikke være NULL'); 
+  end if;
+  if :new.value9 is null and val9 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value9 må ikke være NULL'); 
+  end if;
+  if :new.value10 is null and val10 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value10 må ikke være NULL'); 
+  end if;
+  if :new.value11 is null and val11 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value11 må ikke være NULL'); 
+  end if;
+  if :new.value12 is null and val12 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value12 må ikke være NULL'); 
+  end if;
+  if :new.value13 is null and val13 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value13 må ikke være NULL'); 
+  end if;
+  if :new.value14 is null and val14 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value14 må ikke være NULL'); 
+  end if;
+  if :new.value15 is null and val15 is not null THEN
+    RAISE_APPLICATION_ERROR(-20000,'Value15 må ikke være NULL'); 
+  end if;
+  
+end;
+/
+
+
 
 
 -- Constraints der sikre at namespacedelen er korrekt i PUNKTINFOTYPE, OBSERVATIONTYPE og SRIDTYPE
@@ -745,19 +879,19 @@ begin
     where infotype = :new.infotype;
   
    exception  when no_data_found then
-      RAISE_APPLICATION_ERROR(20000,'No infotype found(!)');
+      RAISE_APPLICATION_ERROR(-20000,'No infotype found(!)');
   end;
 
  if this_andv = 'FLAG' and (:new.TEKST is not null or :new.TAL is not null) THEN
-   RAISE_APPLICATION_ERROR(20000,'Incorrect data (A)(!)');
+   RAISE_APPLICATION_ERROR(-20000,'Incorrect data (A)(!)');
 end if;
 
 if this_andv = 'TEKST' and:new.TAL is not null THEN
-   RAISE_APPLICATION_ERROR(20000,'Incorrect data (B)(!)');
+   RAISE_APPLICATION_ERROR(-20000,'Incorrect data (B)(!)');
 end if;
 
 if this_andv = 'TAL' and:new.TEKST is not null THEN
-   RAISE_APPLICATION_ERROR(20000,'Incorrect data (C)(!)');
+   RAISE_APPLICATION_ERROR(-20000,'Incorrect data (C)(!)');
 end if;
 
 end;
@@ -825,20 +959,20 @@ VALUES ('observation nummer nul, indlagt fra start i observationstabellen, så d
 commit;
 -- Oprettelse af første sag samt tilhørende sagsrelaterede informationer
 INSERT INTO SAG (ID, REGISTRERINGFRA)
-VALUES ('4f8f29c8-c38f-4c69-ae28-c7737178de1f', SYSDATE);
+VALUES ('4f8f29c8-c38f-4c69-ae28-c7737178de1f', to_date('2018-10-01','YYYY-MM-DD'));
 
 INSERT INTO SAGSINFO (AKTIV, SAGID, REGISTRERINGFRA, REGISTRERINGTIL, JOURNALNUMMER, BEHANDLER, BESKRIVELSE)
-VALUES ('true','4f8f29c8-c38f-4c69-ae28-c7737178de1f', SYSDATE, NULL,  NULL, 'Thomas Knudsen', 'Sagen er oprette i forbindelse med migrering af data fra REFGEO til FIRE');
+VALUES ('true','4f8f29c8-c38f-4c69-ae28-c7737178de1f', to_date('2018-10-01','YYYY-MM-DD'), NULL,  NULL, 'Thomas Knudsen', 'Sagen er oprette i forbindelse med migrering af data fra REFGEO til FIRE');
 
 commit;
 -- Nulobservationspunkt:
 -- Første punkt i Punkt-tabellen. Udelukkende til brug for at at nulobservatioen kan henvise til det.
 
 INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
-VALUES ('ce5d92cb-e890-411b-a836-0b3f19564500', SYSDATE, 'punkt_oprettet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
+VALUES ('ce5d92cb-e890-411b-a836-0b3f19564500', to_date('2018-10-02','YYYY-MM-DD'), 'punkt_oprettet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
 
 INSERT INTO PUNKT (ID, REGISTRERINGFRA, REGISTRERINGTIL, SAGSEVENTID)
-VALUES ('cb29ee7b-d5ab-4903-aecd-3860a80caf0b', SYSDATE, NULL, 'ce5d92cb-e890-411b-a836-0b3f19564500');
+VALUES ('cb29ee7b-d5ab-4903-aecd-3860a80caf0b', to_date('2018-10-02','YYYY-MM-DD'), NULL, 'ce5d92cb-e890-411b-a836-0b3f19564500');
 
 commit;
 -- Første række i observationstabellen. 
@@ -896,4 +1030,4 @@ VALUES ('15101d43-ac91-4c7c-9e58-c7a0b5367910', SYSDATE, 'punktinfo_tilføjet', 
 INSERT INTO SAGSEVENT (ID, REGISTRERINGFRA, EVENT, SAGID)
 VALUES ('e964cca6-7b16-414a-9538-8639eacaac3d', SYSDATE, 'punkt_oprettet', '4f8f29c8-c38f-4c69-ae28-c7737178de1f');
 
--- End
+-- End
