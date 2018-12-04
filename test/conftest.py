@@ -24,6 +24,8 @@ def guid():
 @pytest.fixture()
 def sag(firedb, guid):
     s0 = Sag(id=guid)
+    si0 = Sagsinfo(sag=s0, aktiv="true", behandler="yyy")
+    firedb.session.add(si0)
     # s0 = Sag(id=guid, sagstype="dummy", behandler="yyy")
     firedb.session.add(s0)
     return s0
@@ -61,6 +63,20 @@ def observation(firedb, sagsevent, observationstype, punkt):
     o0 = Observation(
         sagsevent=sagsevent,
         value1=0,
+        value2=0,
+        value3=0,
+        value4=0,
+        value5=0,
+        value6=0,
+        value7=0,
+        value8=0,
+        value9=0,
+        value10=0,
+        value11=0,
+        value12=0,
+        value13=0,
+        value14=0,
+        value15=0,
         antal=0,
         observationstidspunkt=func.sysdate(),
         observationstype=observationstype,
@@ -75,6 +91,20 @@ def observationer(firedb, sagsevent, observationstype, punkt):
     o0 = Observation(
         sagsevent=sagsevent,
         value1=0,
+        value2=0,
+        value3=0,
+        value4=0,
+        value5=0,
+        value6=0,
+        value7=0,
+        value8=0,
+        value9=0,
+        value10=0,
+        value11=0,
+        value12=0,
+        value13=0,
+        value14=0,
+        value15=0,
         antal=0,
         observationstidspunkt=func.sysdate(),
         observationstype=observationstype,
@@ -84,6 +114,20 @@ def observationer(firedb, sagsevent, observationstype, punkt):
     o1 = Observation(
         sagsevent=sagsevent,
         value1=0,
+        value2=0,
+        value3=0,
+        value4=0,
+        value5=0,
+        value6=0,
+        value7=0,
+        value8=0,
+        value9=0,
+        value10=0,
+        value11=0,
+        value12=0,
+        value13=0,
+        value14=0,
+        value15=0,
         antal=0,
         observationstidspunkt=func.sysdate(),
         observationstype=observationstype,
