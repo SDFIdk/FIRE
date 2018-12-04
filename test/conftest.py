@@ -28,6 +28,7 @@ def sag(firedb, guid):
     firedb.session.add(si0)
     # s0 = Sag(id=guid, sagstype="dummy", behandler="yyy")
     firedb.session.add(s0)
+    firedb.session.flush()
     return s0
 
 
