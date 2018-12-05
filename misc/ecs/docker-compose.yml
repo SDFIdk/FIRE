@@ -1,0 +1,12 @@
+version: "3"
+services:
+  oracle-12c-bootstrapped:
+    image: septimaps/oracle-12c-bootstrapped
+    ports:
+      - 1521:1521
+    logging:
+        driver: awslogs
+        options: 
+          awslogs-group: oracle-12c-bootstrapped
+          awslogs-region: eu-central-1
+          awslogs-stream-prefix: oracle-12c-bootstrapped
