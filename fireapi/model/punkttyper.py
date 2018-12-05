@@ -41,15 +41,14 @@ class Punkt(FikspunktregisterObjekt):
     __tablename__ = "punkt"
     id = Column(String, nullable=False, unique=True)
     sagseventid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="punkter")
     koordinater = relationship(
-        "Koordinat", order_by="Koordinat.objectid", back_populates="punkt"
+        "Koordinat", order_by="Koordinat.objectid", backref="punkt"
     )
     geometriobjekter = relationship(
-        "GeometriObjekt", order_by="GeometriObjekt.objectid", back_populates="punkt"
+        "GeometriObjekt", order_by="GeometriObjekt.objectid", backref="punkt"
     )
     punktinformationer = relationship(
-        "PunktInformation", order_by="PunktInformation.objectid", back_populates="punkt"
+        "PunktInformation", order_by="PunktInformation.objectid", backref="punkt"
     )
     # TODO: Observationer (Note Observation has three references to Punkt. How to handle this?)
     # Maybe use: "observationer_til" referencing Observation.Sigtepunkt and "observationer_fra" referencing Observation.opstillingspunkt
@@ -68,30 +67,29 @@ class Koordinat(FikspunktregisterObjekt):
     y = Column(Float)
     z = Column(Float)
     sagseventid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="koordinater")
     punktid = Column(String, ForeignKey("punkt.id"), nullable=False)
-    punkt = relationship("Punkt", back_populates="koordinater")
     beregninger = relationship(
-        "Beregning",
-        secondary=beregning_koordinat,
-        back_populates="koordinater")
+        "Beregning", secondary=beregning_koordinat, back_populates="koordinater"
+    )
 
 
 class GeometriObjekt(FikspunktregisterObjekt):
     __tablename__ = "geometriobjekt"
     geometri = Column(columntypes.Point(2, 4326), nullable=False)
     sagseventid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="geometriobjekter")
     punktid = Column(String, ForeignKey("punkt.id"), nullable=False)
-    punkt = relationship("Punkt", back_populates="geometriobjekter")
+
 
 class Beregning(FikspunktregisterObjekt):
     __tablename__ = "beregning"
     objectid = Column(Integer, primary_key=True)
     sagseventid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="beregninger")
-    koordinater = relationship("Koordinat", secondary=beregning_koordinat, back_populates="beregninger")
-    observationer = relationship("Observation", secondary=beregning_observation, back_populates="beregninger")
+    koordinater = relationship(
+        "Koordinat", secondary=beregning_koordinat, back_populates="beregninger"
+    )
+    observationer = relationship(
+        "Observation", secondary=beregning_observation, back_populates="beregninger"
+    )
 
 
 class ObservationType(DeclarativeBase):
@@ -116,9 +114,7 @@ class ObservationType(DeclarativeBase):
     value15 = Column(String)
     sigtepunkt = Column(String, nullable=False)
     observationer = relationship(
-        "Observation",
-        order_by="Observation.objectid",
-        back_populates="observationstype",
+        "Observation", order_by="Observation.objectid", backref="observationstype"
     )
 
 
@@ -141,31 +137,26 @@ class Observation(FikspunktregisterObjekt):
     value14 = Column(Float)
     value15 = Column(Float)
     sagseventid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="observationer")
     observationstidspunkt = Column(DateTime(timezone=True), nullable=False)
     antal = Column(Integer, nullable=False)
     gruppe = Column(Integer)
     observationstypeid = Column(
         "observationstype", String, ForeignKey("observationtype.observationstype")
     )
-    observationstype = relationship("ObservationType", back_populates="observationer")
     sigtepunktid = Column(String, ForeignKey("punkt.id"))
     sigtepunkt = relationship("Punkt", foreign_keys=[sigtepunktid])
     opstillingspunktid = Column(String, ForeignKey("punkt.id"))
     opstillingspunkt = relationship("Punkt", foreign_keys=[opstillingspunktid])
     beregninger = relationship(
-        "Beregning",
-        secondary=beregning_observation,
-        back_populates="observationer")
+        "Beregning", secondary=beregning_observation, back_populates="observationer"
+    )
 
 
 class PunktInformation(FikspunktregisterObjekt):
     __tablename__ = "punktinfo"
     sagseventid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="punktinformationer")
     # TODO: Infotype is foreign key
     infotype = Column(String, nullable=False)
     reeltal = Column(Float)
     tekst = Column(String)
     punktid = Column(String, ForeignKey("punkt.id"), nullable=False)
-    punkt = relationship("Punkt", back_populates="punktinformationer")

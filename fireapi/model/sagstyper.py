@@ -13,12 +13,9 @@ class Sag(RegisteringFraObjekt):
     # TODO: Sagstype is foreign key
     #    sagstype = Column(String, nullable=False)
     id = Column(String, nullable=False)
-    sagsevents = relationship(
-        "Sagsevent", order_by="Sagsevent.objectid", back_populates="sag"
-    )
-    sagsinfos = relationship(
-        "Sagsinfo", order_by="Sagsinfo.objectid", back_populates="sag"
-    )
+    sagsevents = relationship("Sagsevent", order_by="Sagsevent.objectid", backref="sag")
+    sagsinfos = relationship("Sagsinfo", order_by="Sagsinfo.objectid", backref="sag")
+
 
 class Sagsinfo(RegisteringTidObjekt):
     __tablename__ = "sagsinfo"
@@ -28,7 +25,7 @@ class Sagsinfo(RegisteringTidObjekt):
     behandler = Column(String, nullable=False)
     beskrivelse = Column(String)
     sagid = Column(String, ForeignKey("sag.id"), nullable=False)
-    sag = relationship("Sag", back_populates="sagsinfos")
+
 
 class Sagsevent(RegisteringFraObjekt):
     __tablename__ = "sagsevent"
@@ -36,27 +33,22 @@ class Sagsevent(RegisteringFraObjekt):
     event = Column(String, nullable=False)
     # beskrivelse = Column(String)
     sagid = Column(String, ForeignKey("sag.id"), nullable=False)
-    sag = relationship("Sag", back_populates="sagsevents")
     # TODO: Eventtype, materiale, and rapporthtml
     # Fikspunktregisterobjekter
-    punkter = relationship(
-        "Punkt", order_by="Punkt.objectid", back_populates="sagsevent"
-    )
+    punkter = relationship("Punkt", order_by="Punkt.objectid", backref="sagsevent")
     koordinater = relationship(
-        "Koordinat", order_by="Koordinat.objectid", back_populates="sagsevent"
+        "Koordinat", order_by="Koordinat.objectid", backref="sagsevent"
     )
     geometriobjekter = relationship(
-        "GeometriObjekt", order_by="GeometriObjekt.objectid", back_populates="sagsevent"
+        "GeometriObjekt", order_by="GeometriObjekt.objectid", backref="sagsevent"
     )
     observationer = relationship(
-        "Observation", order_by="Observation.objectid", back_populates="sagsevent"
+        "Observation", order_by="Observation.objectid", backref="sagsevent"
     )
     punktinformationer = relationship(
-        "PunktInformation",
-        order_by="PunktInformation.objectid",
-        back_populates="sagsevent",
+        "PunktInformation", order_by="PunktInformation.objectid", backref="sagsevent"
     )
     beregninger = relationship(
-        "Beregning", order_by="Beregning.objectid", back_populates="sagsevent"
+        "Beregning", order_by="Beregning.objectid", backref="sagsevent"
     )
 
