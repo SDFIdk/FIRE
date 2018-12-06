@@ -231,17 +231,17 @@ COMMENT ON COLUMN BEREGNING.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrer
 COMMENT ON COLUMN BEREGNING.SAGSEVENTID IS 'Angivelse af den hændelse der har ændret et fikspunktsobjekt.';
 COMMENT ON COLUMN BEREGNING_KOORDINAT.KOORDINATOBJECTID IS 'Udpegning af de koordinater der er indgået i en beregning.';
 COMMENT ON COLUMN BEREGNING_OBSERVATION.OBSERVATIONOBJECTID IS 'Udpegning af de observationer der er brugt i en beregning.';
-COMMENT ON TABLE EVENTTYPE IS 'Objekt til at holde en liste over lovlige typer af events i fikspunktsforvaltningssystemet, samt en beskrivelse hvad eventtypen dækker over.';
+COMMENT ON TABLE EVENTTYPE IS 'Objekt til at holde liste over lovlige typer af events i fikspunktsforvaltningssystemet, samt en beskrivelse hvad eventtypen dækker over.';
 COMMENT ON COLUMN EVENTTYPE.BESKRIVELSE IS 'Kort beskrivelse af en eventype.';
 COMMENT ON COLUMN EVENTTYPE.EVENT IS 'Navngivning af en eventtype.';
-COMMENT ON TABLE GEOMETRIOBJEKT IS 'Objekt indeholdende et punkts placeringsgeometri.';
-COMMENT ON COLUMN GEOMETRIOBJEKT.GEOMETRI IS 'Geometri til brug for visning i f.eks et GIS system.';
+COMMENT ON TABLE GEOMETRIOBJEKT IS 'Objekt indeholdende et punkts placeringsgeometri til brug for anvendes til visualisering.';
+COMMENT ON COLUMN GEOMETRIOBJEKT.GEOMETRI IS 'Placeringsgeometri til brug for visning i f.eks et GIS sysstem.';
 COMMENT ON COLUMN GEOMETRIOBJEKT.PUNKTID IS 'Punkt som har en placeringsgeometri tilknyttet.';
 COMMENT ON COLUMN GEOMETRIOBJEKT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
 COMMENT ON COLUMN GEOMETRIOBJEKT.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
 COMMENT ON COLUMN GEOMETRIOBJEKT.SAGSEVENTID IS 'Angivelse af den hændelse der har ændret et fikspunktsobjekt.';
 COMMENT ON TABLE KOORDINAT IS 'Generisk 4D koordinat.';
-COMMENT ON COLUMN KOORDINAT.PUNKTID IS 'Punkt som koordinaten hører til.';
+COMMENT ON COLUMN KOORDINAT.PUNKTID IS 'Punkt som kordinaten hører til.';
 COMMENT ON COLUMN KOORDINAT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
 COMMENT ON COLUMN KOORDINAT.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
 COMMENT ON COLUMN KOORDINAT.SAGSEVENTID IS 'Angivelse af den hændelse der har ændret et fikspunktsobjekt.';
@@ -255,15 +255,13 @@ COMMENT ON COLUMN KOORDINAT.X IS 'Førstekoordinat.';
 COMMENT ON COLUMN KOORDINAT.Y IS 'Andenkoordinat.';
 COMMENT ON COLUMN KOORDINAT.Z IS 'Tredjekoordinat.';
 COMMENT ON TABLE OBSERVATION IS 'Generisk observationsobjekt indeholdende informationer om en observation.';
-COMMENT ON COLUMN OBSERVATION.ANTAL IS 'Antal gentagne observationer hvoraf en middelobservationen er fremkommet.';
-COMMENT ON COLUMN OBSERVATION.GRUPPE IS 'ID der angiver observationsgruppen for en observation der indgår i en gruppe.';
 COMMENT ON COLUMN OBSERVATION.OBSERVATIONSTIDSPUNKT IS 'Tidspunktet hvor observationen er foretaget';
 COMMENT ON COLUMN OBSERVATION.OBSERVATIONSTYPE IS 'Kortnavn for observationstypen, fx dH';
 COMMENT ON COLUMN OBSERVATION.OPSTILLINGSPUNKTID IS 'Udpegning af det punkt der er anvendt ved opstilling ved en observation.';
 COMMENT ON COLUMN OBSERVATION.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
 COMMENT ON COLUMN OBSERVATION.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
 COMMENT ON COLUMN OBSERVATION.SAGSEVENTID IS 'Angivelse af den hændelse der har ændret et fikspunktsobjekt.';
-COMMENT ON COLUMN OBSERVATION.SIGTEPUNKTID IS 'Udpegning af punkt der er sigtet til ved en observation.';
+COMMENT ON COLUMN OBSERVATION.SIGTEPUNKTID IS 'Udpegning af punktder er sigtet til ved en observation.';
 COMMENT ON COLUMN OBSERVATION.VALUE1 IS 'En værdi for en observation.';
 COMMENT ON COLUMN OBSERVATION.VALUE10 IS 'En værdi for en observation.';
 COMMENT ON COLUMN OBSERVATION.VALUE11 IS 'En værdi for en observation.';
@@ -282,22 +280,22 @@ COMMENT ON COLUMN OBSERVATION.VALUE9 IS 'En værdi for en observation.';
 COMMENT ON TABLE OBSERVATIONTYPE IS 'Objekttype til beskrivelse af hvorledes en Observation skal læses, ud fra typen af observation.';
 COMMENT ON COLUMN OBSERVATIONTYPE.BESKRIVELSE IS 'Overordnet beskrivelse af denne observationstype.';
 COMMENT ON COLUMN OBSERVATIONTYPE.OBSERVATIONSTYPE IS 'Kortnavn for observationstypen, fx dH';
-COMMENT ON COLUMN OBSERVATIONTYPE.SIGTEPUNKT IS 'Indikator for om Sigtepunkt anvendes for denne observationstype.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE1 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE10 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE11 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE12 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE13 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE14 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE15 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE2 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE3 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE4 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE5 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE6 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE7 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE8 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE9 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONTYPE.SIGTEPUNKT IS 'Indikator for om Sigtepunkt 1 anvendes for denne observationstype.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE1 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE10 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE11 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE12 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE13 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE14 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE15 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE2 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE3 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE4 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE5 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE6 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE7 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE8 IS 'Beskrivelse af første observationselement.';
+COMMENT ON COLUMN OBSERVATIONTYPE.VALUE9 IS 'Beskrivelse af første observationselement.';
 COMMENT ON TABLE OBSERVATIONTYPENAMESPACE IS 'Type der afgrænser de lovlige namspaces der kan anvendes i observationstype, samt en beskrivese af denne.';
 COMMENT ON COLUMN OBSERVATIONTYPENAMESPACE.BESKRIVELSE IS 'Kort beskrivelse af hvad der dækkes af et observationsnamespace.';
 COMMENT ON COLUMN OBSERVATIONTYPENAMESPACE.NAMESPACE IS 'Navn på et lovlige namspace for en observation.';
@@ -314,11 +312,11 @@ COMMENT ON COLUMN PUNKTINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrer
 COMMENT ON COLUMN PUNKTINFO.SAGSEVENTID IS 'Angivelse af den hændelse der har ændret et fikspunktsobjekt.';
 COMMENT ON COLUMN PUNKTINFO.TAL IS 'Værdien for numeriske informationselementer';
 COMMENT ON COLUMN PUNKTINFO.TEKST IS 'Værdien for tekstinformationselementer';
-COMMENT ON TABLE PUNKTINFOTYPE IS 'Udfaldsrum for punktinforobjekter med definition af hvordan PunktInfo skal læses og beskrivelse af typen af punktinfo.';
+COMMENT ON TABLE PUNKTINFOTYPE IS 'Udfaldsrum for punktinforobjekter med definition af hvodan PunktInfo skal læses og beskrivelse af typen af punktinfo.';
 COMMENT ON COLUMN PUNKTINFOTYPE.ANVENDELSE IS 'Er det reelTal, tekst, eller ingen af disse, der angiver værdien';
 COMMENT ON COLUMN PUNKTINFOTYPE.BESKRIVELSE IS 'Beskrivelse af denne informationstypes art.';
 COMMENT ON COLUMN PUNKTINFOTYPE.INFOTYPE IS 'Arten af dette informationselement';
-COMMENT ON TABLE PUNKTINFOTYPENAMESPACE IS 'Type der afgrænser de lovlige namspaces der kan anvendes i infotype, samt en beskrivese af denne.';
+COMMENT ON TABLE PUNKTINFOTYPENAMESPACE IS 'Type der afgrænser de lovlige namspaces der kan anvendes i tinfotype, samt en beskrivese af denne.';
 COMMENT ON COLUMN PUNKTINFOTYPENAMESPACE.BESKRIVELSE IS 'Kort beskrivelse af hvad der dækkes af et punktinfonamespace.';
 COMMENT ON COLUMN PUNKTINFOTYPENAMESPACE.NAMESPACE IS 'Navn på et lovlige namspace for en punktinformation.';
 COMMENT ON TABLE SAG IS 'Samling af administrativt relaterede sagshændelser.';
@@ -329,11 +327,10 @@ COMMENT ON COLUMN SAGSEVENT.EVENT IS 'Generisk beskrivelse af fremdriftens art.'
 COMMENT ON COLUMN SAGSEVENT.ID IS 'Persistent unik nøgle.';
 COMMENT ON COLUMN SAGSEVENT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
 COMMENT ON COLUMN SAGSEVENT.SAGID IS 'Udpegning af den sag i fikspunktsforvalningssystemet som en event er foretaget i.';
-COMMENT ON TABLE SAGSEVENTINFO IS 'Informationer der knytter sig til en et sagsevent.';
+COMMENT ON TABLE SAGSEVENTINFO IS 'Udvikling i sag som kan, men ikke behøver, medføre opdateringer af fikspunktregisterobjekter.';
 COMMENT ON COLUMN SAGSEVENTINFO.BESKRIVELSE IS 'Specifik beskrivelse af den aktuelle fremdrift.';
 COMMENT ON COLUMN SAGSEVENTINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
 COMMENT ON COLUMN SAGSEVENTINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN SAGSEVENTINFO.SAGSEVENTID IS 'Den sagsevent som sagseventinfo har information om.';
 COMMENT ON COLUMN SAGSEVENTINFO_MATERIALE.MATERIALE IS 'Generisk materiale tilknyttet sagsevent - typisk en filmappe URI.';
 COMMENT ON COLUMN SAGSEVENTINFO_RAPPORTHTML.RAPPORTHTML IS 'Generisk operatørlæsbart orienterende rapportmateriale.';
 COMMENT ON TABLE SAGSINFO IS 'Samling af administrativt relaterede sagshændelser.';
@@ -343,7 +340,6 @@ COMMENT ON COLUMN SAGSINFO.BESKRIVELSE IS 'Kort beskrivelse af en fikspunktssag.
 COMMENT ON COLUMN SAGSINFO.JOURNALNUMMER IS 'Sagsmappeidentifikation i opmålings- og beregningssagsregistret.';
 COMMENT ON COLUMN SAGSINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
 COMMENT ON COLUMN SAGSINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN SAGSINFO.SAGID IS 'Den sag som sagsinfo holder information for.';
 COMMENT ON TABLE SRIDNAMESPACE IS 'Type der afgrænser de lovlige namspaces der kan anvendes i SRIDtype, samt en beskrivese af denne.';
 COMMENT ON COLUMN SRIDNAMESPACE.BESKRIVELSE IS 'Kort beskrivelse af hvad der dækkes af et SRIDnamespace.';
 COMMENT ON COLUMN SRIDNAMESPACE.NAMESPACE IS 'Navn på et lovlige namspace for en SRID.';
@@ -670,7 +666,6 @@ end;
 /
 
 
-
 CREATE OR REPLACE TRIGGER AUD#SAGSEVENTINFO
 before update ON SAGSEVENTINFO
 for each row
@@ -736,6 +731,7 @@ begin
 
 end;
 /
+
 
 -- Index der skal sikre at der til samme punkt ikke tilføjes en koordinat med samme SRID, hvis denne ikke er afregistreret
 CREATE UNIQUE INDEX KOOR_UNIQ_001 ON KOORDINAT
@@ -937,32 +933,33 @@ VALIDATE;
 
 -- Indehold til observationtype
 INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
-VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk ', 'geometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Variabel vedr. eta_1 (refraktion) [m^3]', 'Afstandsafhængig varians koteforskel pr. målt koteforskel [m^2/m]', 'Afstandsuafhængig varians koteforskel pr. målt koteforskel [m^2]', 'Præcisionsnivellement [0,1,2,3]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk ', 'geometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Variabel vedr. eta_1 (refraktion) [m^3]', 'Afstandsafhængig varians koteforskel pr. målt koteforskel [m^2/m]', 'Afstandsuafhængig varians koteforskel pr. målt koteforskel [m^2]', 'Total varians koteforskel [m^2]', 'Præcisionsnivellement [0,1,2,3]', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
-VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt trigonometrisk' , 'trigonometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Afstandsafhængig varians pr. målt koteforskel [m^2/m^2]', 'Afstandsuafhængig varians pr. målt koteforskel [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt trigonometrisk' , 'trigonometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Afstandsafhængig varians pr. målt koteforskel [m^2/m^2]', 'Afstandsuafhængig varians pr. målt koteforskel [m^2]', 'Total varians koteforskel [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
-VALUES ('Horisontal retning med uret fra opstilling til sigtepunkt (reduceret til ellipsoiden)' , 'retning', 'true','Retning [m]', 'Varians  retning hidrørende instrument, pr. sats  [rad^2]', 'Samlet centreringsvarians for instrument prisme [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+VALUES ('Horisontal retning med uret fra opstilling til sigtepunkt (reduceret til ellipsoiden)' , 'retning', 'true','Retning [m]', 'Varians  retning hidrørende instrument, pr. sats  [rad^2]', 'Samlet centreringsvarians for instrument prisme [m^2]', 'Total varians retning [rad^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
-VALUES ('Horisontal afstand mellem opstilling og sigtepunkt (reduceret til ellipsoiden)' , 'horisontalafstand', 'true','Afstand [m]', 'Afstandsafhængig varians afstandsmåler [m^2/m^2]', 'Samlet varians for centrering af instrument og prisme, samt grundfejl på afstandsmåler [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+VALUES ('Horisontal afstand mellem opstilling og sigtepunkt (reduceret til ellipsoiden)' , 'horisontalafstand', 'true','Afstand [m]', 'Afstandsafhængig varians afstandsmåler [m^2/m^2]', 'Samlet varians for centrering af instrument og prisme, samt grundfejl på afstandsmåler [m^2]', 'Total varians horisontalafstand [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
-VALUES ('Skråafstand mellem opstilling og sigtepunkt' , 'skråafstand', 'true','Afstand [m]', 'Afstandsafhængig varians afstandsmåler pr. måling [m^2/m^2]', 'Samlet varians for centrering af instrument og prisme, samt grundfejl på afstandsmåler pr. måling [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+VALUES ('Skråafstand mellem opstilling og sigtepunkt' , 'skråafstand', 'true','Afstand [m]', 'Afstandsafhængig varians afstandsmåler pr. måling [m^2/m^2]', 'Samlet varians for centrering af instrument og prisme, samt grundfejl på afstandsmåler pr. måling [m^2]', 'Total varians skråafstand [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
-VALUES ('Zenitvinkel mellem opstilling og sigtepunkt' , 'zenitvinkel', 'true','Zenitvinkel [rad]', 'Instrumenthøjde [m]', 'Højde sigtepunkt [m]', 'Varians zenitvinkel hidrørende instrument, pr. sats  [rad^2]', 'Samlet varians instrumenthøjde/højde sigtepunkt [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+VALUES ('Zenitvinkel mellem opstilling og sigtepunkt' , 'zenitvinkel', 'true','Zenitvinkel [rad]', 'Instrumenthøjde [m]', 'Højde sigtepunkt [m]', 'Varians zenitvinkel hidrørende instrument, pr. sats  [rad^2]', 'Samlet varians instrumenthøjde/højde sigtepunkt [m^2]', 'Total varians zenitvinkel [rad^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
-VALUES ('Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 1 (v2-v1)' , 'vektor', 'true','dx [m]', 'dy [m]', 'dz [m]', 'Afstandsafhængig varians [m^2/m^2]', 'Samlet varians for centrering af antenner [m^2]', 'Varians dx [m^2]', 'Varians dy [m^2]', 'Varians dz [m^2]', 'Covarians dx, dy [m^2]', 'Covarians dx, dz [m^2]', 'Covarians dy, dz [m^2]', NULL, NULL, NULL, NULL);
+VALUES ('Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 1 (v2-v1)' , 'vektor', 'true','dx [m]', 'dy [m]', 'dz [m]', 'Afstandsafhængig varians [m^2/m^2]', 'Samlet varians for centrering af antenner [m^2]', 'Total varians [m^2]', 'Varians dx [m^2]', 'Varians dy [m^2]', 'Varians dz [m^2]', 'Covarians dx, dy [m^2]', 'Covarians dx, dz [m^2]', 'Covarians dy, dz [m^2]', NULL, NULL, NULL);
 
 INSERT INTO observationtype (beskrivelse, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('observation nummer nul, indlagt fra start i observationstabellen, så der kan refereres til den i de mange beregningsevents der fører til population af koordinattabellen' , 'nulobservation', 'false', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
+commit;
 
 
--- Oprettelse af eventyper i FIRE
+-- Oprettelse af sagsevents til anvendelsem ved migrering fra REFGEO til FIRE
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT)
 VALUES ('bruges når koordinater indsættes efter en beregning', 'koordinat_beregnet');
 
