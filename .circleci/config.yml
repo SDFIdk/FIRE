@@ -7,6 +7,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install deps
+          command: apt-get -y install gawk
+      - run:
           name: Sleep 15 seconds to allow Oracle DB to ready itself
           command: sleep 15
       - run:
