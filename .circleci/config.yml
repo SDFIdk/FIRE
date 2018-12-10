@@ -7,8 +7,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Sleep 30 seconds to allow Oracle DB to ready itself
-          command: sleep 30
+          name: Install deps
+          command: apt-get -y install gawk
+      - run:
+          name: Sleep 15 seconds to allow Oracle DB to ready itself
+          command: sleep 15
       - run:
           name: Execute init.sql
           command: |
@@ -17,6 +20,20 @@ jobs:
           name: Execute fikspunkt_forvaltning.sql
           command: |
             ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @test/fixtures/sql/fikspunkt_forvaltning.sql
+      - run:
+          name: Import test data
+          command: |
+            export ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle"
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.PUNKTINFOTYPENAMESPACE.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.OBSERVATIONTYPENAMESPACE.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.SRIDNAMESPACE.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.PUNKTINFOTYPE.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.SRIDTYPE.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.PUNKT.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.PUNKTINFO.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.KOORDINAT.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.GEOMETRIOBJEKT.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.OBSERVATION.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
       - run:
           name: Run tests
           command: |
