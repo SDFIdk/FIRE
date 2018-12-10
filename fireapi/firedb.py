@@ -72,3 +72,26 @@ class FireDb(object):
     ) -> List[Observation]:
         return self.session.query(Observation).all()
 
+
+    def indset_observation(self, sag: Sag, observation: Observation):
+        sagsevent = Sagsevent(sag=sag, event="observation_indsat")
+        self.session.add(sagsevent)
+        self.session.add(observation)
+        self.session.commit()
+
+
+    def indset_beregning(self, sag: Sag, beregning: Beregning):
+        # unsure about the eventtype here
+        # unsure if observations should already be related to beregning at this point
+        sagsevent = Sagsevent(sag=sag, event="beregning")
+        self.session.add(sagsevent)
+        self.session.add(beregning)
+        self.session.commit()
+
+
+    def inset_koordinater(self, sag:Sag, beregning: Beregning, koordinater: List[Koordinat]):
+        # unsure about the eventtype here
+        sagsevent = Sagsevent(sag=sag, event="koordinat_beregnet")
+        self.session.add(sagsevent)
+        beregning.koordinater.extend(koordinater)
+        self.session.commit()
