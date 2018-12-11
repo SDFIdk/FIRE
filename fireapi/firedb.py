@@ -1,7 +1,18 @@
 from sqlalchemy import create_engine, func, event
 from sqlalchemy.orm import sessionmaker, aliased
-from .model import *
+from .model import (
+    RegisteringTidObjekt,
+    Sag,
+    Punkt,
+    GeometriObjekt,
+    Observation,
+    Bbox,
+    Sagsevent,
+    Beregning,
+    Koordinat,
+)
 from typing import List
+from datetime import datetime
 
 DEBUG = True
 
@@ -50,17 +61,18 @@ class FireDb(object):
         )
 
     def hent_observationer_naer_punkt(
-        self, punkt, afstand, tidfra, tidtil
+        self, punkt: Punkt, afstand: float, tidfra: datetime, tidtil: datetime
     ) -> List[Observation]:
         g1 = aliased(GeometriObjekt)
         g2 = aliased(GeometriObjekt)
+        ## TODO: consider tidfra and tidtil
         return (
             self.session.query(Observation)
             .join(g1, Observation.opstillingspunktid == g1.punktid)
             .join(g2, g2.punktid == punkt.id)
             .filter(
                 func.sdo_within_distance(
-                    g1.geometri, g2.geometri, "distance=100 unit=meter"
+                    g1.geometri, g2.geometri, "distance=" + str(afstand) + " unit=meter"
                 )
                 == "TRUE"
             )
@@ -72,13 +84,11 @@ class FireDb(object):
     ) -> List[Observation]:
         return self.session.query(Observation).all()
 
-
     def indset_observation(self, sag: Sag, observation: Observation):
         sagsevent = Sagsevent(sag=sag, event="observation_indsat")
         self.session.add(sagsevent)
         self.session.add(observation)
         self.session.commit()
-
 
     def indset_beregning(self, sag: Sag, beregning: Beregning):
         # unsure about the eventtype here
@@ -88,8 +98,9 @@ class FireDb(object):
         self.session.add(beregning)
         self.session.commit()
 
-
-    def inset_koordinater(self, sag:Sag, beregning: Beregning, koordinater: List[Koordinat]):
+    def inset_koordinater(
+        self, sag: Sag, beregning: Beregning, koordinater: List[Koordinat]
+    ):
         # unsure about the eventtype here
         sagsevent = Sagsevent(sag=sag, event="koordinat_beregnet")
         self.session.add(sagsevent)

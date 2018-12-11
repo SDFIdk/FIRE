@@ -2,7 +2,20 @@ import pytest
 import os
 import uuid
 from fireapi import FireDb
-from fireapi.model import *
+from fireapi.model import (
+    func,
+    RegisteringTidObjekt,
+    Sag,
+    Punkt,
+    GeometriObjekt,
+    Observation,
+    ObservationType,
+    Bbox,
+    Sagsevent,
+    Sagsinfo,
+    Beregning,
+    Koordinat,
+)
 
 user = os.environ.get("ORA_USER") or "fire"
 password = os.environ.get("ORA_PASSWORD") or "fire"

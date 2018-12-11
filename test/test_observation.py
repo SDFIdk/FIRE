@@ -1,5 +1,5 @@
+from fireapi.model import Observation
 
-from fireapi.model import *
 
 def test_observation(firedb, observation):
     firedb.session.commit()
@@ -8,4 +8,3 @@ def test_observation(firedb, observation):
 
     assert o1.objectid == observation.objectid
 
-    
