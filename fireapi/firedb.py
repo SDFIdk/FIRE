@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy import create_engine, func, event
 from sqlalchemy.orm import sessionmaker, aliased
 from .model import (
@@ -11,7 +12,7 @@ from .model import (
     Beregning,
     Koordinat,
 )
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 DEBUG = True
@@ -42,7 +43,7 @@ class FireDb(object):
                     obj.registreringtil = func.sysdate()
                     thissession.add(obj)
 
-    def hent_punkt(self, id) -> Punkt:
+    def hent_punkt(self, id: str) -> Punkt:
         return self.session.query(Punkt).filter(Punkt.id == id).first()
 
     def hent_alle_punkter(self) -> List[Punkt]:
@@ -60,8 +61,8 @@ class FireDb(object):
             .all()
         )
 
-    def hent_observationer_naer_punkt(
-        self, punkt: Punkt, afstand: float, tidfra: datetime, tidtil: datetime
+    def hent_observationer_naer_opstillingspunkt(
+        self, punkt: Punkt, afstand: float, tidfra: Optional[datetime], tidtil: Optional[datetime]
     ) -> List[Observation]:
         g1 = aliased(GeometriObjekt)
         g2 = aliased(GeometriObjekt)
@@ -84,25 +85,27 @@ class FireDb(object):
     ) -> List[Observation]:
         return self.session.query(Observation).all()
 
+    def indset_sag(self, sag: Sag):
+        if len(sag.sagsinfos) < 1:
+            raise Exception("At least one sagsinfo must be added to the sag")
+        if sag.sagsinfos[-1].aktiv != 'true':
+            raise Exception("Last sagsinfo should have aktiv = 'true'")
+        self.session.add(sag)
+        self.session.commit()
+
     def indset_observation(self, sag: Sag, observation: Observation):
-        sagsevent = Sagsevent(sag=sag, event="observation_indsat")
-        self.session.add(sagsevent)
+        sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="observation_indsat")
+        observation.sagsevent = sagsevent
+        #self.session.add(sagsevent)
         self.session.add(observation)
         self.session.commit()
 
+''' TODO: API need more thought
     def indset_beregning(self, sag: Sag, beregning: Beregning):
-        # unsure about the eventtype here
-        # unsure if observations should already be related to beregning at this point
-        sagsevent = Sagsevent(sag=sag, event="beregning")
-        self.session.add(sagsevent)
+        sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="koordinat_beregnet")
+        #self.session.add(sagsevent)
+        beregning.sagsevent = sagsevent
         self.session.add(beregning)
         self.session.commit()
+'''
 
-    def inset_koordinater(
-        self, sag: Sag, beregning: Beregning, koordinater: List[Koordinat]
-    ):
-        # unsure about the eventtype here
-        sagsevent = Sagsevent(sag=sag, event="koordinat_beregnet")
-        self.session.add(sagsevent)
-        beregning.koordinater.extend(koordinater)
-        self.session.commit()
