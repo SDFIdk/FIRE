@@ -26,8 +26,8 @@ jobs:
             export ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle"
             awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.SAG.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
             awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.SAGSINFO.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
-            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.SAGEVENT.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
-            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.SAGEVENTINFO.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.SAGSEVENT.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
+            awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.SAGSEVENTINFO.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
             awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.SRIDNAMESPACE.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
             awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.PUNKTINFOTYPE.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
             awk -f misc/deobjectidify.awk test/fixtures/sql/data/FIRE_ADM.SRIDTYPE.sql | sqlplus64 -S fire/fire@//localhost:1521/xe
