@@ -1,0 +1,10 @@
+﻿SET DEFINE OFF;
+--SQL Statement which produced this data:
+--
+--  SELECT * FROM FIRE_ADM.SAG;
+--
+Insert into SAG
+   (OBJECTID, ID, REGISTRERINGFRA)
+ Values
+   (1, '4f8f29c8-c38f-4c69-ae28-c7737178de1f', TO_TIMESTAMP_TZ('01/10/2018 00:00:00.000000 +01:00','DD/MM/YYYY HH24:MI:SS.FF TZH:TZM'));
+COMMIT;

@@ -6,6 +6,605 @@
 Insert into PUNKTINFOTYPE
    (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
  Values
+   (225, 'AFM:3313', 'TEKST', 'Granitblok mærket NK.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (226, 'AFM:3314', 'TEKST', 'Granitblok mærket RK.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (227, 'AFM:3315', 'TEKST', 'Granitblok med indhugget kors.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (228, 'AFM:3316', 'TEKST', 'Granitflise med fredningsplade.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (229, 'AFM:3317', 'TEKST', 'Sten.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (230, 'AFM:3318', 'TEKST', 'KK sten.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (231, 'AFM:3326', 'TEKST', 'Granitflise med indhugget kors.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (232, 'AFM:3350', 'TEKST', 'Jernbaneskinne.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (233, 'AFM:3400', 'TEKST', 'MV-blok.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (234, 'AFM:3401', 'TEKST', 'MV-blok med jernrør.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (235, 'AFM:3402', 'TEKST', 'MV-blok under dæksel.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (236, 'AFM:3403', 'TEKST', 'Blok mrk. G.I.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (237, 'AFM:3420', 'TEKST', 'MV-søm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (238, 'AFM:3421', 'TEKST', 'Kobberskrue.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (239, 'AFM:3422', 'TEKST', 'Kravesøm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (240, 'AFM:3500', 'TEKST', 'Plade i løs sten.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (241, 'AFM:3600', 'TEKST', 'Spir.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (242, 'AFM:3615', 'TEKST', 'Vindfløj.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (243, 'AFM:3616', 'TEKST', 'Kors.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (244, 'AFM:3620', 'TEKST', 'Hushjørne.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (245, 'AFM:3645', 'TEKST', 'Flagstang.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (246, 'AFM:3730', 'TEKST', 'Lodret bolt i blok.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (247, 'AFM:3900', 'TEKST', 'Universalkalot i cylindrisk
+støbning 30x100 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (248, 'AFM:3901', 'TEKST', 'Universalkalot i cylindrisk
+støbning 30x80 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (249, 'AFM:3902', 'TEKST', 'Universalkalot i cylindrisk
+støbning 30x60 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (250, 'AFM:3903', 'TEKST', 'Universalkalot i cylindrisk 
+støbning 30x40 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (251, 'AFM:3910', 'TEKST', 'Firkantet støbning 15x15x100 cm
+med fredningsplade.                     ');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (252, 'AFM:3911', 'TEKST', 'Firkantet støbning 15x15x100 cm 
+under jerndæksel.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (253, 'AFM:3912', 'TEKST', 'Firkantet støbning 15x15x80 cm
+med fredningsplade.                      ');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (254, 'AFM:3913', 'TEKST', 'Flise 40x40 cm, herunder
+firkantet støbning 15x15x80 cm
+med fredningsplade.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (255, 'AFM:3914', 'TEKST', 'Firkantet støbning 15x15x60 cm
+med fredningsplade.                      ');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (256, 'AFM:3916', 'TEKST', 'Firkantet støbning 15x15x40 cm
+med fredningsplade.                      ');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (257, 'AFM:3917', 'TEKST', 'Firkantet støbning 15x15x24 cm
+med fredningsplade.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (258, 'AFM:3918', 'TEKST', 'Jernbolt mærket krone og G.I. i
+firkantet granitblok 25x25x100 cm.                     ');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (259, 'AFM:3919', 'TEKST', 'Flise 40x40 cm, herunder
+firkantet støbning 15x15x40 cm
+med fredningsplade.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (260, 'AFM:3920', 'TEKST', 'Cylindrisk støbning 30x40 cm med
+fredningsplade.                    ');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (261, 'AFM:3921', 'TEKST', 'Støbning 30x20 cm med plade.                                                                                                                                   ');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (262, 'AFM:3922', 'TEKST', 'Flise 40x40 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (263, 'AFM:3930', 'TEKST', 'Universalkalot i 75x50 cm
+støbning.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (264, 'AFM:3931', 'TEKST', 'Jernrør og nivellementsbolt i støbning.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (265, 'AFM:3950', 'TEKST', 'Støbning med bolt.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (266, 'AFM:3951', 'TEKST', 'Bolt i firkantet
+støbning 15x15 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (267, 'AFM:3952', 'TEKST', 'Bolt i firkantet
+støbning 20x20 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (268, 'AFM:3953', 'TEKST', 'Bolt i firkantet
+støbning 25x25 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (269, 'AFM:3954', 'TEKST', 'Støbning med bolt
+mærket S.K.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (270, 'AFM:3955', 'TEKST', 'Bolt i firkantet støbning,
+15x15x100 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (271, 'AFM:3956', 'TEKST', 'Bolt i firkantet støbning,
+15x15x60 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (272, 'AFM:3957', 'TEKST', 'Møtrik med kørn.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (273, 'AFM:4360', 'TEKST', 'Søm, diverse.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (274, 'AFM:4370', 'TEKST', 'Træpæl.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (275, 'AFM:4380', 'TEKST', 'Dæksel.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (276, 'AFM:4600', 'TEKST', 'Gavl.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (277, 'AFM:4602', 'TEKST', 'Gavltak.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (278, 'AFM:4605', 'TEKST', 'Skorsten.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (279, 'AFM:4620', 'TEKST', 'Mølle.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (280, 'AFM:4621', 'TEKST', 'Vindmølle.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (281, 'AFM:4625', 'TEKST', 'Fyr.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (282, 'AFM:4626', 'TEKST', 'Spids.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (283, 'AFM:4627', 'TEKST', 'Fyr, lygtehus, midte.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (284, 'AFM:4630', 'TEKST', 'Båke.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (285, 'AFM:4631', 'TEKST', 'Sømærke, midte.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (286, 'AFM:4635', 'TEKST', 'Vandtårn, midte.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (287, 'AFM:4640', 'TEKST', 'Mast, top, midte.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (288, 'AFM:4650', 'TEKST', 'Antennemast.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (289, 'AFM:4655', 'TEKST', 'Tårn, midte.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (290, 'AFM:4656', 'TEKST', 'Kuppel, midte.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (291, 'AFM:4657', 'TEKST', 'Top, midte.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (292, 'AFM:4660', 'TEKST', 'Transformator.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (293, 'AFM:4661', 'TEKST', 'Nunatak.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (294, 'AFM:4662', 'TEKST', 'Bjergtop, midte.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (295, 'AFM:4663', 'TEKST', 'Snefane.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (296, 'AFM:4664', 'TEKST', 'Morænespids.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (297, 'AFM:4665', 'TEKST', 'Radar.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (298, 'AFM:4666', 'TEKST', 'Pejlestation.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (299, 'AFM:4667', 'TEKST', 'Centralsigte.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (300, 'AFM:4668', 'TEKST', 'Mærke.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (301, 'AFM:4699', 'TEKST', 'Naturligt fikspunkt.                           ');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (302, 'AFM:4850', 'TEKST', 'Vandstandsbræt.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (303, 'AFM:4851', 'TEKST', 'Vinkelbeslag på vandstandsbræt, DMI.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (304, 'AFM:4852', 'TEKST', 'Mærke på møtrik på trykmålers beslag, DMI.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (305, 'AFM:4900', 'TEKST', 'Rist');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (306, 'AFM:4901', 'TEKST', 'Brønd');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (307, 'AFM:4902', 'TEKST', 'Hajtand');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (308, 'AFM:4903', 'TEKST', 'Signaleret');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (309, 'AFM:4904', 'TEKST', 'Andet paspunkt.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (310, 'AFM:4905', 'TEKST', 'Taghjørne.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (311, 'AFM:4906', 'TEKST', 'Terræn.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (312, 'AFM:4907', 'TEKST', 'Påsvejst hvid afmærkning, 40 X 40 cm, med søm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (313, 'AFM:4908', 'TEKST', 'Påsvejst hvid afmærkning, 40 X 40 cm.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (314, 'AFM:4999', 'TEKST', 'Ukendt.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (315, 'AFM:5998', 'TEKST', 'Ingen afmærkning.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (316, 'AFM:5999', 'TEKST', 'Ingen varig afmærkning.');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (317, 'AFM:højde_over_dige', 'TAL', 'Afmærkningens højde i meter over dige');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (318, 'AFM:højde_over_perron', 'TAL', 'Afmærkningens højde i meter over perron');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (319, 'AFM:højde_over_terræn', 'TAL', 'Afmærkningens højde i meter over terræn');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (320, 'AFM:højde_over_beton', 'TAL', 'Afmærkningens højde i meter over beton');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (321, 'AFM:højde_over_jordoverfladen', 'TAL', 'Afmærkningens højde i meter over jordoverfladen');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (322, 'AFM:højde_over_tag', 'TAL', 'Afmærkningens højde i meter over tag');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (323, 'AFM:højde_over_kørebanebelægning', 'TAL', 'Afmærkningens højde i meter over kørebanebelægning');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (324, 'AFM:højde_over_klippe', 'TAL', 'Afmærkningens højde i meter over klippe');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (325, 'AFM:højde_over_asfalt', 'TAL', 'Afmærkningens højde i meter over asfalt');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (326, 'AFM:højde_over_flise', 'TAL', 'Afmærkningens højde i meter over flise');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (327, 'AFM:højde_over_gulv', 'TAL', 'Afmærkningens højde i meter over gulv');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (328, 'AFM:højde_over_dæksel', 'TAL', 'Afmærkningens højde i meter over dæksel');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (329, 'ATTR:restricted', 'FLAG', 'Tilgang kun tilladt internt i SDFE');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (330, 'ATTR:tabtgået', 'FLAG', 'Fysisk punkt ikke længere tilgængeligt');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (331, 'ATTR:ekstern', 'FLAG', 'Ikke etableret af SDFE');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (332, 'ATTR:vandstandsmåler', 'FLAG', 'Punktet er en vandstandsmåler');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (333, 'ATTR:gnss_egnet', 'FLAG', 'Punktet er egnet til GNSS opmåling');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (334, 'ATTR:beskrivelse', 'TEKST', 'Beskrivelse af punktets placering');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (335, 'ATTR:højdefikspunkt', 'FLAG', 'Højdefikspunkter');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (336, 'ATTR:MV_punkt', 'FLAG', 'MV fikspunkter');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (337, 'ATTR:GI_punkt', 'FLAG', 'GI fikspunkter');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (338, 'ATTR:hjælpepunkt', 'FLAG', 'Hjælpepunkter');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (339, 'ATTR:tinglysningsnr', 'TEKST', 'Sagsnummer i tinglysningsbogen');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (340, 'ATTR:bemærkning', 'TEKST', 'Bemærkning til punkt');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (341, 'ATTR:beskadiget', 'FLAG', 'Kote-afmærkningen tabtgået, skæv eller beskadiget');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (342, 'IDENT:landsnr', 'TEKST', 'Landsnummer');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (343, 'IDENT:GNSS', 'TEKST', 'GNNS Stationsnummer');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (344, 'IDENT:refgeo_id', 'TEKST', 'ID (refnr) fra REFGEO');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (345, 'IDENT:jessen', 'TEKST', 'Jessennummer');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (346, 'IDENT:GI', 'TEKST', 'GI og GM-nummre');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (347, 'IDENT:diverse', 'TEKST', 'Identtyper der forekommer sporadisk');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (348, 'NET:10KM', 'FLAG', 'Punkter der indgår i 10kmnet');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (349, 'NET:GPSNET', 'FLAG', 'Punkter der indgår i GPSnet');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (350, 'NET:REFDK', 'FLAG', 'Punkter der indgår i Refdknet');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (351, 'NET:5D', 'FLAG', 'Punkter der indgår i 5D-nettet');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (352, 'NET:DMI', 'FLAG', 'DMIs vandstandsmålere');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (353, 'NET:tyngde', 'FLAG', 'Punkter hvor der foretages tyngdemåling');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (354, 'NET:jessen', 'FLAG', 'Jessenpunkter');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (355, 'NET:FO10KM', 'FLAG', 'Punkter i det færøske 10km net');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (356, 'NET:CORS', 'FLAG', 'Contiously Operating Reference Stations - Permanente GNSS stationer');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (357, 'NET:EUREFDK', 'FLAG', 'Definerende punkter i ETRS89');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (358, 'NET:DEFVAND', 'FLAG', 'Definerende vandstandsmålere i DVR90');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (359, 'NET:REFGR', 'FLAG', 'Referencenetpunkter i Grønland');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (360, 'NET:GRAENSEAFM', 'FLAG', 'Afmærkninger ved den Dansk-Tyske grænse');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (361, 'REGION:DK', 'FLAG', 'Danmark');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (362, 'REGION:SE', 'FLAG', 'Sverige');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (363, 'REGION:EE', 'FLAG', 'Estland');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (364, 'REGION:FO', 'FLAG', 'Færøerne');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (365, 'REGION:SJ', 'FLAG', 'Sønderjylland');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (366, 'REGION:GL', 'FLAG', 'Grønland');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (367, 'SKITSE:sti', 'TEKST', 'Relativ sti til billedfil. Kan enten være i PNG eller SVG format');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
+   (368, 'SKITSE:md5', 'TEKST', 'MD5 sum af billedfilen');
+Insert into PUNKTINFOTYPE
+   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
+ Values
    (1, 'AFM:diverse', 'TEKST', 'Diverse ikke-standardiserede afmærkningstyper');
 Insert into PUNKTINFOTYPE
    (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
@@ -1001,583 +1600,4 @@ Insert into PUNKTINFOTYPE
    (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
  Values
    (224, 'AFM:3312', 'TEKST', 'Granitblok med tilhugget kugleflade.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (225, 'AFM:3313', 'TEKST', 'Granitblok mærket NK.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (226, 'AFM:3314', 'TEKST', 'Granitblok mærket RK.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (227, 'AFM:3315', 'TEKST', 'Granitblok med indhugget kors.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (228, 'AFM:3316', 'TEKST', 'Granitflise med fredningsplade.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (229, 'AFM:3317', 'TEKST', 'Sten.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (230, 'AFM:3318', 'TEKST', 'KK sten.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (231, 'AFM:3326', 'TEKST', 'Granitflise med indhugget kors.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (232, 'AFM:3350', 'TEKST', 'Jernbaneskinne.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (233, 'AFM:3400', 'TEKST', 'MV-blok.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (234, 'AFM:3401', 'TEKST', 'MV-blok med jernrør.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (235, 'AFM:3402', 'TEKST', 'MV-blok under dæksel.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (236, 'AFM:3403', 'TEKST', 'Blok mrk. G.I.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (237, 'AFM:3420', 'TEKST', 'MV-søm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (238, 'AFM:3421', 'TEKST', 'Kobberskrue.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (239, 'AFM:3422', 'TEKST', 'Kravesøm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (240, 'AFM:3500', 'TEKST', 'Plade i løs sten.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (241, 'AFM:3600', 'TEKST', 'Spir.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (242, 'AFM:3615', 'TEKST', 'Vindfløj.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (243, 'AFM:3616', 'TEKST', 'Kors.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (244, 'AFM:3620', 'TEKST', 'Hushjørne.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (245, 'AFM:3645', 'TEKST', 'Flagstang.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (246, 'AFM:3730', 'TEKST', 'Lodret bolt i blok.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (247, 'AFM:3900', 'TEKST', 'Universalkalot i cylindrisk
-støbning 30x100 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (248, 'AFM:3901', 'TEKST', 'Universalkalot i cylindrisk
-støbning 30x80 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (249, 'AFM:3902', 'TEKST', 'Universalkalot i cylindrisk
-støbning 30x60 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (250, 'AFM:3903', 'TEKST', 'Universalkalot i cylindrisk 
-støbning 30x40 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (251, 'AFM:3910', 'TEKST', 'Firkantet støbning 15x15x100 cm
-med fredningsplade.                     ');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (252, 'AFM:3911', 'TEKST', 'Firkantet støbning 15x15x100 cm 
-under jerndæksel.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (253, 'AFM:3912', 'TEKST', 'Firkantet støbning 15x15x80 cm
-med fredningsplade.                      ');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (254, 'AFM:3913', 'TEKST', 'Flise 40x40 cm, herunder
-firkantet støbning 15x15x80 cm
-med fredningsplade.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (255, 'AFM:3914', 'TEKST', 'Firkantet støbning 15x15x60 cm
-med fredningsplade.                      ');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (256, 'AFM:3916', 'TEKST', 'Firkantet støbning 15x15x40 cm
-med fredningsplade.                      ');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (257, 'AFM:3917', 'TEKST', 'Firkantet støbning 15x15x24 cm
-med fredningsplade.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (258, 'AFM:3918', 'TEKST', 'Jernbolt mærket krone og G.I. i
-firkantet granitblok 25x25x100 cm.                     ');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (259, 'AFM:3919', 'TEKST', 'Flise 40x40 cm, herunder
-firkantet støbning 15x15x40 cm
-med fredningsplade.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (260, 'AFM:3920', 'TEKST', 'Cylindrisk støbning 30x40 cm med
-fredningsplade.                    ');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (261, 'AFM:3921', 'TEKST', 'Støbning 30x20 cm med plade.                                                                                                                                   ');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (262, 'AFM:3922', 'TEKST', 'Flise 40x40 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (263, 'AFM:3930', 'TEKST', 'Universalkalot i 75x50 cm
-støbning.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (264, 'AFM:3931', 'TEKST', 'Jernrør og nivellementsbolt i støbning.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (265, 'AFM:3950', 'TEKST', 'Støbning med bolt.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (266, 'AFM:3951', 'TEKST', 'Bolt i firkantet
-støbning 15x15 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (267, 'AFM:3952', 'TEKST', 'Bolt i firkantet
-støbning 20x20 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (268, 'AFM:3953', 'TEKST', 'Bolt i firkantet
-støbning 25x25 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (269, 'AFM:3954', 'TEKST', 'Støbning med bolt
-mærket S.K.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (270, 'AFM:3955', 'TEKST', 'Bolt i firkantet støbning,
-15x15x100 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (271, 'AFM:3956', 'TEKST', 'Bolt i firkantet støbning,
-15x15x60 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (272, 'AFM:3957', 'TEKST', 'Møtrik med kørn.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (273, 'AFM:4360', 'TEKST', 'Søm, diverse.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (274, 'AFM:4370', 'TEKST', 'Træpæl.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (275, 'AFM:4380', 'TEKST', 'Dæksel.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (276, 'AFM:4600', 'TEKST', 'Gavl.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (277, 'AFM:4602', 'TEKST', 'Gavltak.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (278, 'AFM:4605', 'TEKST', 'Skorsten.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (279, 'AFM:4620', 'TEKST', 'Mølle.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (280, 'AFM:4621', 'TEKST', 'Vindmølle.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (281, 'AFM:4625', 'TEKST', 'Fyr.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (282, 'AFM:4626', 'TEKST', 'Spids.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (283, 'AFM:4627', 'TEKST', 'Fyr, lygtehus, midte.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (284, 'AFM:4630', 'TEKST', 'Båke.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (285, 'AFM:4631', 'TEKST', 'Sømærke, midte.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (286, 'AFM:4635', 'TEKST', 'Vandtårn, midte.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (287, 'AFM:4640', 'TEKST', 'Mast, top, midte.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (288, 'AFM:4650', 'TEKST', 'Antennemast.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (289, 'AFM:4655', 'TEKST', 'Tårn, midte.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (290, 'AFM:4656', 'TEKST', 'Kuppel, midte.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (291, 'AFM:4657', 'TEKST', 'Top, midte.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (292, 'AFM:4660', 'TEKST', 'Transformator.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (293, 'AFM:4661', 'TEKST', 'Nunatak.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (294, 'AFM:4662', 'TEKST', 'Bjergtop, midte.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (295, 'AFM:4663', 'TEKST', 'Snefane.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (296, 'AFM:4664', 'TEKST', 'Morænespids.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (297, 'AFM:4665', 'TEKST', 'Radar.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (298, 'AFM:4666', 'TEKST', 'Pejlestation.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (299, 'AFM:4667', 'TEKST', 'Centralsigte.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (300, 'AFM:4668', 'TEKST', 'Mærke.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (301, 'AFM:4699', 'TEKST', 'Naturligt fikspunkt.                           ');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (302, 'AFM:4850', 'TEKST', 'Vandstandsbræt.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (303, 'AFM:4851', 'TEKST', 'Vinkelbeslag på vandstandsbræt, DMI.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (304, 'AFM:4852', 'TEKST', 'Mærke på møtrik på trykmålers beslag, DMI.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (305, 'AFM:4900', 'TEKST', 'Rist');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (306, 'AFM:4901', 'TEKST', 'Brønd');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (307, 'AFM:4902', 'TEKST', 'Hajtand');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (308, 'AFM:4903', 'TEKST', 'Signaleret');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (309, 'AFM:4904', 'TEKST', 'Andet paspunkt.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (310, 'AFM:4905', 'TEKST', 'Taghjørne.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (311, 'AFM:4906', 'TEKST', 'Terræn.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (312, 'AFM:4907', 'TEKST', 'Påsvejst hvid afmærkning, 40 X 40 cm, med søm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (313, 'AFM:4908', 'TEKST', 'Påsvejst hvid afmærkning, 40 X 40 cm.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (314, 'AFM:4999', 'TEKST', 'Ukendt.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (315, 'AFM:5998', 'TEKST', 'Ingen afmærkning.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (316, 'AFM:5999', 'TEKST', 'Ingen varig afmærkning.');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (317, 'AFM:højde_over_dige', 'TAL', 'Afmærkningens højde i meter over dige');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (318, 'AFM:højde_over_perron', 'TAL', 'Afmærkningens højde i meter over perron');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (319, 'AFM:højde_over_terræn', 'TAL', 'Afmærkningens højde i meter over terræn');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (320, 'AFM:højde_over_beton', 'TAL', 'Afmærkningens højde i meter over beton');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (321, 'AFM:højde_over_jordoverfladen', 'TAL', 'Afmærkningens højde i meter over jordoverfladen');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (322, 'AFM:højde_over_tag', 'TAL', 'Afmærkningens højde i meter over tag');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (323, 'AFM:højde_over_kørebanebelægning', 'TAL', 'Afmærkningens højde i meter over kørebanebelægning');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (324, 'AFM:højde_over_klippe', 'TAL', 'Afmærkningens højde i meter over klippe');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (325, 'AFM:højde_over_asfalt', 'TAL', 'Afmærkningens højde i meter over asfalt');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (326, 'AFM:højde_over_flise', 'TAL', 'Afmærkningens højde i meter over flise');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (327, 'AFM:højde_over_gulv', 'TAL', 'Afmærkningens højde i meter over gulv');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (328, 'AFM:højde_over_dæksel', 'TAL', 'Afmærkningens højde i meter over dæksel');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (329, 'ATTR:restricted', 'FLAG', 'Tilgang kun tilladt internt i SDFE');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (330, 'ATTR:tabtgået', 'FLAG', 'Fysisk punkt ikke længere tilgængeligt');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (331, 'ATTR:ekstern', 'FLAG', 'Ikke etableret af SDFE');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (332, 'ATTR:vandstandsmåler', 'FLAG', 'Punktet er en vandstandsmåler');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (333, 'ATTR:gnss_egnet', 'FLAG', 'Punktet er egnet til GNSS opmåling');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (334, 'ATTR:beskrivelse', 'TEKST', 'Beskrivelse af punktets placering');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (335, 'ATTR:højdefikspunkt', 'FLAG', 'Højdefikspunkter');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (336, 'ATTR:MV_punkt', 'FLAG', 'MV fikspunkter');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (337, 'ATTR:GI_punkt', 'FLAG', 'GI fikspunkter');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (338, 'ATTR:hjælpepunkt', 'FLAG', 'Hjælpepunkter');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (339, 'ATTR:tinglysningsnr', 'FLAG', 'Sagsnummer i tinglysningsbogen');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (340, 'IDENT:landsnr', 'TEKST', 'Landsnummer');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (341, 'IDENT:GNSS', 'TEKST', 'GNNS Stationsnummer');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (342, 'IDENT:refgeo_id', 'TEKST', 'ID (refnr) fra REFGEO');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (343, 'IDENT:jessen', 'TEKST', 'Jessennummer');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (344, 'IDENT:GI', 'TEKST', 'GI og GM-nummre');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (345, 'IDENT:diverse', 'TEKST', 'Identtyper der forekommer sporadisk');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (346, 'NET:GPSNET', 'FLAG', 'Punkter der indgår i GPSnet');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (347, 'NET:REFDK', 'FLAG', 'Punkter der indgår i GPSnet');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (348, 'NET:5D', 'FLAG', 'Punkter der indgår i 5D-nettet');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (349, 'NET:DMI', 'FLAG', 'DMIs vandstandsmålere');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (350, 'NET:tyngde', 'FLAG', 'Punkter hvor der foretages tyngdemåling');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (351, 'NET:jessen', 'FLAG', 'Jessenpunkter');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (352, 'NET:FO10KM', 'FLAG', 'Punkter i det færøske 10km net');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (353, 'NET:CORS', 'FLAG', 'Contiously Operating Reference Stations - Permanente GNSS stationer');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (354, 'NET:EUREFDK', 'FLAG', 'Definerende punkter i ETRS89');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (355, 'NET:DEFVAND', 'FLAG', 'Definerende vandstandsmålere i DVR90');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (356, 'NET:REFGR', 'FLAG', 'Referencenetpunkter i Grønland');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (357, 'NET:GRAENSEAFM', 'FLAG', 'Afmærkninger ved den Dansk-Tyske grænse');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (358, 'REGION:DK', 'FLAG', 'Danmark');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (359, 'REGION:SE', 'FLAG', 'Sverige');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (360, 'REGION:EE', 'FLAG', 'Estland');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (361, 'REGION:FO', 'FLAG', 'Færøerne');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (362, 'REGION:SJ', 'FLAG', 'Sønderjylland');
-Insert into PUNKTINFOTYPE
-   (OBJECTID, INFOTYPE, ANVENDELSE, BESKRIVELSE)
- Values
-   (363, 'REGION:GL', 'FLAG', 'Grønland');
 COMMIT;
