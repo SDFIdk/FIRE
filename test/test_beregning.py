@@ -1,5 +1,5 @@
+from fireapi.model import Beregning
 
-from fireapi.model import *
 
 def test_beregning(firedb, beregning):
     firedb.session.commit()
