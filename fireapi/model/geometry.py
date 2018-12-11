@@ -2,7 +2,7 @@
 # Otherwise based on https://github.com/zzzeek/sqlalchemy/blob/master/examples/postgis/postgis.py
 import re
 from sqlalchemy.sql import expression
-from . import columntypes
+from fireapi.model import columntypes
 
 __all__ = ["Point", "Bbox"]
 

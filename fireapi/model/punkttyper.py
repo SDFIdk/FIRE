@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 
 # DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
 
-from . import RegisteringTidObjekt, DeclarativeBase, columntypes
+from fireapi.model import RegisteringTidObjekt, DeclarativeBase, columntypes
 
 # Eksports
 __all__ = [
@@ -191,4 +191,3 @@ class Observation(FikspunktregisterObjekt):
     beregninger = relationship(
         "Beregning", secondary=beregning_observation, back_populates="observationer"
     )
-

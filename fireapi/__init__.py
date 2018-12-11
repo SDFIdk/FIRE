@@ -1,1 +1,1 @@
-from .firedb import FireDb
+from fireapi.firedb import FireDb
