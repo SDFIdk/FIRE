@@ -1,9 +1,8 @@
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
-from . import RegisteringTidObjekt
-from . import RegisteringFraObjekt
-from . import FikspunktregisterObjekt
+from fireapi.model import RegisteringTidObjekt
+from fireapi.model import RegisteringFraObjekt
 
 # TODO: Sag and Sagsevent are supposed to get remodeled into Sag, SagInfo, Sagevent and SageventInfo
 
@@ -59,4 +58,3 @@ class Sagsevent(RegisteringFraObjekt):
     beregninger = relationship(
         "Beregning", order_by="Beregning.objectid", back_populates="sagsevent"
     )
-

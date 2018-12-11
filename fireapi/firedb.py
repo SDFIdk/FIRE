@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, func, event
 from sqlalchemy.orm import sessionmaker, aliased
-from .model import (
+from fireapi.model import (
     RegisteringTidObjekt,
     Sag,
     Punkt,
