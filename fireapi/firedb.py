@@ -46,6 +46,9 @@ class FireDb(object):
     def hent_punkt(self, id: str) -> Punkt:
         return self.session.query(Punkt).filter(Punkt.id == id).first()
 
+    def hent_geometri_objekt(self, id: str) -> GeometriObjekt:
+        return self.session.query(GeometriObjekt).filter(GeometriObjekt.punktid == id).first()
+
     def hent_alle_punkter(self) -> List[Punkt]:
         return self.session.query(Punkt).all()
 
@@ -61,6 +64,20 @@ class FireDb(object):
             .all()
         )
 
+    def __filter(self, g1, g2, distance: float, from_date: Optional[datetime] = None, to_date: Optional[datetime] = None):
+        exps = [
+            func.sdo_within_distance(
+                g1, g2, "distance=" + str(distance) + " unit=meter"
+            )
+            == "TRUE"
+        ]
+        if from_date:
+            exps.append(Observation.observationstidspunkt >= from_date)
+        if to_date:
+            exps.append(Observation.observationstidspunkt <= to_date)
+        filter = and_(*exps)
+        return filter
+
     def hent_observationer_naer_opstillingspunkt(
         self,
         punkt: Punkt,
@@ -70,34 +87,28 @@ class FireDb(object):
     ) -> List[Observation]:
         g1 = aliased(GeometriObjekt)
         g2 = aliased(GeometriObjekt)
-
-        filterExps = [
-            func.sdo_within_distance(
-                g1.geometri, g2.geometri, "distance=" + str(afstand) + " unit=meter"
-            )
-            == "TRUE"
-        ]
-
-        if tidfra:
-            filterExps.append(Observation.observationstidspunkt >= tidfra)
-
-        if tidtil:
-            filterExps.append(Observation.observationstidspunkt <= tidtil)
-
-        filter = and_(*filterExps)
-
         return (
             self.session.query(Observation)
             .join(g1, Observation.opstillingspunktid == g1.punktid)
             .join(g2, g2.punktid == punkt.id)
-            .filter(filter)
+            .filter(self.__filter(g1.geometri, g2.geometri, afstand, tidfra, tidtil))
             .all()
         )
 
-    def hent_observationer_naer(
-        self, pointgeom, afstand, tidfra, tidtil
+    def hent_observationer_naer_geometri(
+        self,
+        geometri,
+        afstand: float,
+        tidfra: Optional[datetime] = None,
+        tidtil: Optional[datetime] = None,
     ) -> List[Observation]:
-        return self.session.query(Observation).all()
+        g = aliased(GeometriObjekt)
+        return (
+            self.session.query(Observation)
+            .join(g, g.punktid == Observation.opstillingspunktid or g.punktid == Observation.sigtepunktid)
+            .filter(self.__filter(g.geometri, geometri, afstand, tidfra, tidtil))
+            .all()
+        )
 
     def indset_sag(self, sag: Sag):
         if len(sag.sagsinfos) < 1:
