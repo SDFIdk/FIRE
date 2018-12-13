@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import create_engine, func, event
+from sqlalchemy import create_engine, func, event, and_
 from sqlalchemy.orm import sessionmaker, aliased
 from .model import (
     RegisteringTidObjekt,
@@ -62,21 +62,35 @@ class FireDb(object):
         )
 
     def hent_observationer_naer_opstillingspunkt(
-        self, punkt: Punkt, afstand: float, tidfra: Optional[datetime], tidtil: Optional[datetime]
+        self,
+        punkt: Punkt,
+        afstand: float,
+        tidfra: Optional[datetime] = None,
+        tidtil: Optional[datetime] = None,
     ) -> List[Observation]:
         g1 = aliased(GeometriObjekt)
         g2 = aliased(GeometriObjekt)
-        ## TODO: consider tidfra and tidtil
+
+        filterExps = [
+            func.sdo_within_distance(
+                g1.geometri, g2.geometri, "distance=" + str(afstand) + " unit=meter"
+            )
+            == "TRUE"
+        ]
+
+        if tidfra:
+            filterExps.append(Observation.observationstidspunkt >= tidfra)
+
+        if tidtil:
+            filterExps.append(Observation.observationstidspunkt <= tidtil)
+
+        filter = and_(*filterExps)
+
         return (
             self.session.query(Observation)
             .join(g1, Observation.opstillingspunktid == g1.punktid)
             .join(g2, g2.punktid == punkt.id)
-            .filter(
-                func.sdo_within_distance(
-                    g1.geometri, g2.geometri, "distance=" + str(afstand) + " unit=meter"
-                )
-                == "TRUE"
-            )
+            .filter(filter)
             .all()
         )
 
@@ -88,7 +102,7 @@ class FireDb(object):
     def indset_sag(self, sag: Sag):
         if len(sag.sagsinfos) < 1:
             raise Exception("At least one sagsinfo must be added to the sag")
-        if sag.sagsinfos[-1].aktiv != 'true':
+        if sag.sagsinfos[-1].aktiv != "true":
             raise Exception("Last sagsinfo should have aktiv = 'true'")
         self.session.add(sag)
         self.session.commit()
@@ -96,16 +110,17 @@ class FireDb(object):
     def indset_observation(self, sag: Sag, observation: Observation):
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="observation_indsat")
         observation.sagsevent = sagsevent
-        #self.session.add(sagsevent)
+        # self.session.add(sagsevent)
         self.session.add(observation)
         self.session.commit()
 
-''' TODO: API need more thought
+
+""" TODO: API need more thought
     def indset_beregning(self, sag: Sag, beregning: Beregning):
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="koordinat_beregnet")
         #self.session.add(sagsevent)
         beregning.sagsevent = sagsevent
         self.session.add(beregning)
         self.session.commit()
-'''
+"""
 

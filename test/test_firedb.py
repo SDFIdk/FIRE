@@ -21,13 +21,26 @@ def test_hent_alle_punkter(firedb):
 
 def test_hent_observationer_naer_opstillingspunkt(firedb):
     p = firedb.hent_punkt("7CA9F53D-DE26-59C0-E053-1A041EAC5678")
-    fra = datetime.datetime.utcnow() - datetime.timedelta(weeks=10)
-    til = datetime.datetime.utcnow()
-    os = firedb.hent_observationer_naer_opstillingspunkt(p, 100, fra, til)
-    assert isinstance(os, list)
+    os = firedb.hent_observationer_naer_opstillingspunkt(p, 100)
     assert len(os) is 2
-    os = firedb.hent_observationer_naer_opstillingspunkt(p, 1000, fra, til)
+    os = firedb.hent_observationer_naer_opstillingspunkt(
+        p, 100, datetime.datetime(2015, 10, 8)
+    )
+    assert len(os) is 2
+    os = firedb.hent_observationer_naer_opstillingspunkt(
+        p, 100, datetime.datetime(2015, 11, 1)
+    )
+    assert len(os) is 1
+    os = firedb.hent_observationer_naer_opstillingspunkt(p, 1000)
     assert len(os) is 4
+    os = firedb.hent_observationer_naer_opstillingspunkt(
+        p, 1000, datetime.datetime(2015, 10, 8)
+    )
+    assert len(os) is 4
+    os = firedb.hent_observationer_naer_opstillingspunkt(
+        p, 1000, datetime.datetime(2015, 10, 8), datetime.datetime(2015, 10, 9)
+    )
+    assert len(os) is 2
 
 
 def test_indset_sag(firedb: FireDb, guid):
@@ -49,11 +62,12 @@ def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
         value5=0,
         value6=0,
         value7=0,
-        value8=0
+        value8=0,
     )
     firedb.indset_observation(sag, observation)
 
-''' TODO: API need more thought
+
+""" TODO: API need more thought
 def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt):
     observation = Observation(
         antal=0,
@@ -76,4 +90,5 @@ def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt):
     )
     beregning.koordinater.append(koordinat)
     firedb.indset_beregning(sag, beregning)
-'''
+"""
+
