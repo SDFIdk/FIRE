@@ -1,0 +1,831 @@
+<?xml version="1.0" ?>
+<gama-local xmlns="http://www.gnu.org/software/gama/gama-local">
+    <network >
+        
+        <description>
+            Network doc created by fire-gama (https://github.com/Septima/fire-gama)
+            test_writer.py -> GamaWriter.take_all_points() Antal punkter: 1426
+            GamaNetworkDoc.set_fixed_points: Antal punkter0
+            GamaNetworkDoc.set_observations: Antal observationer838
+        </description>
+        <points-observations >
+            
+            <point id="7CA9F53D-DF5B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF5A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF2C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF2B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF23-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF24-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF1C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEEC-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF15-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF16-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF17-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF04-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF05-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF03-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DF02-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEFE-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEFD-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEF9-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEF8-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEF5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEF6-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEF2-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEF3-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEF4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEF0-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEEE-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC07-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEE2-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEE3-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEE4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEE1-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEE0-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEDE-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEDF-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEDC-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEDB-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DED3-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DED4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DED6-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DED5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DED0-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAB7-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DACE-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEC0-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC7C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEBD-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEBF-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEBE-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEBB-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC1F-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEB9-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEBA-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEB8-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC77-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEB3-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEB5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEAD-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEB0-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEAE-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC15-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEAC-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEAB-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEAA-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEA9-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEA5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEA6-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DEA2-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC20-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC8C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC8A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC89-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC82-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC7F-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC86-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC85-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC84-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBF7-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC83-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC09-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC7E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBEB-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC81-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC80-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC79-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBB4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC7B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBAA-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC7A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC6F-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC71-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC70-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC74-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC72-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC6C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC6D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC6A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC18-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC62-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBF1-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC5D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBEF-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC5F-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC5E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC58-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBA1-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC5C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBA7-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC5B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC5A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC59-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC54-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC55-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC57-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC56-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBF9-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC53-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC50-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC51-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC4F-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC4E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC4D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC4B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC4A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC49-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBB2-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC40-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBB8-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBB3-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBAE-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC3E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBAF-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBAC-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC48-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBA9-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBA5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBA2-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBA4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBA3-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB9B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB98-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB9E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB9D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB9C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB96-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB97-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB90-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBB5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB87-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB88-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB86-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB85-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB84-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB83-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB7B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB7D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB7C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB76-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB27-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB28-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB7A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB2C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB1F-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB1C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB79-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB1B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB78-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB77-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB26-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB25-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB75-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB74-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE0D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB6C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB6D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB6E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB65-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB67-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB66-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB56-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB57-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB55-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB54-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB42-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB44-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB43-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB3D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB3E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB31-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAF5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB2A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB24-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB29-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB22-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB23-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB19-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB1A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB20-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC47-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC46-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC45-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC44-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC41-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC3D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC2E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC2D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC2C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC24-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC25-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC17-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC16-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC0F-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC10-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC0E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBFA-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC05-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC06-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DC00-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBFF-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB1E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB1D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB09-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB0A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB05-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB04-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB00-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DB01-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAE9-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAFF-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAFD-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAF4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAF3-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAF2-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAEE-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAEF-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAEB-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAEC-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAED-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAE7-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAD0-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAB9-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAE6-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAE5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAE4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAD8-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAD9-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAD4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAD5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DACF-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAC1-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DABB-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DABC-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DABD-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAB8-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAB4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DAB5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE87-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE88-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE8B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE8A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE89-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE75-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE6F-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE70-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE71-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE72-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE61-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE60-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE62-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE5E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE5F-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE4E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE5B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE5A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE57-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE58-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE51-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE47-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE50-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE26-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE4C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE4B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE4A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE38-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE39-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE3C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE3B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE3A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE2D-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE2E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE27-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE25-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE24-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE23-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBF4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBF2-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBF3-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBED-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBEE-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBC3-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBBB-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBC5-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBC0-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBC4-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBC2-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DBBD-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE1C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE1B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE14-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DDFD-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE07-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE06-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE03-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE02-59C0-E053-1A041EAC5678" adj="z" />
+            <dh from="7CA9F53D-DF5B-59C0-E053-1A041EAC5678" to="7CA9F53D-DF5A-59C0-E053-1A041EAC5678" val="-4.99261" dist="?" stdev="0.0010074244388538526" />
+            <dh from="7CA9F53D-DF5A-59C0-E053-1A041EAC5678" to="7CA9F53D-DF5B-59C0-E053-1A041EAC5678" val="4.9958" dist="?" stdev="0.001007455706222363" />
+            <dh from="7CA9F53D-DF2C-59C0-E053-1A041EAC5678" to="7CA9F53D-DF2B-59C0-E053-1A041EAC5678" val="4.42255" dist="?" stdev="0.0010014809034624675" />
+            <dh from="7CA9F53D-DF2B-59C0-E053-1A041EAC5678" to="7CA9F53D-DF2C-59C0-E053-1A041EAC5678" val="-4.42244" dist="?" stdev="0.0010014789064179035" />
+            <dh from="7CA9F53D-DF23-59C0-E053-1A041EAC5678" to="7CA9F53D-DF24-59C0-E053-1A041EAC5678" val="-4.1196" dist="?" stdev="0.0010010654324268719" />
+            <dh from="7CA9F53D-DF24-59C0-E053-1A041EAC5678" to="7CA9F53D-DF23-59C0-E053-1A041EAC5678" val="4.11965" dist="?" stdev="0.0010010654324268719" />
+            <dh from="7CA9F53D-DF1C-59C0-E053-1A041EAC5678" to="7CA9F53D-DEEC-59C0-E053-1A041EAC5678" val="-25.70446" dist="?" stdev="0.0005052365782482499" />
+            <dh from="7CA9F53D-DEEC-59C0-E053-1A041EAC5678" to="7CA9F53D-DF1C-59C0-E053-1A041EAC5678" val="25.70324" dist="?" stdev="0.0005052484537334083" />
+            <dh from="7CA9F53D-DF15-59C0-E053-1A041EAC5678" to="7CA9F53D-DF16-59C0-E053-1A041EAC5678" val="2.06607" dist="?" stdev="0.0005042023403357029" />
+            <dh from="7CA9F53D-DF16-59C0-E053-1A041EAC5678" to="7CA9F53D-DF15-59C0-E053-1A041EAC5678" val="-2.06622" dist="?" stdev="0.0005044085645585332" />
+            <dh from="7CA9F53D-DF17-59C0-E053-1A041EAC5678" to="7CA9F53D-DF16-59C0-E053-1A041EAC5678" val="-2.82847" dist="?" stdev="0.0005041904402108394" />
+            <dh from="7CA9F53D-DF16-59C0-E053-1A041EAC5678" to="7CA9F53D-DF17-59C0-E053-1A041EAC5678" val="2.82797" dist="?" stdev="0.0005045948870133347" />
+            <dh from="7CA9F53D-DF04-59C0-E053-1A041EAC5678" to="7CA9F53D-DF05-59C0-E053-1A041EAC5678" val="0.44784" dist="?" stdev="0.0005023106608464526" />
+            <dh from="7CA9F53D-DF05-59C0-E053-1A041EAC5678" to="7CA9F53D-DF04-59C0-E053-1A041EAC5678" val="-0.44838" dist="?" stdev="0.0005023106608464526" />
+            <dh from="7CA9F53D-DF03-59C0-E053-1A041EAC5678" to="7CA9F53D-DF02-59C0-E053-1A041EAC5678" val="-0.8454" dist="?" stdev="0.0005051257269235057" />
+            <dh from="7CA9F53D-DF02-59C0-E053-1A041EAC5678" to="7CA9F53D-DF03-59C0-E053-1A041EAC5678" val="0.84446" dist="?" stdev="0.0005050821715325141" />
+            <dh from="7CA9F53D-DEFE-59C0-E053-1A041EAC5678" to="7CA9F53D-DEFD-59C0-E053-1A041EAC5678" val="0.15976" dist="?" stdev="0.0010008496390567366" />
+            <dh from="7CA9F53D-DEFD-59C0-E053-1A041EAC5678" to="7CA9F53D-DEFE-59C0-E053-1A041EAC5678" val="-0.15948" dist="?" stdev="0.0010008396474960413" />
+            <dh from="7CA9F53D-DEF9-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF8-59C0-E053-1A041EAC5678" val="0.02903" dist="?" stdev="0.001000255967240386" />
+            <dh from="7CA9F53D-DEF8-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF9-59C0-E053-1A041EAC5678" val="-0.02887" dist="?" stdev="0.0010002759619225086" />
+            <dh from="7CA9F53D-DEF5-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF6-59C0-E053-1A041EAC5678" val="0.872" dist="?" stdev="0.0005043332231768992" />
+            <dh from="7CA9F53D-DEF6-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF5-59C0-E053-1A041EAC5678" val="-0.8733" dist="?" stdev="0.0005043292575292455" />
+            <dh from="7CA9F53D-DEF2-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF3-59C0-E053-1A041EAC5678" val="0.00137" dist="?" stdev="0.00013820274961085253" />
+            <dh from="7CA9F53D-DEF2-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" val="-0.98719" dist="?" stdev="0.00013820274961085253" />
+            <dh from="7CA9F53D-DEF3-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF2-59C0-E053-1A041EAC5678" val="-0.00131" dist="?" stdev="0.00013820274961085253" />
+            <dh from="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF2-59C0-E053-1A041EAC5678" val="0.9872" dist="?" stdev="0.00013820274961085253" />
+            <dh from="7CA9F53D-DEF4-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF0-59C0-E053-1A041EAC5678" val="-0.98997" dist="?" stdev="8.426149773176359e-05" />
+            <dh from="7CA9F53D-DEF4-59C0-E053-1A041EAC5678" to="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" val="-0.98699" dist="?" stdev="8.999999999999999e-05" />
+            <dh from="7CA9F53D-DEF0-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF4-59C0-E053-1A041EAC5678" val="0.99004" dist="?" stdev="8.426149773176359e-05" />
+            <dh from="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF4-59C0-E053-1A041EAC5678" val="0.98701" dist="?" stdev="8.999999999999999e-05" />
+            <dh from="7CA9F53D-DEF3-59C0-E053-1A041EAC5678" to="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" val="-0.98935" dist="?" stdev="0.00013820274961085253" />
+            <dh from="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF3-59C0-E053-1A041EAC5678" val="0.98933" dist="?" stdev="0.00013820274961085253" />
+            <dh from="7CA9F53D-DEEE-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF0-59C0-E053-1A041EAC5678" val="-0.00175" dist="?" stdev="0.0001584297951775486" />
+            <dh from="7CA9F53D-DEEE-59C0-E053-1A041EAC5678" to="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" val="0.00119" dist="?" stdev="0.00015524174696260025" />
+            <dh from="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" to="7CA9F53D-DEEE-59C0-E053-1A041EAC5678" val="-0.00127" dist="?" stdev="0.00015524174696260025" />
+            <dh from="7CA9F53D-DEF0-59C0-E053-1A041EAC5678" to="7CA9F53D-DEEE-59C0-E053-1A041EAC5678" val="0.00162" dist="?" stdev="0.0001584297951775486" />
+            <dh from="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" to="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" val="-0.00083" dist="?" stdev="0.00016155494421403512" />
+            <dh from="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF0-59C0-E053-1A041EAC5678" val="-0.00384" dist="?" stdev="0.00016462077633154327" />
+            <dh from="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" to="7CA9F53D-DC07-59C0-E053-1A041EAC5678" val="3.79421" dist="?" stdev="0.00014866068747318504" />
+            <dh from="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" to="7CA9F53D-DC07-59C0-E053-1A041EAC5678" val="3.79446" dist="?" stdev="0.0001676305461424021" />
+            <dh from="7CA9F53D-DC07-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" val="-3.79483" dist="?" stdev="0.0001676305461424021" />
+            <dh from="7CA9F53D-DC07-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" val="-3.79453" dist="?" stdev="0.00014866068747318504" />
+            <dh from="7CA9F53D-DEF0-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" val="0.00376" dist="?" stdev="0.00016462077633154327" />
+            <dh from="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF1-59C0-E053-1A041EAC5678" val="0.00079" dist="?" stdev="0.00016155494421403512" />
+            <dh from="7CA9F53D-DEF0-59C0-E053-1A041EAC5678" to="7CA9F53D-DC07-59C0-E053-1A041EAC5678" val="3.79833" dist="?" stdev="0.00014866068747318504" />
+            <dh from="7CA9F53D-DC07-59C0-E053-1A041EAC5678" to="7CA9F53D-DEF0-59C0-E053-1A041EAC5678" val="-3.7984" dist="?" stdev="0.00014866068747318504" />
+            <dh from="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" to="7CA9F53D-DC07-59C0-E053-1A041EAC5678" val="3.79539" dist="?" stdev="0.0001676305461424021" />
+            <dh from="7CA9F53D-DC07-59C0-E053-1A041EAC5678" to="7CA9F53D-DEEF-59C0-E053-1A041EAC5678" val="-3.79593" dist="?" stdev="0.0001676305461424021" />
+            <dh from="7CA9F53D-DEE2-59C0-E053-1A041EAC5678" to="7CA9F53D-DEE3-59C0-E053-1A041EAC5678" val="1.45491" dist="?" stdev="0.0005032534152889576" />
+            <dh from="7CA9F53D-DEE3-59C0-E053-1A041EAC5678" to="7CA9F53D-DEE2-59C0-E053-1A041EAC5678" val="-1.45401" dist="?" stdev="0.000503432219866786" />
+            <dh from="7CA9F53D-DEE4-59C0-E053-1A041EAC5678" to="7CA9F53D-DEE3-59C0-E053-1A041EAC5678" val="0.24282" dist="?" stdev="0.0005034798903630611" />
+            <dh from="7CA9F53D-DEE3-59C0-E053-1A041EAC5678" to="7CA9F53D-DEE4-59C0-E053-1A041EAC5678" val="-0.24462" dist="?" stdev="0.0005036427305143995" />
+            <dh from="7CA9F53D-DEE1-59C0-E053-1A041EAC5678" to="7CA9F53D-DEE0-59C0-E053-1A041EAC5678" val="0.29305" dist="?" stdev="0.0005017317510383412" />
+            <dh from="7CA9F53D-DEE0-59C0-E053-1A041EAC5678" to="7CA9F53D-DEE1-59C0-E053-1A041EAC5678" val="-0.2928" dist="?" stdev="0.0005017608992338881" />
+            <dh from="7CA9F53D-DEDE-59C0-E053-1A041EAC5678" to="7CA9F53D-DEDF-59C0-E053-1A041EAC5678" val="0.11884" dist="?" stdev="0.0005016779345356939" />
+            <dh from="7CA9F53D-DEDF-59C0-E053-1A041EAC5678" to="7CA9F53D-DEDE-59C0-E053-1A041EAC5678" val="-0.11906" dist="?" stdev="0.0005018460919445323" />
+            <dh from="7CA9F53D-DEE0-59C0-E053-1A041EAC5678" to="7CA9F53D-DEDF-59C0-E053-1A041EAC5678" val="0.88109" dist="?" stdev="0.0005017878037577239" />
+            <dh from="7CA9F53D-DEDF-59C0-E053-1A041EAC5678" to="7CA9F53D-DEE0-59C0-E053-1A041EAC5678" val="-0.88201" dist="?" stdev="0.0005017878037577239" />
+            <dh from="7CA9F53D-DEDC-59C0-E053-1A041EAC5678" to="7CA9F53D-DEDB-59C0-E053-1A041EAC5678" val="1.80933" dist="?" stdev="0.0005011147573161261" />
+            <dh from="7CA9F53D-DEDB-59C0-E053-1A041EAC5678" to="7CA9F53D-DEDC-59C0-E053-1A041EAC5678" val="-1.80806" dist="?" stdev="0.000501102783867741" />
+            <dh from="7CA9F53D-DED3-59C0-E053-1A041EAC5678" to="7CA9F53D-DED4-59C0-E053-1A041EAC5678" val="-0.00839" dist="?" stdev="0.0002531797780234433" />
+            <dh from="7CA9F53D-DED3-59C0-E053-1A041EAC5678" to="7CA9F53D-DED6-59C0-E053-1A041EAC5678" val="0.37345" dist="?" stdev="0.0002570992026436488" />
+            <dh from="7CA9F53D-DED4-59C0-E053-1A041EAC5678" to="7CA9F53D-DED3-59C0-E053-1A041EAC5678" val="0.00841" dist="?" stdev="0.0002531797780234433" />
+            <dh from="7CA9F53D-DED6-59C0-E053-1A041EAC5678" to="7CA9F53D-DED3-59C0-E053-1A041EAC5678" val="-0.3733" dist="?" stdev="0.0002570992026436488" />
+            <dh from="7CA9F53D-DED6-59C0-E053-1A041EAC5678" to="7CA9F53D-DED5-59C0-E053-1A041EAC5678" val="-0.1481" dist="?" stdev="0.00029" />
+            <dh from="7CA9F53D-DED5-59C0-E053-1A041EAC5678" to="7CA9F53D-DED6-59C0-E053-1A041EAC5678" val="0.14845" dist="?" stdev="0.00029" />
+            <dh from="7CA9F53D-DED0-59C0-E053-1A041EAC5678" to="7CA9F53D-DAB7-59C0-E053-1A041EAC5678" val="-0.97655" dist="?" stdev="0.0005038729998719916" />
+            <dh from="7CA9F53D-DED0-59C0-E053-1A041EAC5678" to="7CA9F53D-DACE-59C0-E053-1A041EAC5678" val="2.7942" dist="?" stdev="0.000503205723337881" />
+            <dh from="7CA9F53D-DAB7-59C0-E053-1A041EAC5678" to="7CA9F53D-DED0-59C0-E053-1A041EAC5678" val="0.97516" dist="?" stdev="0.0005038729998719916" />
+            <dh from="7CA9F53D-DACE-59C0-E053-1A041EAC5678" to="7CA9F53D-DED0-59C0-E053-1A041EAC5678" val="-2.7955" dist="?" stdev="0.0005032096978397773" />
+            <dh from="7CA9F53D-DEC0-59C0-E053-1A041EAC5678" to="7CA9F53D-DC7C-59C0-E053-1A041EAC5678" val="-2.6704" dist="?" stdev="0.0029749117633973616" />
+            <dh from="7CA9F53D-DC7C-59C0-E053-1A041EAC5678" to="7CA9F53D-DEC0-59C0-E053-1A041EAC5678" val="2.6699" dist="?" stdev="0.0029664962497869436" />
+            <dh from="7CA9F53D-DEBD-59C0-E053-1A041EAC5678" to="7CA9F53D-DEBC-59C0-E053-1A041EAC5678" val="0.785" dist="?" stdev="0.0033726992157617616" />
+            <dh from="7CA9F53D-DEBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DEBE-59C0-E053-1A041EAC5678" val="4.074" dist="?" stdev="0.003102434527915134" />
+            <dh from="7CA9F53D-DEBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DEBD-59C0-E053-1A041EAC5678" val="-19.067" dist="?" stdev="0.004560712663608617" />
+            <dh from="7CA9F53D-DEBB-59C0-E053-1A041EAC5678" to="7CA9F53D-DC8C-59C0-E053-1A041EAC5678" val="2.4013" dist="?" stdev="0.0034568916673798156" />
+            <dh from="7CA9F53D-DC1F-59C0-E053-1A041EAC5678" to="7CA9F53D-DEBB-59C0-E053-1A041EAC5678" val="3.0413" dist="?" stdev="0.003482111428429596" />
+            <dh from="7CA9F53D-DEB9-59C0-E053-1A041EAC5678" to="7CA9F53D-DEBA-59C0-E053-1A041EAC5678" val="4.3997" dist="?" stdev="0.004144285221844655" />
+            <dh from="7CA9F53D-DEBA-59C0-E053-1A041EAC5678" to="7CA9F53D-DEB9-59C0-E053-1A041EAC5678" val="-4.3985" dist="?" stdev="0.0041109731208072865" />
+            <dh from="7CA9F53D-DEB8-59C0-E053-1A041EAC5678" to="7CA9F53D-DC72-59C0-E053-1A041EAC5678" val="-13.8956" dist="?" stdev="0.004808856412911493" />
+            <dh from="7CA9F53D-DC77-59C0-E053-1A041EAC5678" to="7CA9F53D-DEB8-59C0-E053-1A041EAC5678" val="-2.0972" dist="?" stdev="0.0035672258128691546" />
+            <dh from="7CA9F53D-DEB3-59C0-E053-1A041EAC5678" to="7CA9F53D-DEB2-59C0-E053-1A041EAC5678" val="-2.229" dist="?" stdev="0.003882666609432234" />
+            <dh from="7CA9F53D-DEB5-59C0-E053-1A041EAC5678" to="7CA9F53D-DEB3-59C0-E053-1A041EAC5678" val="2.1257" dist="?" stdev="0.0035000142856851314" />
+            <dh from="7CA9F53D-DEAD-59C0-E053-1A041EAC5678" to="7CA9F53D-DEB1-59C0-E053-1A041EAC5678" val="-4.7291" dist="?" stdev="0.003078165037810676" />
+            <dh from="7CA9F53D-DEB0-59C0-E053-1A041EAC5678" to="7CA9F53D-DC15-59C0-E053-1A041EAC5678" val="0.103" dist="?" stdev="0.0035355480480400775" />
+            <dh from="7CA9F53D-DEAE-59C0-E053-1A041EAC5678" to="7CA9F53D-DEB0-59C0-E053-1A041EAC5678" val="2.3938" dist="?" stdev="0.0029069055712217418" />
+            <dh from="7CA9F53D-DEAE-59C0-E053-1A041EAC5678" to="7CA9F53D-DEAD-59C0-E053-1A041EAC5678" val="-2.5842" dist="?" stdev="0.004034240944713144" />
+            <dh from="7CA9F53D-DC15-59C0-E053-1A041EAC5678" to="7CA9F53D-DEAE-59C0-E053-1A041EAC5678" val="-2.5001" dist="?" stdev="0.004006257605296993" />
+            <dh from="7CA9F53D-DEAC-59C0-E053-1A041EAC5678" to="7CA9F53D-DEAB-59C0-E053-1A041EAC5678" val="2.2444" dist="?" stdev="0.003236525915236892" />
+            <dh from="7CA9F53D-DC15-59C0-E053-1A041EAC5678" to="7CA9F53D-DEAC-59C0-E053-1A041EAC5678" val="-5.1196" dist="?" stdev="0.003293948997783663" />
+            <dh from="7CA9F53D-DEAB-59C0-E053-1A041EAC5678" to="7CA9F53D-DC15-59C0-E053-1A041EAC5678" val="2.8754" dist="?" stdev="0.0037148485837245103" />
+            <dh from="7CA9F53D-DEAA-59C0-E053-1A041EAC5678" to="7CA9F53D-DEA9-59C0-E053-1A041EAC5678" val="0.4746" dist="?" stdev="0.0031504126713813225" />
+            <dh from="7CA9F53D-DEA9-59C0-E053-1A041EAC5678" to="7CA9F53D-DEAA-59C0-E053-1A041EAC5678" val="-0.473" dist="?" stdev="0.003102434527915134" />
+            <dh from="7CA9F53D-DEA5-59C0-E053-1A041EAC5678" to="7CA9F53D-DEA6-59C0-E053-1A041EAC5678" val="12.8185" dist="?" stdev="0.003427841886668637" />
+            <dh from="7CA9F53D-DEA6-59C0-E053-1A041EAC5678" to="7CA9F53D-DEA5-59C0-E053-1A041EAC5678" val="-12.8171" dist="?" stdev="0.0033652785917365003" />
+            <dh from="7CA9F53D-DEA2-59C0-E053-1A041EAC5678" to="7CA9F53D-DC20-59C0-E053-1A041EAC5678" val="-10.0577" dist="?" stdev="0.0036844402559954746" />
+            <dh from="7CA9F53D-DC20-59C0-E053-1A041EAC5678" to="7CA9F53D-DEA2-59C0-E053-1A041EAC5678" val="10.0578" dist="?" stdev="0.003701364613220373" />
+            <dh from="7CA9F53D-DC8C-59C0-E053-1A041EAC5678" to="7CA9F53D-DC1F-59C0-E053-1A041EAC5678" val="-5.4406" dist="?" stdev="0.004147300326718575" />
+            <dh from="7CA9F53D-DC8A-59C0-E053-1A041EAC5678" to="7CA9F53D-DC89-59C0-E053-1A041EAC5678" val="31.1596" dist="?" stdev="0.007097541827985236" />
+            <dh from="7CA9F53D-DC89-59C0-E053-1A041EAC5678" to="7CA9F53D-DC8A-59C0-E053-1A041EAC5678" val="-31.1618" dist="?" stdev="0.007078142411678363" />
+            <dh from="7CA9F53D-DC82-59C0-E053-1A041EAC5678" to="7CA9F53D-DBEB-59C0-E053-1A041EAC5678" val="-5.4838" dist="?" stdev="0.00412008495058051" />
+            <dh from="7CA9F53D-DC7F-59C0-E053-1A041EAC5678" to="7CA9F53D-DC82-59C0-E053-1A041EAC5678" val="-4.4464" dist="?" stdev="0.0038891001529916917" />
+            <dh from="7CA9F53D-DC86-59C0-E053-1A041EAC5678" to="7CA9F53D-DBF7-59C0-E053-1A041EAC5678" val="-1.6147" dist="?" stdev="0.00251" />
+            <dh from="7CA9F53D-DC85-59C0-E053-1A041EAC5678" to="7CA9F53D-DC86-59C0-E053-1A041EAC5678" val="-1.2445" dist="?" stdev="0.0028416720430056667" />
+            <dh from="7CA9F53D-DC84-59C0-E053-1A041EAC5678" to="7CA9F53D-DC85-59C0-E053-1A041EAC5678" val="3.9335" dist="?" stdev="0.003142467183599536" />
+            <dh from="7CA9F53D-DBF7-59C0-E053-1A041EAC5678" to="7CA9F53D-DC84-59C0-E053-1A041EAC5678" val="-1.0725" dist="?" stdev="0.0030822232235839116" />
+            <dh from="7CA9F53D-DC83-59C0-E053-1A041EAC5678" to="7CA9F53D-DC09-59C0-E053-1A041EAC5678" val="0.3957" dist="?" stdev="0.0027386310448835566" />
+            <dh from="7CA9F53D-DC09-59C0-E053-1A041EAC5678" to="7CA9F53D-DC83-59C0-E053-1A041EAC5678" val="-0.3944" dist="?" stdev="0.0027749054037930735" />
+            <dh from="7CA9F53D-DC7E-59C0-E053-1A041EAC5678" to="7CA9F53D-DC80-59C0-E053-1A041EAC5678" val="7.5262" dist="?" stdev="0.003959179207866197" />
+            <dh from="7CA9F53D-DBEB-59C0-E053-1A041EAC5678" to="7CA9F53D-DC7E-59C0-E053-1A041EAC5678" val="2.6797" dist="?" stdev="0.004921900039618846" />
+            <dh from="7CA9F53D-DC81-59C0-E053-1A041EAC5678" to="7CA9F53D-DC7F-59C0-E053-1A041EAC5678" val="2.4234" dist="?" stdev="0.00418629908152774" />
+            <dh from="7CA9F53D-DC80-59C0-E053-1A041EAC5678" to="7CA9F53D-DC81-59C0-E053-1A041EAC5678" val="-2.6967" dist="?" stdev="0.004092688602862426" />
+            <dh from="7CA9F53D-DC79-59C0-E053-1A041EAC5678" to="7CA9F53D-DBB4-59C0-E053-1A041EAC5678" val="4.967" dist="?" stdev="0.004378938227470216" />
+            <dh from="7CA9F53D-DBB4-59C0-E053-1A041EAC5678" to="7CA9F53D-DC79-59C0-E053-1A041EAC5678" val="-4.9698" dist="?" stdev="0.004407391518801115" />
+            <dh from="7CA9F53D-DC7B-59C0-E053-1A041EAC5678" to="7CA9F53D-DBAA-59C0-E053-1A041EAC5678" val="-0.8319" dist="?" stdev="0.004304079460233048" />
+            <dh from="7CA9F53D-DBAA-59C0-E053-1A041EAC5678" to="7CA9F53D-DC7B-59C0-E053-1A041EAC5678" val="0.8348" dist="?" stdev="0.004295357959472062" />
+            <dh from="7CA9F53D-DC7A-59C0-E053-1A041EAC5678" to="7CA9F53D-DBAA-59C0-E053-1A041EAC5678" val="-4.2666" dist="?" stdev="0.004080453406179269" />
+            <dh from="7CA9F53D-DBAA-59C0-E053-1A041EAC5678" to="7CA9F53D-DC7A-59C0-E053-1A041EAC5678" val="4.2675" dist="?" stdev="0.004037338232053391" />
+            <dh from="7CA9F53D-DC6F-59C0-E053-1A041EAC5678" to="7CA9F53D-DC71-59C0-E053-1A041EAC5678" val="0.871" dist="?" stdev="0.0042160526562176615" />
+            <dh from="7CA9F53D-DC6F-59C0-E053-1A041EAC5678" to="7CA9F53D-DC70-59C0-E053-1A041EAC5678" val="3.1407" dist="?" stdev="0.004101841050065202" />
+            <dh from="7CA9F53D-DC71-59C0-E053-1A041EAC5678" to="7CA9F53D-DC6F-59C0-E053-1A041EAC5678" val="-0.8696" dist="?" stdev="0.004129176673381753" />
+            <dh from="7CA9F53D-DC70-59C0-E053-1A041EAC5678" to="7CA9F53D-DC6F-59C0-E053-1A041EAC5678" val="-3.1392" dist="?" stdev="0.004018718701277809" />
+            <dh from="7CA9F53D-DC74-59C0-E053-1A041EAC5678" to="7CA9F53D-DC73-59C0-E053-1A041EAC5678" val="-5.2562" dist="?" stdev="0.0028195921690911258" />
+            <dh from="7CA9F53D-DC72-59C0-E053-1A041EAC5678" to="7CA9F53D-DC74-59C0-E053-1A041EAC5678" val="14.4915" dist="?" stdev="0.0037848513841365027" />
+            <dh from="7CA9F53D-DC6C-59C0-E053-1A041EAC5678" to="7CA9F53D-DC6D-59C0-E053-1A041EAC5678" val="0.70228" dist="?" stdev="0.0010008344018867456" />
+            <dh from="7CA9F53D-DC6D-59C0-E053-1A041EAC5678" to="7CA9F53D-DC6C-59C0-E053-1A041EAC5678" val="-0.69987" dist="?" stdev="0.0010008051758459285" />
+            <dh from="7CA9F53D-DC6A-59C0-E053-1A041EAC5678" to="7CA9F53D-DC18-59C0-E053-1A041EAC5678" val="-12.01371" dist="?" stdev="0.0005084781214565677" />
+            <dh from="7CA9F53D-DC18-59C0-E053-1A041EAC5678" to="7CA9F53D-DC6A-59C0-E053-1A041EAC5678" val="12.0126" dist="?" stdev="0.0005084958210251093" />
+            <dh from="7CA9F53D-DC62-59C0-E053-1A041EAC5678" to="7CA9F53D-DBF1-59C0-E053-1A041EAC5678" val="7.9642" dist="?" stdev="0.0070356307464221" />
+            <dh from="7CA9F53D-DBF1-59C0-E053-1A041EAC5678" to="7CA9F53D-DC62-59C0-E053-1A041EAC5678" val="-7.9612" dist="?" stdev="0.007071074882929752" />
+            <dh from="7CA9F53D-DC5D-59C0-E053-1A041EAC5678" to="7CA9F53D-DBEF-59C0-E053-1A041EAC5678" val="0.0865" dist="?" stdev="0.004367505008583275" />
+            <dh from="7CA9F53D-DBEF-59C0-E053-1A041EAC5678" to="7CA9F53D-DC5D-59C0-E053-1A041EAC5678" val="-0.0837" dist="?" stdev="0.004364642024267282" />
+            <dh from="7CA9F53D-DC5F-59C0-E053-1A041EAC5678" to="7CA9F53D-DC5E-59C0-E053-1A041EAC5678" val="2.7968" dist="?" stdev="0.003521377571349031" />
+            <dh from="7CA9F53D-DC5E-59C0-E053-1A041EAC5678" to="7CA9F53D-DC5F-59C0-E053-1A041EAC5678" val="-2.7959" dist="?" stdev="0.003521377571349031" />
+            <dh from="7CA9F53D-DC58-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA1-59C0-E053-1A041EAC5678" val="0.9114" dist="?" stdev="0.0032287923438957793" />
+            <dh from="7CA9F53D-DBA1-59C0-E053-1A041EAC5678" to="7CA9F53D-DC58-59C0-E053-1A041EAC5678" val="-0.9097" dist="?" stdev="0.0032287923438957793" />
+            <dh from="7CA9F53D-DC5C-59C0-E053-1A041EAC5678" to="7CA9F53D-DC5B-59C0-E053-1A041EAC5678" val="1.6446" dist="?" stdev="0.003335431006631677" />
+            <dh from="7CA9F53D-DBA7-59C0-E053-1A041EAC5678" to="7CA9F53D-DC5C-59C0-E053-1A041EAC5678" val="-5.1711" dist="?" stdev="0.0027658814146669414" />
+            <dh from="7CA9F53D-DC5B-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA7-59C0-E053-1A041EAC5678" val="3.5287" dist="?" stdev="0.003301529948372421" />
+            <dh from="7CA9F53D-DC5A-59C0-E053-1A041EAC5678" to="7CA9F53D-DC59-59C0-E053-1A041EAC5678" val="3.8483" dist="?" stdev="0.0029622795276610884" />
+            <dh from="7CA9F53D-DC5A-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA4-59C0-E053-1A041EAC5678" val="2.6125" dist="?" stdev="0.0037081127275205646" />
+            <dh from="7CA9F53D-DC59-59C0-E053-1A041EAC5678" to="7CA9F53D-DC5A-59C0-E053-1A041EAC5678" val="-3.85" dist="?" stdev="0.0029240554030318918" />
+            <dh from="7CA9F53D-DC59-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA1-59C0-E053-1A041EAC5678" val="4.8111" dist="?" stdev="0.002544621779361326" />
+            <dh from="7CA9F53D-DBA1-59C0-E053-1A041EAC5678" to="7CA9F53D-DC59-59C0-E053-1A041EAC5678" val="-4.8117" dist="?" stdev="0.002529841892292876" />
+            <dh from="7CA9F53D-DC54-59C0-E053-1A041EAC5678" to="7CA9F53D-DC55-59C0-E053-1A041EAC5678" val="-0.411" dist="?" stdev="0.005017479446893629" />
+            <dh from="7CA9F53D-DC55-59C0-E053-1A041EAC5678" to="7CA9F53D-DC54-59C0-E053-1A041EAC5678" val="0.411" dist="?" stdev="0.00501" />
+            <dh from="7CA9F53D-DC57-59C0-E053-1A041EAC5678" to="7CA9F53D-DC56-59C0-E053-1A041EAC5678" val="-3.606" dist="?" stdev="0.0030249132218957953" />
+            <dh from="7CA9F53D-DC56-59C0-E053-1A041EAC5678" to="7CA9F53D-DC57-59C0-E053-1A041EAC5678" val="3.606" dist="?" stdev="0.003029042753082234" />
+            <dh from="7CA9F53D-DC56-59C0-E053-1A041EAC5678" to="7CA9F53D-DBF9-59C0-E053-1A041EAC5678" val="1.733" dist="?" stdev="0.0031265156324573207" />
+            <dh from="7CA9F53D-DBF9-59C0-E053-1A041EAC5678" to="7CA9F53D-DC56-59C0-E053-1A041EAC5678" val="-1.73" dist="?" stdev="0.0031225150119735213" />
+            <dh from="7CA9F53D-DC55-59C0-E053-1A041EAC5678" to="7CA9F53D-DBF9-59C0-E053-1A041EAC5678" val="0.987" dist="?" stdev="0.0032596165418650094" />
+            <dh from="7CA9F53D-DBF9-59C0-E053-1A041EAC5678" to="7CA9F53D-DC55-59C0-E053-1A041EAC5678" val="-0.987" dist="?" stdev="0.0032442410514633463" />
+            <dh from="7CA9F53D-DC53-59C0-E053-1A041EAC5678" to="7CA9F53D-DC51-59C0-E053-1A041EAC5678" val="-0.063" dist="?" stdev="0.003876222387841028" />
+            <dh from="7CA9F53D-DC50-59C0-E053-1A041EAC5678" to="7CA9F53D-DC52-59C0-E053-1A041EAC5678" val="0.124" dist="?" stdev="0.0027203124820505457" />
+            <dh from="7CA9F53D-DC51-59C0-E053-1A041EAC5678" to="7CA9F53D-DC50-59C0-E053-1A041EAC5678" val="0.3723" dist="?" stdev="0.003189843256337214" />
+            <dh from="7CA9F53D-DC4F-59C0-E053-1A041EAC5678" to="7CA9F53D-DC4D-59C0-E053-1A041EAC5678" val="-0.9006" dist="?" stdev="0.0028372698144519142" />
+            <dh from="7CA9F53D-DC4E-59C0-E053-1A041EAC5678" to="7CA9F53D-DC4F-59C0-E053-1A041EAC5678" val="4.2966" dist="?" stdev="0.003532010758760511" />
+            <dh from="7CA9F53D-DC4D-59C0-E053-1A041EAC5678" to="7CA9F53D-DC4E-59C0-E053-1A041EAC5678" val="-3.3963" dist="?" stdev="0.002919777388774699" />
+            <dh from="7CA9F53D-DC4B-59C0-E053-1A041EAC5678" to="7CA9F53D-DC4A-59C0-E053-1A041EAC5678" val="-2.5306" dist="?" stdev="0.0027203124820505457" />
+            <dh from="7CA9F53D-DC4B-59C0-E053-1A041EAC5678" to="7CA9F53D-DC49-59C0-E053-1A041EAC5678" val="-0.5455" dist="?" stdev="0.0024799395153914544" />
+            <dh from="7CA9F53D-DC4A-59C0-E053-1A041EAC5678" to="7CA9F53D-DC4B-59C0-E053-1A041EAC5678" val="2.5319" dist="?" stdev="0.0027157135342300003" />
+            <dh from="7CA9F53D-DC49-59C0-E053-1A041EAC5678" to="7CA9F53D-DC4B-59C0-E053-1A041EAC5678" val="0.5446" dist="?" stdev="0.0024799395153914544" />
+            <dh from="7CA9F53D-DBB2-59C0-E053-1A041EAC5678" to="7CA9F53D-DC40-59C0-E053-1A041EAC5678" val="-1.9017" dist="?" stdev="0.0037215722483918004" />
+            <dh from="7CA9F53D-DBB2-59C0-E053-1A041EAC5678" to="7CA9F53D-DBB8-59C0-E053-1A041EAC5678" val="3.37992" dist="?" stdev="0.00089" />
+            <dh from="7CA9F53D-DBB2-59C0-E053-1A041EAC5678" to="7CA9F53D-DBB3-59C0-E053-1A041EAC5678" val="-5.35848" dist="?" stdev="0.001550193536304419" />
+            <dh from="7CA9F53D-DC40-59C0-E053-1A041EAC5678" to="7CA9F53D-DBB2-59C0-E053-1A041EAC5678" val="1.9025" dist="?" stdev="0.0036844402559954746" />
+            <dh from="7CA9F53D-DBB8-59C0-E053-1A041EAC5678" to="7CA9F53D-DBB2-59C0-E053-1A041EAC5678" val="-3.38033" dist="?" stdev="0.0008682453570276089" />
+            <dh from="7CA9F53D-DBB3-59C0-E053-1A041EAC5678" to="7CA9F53D-DBB2-59C0-E053-1A041EAC5678" val="5.35769" dist="?" stdev="0.0015494676505174285" />
+            <dh from="7CA9F53D-DBAE-59C0-E053-1A041EAC5678" to="7CA9F53D-DC3E-59C0-E053-1A041EAC5678" val="8.6909" dist="?" stdev="0.005039851188279273" />
+            <dh from="7CA9F53D-DBAE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBAF-59C0-E053-1A041EAC5678" val="12.52922" dist="?" stdev="0.0005089292681699491" />
+            <dh from="7CA9F53D-DC3E-59C0-E053-1A041EAC5678" to="7CA9F53D-DBAE-59C0-E053-1A041EAC5678" val="-8.6867" dist="?" stdev="0.00501" />
+            <dh from="7CA9F53D-DBAF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBAE-59C0-E053-1A041EAC5678" val="-12.53056" dist="?" stdev="0.0005090442024028955" />
+            <dh from="7CA9F53D-DBAC-59C0-E053-1A041EAC5678" to="7CA9F53D-DC48-59C0-E053-1A041EAC5678" val="-0.776" dist="?" stdev="0.0026172695696087553" />
+            <dh from="7CA9F53D-DC48-59C0-E053-1A041EAC5678" to="7CA9F53D-DBAC-59C0-E053-1A041EAC5678" val="0.776" dist="?" stdev="0.0026552024404930034" />
+            <dh from="7CA9F53D-DBA9-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA5-59C0-E053-1A041EAC5678" val="-3.03766" dist="?" stdev="0.0005079734245017155" />
+            <dh from="7CA9F53D-DBA9-59C0-E053-1A041EAC5678" to="7CA9F53D-DBAA-59C0-E053-1A041EAC5678" val="-3.47578" dist="?" stdev="0.0005044442486539022" />
+            <dh from="7CA9F53D-DBA5-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA9-59C0-E053-1A041EAC5678" val="3.0353" dist="?" stdev="0.0005081151444308662" />
+            <dh from="7CA9F53D-DBAA-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA9-59C0-E053-1A041EAC5678" val="3.47332" dist="?" stdev="0.0005044888502236694" />
+            <dh from="7CA9F53D-DBA7-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA2-59C0-E053-1A041EAC5678" val="-5.26668" dist="?" stdev="0.0005090972402203728" />
+            <dh from="7CA9F53D-DBA2-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA7-59C0-E053-1A041EAC5678" val="5.2642" dist="?" stdev="0.0005091414341811124" />
+            <dh from="7CA9F53D-DBA4-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA3-59C0-E053-1A041EAC5678" val="-9.42382" dist="?" stdev="0.0005098127107085503" />
+            <dh from="7CA9F53D-DBA3-59C0-E053-1A041EAC5678" to="7CA9F53D-DBA4-59C0-E053-1A041EAC5678" val="9.4228" dist="?" stdev="0.0005098215374030407" />
+            <dh from="7CA9F53D-DB9B-59C0-E053-1A041EAC5678" to="7CA9F53D-DB98-59C0-E053-1A041EAC5678" val="-17.00499" dist="?" stdev="0.0005061185631845566" />
+            <dh from="7CA9F53D-DB98-59C0-E053-1A041EAC5678" to="7CA9F53D-DB9B-59C0-E053-1A041EAC5678" val="17.00527" dist="?" stdev="0.0005073440647134842" />
+            <dh from="7CA9F53D-DB9E-59C0-E053-1A041EAC5678" to="7CA9F53D-DB9D-59C0-E053-1A041EAC5678" val="0.74179" dist="?" stdev="0.000509406517429842" />
+            <dh from="7CA9F53D-DB9D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB9E-59C0-E053-1A041EAC5678" val="-0.74247" dist="?" stdev="0.0005096273148095577" />
+            <dh from="7CA9F53D-DB9D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB9C-59C0-E053-1A041EAC5678" val="8.14779" dist="?" stdev="0.000507698729563114" />
+            <dh from="7CA9F53D-DB9C-59C0-E053-1A041EAC5678" to="7CA9F53D-DB9D-59C0-E053-1A041EAC5678" val="-8.14929" dist="?" stdev="0.0005076012214327305" />
+            <dh from="7CA9F53D-DB96-59C0-E053-1A041EAC5678" to="7CA9F53D-DB97-59C0-E053-1A041EAC5678" val="-4.41469" dist="?" stdev="0.0005051217674976995" />
+            <dh from="7CA9F53D-DB97-59C0-E053-1A041EAC5678" to="7CA9F53D-DB96-59C0-E053-1A041EAC5678" val="4.41401" dist="?" stdev="0.0005063052438993694" />
+            <dh from="7CA9F53D-DB90-59C0-E053-1A041EAC5678" to="7CA9F53D-DBB5-59C0-E053-1A041EAC5678" val="7.92746" dist="?" stdev="0.0008432674546073742" />
+            <dh from="7CA9F53D-DBB5-59C0-E053-1A041EAC5678" to="7CA9F53D-DB90-59C0-E053-1A041EAC5678" val="-7.92761" dist="?" stdev="0.0008432674546073742" />
+            <dh from="7CA9F53D-DB87-59C0-E053-1A041EAC5678" to="7CA9F53D-DB88-59C0-E053-1A041EAC5678" val="-10.1973" dist="?" stdev="0.0010054302561590235" />
+            <dh from="7CA9F53D-DB88-59C0-E053-1A041EAC5678" to="7CA9F53D-DB87-59C0-E053-1A041EAC5678" val="10.19521" dist="?" stdev="0.0010054571099753584" />
+            <dh from="7CA9F53D-DB86-59C0-E053-1A041EAC5678" to="7CA9F53D-DB85-59C0-E053-1A041EAC5678" val="-7.20155" dist="?" stdev="0.0010026245558532865" />
+            <dh from="7CA9F53D-DB85-59C0-E053-1A041EAC5678" to="7CA9F53D-DB86-59C0-E053-1A041EAC5678" val="7.20271" dist="?" stdev="0.001002593137818128" />
+            <dh from="7CA9F53D-DB84-59C0-E053-1A041EAC5678" to="7CA9F53D-DB83-59C0-E053-1A041EAC5678" val="-1.34172" dist="?" stdev="0.001005134816828071" />
+            <dh from="7CA9F53D-DB83-59C0-E053-1A041EAC5678" to="7CA9F53D-DB84-59C0-E053-1A041EAC5678" val="1.33801" dist="?" stdev="0.0010053944499548424" />
+            <dh from="7CA9F53D-DB7B-59C0-E053-1A041EAC5678" to="7CA9F53D-DB7D-59C0-E053-1A041EAC5678" val="-0.3489" dist="?" stdev="0.0002570992026436488" />
+            <dh from="7CA9F53D-DB7B-59C0-E053-1A041EAC5678" to="7CA9F53D-DB7C-59C0-E053-1A041EAC5678" val="-0.30854" dist="?" stdev="0.00017349351572897473" />
+            <dh from="7CA9F53D-DB7D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB7B-59C0-E053-1A041EAC5678" val="0.34905" dist="?" stdev="0.0002570992026436488" />
+            <dh from="7CA9F53D-DB7C-59C0-E053-1A041EAC5678" to="7CA9F53D-DB7B-59C0-E053-1A041EAC5678" val="0.30866" dist="?" stdev="0.00017349351572897473" />
+            <dh from="7CA9F53D-DB7D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB7C-59C0-E053-1A041EAC5678" val="0.04013" dist="?" stdev="0.00019" />
+            <dh from="7CA9F53D-DB7C-59C0-E053-1A041EAC5678" to="7CA9F53D-DB7D-59C0-E053-1A041EAC5678" val="-0.0405" dist="?" stdev="0.00019" />
+            <dh from="7CA9F53D-DB76-59C0-E053-1A041EAC5678" to="7CA9F53D-DB27-59C0-E053-1A041EAC5678" val="19.10055" dist="?" stdev="0.0014023551618616448" />
+            <dh from="7CA9F53D-DB76-59C0-E053-1A041EAC5678" to="7CA9F53D-DB28-59C0-E053-1A041EAC5678" val="-0.90333" dist="?" stdev="0.0010585839598255776" />
+            <dh from="7CA9F53D-DB27-59C0-E053-1A041EAC5678" to="7CA9F53D-DB76-59C0-E053-1A041EAC5678" val="-19.10094" dist="?" stdev="0.0014023551618616448" />
+            <dh from="7CA9F53D-DB28-59C0-E053-1A041EAC5678" to="7CA9F53D-DB76-59C0-E053-1A041EAC5678" val="0.90357" dist="?" stdev="0.0010585839598255776" />
+            <dh from="7CA9F53D-DB7A-59C0-E053-1A041EAC5678" to="7CA9F53D-DB2C-59C0-E053-1A041EAC5678" val="-14.01915" dist="?" stdev="0.001323952416063357" />
+            <dh from="7CA9F53D-DB7A-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1F-59C0-E053-1A041EAC5678" val="-27.12418" dist="?" stdev="0.0012612890231822364" />
+            <dh from="7CA9F53D-DB7A-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1C-59C0-E053-1A041EAC5678" val="-5.67718" dist="?" stdev="0.0011696580696938742" />
+            <dh from="7CA9F53D-DB2C-59C0-E053-1A041EAC5678" to="7CA9F53D-DB7A-59C0-E053-1A041EAC5678" val="14.01972" dist="?" stdev="0.0014135416513141733" />
+            <dh from="7CA9F53D-DB1F-59C0-E053-1A041EAC5678" to="7CA9F53D-DB7A-59C0-E053-1A041EAC5678" val="27.12434" dist="?" stdev="0.001263962024745997" />
+            <dh from="7CA9F53D-DB1C-59C0-E053-1A041EAC5678" to="7CA9F53D-DB7A-59C0-E053-1A041EAC5678" val="5.67692" dist="?" stdev="0.0011677328461596" />
+            <dh from="7CA9F53D-DB79-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1C-59C0-E053-1A041EAC5678" val="-7.07574" dist="?" stdev="0.0011934613525372323" />
+            <dh from="7CA9F53D-DB79-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1B-59C0-E053-1A041EAC5678" val="-6.09049" dist="?" stdev="0.0013748090776540573" />
+            <dh from="7CA9F53D-DB1C-59C0-E053-1A041EAC5678" to="7CA9F53D-DB79-59C0-E053-1A041EAC5678" val="7.07621" dist="?" stdev="0.0011782826486034664" />
+            <dh from="7CA9F53D-DB1B-59C0-E053-1A041EAC5678" to="7CA9F53D-DB79-59C0-E053-1A041EAC5678" val="6.0909" dist="?" stdev="0.0013772617761340798" />
+            <dh from="7CA9F53D-DB78-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1B-59C0-E053-1A041EAC5678" val="-16.97546" dist="?" stdev="0.0014574292435655322" />
+            <dh from="7CA9F53D-DB1B-59C0-E053-1A041EAC5678" to="7CA9F53D-DB78-59C0-E053-1A041EAC5678" val="16.97627" dist="?" stdev="0.0014643599284328971" />
+            <dh from="7CA9F53D-DB77-59C0-E053-1A041EAC5678" to="7CA9F53D-DB26-59C0-E053-1A041EAC5678" val="-11.8113" dist="?" stdev="0.001531208672911697" />
+            <dh from="7CA9F53D-DB77-59C0-E053-1A041EAC5678" to="7CA9F53D-DB25-59C0-E053-1A041EAC5678" val="-3.1055" dist="?" stdev="0.001346699669562594" />
+            <dh from="7CA9F53D-DB26-59C0-E053-1A041EAC5678" to="7CA9F53D-DB77-59C0-E053-1A041EAC5678" val="11.8121" dist="?" stdev="0.0015260570107305952" />
+            <dh from="7CA9F53D-DB25-59C0-E053-1A041EAC5678" to="7CA9F53D-DB77-59C0-E053-1A041EAC5678" val="3.10459" dist="?" stdev="0.0013475347861929205" />
+            <dh from="7CA9F53D-DB75-59C0-E053-1A041EAC5678" to="7CA9F53D-DB74-59C0-E053-1A041EAC5678" val="0.55465" dist="?" stdev="0.00018905025786811295" />
+            <dh from="7CA9F53D-DB75-59C0-E053-1A041EAC5678" to="7CA9F53D-DB74-59C0-E053-1A041EAC5678" val="0.55468" dist="?" stdev="0.00013183322798141598" />
+            <dh from="7CA9F53D-DB74-59C0-E053-1A041EAC5678" to="7CA9F53D-DB75-59C0-E053-1A041EAC5678" val="-0.55499" dist="?" stdev="0.00019" />
+            <dh from="7CA9F53D-DB74-59C0-E053-1A041EAC5678" to="7CA9F53D-DB75-59C0-E053-1A041EAC5678" val="-0.55467" dist="?" stdev="0.00013183322798141598" />
+            <dh from="7CA9F53D-DB74-59C0-E053-1A041EAC5678" to="7CA9F53D-DE0D-59C0-E053-1A041EAC5678" val="0.16626" dist="?" stdev="0.0003025557799811466" />
+            <dh from="7CA9F53D-DB74-59C0-E053-1A041EAC5678" to="7CA9F53D-DE0D-59C0-E053-1A041EAC5678" val="0.16642" dist="?" stdev="0.0002731666158226513" />
+            <dh from="7CA9F53D-DE0D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB74-59C0-E053-1A041EAC5678" val="-0.16651" dist="?" stdev="0.0003025557799811466" />
+            <dh from="7CA9F53D-DE0D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB74-59C0-E053-1A041EAC5678" val="-0.1668" dist="?" stdev="0.00027382476148076894" />
+            <dh from="7CA9F53D-DB6C-59C0-E053-1A041EAC5678" to="7CA9F53D-DB6D-59C0-E053-1A041EAC5678" val="-0.20678" dist="?" stdev="0.0014597431280879522" />
+            <dh from="7CA9F53D-DB6D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB6C-59C0-E053-1A041EAC5678" val="0.20636" dist="?" stdev="0.0014628226139898166" />
+            <dh from="7CA9F53D-DB6E-59C0-E053-1A041EAC5678" to="7CA9F53D-DB6D-59C0-E053-1A041EAC5678" val="0.50462" dist="?" stdev="0.0018267046833026952" />
+            <dh from="7CA9F53D-DB6D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB6E-59C0-E053-1A041EAC5678" val="-0.50377" dist="?" stdev="0.0018310106498871054" />
+            <dh from="7CA9F53D-DB65-59C0-E053-1A041EAC5678" to="7CA9F53D-DB67-59C0-E053-1A041EAC5678" val="1.87385" dist="?" stdev="0.0008338764896553926" />
+            <dh from="7CA9F53D-DB67-59C0-E053-1A041EAC5678" to="7CA9F53D-DB65-59C0-E053-1A041EAC5678" val="-1.87446" dist="?" stdev="0.000836570379585603" />
+            <dh from="7CA9F53D-DB67-59C0-E053-1A041EAC5678" to="7CA9F53D-DB66-59C0-E053-1A041EAC5678" val="0.51126" dist="?" stdev="0.0006469930447848724" />
+            <dh from="7CA9F53D-DB66-59C0-E053-1A041EAC5678" to="7CA9F53D-DB67-59C0-E053-1A041EAC5678" val="-0.5113" dist="?" stdev="0.0005732364259186606" />
+            <dh from="7CA9F53D-DB56-59C0-E053-1A041EAC5678" to="7CA9F53D-DB57-59C0-E053-1A041EAC5678" val="0.49649" dist="?" stdev="0.0011104503590885998" />
+            <dh from="7CA9F53D-DB57-59C0-E053-1A041EAC5678" to="7CA9F53D-DB56-59C0-E053-1A041EAC5678" val="-0.49605" dist="?" stdev="0.001183997466213505" />
+            <dh from="7CA9F53D-DB55-59C0-E053-1A041EAC5678" to="7CA9F53D-DB54-59C0-E053-1A041EAC5678" val="2.38924" dist="?" stdev="0.0016287571949188742" />
+            <dh from="7CA9F53D-DB54-59C0-E053-1A041EAC5678" to="7CA9F53D-DB55-59C0-E053-1A041EAC5678" val="-2.38918" dist="?" stdev="0.0016459343850834393" />
+            <dh from="7CA9F53D-DB42-59C0-E053-1A041EAC5678" to="7CA9F53D-DB44-59C0-E053-1A041EAC5678" val="0.1079" dist="?" stdev="0.0001044030650891055" />
+            <dh from="7CA9F53D-DB42-59C0-E053-1A041EAC5678" to="7CA9F53D-DB44-59C0-E053-1A041EAC5678" val="0.10793" dist="?" stdev="0.0001044030650891055" />
+            <dh from="7CA9F53D-DB42-59C0-E053-1A041EAC5678" to="7CA9F53D-DB43-59C0-E053-1A041EAC5678" val="0.15722" dist="?" stdev="0.0001044030650891055" />
+            <dh from="7CA9F53D-DB42-59C0-E053-1A041EAC5678" to="7CA9F53D-DB43-59C0-E053-1A041EAC5678" val="0.15714" dist="?" stdev="0.0001044030650891055" />
+            <dh from="7CA9F53D-DB44-59C0-E053-1A041EAC5678" to="7CA9F53D-DB42-59C0-E053-1A041EAC5678" val="-0.10783" dist="?" stdev="0.0001044030650891055" />
+            <dh from="7CA9F53D-DB44-59C0-E053-1A041EAC5678" to="7CA9F53D-DB42-59C0-E053-1A041EAC5678" val="-0.10792" dist="?" stdev="0.0001044030650891055" />
+            <dh from="7CA9F53D-DB43-59C0-E053-1A041EAC5678" to="7CA9F53D-DB42-59C0-E053-1A041EAC5678" val="-0.1572" dist="?" stdev="0.0001044030650891055" />
+            <dh from="7CA9F53D-DB43-59C0-E053-1A041EAC5678" to="7CA9F53D-DB42-59C0-E053-1A041EAC5678" val="-0.15715" dist="?" stdev="0.0001044030650891055" />
+            <dh from="7CA9F53D-DB44-59C0-E053-1A041EAC5678" to="7CA9F53D-DB43-59C0-E053-1A041EAC5678" val="0.04925" dist="?" stdev="0.00011584472366059664" />
+            <dh from="7CA9F53D-DB44-59C0-E053-1A041EAC5678" to="7CA9F53D-DB43-59C0-E053-1A041EAC5678" val="0.0492" dist="?" stdev="0.00011584472366059664" />
+            <dh from="7CA9F53D-DB43-59C0-E053-1A041EAC5678" to="7CA9F53D-DB44-59C0-E053-1A041EAC5678" val="-0.04921" dist="?" stdev="0.00011584472366059664" />
+            <dh from="7CA9F53D-DB43-59C0-E053-1A041EAC5678" to="7CA9F53D-DB44-59C0-E053-1A041EAC5678" val="-0.04935" dist="?" stdev="0.00011584472366059664" />
+            <dh from="7CA9F53D-DB3D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB3E-59C0-E053-1A041EAC5678" val="0.73426" dist="?" stdev="0.00010035935432235503" />
+            <dh from="7CA9F53D-DB3E-59C0-E053-1A041EAC5678" to="7CA9F53D-DB3D-59C0-E053-1A041EAC5678" val="-0.73424" dist="?" stdev="0.00010035935432235503" />
+            <dh from="7CA9F53D-DB31-59C0-E053-1A041EAC5678" to="7CA9F53D-DAF5-59C0-E053-1A041EAC5678" val="0.48357" dist="?" stdev="0.0011424097338520887" />
+            <dh from="7CA9F53D-DAF5-59C0-E053-1A041EAC5678" to="7CA9F53D-DB31-59C0-E053-1A041EAC5678" val="-0.48384" dist="?" stdev="0.0011404385121522335" />
+            <dh from="7CA9F53D-DB2A-59C0-E053-1A041EAC5678" to="7CA9F53D-DB24-59C0-E053-1A041EAC5678" val="-1.93433" dist="?" stdev="0.0013059862173851605" />
+            <dh from="7CA9F53D-DB24-59C0-E053-1A041EAC5678" to="7CA9F53D-DB2A-59C0-E053-1A041EAC5678" val="1.93353" dist="?" stdev="0.00122417319036156" />
+            <dh from="7CA9F53D-DB29-59C0-E053-1A041EAC5678" to="7CA9F53D-DB22-59C0-E053-1A041EAC5678" val="-1.27973" dist="?" stdev="0.0013975335416368368" />
+            <dh from="7CA9F53D-DB22-59C0-E053-1A041EAC5678" to="7CA9F53D-DB29-59C0-E053-1A041EAC5678" val="1.28249" dist="?" stdev="0.0014111520116557251" />
+            <dh from="7CA9F53D-DB27-59C0-E053-1A041EAC5678" to="7CA9F53D-DB23-59C0-E053-1A041EAC5678" val="-15.15825" dist="?" stdev="0.0016328962000078265" />
+            <dh from="7CA9F53D-DB23-59C0-E053-1A041EAC5678" to="7CA9F53D-DB27-59C0-E053-1A041EAC5678" val="15.16028" dist="?" stdev="0.0016099999999999999" />
+            <dh from="7CA9F53D-DB19-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1A-59C0-E053-1A041EAC5678" val="27.63115" dist="?" stdev="0.0016315176983410261" />
+            <dh from="7CA9F53D-DB1A-59C0-E053-1A041EAC5678" to="7CA9F53D-DB19-59C0-E053-1A041EAC5678" val="-27.63143" dist="?" stdev="0.0016315176983410261" />
+            <dh from="7CA9F53D-DB20-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1C-59C0-E053-1A041EAC5678" val="15.62901" dist="?" stdev="0.0015052740614253605" />
+            <dh from="7CA9F53D-DB1C-59C0-E053-1A041EAC5678" to="7CA9F53D-DB20-59C0-E053-1A041EAC5678" val="-15.6298" dist="?" stdev="0.0015015325504297268" />
+            <dh from="7CA9F53D-DC47-59C0-E053-1A041EAC5678" to="7CA9F53D-DC46-59C0-E053-1A041EAC5678" val="0.364" dist="?" stdev="0.0029538280247841105" />
+            <dh from="7CA9F53D-DC46-59C0-E053-1A041EAC5678" to="7CA9F53D-DC47-59C0-E053-1A041EAC5678" val="-0.3621" dist="?" stdev="0.0029495931922894044" />
+            <dh from="7CA9F53D-DC46-59C0-E053-1A041EAC5678" to="7CA9F53D-DC44-59C0-E053-1A041EAC5678" val="0.324" dist="?" stdev="0.00461791078302732" />
+            <dh from="7CA9F53D-DC45-59C0-E053-1A041EAC5678" to="7CA9F53D-DC46-59C0-E053-1A041EAC5678" val="0.9045" dist="?" stdev="0.002403143774308978" />
+            <dh from="7CA9F53D-DC44-59C0-E053-1A041EAC5678" to="7CA9F53D-DC45-59C0-E053-1A041EAC5678" val="-1.2281" dist="?" stdev="0.004685093382207019" />
+            <dh from="7CA9F53D-DC41-59C0-E053-1A041EAC5678" to="7CA9F53D-DC42-59C0-E053-1A041EAC5678" val="-2.4403" dist="?" stdev="0.005621396623615878" />
+            <dh from="7CA9F53D-DC3D-59C0-E053-1A041EAC5678" to="7CA9F53D-DC2E-59C0-E053-1A041EAC5678" val="-0.73711" dist="?" stdev="0.000501102783867741" />
+            <dh from="7CA9F53D-DC2E-59C0-E053-1A041EAC5678" to="7CA9F53D-DC3D-59C0-E053-1A041EAC5678" val="0.73801" dist="?" stdev="0.0005011067750489909" />
+            <dh from="7CA9F53D-DC2D-59C0-E053-1A041EAC5678" to="7CA9F53D-DC2C-59C0-E053-1A041EAC5678" val="-1.8948" dist="?" stdev="0.0005033924910047825" />
+            <dh from="7CA9F53D-DC2C-59C0-E053-1A041EAC5678" to="7CA9F53D-DC2D-59C0-E053-1A041EAC5678" val="1.89434" dist="?" stdev="0.0005034083829258309" />
+            <dh from="7CA9F53D-DC24-59C0-E053-1A041EAC5678" to="7CA9F53D-DC25-59C0-E053-1A041EAC5678" val="-6.01568" dist="?" stdev="0.0005025574594014101" />
+            <dh from="7CA9F53D-DC25-59C0-E053-1A041EAC5678" to="7CA9F53D-DC24-59C0-E053-1A041EAC5678" val="6.01477" dist="?" stdev="0.0005025495000494976" />
+            <dh from="7CA9F53D-DC1F-59C0-E053-1A041EAC5678" to="7CA9F53D-DC20-59C0-E053-1A041EAC5678" val="-5.99897" dist="?" stdev="0.0005059318135875624" />
+            <dh from="7CA9F53D-DC20-59C0-E053-1A041EAC5678" to="7CA9F53D-DC1F-59C0-E053-1A041EAC5678" val="5.99898" dist="?" stdev="0.0005059851776485157" />
+            <dh from="7CA9F53D-DC18-59C0-E053-1A041EAC5678" to="7CA9F53D-DC17-59C0-E053-1A041EAC5678" val="-6.48451" dist="?" stdev="0.0005065362770819086" />
+            <dh from="7CA9F53D-DC17-59C0-E053-1A041EAC5678" to="7CA9F53D-DC18-59C0-E053-1A041EAC5678" val="6.48196" dist="?" stdev="0.0005065540445006831" />
+            <dh from="7CA9F53D-DC15-59C0-E053-1A041EAC5678" to="7CA9F53D-DC16-59C0-E053-1A041EAC5678" val="-19.37191" dist="?" stdev="0.0005044442486539022" />
+            <dh from="7CA9F53D-DC16-59C0-E053-1A041EAC5678" to="7CA9F53D-DC15-59C0-E053-1A041EAC5678" val="19.37168" dist="?" stdev="0.0005047474616082779" />
+            <dh from="7CA9F53D-DC0F-59C0-E053-1A041EAC5678" to="7CA9F53D-DC10-59C0-E053-1A041EAC5678" val="-2.53569" dist="?" stdev="8.854377448471462e-05" />
+            <dh from="7CA9F53D-DC10-59C0-E053-1A041EAC5678" to="7CA9F53D-DC0F-59C0-E053-1A041EAC5678" val="2.53448" dist="?" stdev="8.72639673633969e-05" />
+            <dh from="7CA9F53D-DC0E-59C0-E053-1A041EAC5678" to="7CA9F53D-DBFA-59C0-E053-1A041EAC5678" val="1.25965" dist="?" stdev="0.0005031043629307939" />
+            <dh from="7CA9F53D-DBFA-59C0-E053-1A041EAC5678" to="7CA9F53D-DC0E-59C0-E053-1A041EAC5678" val="-1.25866" dist="?" stdev="0.0005033100436112913" />
+            <dh from="7CA9F53D-DC05-59C0-E053-1A041EAC5678" to="7CA9F53D-DC06-59C0-E053-1A041EAC5678" val="6.59999" dist="?" stdev="0.0010011962844517553" />
+            <dh from="7CA9F53D-DC06-59C0-E053-1A041EAC5678" to="7CA9F53D-DC05-59C0-E053-1A041EAC5678" val="-6.6006" dist="?" stdev="0.0010012187573153032" />
+            <dh from="7CA9F53D-DC00-59C0-E053-1A041EAC5678" to="7CA9F53D-DBFF-59C0-E053-1A041EAC5678" val="-11.76506" dist="?" stdev="0.0010033244739365227" />
+            <dh from="7CA9F53D-DBFF-59C0-E053-1A041EAC5678" to="7CA9F53D-DC00-59C0-E053-1A041EAC5678" val="11.7644" dist="?" stdev="0.0010033244739365227" />
+            <dh from="7CA9F53D-DB1E-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1D-59C0-E053-1A041EAC5678" val="26.80276" dist="?" stdev="0.0015973728431396346" />
+            <dh from="7CA9F53D-DB1D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1E-59C0-E053-1A041EAC5678" val="-26.8019" dist="?" stdev="0.0015768164129029098" />
+            <dh from="7CA9F53D-DB1D-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1C-59C0-E053-1A041EAC5678" val="-10.92879" dist="?" stdev="0.0015260570107305952" />
+            <dh from="7CA9F53D-DB1C-59C0-E053-1A041EAC5678" to="7CA9F53D-DB1D-59C0-E053-1A041EAC5678" val="10.92926" dist="?" stdev="0.001537806879942992" />
+            <dh from="7CA9F53D-DB09-59C0-E053-1A041EAC5678" to="7CA9F53D-DB0A-59C0-E053-1A041EAC5678" val="-0.84827" dist="?" stdev="0.0009733190638223419" />
+            <dh from="7CA9F53D-DB0A-59C0-E053-1A041EAC5678" to="7CA9F53D-DB09-59C0-E053-1A041EAC5678" val="0.84815" dist="?" stdev="0.0009733190638223419" />
+            <dh from="7CA9F53D-DB05-59C0-E053-1A041EAC5678" to="7CA9F53D-DB04-59C0-E053-1A041EAC5678" val="-2.36898" dist="?" stdev="0.0010196077677224707" />
+            <dh from="7CA9F53D-DB04-59C0-E053-1A041EAC5678" to="7CA9F53D-DB05-59C0-E053-1A041EAC5678" val="2.36926" dist="?" stdev="0.0010207105368320638" />
+            <dh from="7CA9F53D-DB00-59C0-E053-1A041EAC5678" to="7CA9F53D-DB01-59C0-E053-1A041EAC5678" val="1.29982" dist="?" stdev="0.0014674297257449844" />
+            <dh from="7CA9F53D-DB01-59C0-E053-1A041EAC5678" to="7CA9F53D-DB00-59C0-E053-1A041EAC5678" val="-1.29715" dist="?" stdev="0.0014894965592440956" />
+            <dh from="7CA9F53D-DB01-59C0-E053-1A041EAC5678" to="7CA9F53D-DAE9-59C0-E053-1A041EAC5678" val="-1.92717" dist="?" stdev="0.0007004284403134985" />
+            <dh from="7CA9F53D-DAE9-59C0-E053-1A041EAC5678" to="7CA9F53D-DB01-59C0-E053-1A041EAC5678" val="1.92706" dist="?" stdev="0.0007036334272900912" />
+            <dh from="7CA9F53D-DAFF-59C0-E053-1A041EAC5678" to="7CA9F53D-DAFD-59C0-E053-1A041EAC5678" val="-2.5071" dist="?" stdev="0.0014356531614564847" />
+            <dh from="7CA9F53D-DAFD-59C0-E053-1A041EAC5678" to="7CA9F53D-DAFF-59C0-E053-1A041EAC5678" val="2.50433" dist="?" stdev="0.0014566571319291303" />
+            <dh from="7CA9F53D-DAF4-59C0-E053-1A041EAC5678" to="7CA9F53D-DAF3-59C0-E053-1A041EAC5678" val="-0.25926" dist="?" stdev="0.0005043312403569701" />
+            <dh from="7CA9F53D-DAF3-59C0-E053-1A041EAC5678" to="7CA9F53D-DAF4-59C0-E053-1A041EAC5678" val="0.25906" dist="?" stdev="0.0005109794516416487" />
+            <dh from="7CA9F53D-DAF3-59C0-E053-1A041EAC5678" to="7CA9F53D-DAF2-59C0-E053-1A041EAC5678" val="0.32343" dist="?" stdev="0.001102315744240279" />
+            <dh from="7CA9F53D-DAF2-59C0-E053-1A041EAC5678" to="7CA9F53D-DAF3-59C0-E053-1A041EAC5678" val="-0.32388" dist="?" stdev="0.0010848271751758435" />
+            <dh from="7CA9F53D-DAEE-59C0-E053-1A041EAC5678" to="7CA9F53D-DAEF-59C0-E053-1A041EAC5678" val="1.36083" dist="?" stdev="0.0010961751684835778" />
+            <dh from="7CA9F53D-DAEF-59C0-E053-1A041EAC5678" to="7CA9F53D-DAEE-59C0-E053-1A041EAC5678" val="-1.36083" dist="?" stdev="0.0010817116066678771" />
+            <dh from="7CA9F53D-DAEB-59C0-E053-1A041EAC5678" to="7CA9F53D-DAEC-59C0-E053-1A041EAC5678" val="-1.88732" dist="?" stdev="0.0012223338332877807" />
+            <dh from="7CA9F53D-DAEC-59C0-E053-1A041EAC5678" to="7CA9F53D-DAEB-59C0-E053-1A041EAC5678" val="1.8874" dist="?" stdev="0.001238789731956154" />
+            <dh from="7CA9F53D-DAED-59C0-E053-1A041EAC5678" to="7CA9F53D-DAEC-59C0-E053-1A041EAC5678" val="-0.37855" dist="?" stdev="0.0017083178861090227" />
+            <dh from="7CA9F53D-DAEC-59C0-E053-1A041EAC5678" to="7CA9F53D-DAED-59C0-E053-1A041EAC5678" val="0.37855" dist="?" stdev="0.0017331618504917536" />
+            <dh from="7CA9F53D-DAE7-59C0-E053-1A041EAC5678" to="7CA9F53D-DAD0-59C0-E053-1A041EAC5678" val="3.21834" dist="?" stdev="0.00040750460120101713" />
+            <dh from="7CA9F53D-DAE7-59C0-E053-1A041EAC5678" to="7CA9F53D-DAB9-59C0-E053-1A041EAC5678" val="1.34406" dist="?" stdev="0.0005522861577117428" />
+            <dh from="7CA9F53D-DAD0-59C0-E053-1A041EAC5678" to="7CA9F53D-DAE7-59C0-E053-1A041EAC5678" val="-3.21854" dist="?" stdev="0.00041407728747179555" />
+            <dh from="7CA9F53D-DAB9-59C0-E053-1A041EAC5678" to="7CA9F53D-DAE7-59C0-E053-1A041EAC5678" val="-1.34297" dist="?" stdev="0.0005526119796023245" />
+            <dh from="7CA9F53D-DAE6-59C0-E053-1A041EAC5678" to="7CA9F53D-DAE5-59C0-E053-1A041EAC5678" val="-4.91991" dist="?" stdev="0.001004924375264129" />
+            <dh from="7CA9F53D-DAE5-59C0-E053-1A041EAC5678" to="7CA9F53D-DAE6-59C0-E053-1A041EAC5678" val="4.91504" dist="?" stdev="0.0010049198973052528" />
+            <dh from="7CA9F53D-DAE5-59C0-E053-1A041EAC5678" to="7CA9F53D-DAE4-59C0-E053-1A041EAC5678" val="6.29603" dist="?" stdev="0.0010038177125354982" />
+            <dh from="7CA9F53D-DAE4-59C0-E053-1A041EAC5678" to="7CA9F53D-DAE5-59C0-E053-1A041EAC5678" val="-6.29686" dist="?" stdev="0.0010035756075154477" />
+            <dh from="7CA9F53D-DAD8-59C0-E053-1A041EAC5678" to="7CA9F53D-DAD9-59C0-E053-1A041EAC5678" val="-2.82476" dist="?" stdev="0.0010020454081527443" />
+            <dh from="7CA9F53D-DAD9-59C0-E053-1A041EAC5678" to="7CA9F53D-DAD8-59C0-E053-1A041EAC5678" val="2.82493" dist="?" stdev="0.0010020633712495433" />
+            <dh from="7CA9F53D-DAD4-59C0-E053-1A041EAC5678" to="7CA9F53D-DAD5-59C0-E053-1A041EAC5678" val="-1.65873" dist="?" stdev="0.0010054213047275256" />
+            <dh from="7CA9F53D-DAD5-59C0-E053-1A041EAC5678" to="7CA9F53D-DAD4-59C0-E053-1A041EAC5678" val="1.65796" dist="?" stdev="0.0010054213047275256" />
+            <dh from="7CA9F53D-DACF-59C0-E053-1A041EAC5678" to="7CA9F53D-DAB7-59C0-E053-1A041EAC5678" val="-0.58486" dist="?" stdev="0.000500127983620193" />
+            <dh from="7CA9F53D-DAB7-59C0-E053-1A041EAC5678" to="7CA9F53D-DACF-59C0-E053-1A041EAC5678" val="0.58485" dist="?" stdev="0.000500127983620193" />
+            <dh from="7CA9F53D-DAC1-59C0-E053-1A041EAC5678" to="7CA9F53D-DABB-59C0-E053-1A041EAC5678" val="-0.2286" dist="?" stdev="0.0010040149401278847" />
+            <dh from="7CA9F53D-DABB-59C0-E053-1A041EAC5678" to="7CA9F53D-DAC1-59C0-E053-1A041EAC5678" val="0.22691" dist="?" stdev="0.001004032867987896" />
+            <dh from="7CA9F53D-DABB-59C0-E053-1A041EAC5678" to="7CA9F53D-DABC-59C0-E053-1A041EAC5678" val="-4.68547" dist="?" stdev="0.0010041449098611216" />
+            <dh from="7CA9F53D-DABC-59C0-E053-1A041EAC5678" to="7CA9F53D-DABB-59C0-E053-1A041EAC5678" val="4.6815" dist="?" stdev="0.0010041493912760192" />
+            <dh from="7CA9F53D-DABD-59C0-E053-1A041EAC5678" to="7CA9F53D-DABC-59C0-E053-1A041EAC5678" val="-0.99123" dist="?" stdev="0.0010057121854685862" />
+            <dh from="7CA9F53D-DABC-59C0-E053-1A041EAC5678" to="7CA9F53D-DABD-59C0-E053-1A041EAC5678" val="0.98483" dist="?" stdev="0.0010058508835806628" />
+            <dh from="7CA9F53D-DAB8-59C0-E053-1A041EAC5678" to="7CA9F53D-DAB7-59C0-E053-1A041EAC5678" val="-1.2981" dist="?" stdev="0.0005001799676116588" />
+            <dh from="7CA9F53D-DAB7-59C0-E053-1A041EAC5678" to="7CA9F53D-DAB8-59C0-E053-1A041EAC5678" val="1.29812" dist="?" stdev="0.0005001799676116588" />
+            <dh from="7CA9F53D-DAB4-59C0-E053-1A041EAC5678" to="7CA9F53D-DAB5-59C0-E053-1A041EAC5678" val="3.27715" dist="?" stdev="0.001001942114096418" />
+            <dh from="7CA9F53D-DAB5-59C0-E053-1A041EAC5678" to="7CA9F53D-DAB4-59C0-E053-1A041EAC5678" val="-3.27892" dist="?" stdev="0.0010019286401735405" />
+            <dh from="7CA9F53D-DE87-59C0-E053-1A041EAC5678" to="7CA9F53D-DE88-59C0-E053-1A041EAC5678" val="0.15019" dist="?" stdev="0.0007210062413044703" />
+            <dh from="7CA9F53D-DE88-59C0-E053-1A041EAC5678" to="7CA9F53D-DE87-59C0-E053-1A041EAC5678" val="-0.15133" dist="?" stdev="0.0007210062413044703" />
+            <dh from="7CA9F53D-DE8B-59C0-E053-1A041EAC5678" to="7CA9F53D-DE8A-59C0-E053-1A041EAC5678" val="-11.65674" dist="?" stdev="0.0012956079653969406" />
+            <dh from="7CA9F53D-DE8A-59C0-E053-1A041EAC5678" to="7CA9F53D-DE8B-59C0-E053-1A041EAC5678" val="11.65753" dist="?" stdev="0.0012947393560095407" />
+            <dh from="7CA9F53D-DE89-59C0-E053-1A041EAC5678" to="7CA9F53D-DE88-59C0-E053-1A041EAC5678" val="-1.03463" dist="?" stdev="0.0010229125084776313" />
+            <dh from="7CA9F53D-DE88-59C0-E053-1A041EAC5678" to="7CA9F53D-DE89-59C0-E053-1A041EAC5678" val="1.03445" dist="?" stdev="0.0010207105368320638" />
+            <dh from="7CA9F53D-DE75-59C0-E053-1A041EAC5678" to="7CA9F53D-DE76-59C0-E053-1A041EAC5678" val="-0.023" dist="?" stdev="0.00028080242164197944" />
+            <dh from="7CA9F53D-DE6F-59C0-E053-1A041EAC5678" to="7CA9F53D-DE70-59C0-E053-1A041EAC5678" val="0.07753" dist="?" stdev="0.00011738824472663351" />
+            <dh from="7CA9F53D-DE6F-59C0-E053-1A041EAC5678" to="7CA9F53D-DE71-59C0-E053-1A041EAC5678" val="1.17796" dist="?" stdev="0.00014973309587395833" />
+            <dh from="7CA9F53D-DE70-59C0-E053-1A041EAC5678" to="7CA9F53D-DE6F-59C0-E053-1A041EAC5678" val="-0.07745" dist="?" stdev="0.00011738824472663351" />
+            <dh from="7CA9F53D-DE71-59C0-E053-1A041EAC5678" to="7CA9F53D-DE6F-59C0-E053-1A041EAC5678" val="-1.17812" dist="?" stdev="0.00014973309587395833" />
+            <dh from="7CA9F53D-DE72-59C0-E053-1A041EAC5678" to="7CA9F53D-DE71-59C0-E053-1A041EAC5678" val="-0.93549" dist="?" stdev="6.371812928829597e-05" />
+            <dh from="7CA9F53D-DE72-59C0-E053-1A041EAC5678" to="7CA9F53D-DE70-59C0-E053-1A041EAC5678" val="-2.036" dist="?" stdev="9.909591313469996e-05" />
+            <dh from="7CA9F53D-DE71-59C0-E053-1A041EAC5678" to="7CA9F53D-DE72-59C0-E053-1A041EAC5678" val="0.93568" dist="?" stdev="6.371812928829597e-05" />
+            <dh from="7CA9F53D-DE70-59C0-E053-1A041EAC5678" to="7CA9F53D-DE72-59C0-E053-1A041EAC5678" val="2.036" dist="?" stdev="9.909591313469996e-05" />
+            <dh from="7CA9F53D-DE61-59C0-E053-1A041EAC5678" to="7CA9F53D-DE62-59C0-E053-1A041EAC5678" val="-0.72619" dist="?" stdev="0.00020760539492026695" />
+            <dh from="7CA9F53D-DE61-59C0-E053-1A041EAC5678" to="7CA9F53D-DE60-59C0-E053-1A041EAC5678" val="-0.48307" dist="?" stdev="0.000176351920885484" />
+            <dh from="7CA9F53D-DE61-59C0-E053-1A041EAC5678" to="7CA9F53D-DE60-59C0-E053-1A041EAC5678" val="-0.48304" dist="?" stdev="0.000176351920885484" />
+            <dh from="7CA9F53D-DE61-59C0-E053-1A041EAC5678" to="7CA9F53D-DE62-59C0-E053-1A041EAC5678" val="-0.72614" dist="?" stdev="0.00020760539492026695" />
+            <dh from="7CA9F53D-DE60-59C0-E053-1A041EAC5678" to="7CA9F53D-DE61-59C0-E053-1A041EAC5678" val="0.48288" dist="?" stdev="0.000176351920885484" />
+            <dh from="7CA9F53D-DE60-59C0-E053-1A041EAC5678" to="7CA9F53D-DE61-59C0-E053-1A041EAC5678" val="0.48311" dist="?" stdev="0.000176351920885484" />
+            <dh from="7CA9F53D-DE62-59C0-E053-1A041EAC5678" to="7CA9F53D-DE61-59C0-E053-1A041EAC5678" val="0.72623" dist="?" stdev="0.00020760539492026695" />
+            <dh from="7CA9F53D-DE62-59C0-E053-1A041EAC5678" to="7CA9F53D-DE61-59C0-E053-1A041EAC5678" val="0.72616" dist="?" stdev="0.00020760539492026695" />
+            <dh from="7CA9F53D-DE62-59C0-E053-1A041EAC5678" to="7CA9F53D-DE60-59C0-E053-1A041EAC5678" val="0.2431" dist="?" stdev="0.000176351920885484" />
+            <dh from="7CA9F53D-DE62-59C0-E053-1A041EAC5678" to="7CA9F53D-DE60-59C0-E053-1A041EAC5678" val="0.24311" dist="?" stdev="0.00017349351572897473" />
+            <dh from="7CA9F53D-DE60-59C0-E053-1A041EAC5678" to="7CA9F53D-DE62-59C0-E053-1A041EAC5678" val="-0.24307" dist="?" stdev="0.000176351920885484" />
+            <dh from="7CA9F53D-DE60-59C0-E053-1A041EAC5678" to="7CA9F53D-DE62-59C0-E053-1A041EAC5678" val="-0.24308" dist="?" stdev="0.00017349351572897473" />
+            <dh from="7CA9F53D-DE5E-59C0-E053-1A041EAC5678" to="7CA9F53D-DE5F-59C0-E053-1A041EAC5678" val="-0.06063" dist="?" stdev="0.0008189017035029295" />
+            <dh from="7CA9F53D-DE5E-59C0-E053-1A041EAC5678" to="7CA9F53D-DE4E-59C0-E053-1A041EAC5678" val="0.10552" dist="?" stdev="0.0007634461343146614" />
+            <dh from="7CA9F53D-DE5F-59C0-E053-1A041EAC5678" to="7CA9F53D-DE5E-59C0-E053-1A041EAC5678" val="0.06131" dist="?" stdev="0.000814769906169834" />
+            <dh from="7CA9F53D-DE4E-59C0-E053-1A041EAC5678" to="7CA9F53D-DE5E-59C0-E053-1A041EAC5678" val="-0.10504" dist="?" stdev="0.0007649182962905254" />
+            <dh from="7CA9F53D-DE5B-59C0-E053-1A041EAC5678" to="7CA9F53D-DE5A-59C0-E053-1A041EAC5678" val="-6.78467" dist="?" stdev="0.001348369385591352" />
+            <dh from="7CA9F53D-DE5A-59C0-E053-1A041EAC5678" to="7CA9F53D-DE5B-59C0-E053-1A041EAC5678" val="6.78517" dist="?" stdev="0.0013649542116862382" />
+            <dh from="7CA9F53D-DE57-59C0-E053-1A041EAC5678" to="7CA9F53D-DE58-59C0-E053-1A041EAC5678" val="-0.66164" dist="?" stdev="0.0009198369420718001" />
+            <dh from="7CA9F53D-DE58-59C0-E053-1A041EAC5678" to="7CA9F53D-DE57-59C0-E053-1A041EAC5678" val="0.66111" dist="?" stdev="0.0009149316914393117" />
+            <dh from="7CA9F53D-DE51-59C0-E053-1A041EAC5678" to="7CA9F53D-DE47-59C0-E053-1A041EAC5678" val="-14.73525" dist="?" stdev="0.001346699669562594" />
+            <dh from="7CA9F53D-DE47-59C0-E053-1A041EAC5678" to="7CA9F53D-DE51-59C0-E053-1A041EAC5678" val="14.73523" dist="?" stdev="0.001336637572418193" />
+            <dh from="7CA9F53D-DE50-59C0-E053-1A041EAC5678" to="7CA9F53D-DE26-59C0-E053-1A041EAC5678" val="7.90287" dist="?" stdev="0.0010349396117648605" />
+            <dh from="7CA9F53D-DE26-59C0-E053-1A041EAC5678" to="7CA9F53D-DE50-59C0-E053-1A041EAC5678" val="-7.90258" dist="?" stdev="0.0009463614531456784" />
+            <dh from="7CA9F53D-DE4C-59C0-E053-1A041EAC5678" to="7CA9F53D-DE4B-59C0-E053-1A041EAC5678" val="-2.64789" dist="?" stdev="0.0009025519375637061" />
+            <dh from="7CA9F53D-DE4B-59C0-E053-1A041EAC5678" to="7CA9F53D-DE4C-59C0-E053-1A041EAC5678" val="2.64796" dist="?" stdev="0.0008962979415350679" />
+            <dh from="7CA9F53D-DE4B-59C0-E053-1A041EAC5678" to="7CA9F53D-DE4A-59C0-E053-1A041EAC5678" val="-9.00269" dist="?" stdev="0.0007937883848986454" />
+            <dh from="7CA9F53D-DE4A-59C0-E053-1A041EAC5678" to="7CA9F53D-DE4B-59C0-E053-1A041EAC5678" val="9.00323" dist="?" stdev="0.0008189017035029295" />
+            <dh from="7CA9F53D-DE38-59C0-E053-1A041EAC5678" to="7CA9F53D-DE39-59C0-E053-1A041EAC5678" val="-2.58531" dist="?" stdev="0.0011002726934719411" />
+            <dh from="7CA9F53D-DE39-59C0-E053-1A041EAC5678" to="7CA9F53D-DE38-59C0-E053-1A041EAC5678" val="2.5862" dist="?" stdev="0.0010827511256055107" />
+            <dh from="7CA9F53D-DE3C-59C0-E053-1A041EAC5678" to="7CA9F53D-DE3B-59C0-E053-1A041EAC5678" val="9.96785" dist="?" stdev="0.001256821387469198" />
+            <dh from="7CA9F53D-DE3B-59C0-E053-1A041EAC5678" to="7CA9F53D-DE3C-59C0-E053-1A041EAC5678" val="-9.96883" dist="?" stdev="0.0012278436382536662" />
+            <dh from="7CA9F53D-DE3B-59C0-E053-1A041EAC5678" to="7CA9F53D-DE3A-59C0-E053-1A041EAC5678" val="3.55645" dist="?" stdev="0.001251439171514141" />
+            <dh from="7CA9F53D-DE3A-59C0-E053-1A041EAC5678" to="7CA9F53D-DE3B-59C0-E053-1A041EAC5678" val="-3.55614" dist="?" stdev="0.0012577161842005533" />
+            <dh from="7CA9F53D-DE3A-59C0-E053-1A041EAC5678" to="7CA9F53D-DE39-59C0-E053-1A041EAC5678" val="0.27592" dist="?" stdev="0.001105373240132038" />
+            <dh from="7CA9F53D-DE39-59C0-E053-1A041EAC5678" to="7CA9F53D-DE3A-59C0-E053-1A041EAC5678" val="-0.27605" dist="?" stdev="0.0011275415735129237" />
+            <dh from="7CA9F53D-DE2D-59C0-E053-1A041EAC5678" to="7CA9F53D-DE2E-59C0-E053-1A041EAC5678" val="2.36323" dist="?" stdev="0.0012842702207868872" />
+            <dh from="7CA9F53D-DE2E-59C0-E053-1A041EAC5678" to="7CA9F53D-DE2D-59C0-E053-1A041EAC5678" val="-2.36368" dist="?" stdev="0.0012912590754763351" />
+            <dh from="7CA9F53D-DE27-59C0-E053-1A041EAC5678" to="7CA9F53D-DE26-59C0-E053-1A041EAC5678" val="-3.56888" dist="?" stdev="0.000705230458786346" />
+            <dh from="7CA9F53D-DE26-59C0-E053-1A041EAC5678" to="7CA9F53D-DE27-59C0-E053-1A041EAC5678" val="3.56902" dist="?" stdev="0.0007004284403134985" />
+            <dh from="7CA9F53D-DE25-59C0-E053-1A041EAC5678" to="7CA9F53D-DE24-59C0-E053-1A041EAC5678" val="11.27128" dist="?" stdev="0.0009403988515518297" />
+            <dh from="7CA9F53D-DE24-59C0-E053-1A041EAC5678" to="7CA9F53D-DE25-59C0-E053-1A041EAC5678" val="-11.2709" dist="?" stdev="0.0008950418984606252" />
+            <dh from="7CA9F53D-DE24-59C0-E053-1A041EAC5678" to="7CA9F53D-DE23-59C0-E053-1A041EAC5678" val="-2.74478" dist="?" stdev="0.0010349396117648605" />
+            <dh from="7CA9F53D-DE23-59C0-E053-1A041EAC5678" to="7CA9F53D-DE24-59C0-E053-1A041EAC5678" val="2.74432" dist="?" stdev="0.0010511184519358416" />
+            <dh from="7CA9F53D-DBF7-59C0-E053-1A041EAC5678" to="7CA9F53D-DBF4-59C0-E053-1A041EAC5678" val="3.64191" dist="?" stdev="0.0005028001591089645" />
+            <dh from="7CA9F53D-DBF4-59C0-E053-1A041EAC5678" to="7CA9F53D-DBF7-59C0-E053-1A041EAC5678" val="-3.64192" dist="?" stdev="0.0005028001591089645" />
+            <dh from="7CA9F53D-DBF4-59C0-E053-1A041EAC5678" to="7CA9F53D-DBF7-59C0-E053-1A041EAC5678" val="-3.64136" dist="?" stdev="0.0005028538555087353" />
+            <dh from="7CA9F53D-DBF2-59C0-E053-1A041EAC5678" to="7CA9F53D-DBF3-59C0-E053-1A041EAC5678" val="-2.3918" dist="?" stdev="0.0005032206275581317" />
+            <dh from="7CA9F53D-DBF3-59C0-E053-1A041EAC5678" to="7CA9F53D-DBF2-59C0-E053-1A041EAC5678" val="2.39161" dist="?" stdev="0.0005032206275581317" />
+            <dh from="7CA9F53D-DBF1-59C0-E053-1A041EAC5678" to="7CA9F53D-DBED-59C0-E053-1A041EAC5678" val="-6.19428" dist="?" stdev="0.0005112758550919454" />
+            <dh from="7CA9F53D-DBED-59C0-E053-1A041EAC5678" to="7CA9F53D-DBF1-59C0-E053-1A041EAC5678" val="6.19114" dist="?" stdev="0.0005106329405747342" />
+            <dh from="7CA9F53D-DBEE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBEF-59C0-E053-1A041EAC5678" val="-6.25214" dist="?" stdev="0.0005056026107527531" />
+            <dh from="7CA9F53D-DBEF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBEE-59C0-E053-1A041EAC5678" val="6.25329" dist="?" stdev="0.0005055581074416669" />
+            <dh from="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="0.33018" dist="?" stdev="0.00010999999999999999" />
+            <dh from="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" val="-1.81651" dist="?" stdev="0.00033778691508109073" />
+            <dh from="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" val="-1.81676" dist="?" stdev="0.00033778691508109073" />
+            <dh from="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" val="-1.81592" dist="?" stdev="0.0004026164427839479" />
+            <dh from="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="0.32992" dist="?" stdev="0.0001004987562112089" />
+            <dh from="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="0.32998" dist="?" stdev="0.00013453624047073711" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" val="-0.33011" dist="?" stdev="0.00010999999999999999" />
+            <dh from="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" val="1.81639" dist="?" stdev="0.00033778691508109073" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" val="-0.3298" dist="?" stdev="0.0001004987562112089" />
+            <dh from="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" val="1.81718" dist="?" stdev="0.00033778691508109073" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" val="-0.32995" dist="?" stdev="0.00013453624047073711" />
+            <dh from="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC6-59C0-E053-1A041EAC5678" val="1.81625" dist="?" stdev="0.0004026164427839479" />
+            <dh from="7CA9F53D-DBC3-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="-0.89704" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBC3-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="-0.89699" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBC3-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBB-59C0-E053-1A041EAC5678" val="-0.89777" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC3-59C0-E053-1A041EAC5678" val="0.89698" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC3-59C0-E053-1A041EAC5678" val="0.89693" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBBB-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC3-59C0-E053-1A041EAC5678" val="0.89789" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBC5-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="-0.89688" dist="?" stdev="0.0001452583904633395" />
+            <dh from="7CA9F53D-DBC5-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="-0.8966" dist="?" stdev="0.00014866068747318504" />
+            <dh from="7CA9F53D-DBC5-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC0-59C0-E053-1A041EAC5678" val="-0.89584" dist="?" stdev="0.00010535653752852738" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC5-59C0-E053-1A041EAC5678" val="0.89684" dist="?" stdev="0.0001452583904633395" />
+            <dh from="7CA9F53D-DBC0-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC5-59C0-E053-1A041EAC5678" val="0.89548" dist="?" stdev="0.00010535653752852738" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC5-59C0-E053-1A041EAC5678" val="0.89666" dist="?" stdev="0.00014866068747318504" />
+            <dh from="7CA9F53D-DBC4-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="-0.89613" dist="?" stdev="0.0002215851980616034" />
+            <dh from="7CA9F53D-DBC4-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="-0.8957" dist="?" stdev="0.00020760539492026695" />
+            <dh from="7CA9F53D-DBC4-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="-0.89601" dist="?" stdev="0.00013820274961085253" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC4-59C0-E053-1A041EAC5678" val="0.8958" dist="?" stdev="0.0002215851980616034" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC4-59C0-E053-1A041EAC5678" val="0.89579" dist="?" stdev="0.00020760539492026695" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC4-59C0-E053-1A041EAC5678" val="0.89588" dist="?" stdev="0.00013820274961085253" />
+            <dh from="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC2-59C0-E053-1A041EAC5678" val="0.06534" dist="?" stdev="0.0001819340539866025" />
+            <dh from="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC2-59C0-E053-1A041EAC5678" val="0.06521" dist="?" stdev="0.00019" />
+            <dh from="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC2-59C0-E053-1A041EAC5678" val="0.06536" dist="?" stdev="0.000176351920885484" />
+            <dh from="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC2-59C0-E053-1A041EAC5678" val="0.06499" dist="?" stdev="0.00019519221295943135" />
+            <dh from="7CA9F53D-DBC2-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" val="-0.06535" dist="?" stdev="0.0001819340539866025" />
+            <dh from="7CA9F53D-DBC2-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" val="-0.06522" dist="?" stdev="0.000176351920885484" />
+            <dh from="7CA9F53D-DBC2-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" val="-0.0652" dist="?" stdev="0.00019" />
+            <dh from="7CA9F53D-DBC2-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC1-59C0-E053-1A041EAC5678" val="-0.06509" dist="?" stdev="0.00019519221295943135" />
+            <dh from="7CA9F53D-DBBB-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="0.00138" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBBB-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="0.00097" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBBB-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="0.00107" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBB-59C0-E053-1A041EAC5678" val="-0.00151" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBB-59C0-E053-1A041EAC5678" val="-0.001" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBB-59C0-E053-1A041EAC5678" val="-0.00111" dist="?" stdev="0.00012288205727444508" />
+            <dh from="7CA9F53D-DBC0-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="-0.0009" dist="?" stdev="0.0001452583904633395" />
+            <dh from="7CA9F53D-DBC0-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="-0.00067" dist="?" stdev="9.539392014169455e-05" />
+            <dh from="7CA9F53D-DBC0-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="-0.0006" dist="?" stdev="0.00014866068747318504" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC0-59C0-E053-1A041EAC5678" val="0.00077" dist="?" stdev="0.0001452583904633395" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC0-59C0-E053-1A041EAC5678" val="0.00065" dist="?" stdev="9.539392014169455e-05" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBC0-59C0-E053-1A041EAC5678" val="0.0006" dist="?" stdev="0.00014866068747318504" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="-1.17497" dist="?" stdev="0.000272213151776324" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="-1.70569" dist="?" stdev="0.0004001249804748511" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="-1.17529" dist="?" stdev="0.00027586228448267443" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="-1.17541" dist="?" stdev="0.00026286878856189827" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="-1.70583" dist="?" stdev="0.0003479942528261063" />
+            <dh from="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="-1.7057" dist="?" stdev="0.0003988734135035826" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="1.17505" dist="?" stdev="0.000272213151776324" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="1.70559" dist="?" stdev="0.0003988734135035826" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="1.17478" dist="?" stdev="0.00027586228448267443" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="1.17526" dist="?" stdev="0.00026286878856189827" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="1.70597" dist="?" stdev="0.0003988734135035826" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBF-59C0-E053-1A041EAC5678" val="1.70581" dist="?" stdev="0.0003363034344160047" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBD-59C0-E053-1A041EAC5678" val="0.00074" dist="?" stdev="0.0002238302928559939" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="-0.53073" dist="?" stdev="0.0004279018579066934" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBD-59C0-E053-1A041EAC5678" val="0.00097" dist="?" stdev="0.00020999999999999998" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="-0.5306" dist="?" stdev="0.00030838287890218546" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBD-59C0-E053-1A041EAC5678" val="0.00103" dist="?" stdev="0.0001004987562112089" />
+            <dh from="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" val="-0.53124" dist="?" stdev="0.0004290687590584987" />
+            <dh from="7CA9F53D-DBBD-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="-0.00075" dist="?" stdev="0.0002238302928559939" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="0.53181" dist="?" stdev="0.0004290687590584987" />
+            <dh from="7CA9F53D-DBBD-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="-0.00101" dist="?" stdev="0.00020999999999999998" />
+            <dh from="7CA9F53D-DBBD-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="-0.00106" dist="?" stdev="0.0001004987562112089" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="0.53091" dist="?" stdev="0.0004290687590584987" />
+            <dh from="7CA9F53D-DBBC-59C0-E053-1A041EAC5678" to="7CA9F53D-DBBE-59C0-E053-1A041EAC5678" val="0.53039" dist="?" stdev="0.00032109188716004645" />
+            <dh from="7CA9F53D-DE1C-59C0-E053-1A041EAC5678" to="7CA9F53D-DE1B-59C0-E053-1A041EAC5678" val="-0.44437" dist="?" stdev="0.0010691585476438935" />
+            <dh from="7CA9F53D-DE1C-59C0-E053-1A041EAC5678" to="7CA9F53D-DE1B-59C0-E053-1A041EAC5678" val="-0.44137" dist="?" stdev="0.0005045592135716084" />
+            <dh from="7CA9F53D-DE1B-59C0-E053-1A041EAC5678" to="7CA9F53D-DE1C-59C0-E053-1A041EAC5678" val="0.44589" dist="?" stdev="0.0010909170454255447" />
+            <dh from="7CA9F53D-DE1B-59C0-E053-1A041EAC5678" to="7CA9F53D-DE1C-59C0-E053-1A041EAC5678" val="0.44255" dist="?" stdev="0.0005045354298758413" />
+            <dh from="7CA9F53D-DE14-59C0-E053-1A041EAC5678" to="7CA9F53D-DDFD-59C0-E053-1A041EAC5678" val="-11.91013" dist="?" stdev="0.0010879338215167317" />
+            <dh from="7CA9F53D-DDFD-59C0-E053-1A041EAC5678" to="7CA9F53D-DE14-59C0-E053-1A041EAC5678" val="11.90998" dist="?" stdev="0.0010848271751758435" />
+            <dh from="7CA9F53D-DE07-59C0-E053-1A041EAC5678" to="7CA9F53D-DE06-59C0-E053-1A041EAC5678" val="-0.009" dist="?" stdev="0.0003988734135035826" />
+            <dh from="7CA9F53D-DE06-59C0-E053-1A041EAC5678" to="7CA9F53D-DE07-59C0-E053-1A041EAC5678" val="0.00914" dist="?" stdev="0.00043023249528597907" />
+            <dh from="7CA9F53D-DE03-59C0-E053-1A041EAC5678" to="7CA9F53D-DE02-59C0-E053-1A041EAC5678" val="-29.05389" dist="?" stdev="0.0010414413089560063" />
+            <dh from="7CA9F53D-DE02-59C0-E053-1A041EAC5678" to="7CA9F53D-DE03-59C0-E053-1A041EAC5678" val="29.05498" dist="?" stdev="0.0010414413089560063" />
+        </points-observations>
+    </network>
+</gama-local>
