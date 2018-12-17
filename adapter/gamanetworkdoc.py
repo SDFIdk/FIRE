@@ -2,7 +2,6 @@ from typing import List, Dict
 import math
 from fireapi.model import Observation, Punkt
 from fireapi import FireDb
-from pydoc import doc
 from platform import dist
 
 class GamaNetworkDoc():
@@ -24,11 +23,11 @@ class GamaNetworkDoc():
     
     def set_observations(self, observations: List[Observation]):
         self.observations = observations
-        self.add_description("GamaNetworkDoc.set_observations: Antal observationer" + str(len(observations)))
+        self.add_description("GamaNetworkDoc.set_observations: Antal observationer: " + str(len(observations)))
         
     def set_fixed_points(self, fixed_points: List[Punkt]):
         self.fixed_points = fixed_points
-        self.add_description("GamaNetworkDoc.set_fixed_points: Antal punkter" + str(len(fixed_points)))
+        self.add_description("GamaNetworkDoc.set_fixed_points: Antal punkter: " + str(len(fixed_points)))
     
     def write(self, stream, heights: bool, positions: bool):
         output = self.get_template()
@@ -89,13 +88,19 @@ class GamaNetworkDoc():
             if (observation.value4 is not None) and (observation.value5 is not None) and (observation.antal is not None) and (observation.antal != 0):
                 dev=math.sqrt((observation.value4 + observation.value5)/observation.antal)
                 val=observation.value1
-                dist='?'
+                if observation.value2 is not None:
+                    dist = observation.value2/1000
+                else: 
+                    dist='?'
                 return {'dev': dev, 'val': val, 'dist': dist}
         if observation.observationstypeid == 'geometrisk_koteforskel':
             if (observation.value5 is not None) and (observation.value6 is not None) and (observation.antal is not None) and (observation.antal != 0):
                 dev=math.sqrt((observation.value5 + observation.value6)/observation.antal)
                 val=observation.value1
-                dist='?'
+                if observation.value2 is not None:
+                    dist = observation.value2/1000
+                else: 
+                    dist='?'
                 return {'dev': dev, 'val': val, 'dist': dist}
         return None
     
