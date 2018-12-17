@@ -4,7 +4,7 @@ import re
 from sqlalchemy.sql import expression
 from fireapi.model import columntypes
 
-__all__ = ["Point", "Bbox"]
+__all__ = ["Point", "Polygon", "Bbox"]
 
 
 class Geometry(object):
@@ -59,6 +59,19 @@ class Point(Geometry, expression.Function):
             self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry
         )
 
+
+class Polygon(Geometry, expression.Function):
+    def __init__(self, p, srid=4326):
+        if isinstance(p, (str, dict)):
+            geom = p
+        else:
+            raise TypeError(
+                "p must be WKT string or a geojson like dictionary"
+            )
+        super(Polygon, self).__init__(geom, srid)
+        expression.Function.__init__(
+            self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry
+        )
 
 class Bbox(Geometry, expression.Function):
     def __init__(self, bounds, srid=4326):
