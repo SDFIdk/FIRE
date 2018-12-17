@@ -7,4 +7,3 @@ def test_observation(firedb, observation):
     o1 = firedb.session.query(Observation).get(observation.objectid)
 
     assert o1.objectid == observation.objectid
-

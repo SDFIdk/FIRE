@@ -42,6 +42,7 @@ def test_hent_observationer_naer_opstillingspunkt(firedb):
     )
     assert len(os) is 2
 
+
 def test_hent_observationer_naer_geometri(firedb):
     go = firedb.hent_geometri_objekt("7CA9F53D-DE26-59C0-E053-1A041EAC5678")
     os = firedb.hent_observationer_naer_geometri(go.geometri, 10000)
@@ -96,4 +97,3 @@ def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt):
     beregning.koordinater.append(koordinat)
     firedb.indset_beregning(sag, beregning)
 """
-
