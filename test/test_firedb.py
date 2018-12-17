@@ -1,6 +1,15 @@
 import datetime
 from fireapi import FireDb
-from fireapi.model import Sag, Sagsinfo, Koordinat, Punkt, Observation, Beregning, Point, Polygon
+from fireapi.model import (
+    Sag,
+    Sagsinfo,
+    Koordinat,
+    Punkt,
+    Observation,
+    Beregning,
+    Point,
+    Polygon,
+)
 
 
 def test_has_session(firedb):
@@ -50,7 +59,9 @@ def test_hent_observationer_naer_geometri(firedb):
     point = Point("POINT (10.4811749340072 56.3061226484564)")
     os = firedb.hent_observationer_naer_geometri(point, 100)
     assert len(os) is 2
-    polygon = Polygon("POLYGON ((10.4811749340072 56.3061226484564, 10.5811749340072 56.3061226484564, 10.5811749340072 56.4061226484564, 10.4811749340072 56.4061226484564, 10.4811749340072 56.3061226484564))")
+    polygon = Polygon(
+        "POLYGON ((10.4811749340072 56.3061226484564, 10.5811749340072 56.3061226484564, 10.5811749340072 56.4061226484564, 10.4811749340072 56.4061226484564, 10.4811749340072 56.3061226484564))"
+    )
     os = firedb.hent_observationer_naer_geometri(polygon, 100)
     assert len(os) is 6
 

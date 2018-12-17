@@ -65,13 +65,12 @@ class Polygon(Geometry, expression.Function):
         if isinstance(p, (str, dict)):
             geom = p
         else:
-            raise TypeError(
-                "p must be WKT string or a geojson like dictionary"
-            )
+            raise TypeError("p must be WKT string or a geojson like dictionary")
         super(Polygon, self).__init__(geom, srid)
         expression.Function.__init__(
             self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry
         )
+
 
 class Bbox(Geometry, expression.Function):
     def __init__(self, bounds, srid=4326):
