@@ -44,10 +44,20 @@ class FireDb(object):
                     thissession.add(obj)
 
     def hent_punkt(self, id: str) -> Punkt:
-        return self.session.query(Punkt).filter(Punkt.id == id).first()
+        p = aliased(Punkt)
+        return (
+            self.session.query(p)
+            .filter(p.id == id, p._registreringtil == None)
+            .one()
+        )
 
-    def hent_geometri_objekt(self, id: str) -> GeometriObjekt:
-        return self.session.query(GeometriObjekt).filter(GeometriObjekt.punktid == id).first()
+    def hent_geometri_objekt(self, punktid: str) -> GeometriObjekt:
+        go = aliased(GeometriObjekt)
+        return (
+            self.session.query(go)
+            .filter(go.punktid == punktid, go._registreringtil == None)
+            .one()
+        )
 
     def hent_alle_punkter(self) -> List[Punkt]:
         return self.session.query(Punkt).all()
