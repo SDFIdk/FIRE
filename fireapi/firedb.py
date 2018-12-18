@@ -11,6 +11,7 @@ from fireapi.model import (
     Sagsevent,
     Beregning,
     Koordinat,
+    Geometry,
 )
 from typing import List, Optional
 from datetime import datetime
@@ -117,6 +118,8 @@ class FireDb(object):
         tidfra: Optional[datetime] = None,
         tidtil: Optional[datetime] = None,
     ) -> List[Observation]:
+        if isinstance(geometri, str):
+            geometri = Geometry(geometri)
         g = aliased(GeometriObjekt)
         return (
             self.session.query(Observation)

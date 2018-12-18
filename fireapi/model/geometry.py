@@ -4,10 +4,10 @@ import re
 from sqlalchemy.sql import expression
 from fireapi.model import columntypes
 
-__all__ = ["Point", "Polygon", "Bbox"]
+__all__ = ["Geometry", "Point", "Bbox"]
 
 
-class Geometry(object):
+class Geometry(expression.Function):
     """Represents a geometry value."""
 
     def __init__(self, geometry, srid=4326):
@@ -23,6 +23,9 @@ class Geometry(object):
             )
 
         self.srid = srid
+        expression.Function.__init__(
+            self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry
+        )
 
     def __str__(self):
         return self.wkt
@@ -44,7 +47,7 @@ class Geometry(object):
         return from_wkt(self._wkt)
 
 
-class Point(Geometry, expression.Function):
+class Point(Geometry):
     def __init__(self, p, srid=4326):
         if isinstance(p, (list, tuple)):
             geom = dict(type="Point", coordinates=[p[0], p[1]])
@@ -55,24 +58,9 @@ class Point(Geometry, expression.Function):
                 "p must me either a coordinate, a WKT string or a geojson like dictionary"
             )
         super(Point, self).__init__(geom, srid)
-        expression.Function.__init__(
-            self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry
-        )
 
 
-class Polygon(Geometry, expression.Function):
-    def __init__(self, p, srid=4326):
-        if isinstance(p, (str, dict)):
-            geom = p
-        else:
-            raise TypeError("p must be WKT string or a geojson like dictionary")
-        super(Polygon, self).__init__(geom, srid)
-        expression.Function.__init__(
-            self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry
-        )
-
-
-class Bbox(Geometry, expression.Function):
+class Bbox(Geometry):
     def __init__(self, bounds, srid=4326):
         geom = dict(
             type="Polygon",
@@ -87,9 +75,6 @@ class Bbox(Geometry, expression.Function):
             ],
         )
         super(Bbox, self).__init__(geom, srid)
-        expression.Function.__init__(
-            self, "SDO_GEOMETRY", self.wkt, srid, type_=columntypes.Geometry
-        )
 
 
 def geometry_factory(geom, srid=4326):
