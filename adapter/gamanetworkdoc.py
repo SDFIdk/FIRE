@@ -5,7 +5,7 @@ from fireapi import FireDb
 from platform import dist
 
 class GamaNetworkDoc():
-    def __init__(self, fireDb: FireDb, parameters):
+    def __init__(self, fireDb: FireDb, parameters: Dict):
         #Input parametrs
         self.fireDb = fireDb
         self.parameters = parameters
@@ -31,39 +31,63 @@ class GamaNetworkDoc():
     
     def write(self, stream, heights: bool, positions: bool):
         output = self.get_template()
-        output = self.insert_network_attributes(self.parameters, output)
-        output = self.insert_network_parameters(self.parameters, output)
+
+        output = self.insert_fixed_points(self.fixed_points, heights, positions, output)
+
         self.relevant_observations = self.filter_observations(self.observations, heights, positions)
         self.adjustable_points = self.get_points_from_observations(self.relevant_observations)
-        output = self.insert_points_observations_attributes(self.parameters, output)
-        output = self.insert_fixed_points(self.fixed_points, heights, positions, output)
         output = self.insert_adjustable_points(self.adjustable_points, heights, positions, output)
+        
         output =self.insert_observations(self.relevant_observations, heights, positions, output)
+
         output = self.insert_description(self.description_items, output)
+        
+        output = self.insert_network_attributes(self.parameters, output)
+        output = self.insert_network_parameters(self.parameters, output)
+        output = self.insert_points_observations_attributes(self.parameters, output)
+        
         stream.write(output)
     
     def get_template(self):
         template = '<?xml version="1.0" ?>\n' \
         '<gama-local xmlns="http://www.gnu.org/software/gama/gama-local">\n' \
         '    <network {networkAttributes}>\n' \
-        '        {networkParameters}\n' \
+        '        <parameters {networkParameters}/>\n' \
         '        <description>\n' \
         '            {description}\n' \
         '        </description>\n' \
-        '        <points-observations {points-observations-attributes}>\n' \
+        '        <points-observations {pointsObservationsAttributes}>\n' \
         '            {fixedPoints}\n' \
         '            {adjustablePoints}\n' \
-        '            {obs}\n' \
+        '            <height-differences>\n' \
+        '                {obs}\n' \
+        '            </height-differences>\n' \
         '        </points-observations>\n' \
         '    </network>\n' \
         '</gama-local>'
         return template
     
+
     def insert_network_attributes(self, parameters: Dict, doc):
-        return str.replace(doc, "{networkAttributes}", "")
+        attribute_values = []
+        if "network-attributes" in parameters:
+            for key in parameters["network-attributes"]:
+                attribute_values.append(key + "=\"" + parameters["network-attributes"][key] + "\"")
+        return str.replace(doc, "{networkAttributes}", ' '.join(attribute_values))
         
     def insert_network_parameters(self, parameters: Dict, doc):
-        return str.replace(doc, "{networkParameters}", "")
+        attribute_values = []
+        if "network-parameters" in parameters:
+            for key in parameters["network-parameters"]:
+                attribute_values.append(key + "=\"" + parameters["network-parameters"][key] + "\"")
+        return str.replace(doc, "{networkParameters}", ' '.join(attribute_values))
+
+    def insert_points_observations_attributes(self, parameters: Dict, doc):
+        attribute_values = []
+        if "points-observations-attributes" in parameters:
+            for key in parameters["points-observations-attributes"]:
+                attribute_values.append(key + "=\"" + parameters["points-observations-attributes"][key] + "\"")
+        return str.replace(doc, "{pointsObservationsAttributes}", ' '.join(attribute_values))
     
     def insert_description(self, description_items: List[str], doc):
         return str.replace(doc, "{description}", '\n            '.join(description_items))
@@ -115,9 +139,6 @@ class GamaNetworkDoc():
                 points_list.append(op)
         return points_list
     
-    def insert_points_observations_attributes(self, parameters: Dict, doc):
-        return str.replace(doc, "{points-observations-attributes}", "")
-    
     def insert_fixed_points(self, points: List[Punkt], heights: bool, positions: bool, doc):
         fixed_points = []
         for fixed_point in points:
@@ -132,9 +153,12 @@ class GamaNetworkDoc():
     
     def insert_observations(self, observations: List[Observation], heights: bool, positions: bool, doc):
         observation_elements = []
+        observation_ids = []
         for o in observations:
             observation_elements.append(self.get_dh_element(o))
-        return str.replace(doc, "{obs}", '\n            '.join(observation_elements))
+            observation_ids.append(str(o.objectid))
+        self.add_description("observation_ids :[" + ",".join(observation_ids) + "]")
+        return str.replace(doc, "{obs}", '\n                '.join(observation_elements))
     
     def get_height_differences_template(self):
         template = '<height-differences>' \

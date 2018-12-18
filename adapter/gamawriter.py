@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from fireapi import FireDb
 from fireapi.model import Punkt, Observation
 from .gamanetworkdoc import GamaNetworkDoc
@@ -38,7 +38,7 @@ class GamaWriter(object):
         self.obsList = observations
         self.point_set_description = "GamaWriter.take_observations() Antal observationer: " + str(len(observations))
         
-    def write(self, heights, pos, parent_description, parameters):
+    def write(self, heights, pos, parent_description, parameters: Dict):
         self.parent_description = parent_description
         
         doc = GamaNetworkDoc( self.fireDb, parameters)
