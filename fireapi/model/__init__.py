@@ -1,7 +1,6 @@
 """SQLAlchemy models for the application
 """
 import sqlalchemy.ext.declarative
-from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy import Column, Integer, DateTime, func
 
 
@@ -40,7 +39,7 @@ class RegisteringFraObjekt(DeclarativeBase):
         default=func.sysdate(),
     )
 
-    @hybrid_property
+    @property
     def registreringfra(self):
         return self._registreringfra
 
@@ -58,11 +57,11 @@ class RegisteringTidObjekt(DeclarativeBase):
     )
     _registreringtil = Column("registreringtil", DateTime(timezone=True))
 
-    @hybrid_property
+    @property
     def registreringfra(self):
         return self._registreringfra
 
-    @hybrid_property
+    @property
     def registreringtil(self):
         return self._registreringtil
 

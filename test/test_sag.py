@@ -9,7 +9,7 @@ def test_soft_delete(firedb):
     s0 = Sag(id="xxx")
     si0 = Sagsinfo(sag=s0, aktiv="true", behandler="yyy")
     firedb.session.add(si0)
-    
+
     # s0 = Sag(id="xxx", behandler="yyy")
     firedb.session.add(s0)
     firedb.session.commit()
