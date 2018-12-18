@@ -113,7 +113,7 @@ class FireDb(object):
 
     def hent_observationer_naer_geometri(
         self,
-        geometri: Union[str, Geometry],
+        geometri: Geometry,
         afstand: float,
         tidfra: Optional[datetime] = None,
         tidtil: Optional[datetime] = None,
@@ -126,8 +126,6 @@ class FireDb(object):
             filter to identify the set of spatial objects that are within some
             specified distance of the given object.
         """
-        if isinstance(geometri, str):
-            geometri = Geometry(geometri)
         g = aliased(GeometriObjekt)
         return (
             self.session.query(Observation)
