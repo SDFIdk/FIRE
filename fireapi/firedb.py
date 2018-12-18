@@ -11,8 +11,9 @@ from fireapi.model import (
     Sagsevent,
     Beregning,
     Koordinat,
+    Geometry,
 )
-from typing import List, Optional
+from typing import List, Optional, Union
 from datetime import datetime
 
 DEBUG = True
@@ -112,11 +113,19 @@ class FireDb(object):
 
     def hent_observationer_naer_geometri(
         self,
-        geometri,
+        geometri: Geometry,
         afstand: float,
         tidfra: Optional[datetime] = None,
         tidtil: Optional[datetime] = None,
     ) -> List[Observation]:
+        """
+        Parameters
+        ----------
+        geometri
+            Either a WKT string or a Geometry instance which will be used as
+            filter to identify the set of spatial objects that are within some
+            specified distance of the given object.
+        """
         g = aliased(GeometriObjekt)
         return (
             self.session.query(Observation)

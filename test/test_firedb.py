@@ -8,7 +8,7 @@ from fireapi.model import (
     Observation,
     Beregning,
     Point,
-    Polygon,
+    Geometry,
 )
 
 
@@ -56,12 +56,10 @@ def test_hent_observationer_naer_geometri(firedb):
     go = firedb.hent_geometri_objekt("7CA9F53D-DE26-59C0-E053-1A041EAC5678")
     os = firedb.hent_observationer_naer_geometri(go.geometri, 10000)
     assert len(os) is 17
-    point = Point("POINT (10.4811749340072 56.3061226484564)")
+    point = Geometry("POINT (10.4811749340072 56.3061226484564)")
     os = firedb.hent_observationer_naer_geometri(point, 100)
     assert len(os) is 2
-    polygon = Polygon(
-        "POLYGON ((10.4811749340072 56.3061226484564, 10.5811749340072 56.3061226484564, 10.5811749340072 56.4061226484564, 10.4811749340072 56.4061226484564, 10.4811749340072 56.3061226484564))"
-    )
+    polygon = Geometry("POLYGON ((10.4811749340072 56.3061226484564, 10.5811749340072 56.3061226484564, 10.5811749340072 56.4061226484564, 10.4811749340072 56.4061226484564, 10.4811749340072 56.3061226484564))")
     os = firedb.hent_observationer_naer_geometri(polygon, 100)
     assert len(os) is 6
 
