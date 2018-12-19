@@ -1,7 +1,9 @@
+import uuid
 import datetime
 from fireapi import FireDb
 from fireapi.model import (
     Sag,
+    Sagsevent,
     Sagsinfo,
     Koordinat,
     Punkt,
@@ -26,6 +28,14 @@ def test_hent_punkt(firedb):
 def test_hent_alle_punkter(firedb):
     p = firedb.hent_alle_punkter()
     assert isinstance(p, list)
+
+
+def test_hent_observationer(firedb):
+    os = firedb.hent_observationer((1, 2))
+    assert len(os) is 2
+
+    os = firedb.hent_observationer((-999, -998))
+    assert len(os) is 0
 
 
 def test_hent_observationer_naer_opstillingspunkt(firedb):
@@ -59,7 +69,9 @@ def test_hent_observationer_naer_geometri(firedb):
     point = Geometry("POINT (10.4811749340072 56.3061226484564)")
     os = firedb.hent_observationer_naer_geometri(point, 100)
     assert len(os) is 2
-    polygon = Geometry("POLYGON ((10.4811749340072 56.3061226484564, 10.5811749340072 56.3061226484564, 10.5811749340072 56.4061226484564, 10.4811749340072 56.4061226484564, 10.4811749340072 56.3061226484564))")
+    polygon = Geometry(
+        "POLYGON ((10.4811749340072 56.3061226484564, 10.5811749340072 56.3061226484564, 10.5811749340072 56.4061226484564, 10.4811749340072 56.4061226484564, 10.4811749340072 56.3061226484564))"
+    )
     os = firedb.hent_observationer_naer_geometri(polygon, 100)
     assert len(os) is 6
 
@@ -88,7 +100,6 @@ def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
     firedb.indset_observation(sag, observation)
 
 
-""" TODO: API need more thought
 def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt):
     observation = Observation(
         antal=0,
@@ -102,13 +113,13 @@ def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt):
         value5=0,
         value6=0,
         value7=0,
-        value8=0
+        value8=0,
     )
+    firedb.indset_observation(sag, observation)
     beregning = Beregning()
     beregning.observationer.append(observation)
-    koordinat = Koordinat(
-
-    )
+    sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="koordinat")
+    koordinat = Koordinat(srid=-1, transformeret="false", punkt=punkt)
+    koordinat.sagsevent = sagsevent
     beregning.koordinater.append(koordinat)
     firedb.indset_beregning(sag, beregning)
-"""
