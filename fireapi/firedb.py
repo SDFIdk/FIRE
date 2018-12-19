@@ -16,7 +16,7 @@ from fireapi.model import (
 from typing import List, Optional, Union
 from datetime import datetime
 
-DEBUG = True
+DEBUG = False
 
 
 class FireDb(object):
@@ -32,7 +32,7 @@ class FireDb(object):
         self.dialect = "oracle+cx_oracle"
         self.connectionstring = connectionstring
         self.engine = create_engine(
-            f"{self.dialect}://{self.connectionstring}", echo=DEBUG
+            f"{self.dialect}://{self.connectionstring}", echo=DEBUG, encoding='utf8'
         )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.session = self.sessionmaker()
