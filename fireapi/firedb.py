@@ -94,6 +94,13 @@ class FireDb(object):
         filter = and_(*exps)
         return filter
 
+    def hent_observationer(self, objectids: List[int]) -> List[Observation]:
+        return (
+            self.session.query(Observation)
+            .filter(Observation.objectid.in_(objectids))
+            .all()
+        )
+
     def hent_observationer_naer_opstillingspunkt(
         self,
         punkt: Punkt,

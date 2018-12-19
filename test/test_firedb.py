@@ -28,6 +28,14 @@ def test_hent_alle_punkter(firedb):
     assert isinstance(p, list)
 
 
+def test_hent_observationer(firedb):
+    os = firedb.hent_observationer((1, 2))
+    assert len(os) is 2
+
+    os = firedb.hent_observationer((-999, -998))
+    assert len(os) is 0
+
+
 def test_hent_observationer_naer_opstillingspunkt(firedb):
     p = firedb.hent_punkt("7CA9F53D-DE26-59C0-E053-1A041EAC5678")
     os = firedb.hent_observationer_naer_opstillingspunkt(p, 100)
@@ -59,7 +67,9 @@ def test_hent_observationer_naer_geometri(firedb):
     point = Geometry("POINT (10.4811749340072 56.3061226484564)")
     os = firedb.hent_observationer_naer_geometri(point, 100)
     assert len(os) is 2
-    polygon = Geometry("POLYGON ((10.4811749340072 56.3061226484564, 10.5811749340072 56.3061226484564, 10.5811749340072 56.4061226484564, 10.4811749340072 56.4061226484564, 10.4811749340072 56.3061226484564))")
+    polygon = Geometry(
+        "POLYGON ((10.4811749340072 56.3061226484564, 10.5811749340072 56.3061226484564, 10.5811749340072 56.4061226484564, 10.4811749340072 56.4061226484564, 10.4811749340072 56.3061226484564))"
+    )
     os = firedb.hent_observationer_naer_geometri(polygon, 100)
     assert len(os) is 6
 
