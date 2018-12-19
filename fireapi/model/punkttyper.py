@@ -72,7 +72,7 @@ class PunktInformation(FikspunktregisterObjekt):
     infotype = Column(
         String(4000), ForeignKey("punktinfotype.infotype"), nullable=False
     )
-    reeltal = Column(Float)
+    tal = Column(Float)
     tekst = Column(String(4000))
     punktid = Column(String(36), ForeignKey("punkt.id"), nullable=False)
     punkt = relationship("Punkt", back_populates="punktinformationer")
