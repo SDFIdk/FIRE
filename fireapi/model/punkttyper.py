@@ -14,6 +14,7 @@ __all__ = [
     "Beregning",
     "ObservationType",
     "Observation",
+    "PunktInformation",
 ]
 
 
