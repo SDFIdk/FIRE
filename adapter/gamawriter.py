@@ -13,7 +13,7 @@ class GamaWriter(object):
         #Local parameters
         self.obsList = []
         
-    def set_fixed_points(self, fixed_points: List[Punkt]):
+    def set_fixed_point_ids(self, fixed_points: List[str]):
         self.fixed_points = fixed_points
         
     def take_all_points(self):
@@ -42,8 +42,9 @@ class GamaWriter(object):
         self.parent_description = parent_description
         
         doc = GamaNetworkDoc( self.fireDb, parameters)
-        doc.add_description(parent_description + " -> " + self.point_set_description)
-        doc.set_fixed_points(self.fixed_points)
+        doc.add_description("Initiated by " + parent_description)
+        doc.add_description(self.point_set_description)
+        doc.set_fixed_point_ids(self.fixed_points)
         doc.set_observations(self.obsList)
         doc.write(self.output_stream, heights, pos)
     

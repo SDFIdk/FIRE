@@ -19,6 +19,8 @@ if __name__ == "__main__":
     os = fireDb.hent_observationer_naer_geometri(geometry, 0)
     writer.take_observations(os)
 
+    writer.set_fixed_point_ids(["7CA9F53D-DAE9-59C0-E053-1A041EAC5678"])
+    
     parameters = configparser.ConfigParser()
     parameters.read('fire-gama.ini')
     writer.write(True, False, "test/write_in_polygon.py", parameters)

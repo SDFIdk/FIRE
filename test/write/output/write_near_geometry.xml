@@ -1,30 +1,53 @@
 <?xml version="1.0" ?>
 <gama-local xmlns="http://www.gnu.org/software/gama/gama-local">
     <network axes-xy="en" angles="left-handed" epoch="0.0">
-        <parameters algorithm="gso" angles="400" conf-pr="0.95" cov-band="0" ellipsoid="grs80" latitude="55.7" sigma-act="apriori" sigma-apr="1.0" tol-abs="1000.0" update-constrained-coordinates="no" language="en"/>
+        <parameters algorithm="gso" angles="400" conf-pr="0.95" cov-band="0" ellipsoid="grs80" latitude="55.7" sigma-act="apriori" sigma-apr="1.0" tol-abs="1000.0" update-constrained-coordinates="no"/>
         <description>
             Network doc created by fire-gama (https://github.com/Septima/fire-gama)
-            test/write_near_geometry.py -> GamaWriter.take_observations() Antal observationer: 17
+            Initiated by test/write_near_geometry.py
+            GamaWriter.take_observations() Antal observationer: 17
             GamaNetworkDoc.set_fixed_points: Antal punkter: 0
             GamaNetworkDoc.set_observations: Antal observationer: 17
             observation_ids :[105,106,107,108,109,110,111,112,115,116,119,120,121,122,124,127,128]
+            Warnings:
+            No fixed points
         </description>
         <points-observations >
             
             <point id="7CA9F53D-DE26-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE50-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE50-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE26-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE4B-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE4A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE4A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE4B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE26-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE27-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE27-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE26-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE23-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE24-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE24-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE23-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE24-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE25-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE25-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE24-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE4B-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE4C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE4C-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE4B-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE3C-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE3B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE3B-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE3C-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE3A-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE3B-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE2D-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE2E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE2E-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="7CA9F53D-DE2D-59C0-E053-1A041EAC5678" adj="z" />
             <height-differences>
                 <dh from="7CA9F53D-DE26-59C0-E053-1A041EAC5678" to="7CA9F53D-DE50-59C0-E053-1A041EAC5678" val="-7.90258" dist="0.398" stdev="0.0009463614531456784" />
                 <dh from="7CA9F53D-DE50-59C0-E053-1A041EAC5678" to="7CA9F53D-DE26-59C0-E053-1A041EAC5678" val="7.90287" dist="0.476" stdev="0.0010349396117648605" />

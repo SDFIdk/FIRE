@@ -1,6 +1,6 @@
 from typing import List, Dict
 import math
-from fireapi.model import Observation, Punkt
+from fireapi.model import Observation, Punkt, Koordinat
 from fireapi import FireDb
 from platform import dist
 
@@ -9,25 +9,33 @@ class GamaNetworkDoc():
         #Input parametrs
         self.fireDb = fireDb
         self.parameters = parameters
-        self.description_header = "Network doc created by fire-gama (https://github.com/Septima/fire-gama)"
-        self.description_items = [self.description_header]
         self.observations = []
-        self.fixed_points = []
+        self.fixed_point_ids = []
         
         #Local parameters
-        self.adjustable_points = []
         self.relevant_observations = []
+        self.adjustable_points = []
+        self.fixed_points = []
+        self.description_header = "Network doc created by fire-gama (https://github.com/Septima/fire-gama)"
+        self.description_items = [self.description_header]
+        self.warning_items = ["Warnings:"]
         
     def add_description(self, description):
         self.description_items.append(description)
     
+    def add_warning(self, warning):
+        self.warning_items.append(warning)
+        
     def set_observations(self, observations: List[Observation]):
         self.observations = observations
         self.add_description("GamaNetworkDoc.set_observations: Antal observationer: " + str(len(observations)))
         
-    def set_fixed_points(self, fixed_points: List[Punkt]):
-        self.fixed_points = fixed_points
-        self.add_description("GamaNetworkDoc.set_fixed_points: Antal punkter: " + str(len(fixed_points)))
+    def set_fixed_point_ids(self, fixed_point_ids: List[str]):
+        self.fixed_point_ids = fixed_point_ids
+        for point_id in fixed_point_ids:
+            point = self.fireDb.hent_punkt(point_id)
+            self.fixed_points.append(point)
+        self.add_description("GamaNetworkDoc.set_fixed_points: Antal punkter: " + str(len(fixed_point_ids)))
     
     def write(self, stream, heights: bool, positions: bool):
         output = self.get_template()
@@ -90,6 +98,8 @@ class GamaNetworkDoc():
         return str.replace(doc, "{pointsObservationsAttributes}", ' '.join(attribute_values))
     
     def insert_description(self, description_items: List[str], doc):
+        if len(self.warning_items) > 1:
+            description_items.extend(self.warning_items)
         return str.replace(doc, "{description}", '\n            '.join(description_items))
     
     def filter_observations(self, observations: List[Observation], heights: bool, positions: bool):
@@ -129,21 +139,29 @@ class GamaNetworkDoc():
         return None
     
     def get_points_from_observations(self, observations: List[Observation]):
-        point_ids_dict = {}
         points_list = []
         for o in observations:
             op_id = o.opstillingspunktid
-            if op_id not in point_ids_dict:
-                op = self.fireDb.hent_punkt(op_id)
-                point_ids_dict[op_id] = op
-                points_list.append(op)
+            if op_id not in points_list: #Point not already found
+                if op_id not in self.fixed_point_ids: #Not given as a fixed point
+                    op = self.fireDb.hent_punkt(op_id)
+                    points_list.append(op)
+            sp_id = o.sigtepunktid
+            if sp_id not in points_list: #Point not already found
+                if sp_id not in self.fixed_point_ids: #Not given as a fixed point
+                    sp = self.fireDb.hent_punkt(sp_id)
+                    points_list.append(sp)
         return points_list
     
-    def insert_fixed_points(self, points: List[Punkt], heights: bool, positions: bool, doc):
-        fixed_points = []
-        for fixed_point in points:
-            fixed_points.append(self.get_fixed_height_point_element(fixed_point))
-        return str.replace(doc, "{fixedPoints}", '\n            '.join(fixed_points))
+    def insert_fixed_points(self, fixed_points: List[Punkt], heights: bool, positions: bool, doc):
+        if len(fixed_points) == 0:
+            self.add_warning("No fixed points")
+            return str.replace(doc, "{fixedPoints}", '')
+        else:
+            fixed_points_elements = []
+            for fixed_point in fixed_points:
+                fixed_points_elements.append(self.get_fixed_height_point_element(fixed_point))
+            return str.replace(doc, "{fixedPoints}", '\n            '.join(fixed_points_elements))
         
     def insert_adjustable_points(self, points: List[Punkt], heights: bool, positions: bool, doc):
         adjustable_points = []
@@ -160,17 +178,24 @@ class GamaNetworkDoc():
         self.add_description("observation_ids :[" + ",".join(observation_ids) + "]")
         return str.replace(doc, "{obs}", '\n                '.join(observation_elements))
     
-    def get_height_differences_template(self):
-        template = '<height-differences>' \
-        '    [dhs]' \
-        '</height-differences>'
-        return template
+    def get_fixed_height_point_element(self, fixed_point: Punkt):
+        point_id = fixed_point.id
+        ks: List[koordinat] = fixed_point.koordinater
+        for k in ks:
+            if k.srid == 'EPSG:5799':
+                z = k.z
+                return '<point id="{id}" z="{z}" fix="z" />'.format(id = point_id, z = z)
+        self.add_warning("Fixed point with no z value. Punktid:" + point_id)
+        return '<point id="{id}" fix="z" />'.format(id = point_id)
     
-    def get_fixed_height_point_element(self, point: Punkt):
-        return '<point id="{id}" z="zzz.zzz" fix="z" />'.format(id= point.id)
-    
-    def get_adjustable_height_point_element(self, point: Punkt):
-        return '<point id="{id}" adj="z" />'.format(id= point.id)
+    def get_adjustable_height_point_element(self, adjustable_point: Punkt):
+        point_id = adjustable_point.id
+        ks: List[koordinat] = adjustable_point.koordinater
+        for k in ks:
+            if k.srid == 'EPSG:5799':
+                z = k.z
+                return '<point id="{id}" z="{z}" adj="z" />'.format(id = point_id, z = z)
+        return '<point id="{id}" adj="z" />'.format(id= point_id)
 
     def get_dh_element(self, observation: Observation):
         fromId= observation.opstillingspunktid
