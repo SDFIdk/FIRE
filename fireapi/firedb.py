@@ -61,6 +61,9 @@ class FireDb(object):
     def hent_alle_punkter(self) -> List[Punkt]:
         return self.session.query(Punkt).all()
 
+    def hent_sag(self, id: str) -> Sag:
+        return self.session.query(Sag).filter(Sag.id == id).one()
+
     def hent_alle_sager(self) -> List[Sag]:
         return self.session.query(Sag).all()
 
@@ -160,12 +163,9 @@ class FireDb(object):
         self.session.add(observation)
         self.session.commit()
 
-
-""" TODO: API need more thought
     def indset_beregning(self, sag: Sag, beregning: Beregning):
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="koordinat_beregnet")
-        #self.session.add(sagsevent)
+        # self.session.add(sagsevent)
         beregning.sagsevent = sagsevent
         self.session.add(beregning)
         self.session.commit()
-"""
