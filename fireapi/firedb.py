@@ -161,16 +161,18 @@ class FireDb(object):
 
     def indset_observation(self, sag: Sag, observation: Observation):
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="observation_indsat")
+        self.session.add(sagsevent)
+        self.session.flush()
         observation.sagsevent = sagsevent
-        # self.session.add(sagsevent)
         self.session.add(observation)
         self.session.commit()
 
     def indset_beregning(self, sag: Sag, beregning: Beregning):
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="koordinat_beregnet")
-        # self.session.add(sagsevent)
+        self.session.add(sagsevent)
         beregning.sagsevent = sagsevent
         for koordinat in beregning.koordinater:
             koordinat.sagsevent = sagsevent
+        self.session.flush()
         self.session.add(beregning)
         self.session.commit()
