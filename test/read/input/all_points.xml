@@ -1,0 +1,899 @@
+<?xml version="1.0"?>
+<gama-local-adjustment xmlns="http://www.gnu.org/software/gama/gama-local-adjustment">
+
+<description>
+            Network doc created by fire-gama (https://github.com/Septima/fire-gama)
+            Initiated by test/write_all_points.py
+            GamaWriter.take_all_points() Antal punkter: 1636
+            GamaNetworkDoc.set_fixed_points: Antal punkter: 1
+            GamaNetworkDoc.set_observations: Antal observationer: 1006
+            {observation_ids}[366,367,388,389,387,386,385,384,379,378,376,377,371,370,381,380,494,493,491,492,372,373,218,234,222,227,216,238,220,221,217,232,230,237,235,239,219,223,224,231,214,226,228,236,229,215,225,233,375,374,368,369,395,394,396,397,393,392,382,383,309,312,308,313,310,311,482,483,481,484,12,14,23,40,57,24,170,41,5,157,47,59,58,61,70,60,42,36,71,86,77,158,159,6,25,43,21,72,78,26,44,80,13,160,27,37,28,9,161,55,79,62,46,3,45,22,63,11,49,73,15,29,162,48,441,406,456,455,74,2,81,38,163,64,31,39,30,4,82,164,65,50,83,69,33,16,165,51,32,67,166,1,167,84,7,52,66,34,168,85,17,75,10,340,342,54,341,343,68,443,20,442,56,53,445,475,444,476,477,478,463,464,467,468,465,466,457,458,447,446,94,93,347,346,344,345,348,349,299,300,301,303,302,298,180,189,179,190,429,181,186,430,182,185,437,176,438,175,439,440,171,184,172,183,254,305,255,306,253,304,252,307,129,130,132,131,339,338,337,336,210,211,213,212,286,288,290,292,287,289,291,293,282,284,283,285,390,391,332,333,432,431,174,173,191,192,187,188,436,435,35,8,76,18,169,19,353,352,351,350,355,354,453,454,448,449,472,471,496,495,460,459,488,487,490,489,434,433,178,177,328,329,319,318,331,330,327,326,315,314,320,321,322,323,334,335,324,325,317,316,247,248,246,249,404,405,398,399,400,401,402,403,486,485,361,360,357,356,358,359,479,480,363,362,427,428,423,424,426,425,197,242,245,243,244,240,251,241,250,205,207,209,202,206,208,203,204,198,200,199,201,294,297,295,296,89,90,92,91,118,117,106,105,120,119,107,108,114,113,121,122,123,124,125,126,127,128,110,109,116,115,112,111,451,450,452,462,461,473,474,470,469,139,141,273,422,280,407,140,142,260,262,408,421,138,96,256,137,95,267,134,418,277,133,264,417,150,98,274,149,97,275,145,263,268,416,146,258,259,415,156,420,276,155,419,278,144,265,414,143,269,413,147,152,99,270,271,410,148,151,100,257,409,279,135,154,101,261,266,412,136,153,102,272,411,281,104,364,103,365,87,88,194,193,195,196]{/observation_ids}
+        </description>
+
+<network-general-parameters
+   gama-local-version="2.00"
+   gama-local-algorithm="gso"
+   gama-local-compiler="msvc++ 19.13"
+   axes-xy="en"
+   angles="left-handed"
+   epoch="0.0000000"
+   latitude="55.7000000"
+   ellipsoid="grs80"
+/>
+
+<network-processing-summary>
+
+<coordinates-summary>
+   <coordinates-summary-adjusted>    <count-xyz>0</count-xyz> <count-xy>0</count-xy> <count-z>78</count-z> </coordinates-summary-adjusted>
+   <coordinates-summary-constrained> <count-xyz>0</count-xyz> <count-xy>0</count-xy> <count-z>0</count-z> </coordinates-summary-constrained>
+   <coordinates-summary-fixed>       <count-xyz>0</count-xyz> <count-xy>0</count-xy> <count-z>1</count-z> </coordinates-summary-fixed>
+</coordinates-summary>
+
+<observations-summary>
+   <distances>0</distances>
+   <directions>0</directions>
+   <angles>0</angles>
+   <xyz-coords>0</xyz-coords>
+   <h-diffs>108</h-diffs>
+   <z-angles>0</z-angles>
+   <s-dists>0</s-dists>
+   <vectors>0</vectors>
+   <azimuths>0</azimuths>
+</observations-summary>
+
+<project-equations>
+   <equations>108</equations>
+   <unknowns>78</unknowns>
+   <degrees-of-freedom>70</degrees-of-freedom>
+   <defect>40</defect>
+   <sum-of-squares>7.5889075e+07</sum-of-squares>
+   <disconnected-network/>
+</project-equations>
+
+<standard-deviation>
+   <apriori>1.0000000e+00</apriori>
+   <aposteriori>1.0412155e+03</aposteriori>
+   <used>apriori</used>
+
+   <probability>0.950</probability>
+   <ratio>1041.215</ratio>
+   <lower>0.835</lower>
+   <upper>1.165</upper>
+   <failed/>
+
+   <confidence-scale>1.9599640e+00</confidence-scale>
+</standard-deviation>
+
+</network-processing-summary>
+
+<coordinates>
+
+<fixed>
+   <point> <id>7CA9F53D-DAE9-59C0-E053-1A041EAC5678</id> <z>3.175820</z> </point>
+</fixed>
+
+<approximate>
+   <point> <id>7CA9F53D-DB00-59C0-E053-1A041EAC5678</id> <z>3.803170</z> </point>
+   <point> <id>7CA9F53D-DB01-59C0-E053-1A041EAC5678</id> <z>5.102990</z> </point>
+   <point> <id>7CA9F53D-DB74-59C0-E053-1A041EAC5678</id> <z>2.680780</z> </point>
+   <point> <id>7CA9F53D-DB75-59C0-E053-1A041EAC5678</id> <z>2.126110</z> </point>
+   <point> <id>7CA9F53D-DBA1-59C0-E053-1A041EAC5678</id> <z>60.508000</z> </point>
+   <point> <id>7CA9F53D-DBA2-59C0-E053-1A041EAC5678</id> <z>51.012870</z> </point>
+   <point> <id>7CA9F53D-DBA3-59C0-E053-1A041EAC5678</id> <z>45.033760</z> </point>
+   <point> <id>7CA9F53D-DBA4-59C0-E053-1A041EAC5678</id> <z>54.457580</z> </point>
+   <point> <id>7CA9F53D-DBA5-59C0-E053-1A041EAC5678</id> <z>51.455310</z> </point>
+   <point> <id>7CA9F53D-DBA7-59C0-E053-1A041EAC5678</id> <z>56.279550</z> </point>
+   <point> <id>7CA9F53D-DBA9-59C0-E053-1A041EAC5678</id> <z>54.490610</z> </point>
+   <point> <id>7CA9F53D-DBAA-59C0-E053-1A041EAC5678</id> <z>51.014830</z> </point>
+   <point> <id>7CA9F53D-DBAC-59C0-E053-1A041EAC5678</id> <z>40.867730</z> </point>
+   <point> <id>7CA9F53D-DBAE-59C0-E053-1A041EAC5678</id> <z>47.625510</z> </point>
+   <point> <id>7CA9F53D-DBAF-59C0-E053-1A041EAC5678</id> <z>60.154730</z> </point>
+   <point> <id>7CA9F53D-DBB2-59C0-E053-1A041EAC5678</id> <z>62.429210</z> </point>
+   <point> <id>7CA9F53D-DBB3-59C0-E053-1A041EAC5678</id> <z>57.070730</z> </point>
+   <point> <id>7CA9F53D-DBB4-59C0-E053-1A041EAC5678</id> <z>52.607550</z> </point>
+   <point> <id>7CA9F53D-DBB8-59C0-E053-1A041EAC5678</id> <z>65.809130</z> </point>
+   <point> <id>7CA9F53D-DBEB-59C0-E053-1A041EAC5678</id> <z>23.403950</z> </point>
+   <point> <id>7CA9F53D-DBED-59C0-E053-1A041EAC5678</id> <z>14.744170</z> </point>
+   <point> <id>7CA9F53D-DBEE-59C0-E053-1A041EAC5678</id> <z>18.551320</z> </point>
+   <point> <id>7CA9F53D-DBEF-59C0-E053-1A041EAC5678</id> <z>12.299180</z> </point>
+   <point> <id>7CA9F53D-DBF1-59C0-E053-1A041EAC5678</id> <z>20.938450</z> </point>
+   <point> <id>7CA9F53D-DBF4-59C0-E053-1A041EAC5678</id> <z>6.489740</z> </point>
+   <point> <id>7CA9F53D-DBF7-59C0-E053-1A041EAC5678</id> <z>2.847830</z> </point>
+   <point> <id>7CA9F53D-DBF9-59C0-E053-1A041EAC5678</id> <z>55.700060</z> </point>
+   <point> <id>7CA9F53D-DC09-59C0-E053-1A041EAC5678</id> <z>3.344990</z> </point>
+   <point> <id>7CA9F53D-DC15-59C0-E053-1A041EAC5678</id> <z>53.152490</z> </point>
+   <point> <id>7CA9F53D-DC16-59C0-E053-1A041EAC5678</id> <z>33.780580</z> </point>
+   <point> <id>7CA9F53D-DC1F-59C0-E053-1A041EAC5678</id> <z>47.384780</z> </point>
+   <point> <id>7CA9F53D-DC20-59C0-E053-1A041EAC5678</id> <z>41.385930</z> </point>
+   <point> <id>7CA9F53D-DC24-59C0-E053-1A041EAC5678</id> <z>12.140940</z> </point>
+   <point> <id>7CA9F53D-DC25-59C0-E053-1A041EAC5678</id> <z>6.125970</z> </point>
+   <point> <id>7CA9F53D-DC2C-59C0-E053-1A041EAC5678</id> <z>7.036180</z> </point>
+   <point> <id>7CA9F53D-DC2D-59C0-E053-1A041EAC5678</id> <z>8.930800</z> </point>
+   <point> <id>7CA9F53D-DC2E-59C0-E053-1A041EAC5678</id> <z>1.759170</z> </point>
+   <point> <id>7CA9F53D-DC3D-59C0-E053-1A041EAC5678</id> <z>2.496800</z> </point>
+   <point> <id>7CA9F53D-DC3E-59C0-E053-1A041EAC5678</id> <z>56.316410</z> </point>
+   <point> <id>7CA9F53D-DC40-59C0-E053-1A041EAC5678</id> <z>60.527510</z> </point>
+   <point> <id>7CA9F53D-DC48-59C0-E053-1A041EAC5678</id> <z>40.091730</z> </point>
+   <point> <id>7CA9F53D-DC54-59C0-E053-1A041EAC5678</id> <z>55.124060</z> </point>
+   <point> <id>7CA9F53D-DC55-59C0-E053-1A041EAC5678</id> <z>54.713060</z> </point>
+   <point> <id>7CA9F53D-DC56-59C0-E053-1A041EAC5678</id> <z>53.967060</z> </point>
+   <point> <id>7CA9F53D-DC57-59C0-E053-1A041EAC5678</id> <z>57.573060</z> </point>
+   <point> <id>7CA9F53D-DC58-59C0-E053-1A041EAC5678</id> <z>59.596600</z> </point>
+   <point> <id>7CA9F53D-DC59-59C0-E053-1A041EAC5678</id> <z>55.695080</z> </point>
+   <point> <id>7CA9F53D-DC5A-59C0-E053-1A041EAC5678</id> <z>51.845080</z> </point>
+   <point> <id>7CA9F53D-DC5B-59C0-E053-1A041EAC5678</id> <z>52.750850</z> </point>
+   <point> <id>7CA9F53D-DC5C-59C0-E053-1A041EAC5678</id> <z>51.108450</z> </point>
+   <point> <id>7CA9F53D-DC5D-59C0-E053-1A041EAC5678</id> <z>12.212680</z> </point>
+   <point> <id>7CA9F53D-DC62-59C0-E053-1A041EAC5678</id> <z>12.974250</z> </point>
+   <point> <id>7CA9F53D-DC79-59C0-E053-1A041EAC5678</id> <z>47.640550</z> </point>
+   <point> <id>7CA9F53D-DC7A-59C0-E053-1A041EAC5678</id> <z>55.281430</z> </point>
+   <point> <id>7CA9F53D-DC7B-59C0-E053-1A041EAC5678</id> <z>51.846730</z> </point>
+   <point> <id>7CA9F53D-DC7E-59C0-E053-1A041EAC5678</id> <z>26.083650</z> </point>
+   <point> <id>7CA9F53D-DC7F-59C0-E053-1A041EAC5678</id> <z>33.334150</z> </point>
+   <point> <id>7CA9F53D-DC80-59C0-E053-1A041EAC5678</id> <z>33.607450</z> </point>
+   <point> <id>7CA9F53D-DC81-59C0-E053-1A041EAC5678</id> <z>30.910750</z> </point>
+   <point> <id>7CA9F53D-DC82-59C0-E053-1A041EAC5678</id> <z>28.887750</z> </point>
+   <point> <id>7CA9F53D-DC83-59C0-E053-1A041EAC5678</id> <z>2.949290</z> </point>
+   <point> <id>7CA9F53D-DC84-59C0-E053-1A041EAC5678</id> <z>1.773530</z> </point>
+   <point> <id>7CA9F53D-DC85-59C0-E053-1A041EAC5678</id> <z>5.707030</z> </point>
+   <point> <id>7CA9F53D-DC86-59C0-E053-1A041EAC5678</id> <z>4.462530</z> </point>
+   <point> <id>7CA9F53D-DC8C-59C0-E053-1A041EAC5678</id> <z>52.825380</z> </point>
+   <point> <id>7CA9F53D-DE0D-59C0-E053-1A041EAC5678</id> <z>2.847770</z> </point>
+   <point> <id>7CA9F53D-DEA2-59C0-E053-1A041EAC5678</id> <z>51.443630</z> </point>
+   <point> <id>7CA9F53D-DEAB-59C0-E053-1A041EAC5678</id> <z>50.277090</z> </point>
+   <point> <id>7CA9F53D-DEAC-59C0-E053-1A041EAC5678</id> <z>48.032890</z> </point>
+   <point> <id>7CA9F53D-DEAD-59C0-E053-1A041EAC5678</id> <z>48.071490</z> </point>
+   <point> <id>7CA9F53D-DEAE-59C0-E053-1A041EAC5678</id> <z>50.655690</z> </point>
+   <point> <id>7CA9F53D-DEB0-59C0-E053-1A041EAC5678</id> <z>53.049490</z> </point>
+   <point> <id>7CA9F53D-DEB1-59C0-E053-1A041EAC5678</id> <z>43.342390</z> </point>
+   <point> <id>7CA9F53D-DEBB-59C0-E053-1A041EAC5678</id> <z>50.426080</z> </point>
+   <point> <id>7CA9F53D-DED3-59C0-E053-1A041EAC5678</id> <z>2.008720</z> </point>
+   <point> <id>7CA9F53D-DED4-59C0-E053-1A041EAC5678</id> <z>2.000300</z> </point>
+   <point> <id>7CA9F53D-DED5-59C0-E053-1A041EAC5678</id> <z>2.233880</z> </point>
+   <point> <id>7CA9F53D-DED6-59C0-E053-1A041EAC5678</id> <z>2.382120</z> </point>
+</approximate>
+
+<!-- capital X,Y,Z denote constrained coordinates -->
+<adjusted>
+   <point> <id>7CA9F53D-DB00-59C0-E053-1A041EAC5678</id> <z>3.8044303266289705</z> </point>
+   <point> <id>7CA9F53D-DB01-59C0-E053-1A041EAC5678</id> <z>5.1029352510905950</z> </point>
+   <point> <id>7CA9F53D-DB74-59C0-E053-1A041EAC5678</id> <z>2.6808320044370770</z> </point>
+   <point> <id>7CA9F53D-DB75-59C0-E053-1A041EAC5678</id> <z>2.1261100000000002</z> </point>
+   <point> <id>7CA9F53D-DBA1-59C0-E053-1A041EAC5678</id> <z>60.5051327952091356</z> </point>
+   <point> <id>7CA9F53D-DBA2-59C0-E053-1A041EAC5678</id> <z>51.0141098923621499</z> </point>
+   <point> <id>7CA9F53D-DBA3-59C0-E053-1A041EAC5678</id> <z>45.0337600000000009</z> </point>
+   <point> <id>7CA9F53D-DBA4-59C0-E053-1A041EAC5678</id> <z>54.4570700088298594</z> </point>
+   <point> <id>7CA9F53D-DBA5-59C0-E053-1A041EAC5678</id> <z>51.4541296708367426</z> </point>
+   <point> <id>7CA9F53D-DBA7-59C0-E053-1A041EAC5678</id> <z>56.2795500000000004</z> </point>
+   <point> <id>7CA9F53D-DBA9-59C0-E053-1A041EAC5678</id> <z>54.4906100000000038</z> </point>
+   <point> <id>7CA9F53D-DBAA-59C0-E053-1A041EAC5678</id> <z>51.0160598912516008</z> </point>
+   <point> <id>7CA9F53D-DBAC-59C0-E053-1A041EAC5678</id> <z>40.8677300000000017</z> </point>
+   <point> <id>7CA9F53D-DBAE-59C0-E053-1A041EAC5678</id> <z>47.6248401512926165</z> </point>
+   <point> <id>7CA9F53D-DBAF-59C0-E053-1A041EAC5678</id> <z>60.1547300000000007</z> </point>
+   <point> <id>7CA9F53D-DBB2-59C0-E053-1A041EAC5678</id> <z>62.4289999278760561</z> </point>
+   <point> <id>7CA9F53D-DBB3-59C0-E053-1A041EAC5678</id> <z>57.0709151128800656</z> </point>
+   <point> <id>7CA9F53D-DBB4-59C0-E053-1A041EAC5678</id> <z>52.6075500000000034</z> </point>
+   <point> <id>7CA9F53D-DBB8-59C0-E053-1A041EAC5678</id> <z>65.8091299999999961</z> </point>
+   <point> <id>7CA9F53D-DBEB-59C0-E053-1A041EAC5678</id> <z>23.4035666548106960</z> </point>
+   <point> <id>7CA9F53D-DBED-59C0-E053-1A041EAC5678</id> <z>14.7457419754706027</z> </point>
+   <point> <id>7CA9F53D-DBEE-59C0-E053-1A041EAC5678</id> <z>18.5518950506139184</z> </point>
+   <point> <id>7CA9F53D-DBEF-59C0-E053-1A041EAC5678</id> <z>12.2991799999999998</z> </point>
+   <point> <id>7CA9F53D-DBF1-59C0-E053-1A041EAC5678</id> <z>20.9384499999999996</z> </point>
+   <point> <id>7CA9F53D-DBF4-59C0-E053-1A041EAC5678</id> <z>6.4895600263403521</z> </point>
+   <point> <id>7CA9F53D-DBF7-59C0-E053-1A041EAC5678</id> <z>2.8478300000000001</z> </point>
+   <point> <id>7CA9F53D-DBF9-59C0-E053-1A041EAC5678</id> <z>55.6985580794050819</z> </point>
+   <point> <id>7CA9F53D-DC09-59C0-E053-1A041EAC5678</id> <z>3.3449900000000001</z> </point>
+   <point> <id>7CA9F53D-DC15-59C0-E053-1A041EAC5678</id> <z>53.1524900000000002</z> </point>
+   <point> <id>7CA9F53D-DC16-59C0-E053-1A041EAC5678</id> <z>33.7806949308962103</z> </point>
+   <point> <id>7CA9F53D-DC1F-59C0-E053-1A041EAC5678</id> <z>47.3849049994726457</z> </point>
+   <point> <id>7CA9F53D-DC20-59C0-E053-1A041EAC5678</id> <z>41.3859300000000019</z> </point>
+   <point> <id>7CA9F53D-DC24-59C0-E053-1A041EAC5678</id> <z>12.1411949927937908</z> </point>
+   <point> <id>7CA9F53D-DC25-59C0-E053-1A041EAC5678</id> <z>6.1259699999999997</z> </point>
+   <point> <id>7CA9F53D-DC2C-59C0-E053-1A041EAC5678</id> <z>7.0361799999999999</z> </point>
+   <point> <id>7CA9F53D-DC2D-59C0-E053-1A041EAC5678</id> <z>8.9307500072609027</z> </point>
+   <point> <id>7CA9F53D-DC2E-59C0-E053-1A041EAC5678</id> <z>1.7591699999999999</z> </point>
+   <point> <id>7CA9F53D-DC3D-59C0-E053-1A041EAC5678</id> <z>2.4967299964158562</z> </point>
+   <point> <id>7CA9F53D-DC3E-59C0-E053-1A041EAC5678</id> <z>56.3136276760944980</z> </point>
+   <point> <id>7CA9F53D-DC40-59C0-E053-1A041EAC5678</id> <z>60.5268959169663887</z> </point>
+   <point> <id>7CA9F53D-DC48-59C0-E053-1A041EAC5678</id> <z>40.0917299999999983</z> </point>
+   <point> <id>7CA9F53D-DC54-59C0-E053-1A041EAC5678</id> <z>55.1225580794050813</z> </point>
+   <point> <id>7CA9F53D-DC55-59C0-E053-1A041EAC5678</id> <z>54.7115580794050800</z> </point>
+   <point> <id>7CA9F53D-DC56-59C0-E053-1A041EAC5678</id> <z>53.9670600000000036</z> </point>
+   <point> <id>7CA9F53D-DC57-59C0-E053-1A041EAC5678</id> <z>57.5730600000000052</z> </point>
+   <point> <id>7CA9F53D-DC58-59C0-E053-1A041EAC5678</id> <z>59.5945827952091349</z> </point>
+   <point> <id>7CA9F53D-DC59-59C0-E053-1A041EAC5678</id> <z>55.6937310476634693</z> </point>
+   <point> <id>7CA9F53D-DC5A-59C0-E053-1A041EAC5678</id> <z>51.8445700088298622</z> </point>
+   <point> <id>7CA9F53D-DC5B-59C0-E053-1A041EAC5678</id> <z>52.7516580868601181</z> </point>
+   <point> <id>7CA9F53D-DC5C-59C0-E053-1A041EAC5678</id> <z>51.1078828542592660</z> </point>
+   <point> <id>7CA9F53D-DC5D-59C0-E053-1A041EAC5678</id> <z>12.2140809180279710</z> </point>
+   <point> <id>7CA9F53D-DC62-59C0-E053-1A041EAC5678</id> <z>12.9757424623267088</z> </point>
+   <point> <id>7CA9F53D-DC79-59C0-E053-1A041EAC5678</id> <z>47.6391590673105370</z> </point>
+   <point> <id>7CA9F53D-DC7A-59C0-E053-1A041EAC5678</id> <z>55.2831146711922372</z> </point>
+   <point> <id>7CA9F53D-DC7B-59C0-E053-1A041EAC5678</id> <z>51.8494128324121633</z> </point>
+   <point> <id>7CA9F53D-DC7E-59C0-E053-1A041EAC5678</id> <z>26.0827195843636694</z> </point>
+   <point> <id>7CA9F53D-DC7F-59C0-E053-1A041EAC5678</id> <z>33.3344915670200876</z> </point>
+   <point> <id>7CA9F53D-DC80-59C0-E053-1A041EAC5678</id> <z>33.6085655968067911</z> </point>
+   <point> <id>7CA9F53D-DC81-59C0-E053-1A041EAC5678</id> <z>30.9114873327461765</z> </point>
+   <point> <id>7CA9F53D-DC82-59C0-E053-1A041EAC5678</id> <z>28.8877499999999969</z> </point>
+   <point> <id>7CA9F53D-DC83-59C0-E053-1A041EAC5678</id> <z>2.9499314474809544</z> </point>
+   <point> <id>7CA9F53D-DC84-59C0-E053-1A041EAC5678</id> <z>1.7748233340049304</z> </point>
+   <point> <id>7CA9F53D-DC85-59C0-E053-1A041EAC5678</id> <z>5.7077966682468952</z> </point>
+   <point> <id>7CA9F53D-DC86-59C0-E053-1A041EAC5678</id> <z>4.4628660013510952</z> </point>
+   <point> <id>7CA9F53D-DC8C-59C0-E053-1A041EAC5678</id> <z>52.8263384325427836</z> </point>
+   <point> <id>7CA9F53D-DE0D-59C0-E053-1A041EAC5678</id> <z>2.8473405748331029</z> </point>
+   <point> <id>7CA9F53D-DEA2-59C0-E053-1A041EAC5678</id> <z>51.4436797708541107</z> </point>
+   <point> <id>7CA9F53D-DEAB-59C0-E053-1A041EAC5678</id> <z>50.2771685764107374</z> </point>
+   <point> <id>7CA9F53D-DEAC-59C0-E053-1A041EAC5678</id> <z>48.0328282205988302</z> </point>
+   <point> <id>7CA9F53D-DEAD-59C0-E053-1A041EAC5678</id> <z>48.0696214837987768</z> </point>
+   <point> <id>7CA9F53D-DEAE-59C0-E053-1A041EAC5678</id> <z>50.6538214837987795</z> </point>
+   <point> <id>7CA9F53D-DEB0-59C0-E053-1A041EAC5678</id> <z>53.0483751352556610</z> </point>
+   <point> <id>7CA9F53D-DEB1-59C0-E053-1A041EAC5678</id> <z>43.3405214837987813</z> </point>
+   <point> <id>7CA9F53D-DEBB-59C0-E053-1A041EAC5678</id> <z>50.4256174761839020</z> </point>
+   <point> <id>7CA9F53D-DED3-59C0-E053-1A041EAC5678</id> <z>2.0087199999999998</z> </point>
+   <point> <id>7CA9F53D-DED4-59C0-E053-1A041EAC5678</id> <z>2.0003199999999999</z> </point>
+   <point> <id>7CA9F53D-DED5-59C0-E053-1A041EAC5678</id> <z>2.2338199999999997</z> </point>
+   <point> <id>7CA9F53D-DED6-59C0-E053-1A041EAC5678</id> <z>2.3820949999999996</z> </point>
+</adjusted>
+
+<orientation-shifts>
+</orientation-shifts>
+
+<!-- upper part of symmetric matrix band by rows -->
+<cov-mat>
+<dim>78</dim> <band>0</band>
+<flt>2.4641986e-07</flt> <flt>2.4641986e-07</flt> <flt>5.8563273e-09</flt>
+<flt>0.0000000e+00</flt> <flt>2.1429317e-05</flt> <flt>0.0000000e+00</flt>
+<flt>0.0000000e+00</flt> <flt>1.2995675e-07</flt> <flt>1.2905449e-07</flt>
+<flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt> <flt>1.2363150e-07</flt>
+<flt>3.4743306e-06</flt> <flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt>
+<flt>3.8625090e-07</flt> <flt>1.5872381e-06</flt> <flt>0.0000000e+00</flt>
+<flt>0.0000000e+00</flt> <flt>1.4263715e-05</flt> <flt>0.0000000e+00</flt>
+<flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt>
+<flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt> <flt>4.8812920e-06</flt>
+<flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt> <flt>1.2730845e-07</flt>
+<flt>1.2761907e-07</flt> <flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt>
+<flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt>
+<flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt>
+<flt>7.2418615e-06</flt> <flt>0.0000000e+00</flt> <flt>2.2737496e-05</flt>
+<flt>1.0168724e-05</flt> <flt>0.0000000e+00</flt> <flt>0.0000000e+00</flt>
+<flt>2.6641867e-05</flt> <flt>1.8210626e-05</flt> <flt>1.3880057e-05</flt>
+<flt>6.8963602e-06</flt> <flt>1.1449460e-06</flt> <flt>0.0000000e+00</flt>
+<flt>0.0000000e+00</flt> <flt>9.6496452e-06</flt> <flt>0.0000000e+00</flt>
+<flt>0.0000000e+00</flt> <flt>2.5227987e-05</flt> <flt>1.2972502e-05</flt>
+<flt>2.6437460e-05</flt> <flt>2.2619341e-05</flt> <flt>0.0000000e+00</flt>
+<flt>3.7993921e-06</flt> <flt>1.9840158e-06</flt> <flt>8.2524170e-06</flt>
+<flt>5.1240766e-06</flt> <flt>3.0881702e-06</flt> <flt>2.6438178e-08</flt>
+<flt>0.0000000e+00</flt> <flt>8.3782884e-06</flt> <flt>7.4985366e-06</flt>
+<flt>2.5362940e-05</flt> <flt>9.0878400e-06</flt> <flt>8.2770937e-06</flt>
+<flt>2.5362940e-05</flt> <flt>8.6912077e-06</flt> <flt>0.0000000e+00</flt>
+<flt>3.2050000e-08</flt> <flt>7.5100000e-08</flt> <flt>3.3050000e-08</flt>
+</cov-mat>
+
+<!-- original indexes from the adjustment -->
+<original-index>
+<ind>74</ind>
+<ind>75</ind>
+<ind>65</ind>
+<ind>64</ind>
+<ind>39</ind>
+<ind>62</ind>
+<ind>63</ind>
+<ind>45</ind>
+<ind>61</ind>
+<ind>42</ind>
+<ind>60</ind>
+<ind>32</ind>
+<ind>58</ind>
+<ind>55</ind>
+<ind>57</ind>
+<ind>51</ind>
+<ind>54</ind>
+<ind>30</ind>
+<ind>53</ind>
+<ind>18</ind>
+<ind>77</ind>
+<ind>78</ind>
+<ind>37</ind>
+<ind>35</ind>
+<ind>76</ind>
+<ind>21</ind>
+<ind>50</ind>
+<ind>25</ind>
+<ind>11</ind>
+<ind>73</ind>
+<ind>7</ind>
+<ind>16</ind>
+<ind>71</ind>
+<ind>72</ind>
+<ind>70</ind>
+<ind>69</ind>
+<ind>68</ind>
+<ind>67</ind>
+<ind>56</ind>
+<ind>52</ind>
+<ind>59</ind>
+<ind>46</ind>
+<ind>47</ind>
+<ind>49</ind>
+<ind>48</ind>
+<ind>38</ind>
+<ind>44</ind>
+<ind>43</ind>
+<ind>41</ind>
+<ind>40</ind>
+<ind>36</ind>
+<ind>34</ind>
+<ind>29</ind>
+<ind>33</ind>
+<ind>31</ind>
+<ind>26</ind>
+<ind>19</ind>
+<ind>27</ind>
+<ind>28</ind>
+<ind>17</ind>
+<ind>24</ind>
+<ind>23</ind>
+<ind>22</ind>
+<ind>20</ind>
+<ind>6</ind>
+<ind>66</ind>
+<ind>15</ind>
+<ind>14</ind>
+<ind>13</ind>
+<ind>8</ind>
+<ind>12</ind>
+<ind>10</ind>
+<ind>9</ind>
+<ind>5</ind>
+<ind>1</ind>
+<ind>2</ind>
+<ind>4</ind>
+<ind>3</ind>
+</original-index>
+
+</coordinates>
+
+<observations>
+
+<height-diff> <from>7CA9F53D-DED3-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DED4-59C0-E053-1A041EAC5678</to>
+   <obs>-0.0083900000000000</obs> <adj>-0.0084000000000000</adj> <stdev>0.0001790251378997</stdev>
+   <qrr>0.000</qrr> <f>29.289</f> <std-residual>55.858</std-residual>
+   <err-obs>-0.020</err-obs> <err-adj>-0.010</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DED3-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DED6-59C0-E053-1A041EAC5678</to>
+   <obs>0.3734500000000000</obs> <adj>0.3733750000000000</adj> <stdev>0.0001817965896270</stdev>
+   <qrr>0.000</qrr> <f>29.289</f> <std-residual>412.549</std-residual>
+   <err-obs>-0.150</err-obs> <err-adj>-0.075</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DED4-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DED3-59C0-E053-1A041EAC5678</to>
+   <obs>0.0084100000000000</obs> <adj>0.0084000000000000</adj> <stdev>0.0001790251378997</stdev>
+   <qrr>0.000</qrr> <f>29.289</f> <std-residual>55.858</std-residual>
+   <err-obs>-0.020</err-obs> <err-adj>-0.010</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DED6-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DED3-59C0-E053-1A041EAC5678</to>
+   <obs>-0.3733000000000000</obs> <adj>-0.3733750000000000</adj> <stdev>0.0001817965896270</stdev>
+   <qrr>0.000</qrr> <f>29.289</f> <std-residual>412.549</std-residual>
+   <err-obs>-0.150</err-obs> <err-adj>-0.075</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DED6-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DED5-59C0-E053-1A041EAC5678</to>
+   <obs>-0.1481000000000000</obs> <adj>-0.1482750000000000</adj> <stdev>0.0002050609665441</stdev>
+   <qrr>0.000</qrr> <f>29.289</f> <std-residual>853.405</std-residual>
+   <err-obs>-0.350</err-obs> <err-adj>-0.175</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DED5-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DED6-59C0-E053-1A041EAC5678</to>
+   <obs>0.1484500000000000</obs> <adj>0.1482750000000000</adj> <stdev>0.0002050609665441</stdev>
+   <qrr>0.000</qrr> <f>29.289</f> <std-residual>853.405</std-residual>
+   <err-obs>-0.350</err-obs> <err-adj>-0.175</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DEBB-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC8C-59C0-E053-1A041EAC5678</to>
+   <obs>2.4013000000000000</obs> <adj>2.4007209563588878</adj> <stdev>0.0011907663849820</stdev>
+   <qrr>0.000</qrr> <f>65.554</f> <std-residual>178.424</std-residual>
+   <err-obs>-0.657</err-obs> <err-adj>-0.078</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC1F-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DEBB-59C0-E053-1A041EAC5678</to>
+   <obs>3.0413000000000001</obs> <adj>3.0407124767112537</adj> <stdev>0.0029262318360973</stdev>
+   <qrr>0.000</qrr> <f>15.964</f> <std-residual>311.288</std-residual>
+   <err-obs>-2.000</err-obs> <err-adj>-1.412</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DEAD-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DEB1-59C0-E053-1A041EAC5678</to>
+   <obs>-4.7290999999999999</obs> <adj>-4.7290999999999999</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>0.000</std-residual>
+   <err-obs>0.000</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DEB0-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC15-59C0-E053-1A041EAC5678</to>
+   <obs>0.1030000000000000</obs> <adj>0.1041148647443399</adj> <stdev>0.0028769938650927</stdev>
+   <qrr>0.000</qrr> <f>18.627</f> <std-residual>542.514</std-residual>
+   <err-obs>3.300</err-obs> <err-adj>2.185</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DEAE-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DEB0-59C0-E053-1A041EAC5678</to>
+   <obs>2.3938000000000001</obs> <adj>2.3945536514568802</adj> <stdev>0.0025534824600935</stdev>
+   <qrr>0.000</qrr> <f>12.158</f> <std-residual>542.514</std-residual>
+   <err-obs>3.300</err-obs> <err-adj>2.546</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DEAE-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DEAD-59C0-E053-1A041EAC5678</to>
+   <obs>-2.5842000000000001</obs> <adj>-2.5842000000000001</adj> <stdev>0.0040342409447131</stdev>
+   <qrr>0.000</qrr> <f>0.000</f>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC15-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DEAE-59C0-E053-1A041EAC5678</to>
+   <obs>-2.5001000000000002</obs> <adj>-2.4986685162012203</adj> <stdev>0.0030146044456944</stdev>
+   <qrr>0.000</qrr> <f>24.753</f> <std-residual>542.514</std-residual>
+   <err-obs>3.300</err-obs> <err-adj>1.869</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DEAC-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DEAB-59C0-E053-1A041EAC5678</to>
+   <obs>2.2444000000000002</obs> <adj>2.2443403558119077</adj> <stdev>0.0027113107211401</stdev>
+   <qrr>0.000</qrr> <f>16.228</f> <std-residual>33.746</std-residual>
+   <err-obs>-0.200</err-obs> <err-adj>-0.140</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC15-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DEAC-59C0-E053-1A041EAC5678</to>
+   <obs>-5.1196000000000002</obs> <adj>-5.1196617794011727</adj> <stdev>0.0027383455948251</stdev>
+   <qrr>0.000</qrr> <f>16.867</f> <std-residual>33.746</std-residual>
+   <err-obs>-0.200</err-obs> <err-adj>-0.138</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DEAB-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC15-59C0-E053-1A041EAC5678</to>
+   <obs>2.8754000000000000</obs> <adj>2.8753214235892646</adj> <stdev>0.0028945273139254</stdev>
+   <qrr>0.000</qrr> <f>22.082</f> <std-residual>33.746</std-residual>
+   <err-obs>-0.200</err-obs> <err-adj>-0.121</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DEA2-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC20-59C0-E053-1A041EAC5678</to>
+   <obs>-10.0577000000000005</obs> <adj>-10.0577497708541088</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>13.508</std-residual>
+   <err-obs>-0.050</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC20-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DEA2-59C0-E053-1A041EAC5678</to>
+   <obs>10.0578000000000003</obs> <adj>10.0577497708541088</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>13.570</std-residual>
+   <err-obs>-0.050</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC8C-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC1F-59C0-E053-1A041EAC5678</to>
+   <obs>-5.4405999999999999</obs> <adj>-5.4414334330701415</adj> <stdev>0.0017501983534119</stdev>
+   <qrr>0.000</qrr> <f>57.799</f> <std-residual>221.663</std-residual>
+   <err-obs>-1.014</err-obs> <err-adj>-0.181</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC82-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBEB-59C0-E053-1A041EAC5678</to>
+   <obs>-5.4837999999999996</obs> <adj>-5.4841833451893001</adj> <stdev>0.0037767334362906</stdev>
+   <qrr>0.000</qrr> <f>8.334</f> <std-residual>232.806</std-residual>
+   <err-obs>-2.400</err-obs> <err-adj>-2.017</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC7F-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC82-59C0-E053-1A041EAC5678</to>
+   <obs>-4.4463999999999997</obs> <adj>-4.4467415670200872</adj> <stdev>0.0036017359624953</stdev>
+   <qrr>0.000</qrr> <f>7.389</f> <std-residual>232.806</std-residual>
+   <err-obs>-2.400</err-obs> <err-adj>-2.058</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC86-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBF7-59C0-E053-1A041EAC5678</to>
+   <obs>-1.6147000000000000</obs> <adj>-1.6150360013510952</adj> <stdev>0.0022636423313822</stdev>
+   <qrr>0.000</qrr> <f>9.815</f> <std-residual>309.837</std-residual>
+   <err-obs>-1.800</err-obs> <err-adj>-1.464</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC85-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC86-59C0-E053-1A041EAC5678</to>
+   <obs>-1.2444999999999999</obs> <adj>-1.2449306668957998</adj> <stdev>0.0024785190190165</stdev>
+   <qrr>0.000</qrr> <f>12.780</f> <std-residual>309.837</std-residual>
+   <err-obs>-1.800</err-obs> <err-adj>-1.369</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC84-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC85-59C0-E053-1A041EAC5678</to>
+   <obs>3.9335000000000000</obs> <adj>3.9329733342419644</adj> <stdev>0.0014641510752617</stdev>
+   <qrr>0.000</qrr> <f>53.408</f> <std-residual>189.412</std-residual>
+   <err-obs>-0.673</err-obs> <err-adj>-0.146</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBF7-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC84-59C0-E053-1A041EAC5678</to>
+   <obs>-1.0725000000000000</obs> <adj>-1.0730066659950697</adj> <stdev>0.0014085509645566</stdev>
+   <qrr>0.000</qrr> <f>54.301</f> <std-residual>184.810</std-residual>
+   <err-obs>-0.640</err-obs> <err-adj>-0.134</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC83-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC09-59C0-E053-1A041EAC5678</to>
+   <obs>0.3957000000000000</obs> <adj>0.3950585525190458</adj> <stdev>0.0019492029432359</stdev>
+   <qrr>0.000</qrr> <f>28.826</f> <std-residual>333.441</std-residual>
+   <err-obs>-1.300</err-obs> <err-adj>-0.659</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC09-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC83-59C0-E053-1A041EAC5678</to>
+   <obs>-0.3944000000000000</obs> <adj>-0.3950585525190458</adj> <stdev>0.0019492029432359</stdev>
+   <qrr>0.000</qrr> <f>29.756</f> <std-residual>333.441</std-residual>
+   <err-obs>-1.300</err-obs> <err-adj>-0.641</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC7E-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC80-59C0-E053-1A041EAC5678</to>
+   <obs>7.5262000000000002</obs> <adj>7.5258460124431199</adj> <stdev>0.0036555579628346</stdev>
+   <qrr>0.000</qrr> <f>7.669</f> <std-residual>232.806</std-residual>
+   <err-obs>-2.400</err-obs> <err-adj>-2.046</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBEB-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC7E-59C0-E053-1A041EAC5678</to>
+   <obs>2.6797000000000000</obs> <adj>2.6791529295529735</adj> <stdev>0.0043247063346226</stdev>
+   <qrr>0.000</qrr> <f>12.133</f> <std-residual>232.806</std-residual>
+   <err-obs>-2.400</err-obs> <err-adj>-1.853</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC81-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC7F-59C0-E053-1A041EAC5678</to>
+   <obs>2.4234000000000000</obs> <adj>2.4230042342739067</adj> <stdev>0.0038255939666085</stdev>
+   <qrr>0.000</qrr> <f>8.616</f> <std-residual>232.806</std-residual>
+   <err-obs>-2.400</err-obs> <err-adj>-2.004</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC80-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC81-59C0-E053-1A041EAC5678</to>
+   <obs>-2.6966999999999999</obs> <adj>-2.6970782640606124</adj> <stdev>0.0037563434768368</stdev>
+   <qrr>0.000</qrr> <f>8.218</f> <std-residual>232.806</std-residual>
+   <err-obs>-2.400</err-obs> <err-adj>-2.022</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC79-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBB4-59C0-E053-1A041EAC5678</to>
+   <obs>4.9669999999999996</obs> <adj>4.9683909326894682</adj> <stdev>0.0031063878073015</stdev>
+   <qrr>0.000</qrr> <f>29.061</f> <std-residual>450.675</std-residual>
+   <err-obs>2.800</err-obs> <err-adj>1.409</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBB4-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC79-59C0-E053-1A041EAC5678</to>
+   <obs>-4.9698000000000002</obs> <adj>-4.9683909326894682</adj> <stdev>0.0031063878073015</stdev>
+   <qrr>0.000</qrr> <f>29.519</f> <std-residual>450.675</std-residual>
+   <err-obs>2.800</err-obs> <err-adj>1.391</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC7B-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBAA-59C0-E053-1A041EAC5678</to>
+   <obs>-0.8319000000000000</obs> <adj>-0.8333529411605617</adj> <stdev>0.0003516127194559</stdev>
+   <qrr>0.000</qrr> <f>91.831</f> <std-residual>338.705</std-residual>
+   <err-obs>-1.463</err-obs> <err-adj>-0.010</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBAA-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC7B-59C0-E053-1A041EAC5678</to>
+   <obs>0.8348000000000000</obs> <adj>0.8333529411605617</adj> <stdev>0.0003516127194559</stdev>
+   <qrr>0.000</qrr> <f>91.814</f> <std-residual>338.023</std-residual>
+   <err-obs>-1.457</err-obs> <err-adj>-0.010</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC7A-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBAA-59C0-E053-1A041EAC5678</to>
+   <obs>-4.2666000000000004</obs> <adj>-4.2670547799406382</adj> <stdev>0.0003516127194559</stdev>
+   <qrr>0.000</qrr> <f>91.383</f> <std-residual>111.869</std-residual>
+   <err-obs>-0.458</err-obs> <err-adj>-0.003</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBAA-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC7A-59C0-E053-1A041EAC5678</to>
+   <obs>4.2675000000000001</obs> <adj>4.2670547799406382</adj> <stdev>0.0003516127194559</stdev>
+   <qrr>0.000</qrr> <f>91.291</f> <std-residual>110.696</std-residual>
+   <err-obs>-0.449</err-obs> <err-adj>-0.003</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC62-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBF1-59C0-E053-1A041EAC5678</to>
+   <obs>7.9641999999999999</obs> <adj>7.9627075376732908</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>212.129</std-residual>
+   <err-obs>-1.492</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBF1-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC62-59C0-E053-1A041EAC5678</to>
+   <obs>-7.9611999999999998</obs> <adj>-7.9627075376732908</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>213.198</std-residual>
+   <err-obs>-1.508</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC5D-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBEF-59C0-E053-1A041EAC5678</to>
+   <obs>0.0865000000000000</obs> <adj>0.0850990819720290</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>320.759</std-residual>
+   <err-obs>-1.401</err-obs> <err-adj>-0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBEF-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC5D-59C0-E053-1A041EAC5678</to>
+   <obs>-0.0837000000000000</obs> <adj>-0.0850990819720290</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>320.549</std-residual>
+   <err-obs>-1.399</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC58-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA1-59C0-E053-1A041EAC5678</to>
+   <obs>0.9114000000000000</obs> <adj>0.9105500000000000</adj> <stdev>0.0022831009614119</stdev>
+   <qrr>0.000</qrr> <f>29.289</f> <std-residual>372.301</std-residual>
+   <err-obs>-1.700</err-obs> <err-adj>-0.850</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBA1-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC58-59C0-E053-1A041EAC5678</to>
+   <obs>-0.9097000000000000</obs> <adj>-0.9105500000000000</adj> <stdev>0.0022831009614119</stdev>
+   <qrr>0.000</qrr> <f>29.289</f> <std-residual>372.301</std-residual>
+   <err-obs>-1.700</err-obs> <err-adj>-0.850</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC5C-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC5B-59C0-E053-1A041EAC5678</to>
+   <obs>1.6446000000000001</obs> <adj>1.6437752326008499</adj> <stdev>0.0015560706794222</stdev>
+   <qrr>0.000</qrr> <f>53.347</f> <std-residual>279.562</std-residual>
+   <err-obs>-1.054</err-obs> <err-adj>-0.229</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBA7-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC5C-59C0-E053-1A041EAC5678</to>
+   <obs>-5.1711000000000000</obs> <adj>-5.1716671457407344</adj> <stdev>0.0010700215103368</stdev>
+   <qrr>0.000</qrr> <f>61.314</f> <std-residual>222.365</std-residual>
+   <err-obs>-0.667</err-obs> <err-adj>-0.100</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC5B-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA7-59C0-E053-1A041EAC5678</to>
+   <obs>3.5287000000000002</obs> <adj>3.5278919131398840</adj> <stdev>0.0026260921897591</stdev>
+   <qrr>0.000</qrr> <f>20.458</f> <std-residual>403.855</std-residual>
+   <err-obs>-2.200</err-obs> <err-adj>-1.392</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC5A-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC59-59C0-E053-1A041EAC5678</to>
+   <obs>3.8483000000000001</obs> <adj>3.8491610388336066</adj> <stdev>0.0020810020396320</stdev>
+   <qrr>0.000</qrr> <f>29.750</f> <std-residual>408.423</std-residual>
+   <err-obs>1.700</err-obs> <err-adj>0.839</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC5A-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA4-59C0-E053-1A041EAC5678</to>
+   <obs>2.6124999999999998</obs> <adj>2.6124999999999998</adj> <stdev>0.0037081127275206</stdev>
+   <qrr>0.000</qrr> <f>0.000</f>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC59-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC5A-59C0-E053-1A041EAC5678</to>
+   <obs>-3.8500000000000001</obs> <adj>-3.8491610388336066</adj> <stdev>0.0020810020396320</stdev>
+   <qrr>0.000</qrr> <f>28.832</f> <std-residual>408.423</std-residual>
+   <err-obs>1.700</err-obs> <err-adj>0.861</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC59-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA1-59C0-E053-1A041EAC5678</to>
+   <obs>4.8110999999999997</obs> <adj>4.8114017475456690</adj> <stdev>0.0017940710070662</stdev>
+   <qrr>0.000</qrr> <f>29.496</f> <std-residual>167.215</std-residual>
+   <err-obs>0.600</err-obs> <err-adj>0.298</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBA1-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC59-59C0-E053-1A041EAC5678</to>
+   <obs>-4.8117000000000001</obs> <adj>-4.8114017475456690</adj> <stdev>0.0017940710070662</stdev>
+   <qrr>0.000</qrr> <f>29.084</f> <std-residual>167.215</std-residual>
+   <err-obs>0.600</err-obs> <err-adj>0.302</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC54-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC55-59C0-E053-1A041EAC5678</to>
+   <obs>-0.4110000000000000</obs> <adj>-0.4110000000000000</adj> <stdev>0.0035452463989055</stdev>
+   <qrr>0.000</qrr> <f>29.342</f> <std-residual>0.000</std-residual>
+   <err-obs>-0.000</err-obs> <err-adj>-0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC55-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC54-59C0-E053-1A041EAC5678</to>
+   <obs>0.4110000000000000</obs> <adj>0.4110000000000000</adj> <stdev>0.0035452463989055</stdev>
+   <qrr>0.000</qrr> <f>29.237</f> <std-residual>0.000</std-residual>
+   <err-obs>0.000</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC57-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC56-59C0-E053-1A041EAC5678</to>
+   <obs>-3.6059999999999999</obs> <adj>-3.6059999999999999</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>0.000</std-residual>
+   <err-obs>0.000</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC56-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC57-59C0-E053-1A041EAC5678</to>
+   <obs>3.6059999999999999</obs> <adj>3.6059999999999999</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>0.000</std-residual>
+   <err-obs>0.000</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC56-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBF9-59C0-E053-1A041EAC5678</to>
+   <obs>1.7330000000000001</obs> <adj>1.7314980794050765</adj> <stdev>0.0022093646139832</stdev>
+   <qrr>0.000</qrr> <f>29.335</f> <std-residual>678.928</std-residual>
+   <err-obs>-3.000</err-obs> <err-adj>-1.498</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBF9-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC56-59C0-E053-1A041EAC5678</to>
+   <obs>-1.7300000000000000</obs> <adj>-1.7314980794050765</adj> <stdev>0.0022093646139832</stdev>
+   <qrr>0.000</qrr> <f>29.244</f> <std-residual>678.928</std-residual>
+   <err-obs>-3.000</err-obs> <err-adj>-1.502</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC55-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBF9-59C0-E053-1A041EAC5678</to>
+   <obs>0.9870000000000000</obs> <adj>0.9870000000000000</adj> <stdev>0.0022994416273974</stdev>
+   <qrr>0.000</qrr> <f>29.457</f> <std-residual>0.000</std-residual>
+   <err-obs>-0.000</err-obs> <err-adj>-0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBF9-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC55-59C0-E053-1A041EAC5678</to>
+   <obs>-0.9870000000000000</obs> <adj>-0.9870000000000000</adj> <stdev>0.0022994416273974</stdev>
+   <qrr>0.000</qrr> <f>29.122</f> <std-residual>0.000</std-residual>
+   <err-obs>0.000</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBB2-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC40-59C0-E053-1A041EAC5678</to>
+   <obs>-1.9016999999999999</obs> <adj>-1.9021040109096743</adj> <stdev>0.0026183221010601</stdev>
+   <qrr>0.000</qrr> <f>29.645</f> <std-residual>152.762</std-residual>
+   <err-obs>-0.800</err-obs> <err-adj>-0.396</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBB2-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBB8-59C0-E053-1A041EAC5678</to>
+   <obs>3.3799199999999998</obs> <adj>3.3801300721239365</adj> <stdev>0.0006214908719964</stdev>
+   <qrr>0.000</qrr> <f>30.170</f> <std-residual>329.751</std-residual>
+   <err-obs>0.410</err-obs> <err-adj>0.200</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBB2-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBB3-59C0-E053-1A041EAC5678</to>
+   <obs>-5.3584800000000001</obs> <adj>-5.3580848149959932</adj> <stdev>0.0010958956321406</stdev>
+   <qrr>0.000</qrr> <f>29.306</f> <std-residual>360.436</std-residual>
+   <err-obs>0.790</err-obs> <err-adj>0.395</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC40-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBB2-59C0-E053-1A041EAC5678</to>
+   <obs>1.9025000000000001</obs> <adj>1.9021040109096743</adj> <stdev>0.0026183221010601</stdev>
+   <qrr>0.000</qrr> <f>28.936</f> <std-residual>152.762</std-residual>
+   <err-obs>-0.800</err-obs> <err-adj>-0.404</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBB8-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBB2-59C0-E053-1A041EAC5678</to>
+   <obs>-3.3803299999999998</obs> <adj>-3.3801300721239365</adj> <stdev>0.0006214908719964</stdev>
+   <qrr>0.000</qrr> <f>28.420</f> <std-residual>329.751</std-residual>
+   <err-obs>0.410</err-obs> <err-adj>0.210</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBB3-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBB2-59C0-E053-1A041EAC5678</to>
+   <obs>5.3576899999999998</obs> <adj>5.3580848149959932</adj> <stdev>0.0010958956321406</stdev>
+   <qrr>0.000</qrr> <f>29.273</f> <std-residual>360.436</std-residual>
+   <err-obs>0.790</err-obs> <err-adj>0.395</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBAE-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC3E-59C0-E053-1A041EAC5678</to>
+   <obs>8.6908999999999992</obs> <adj>8.6887875248018815</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>419.154</std-residual>
+   <err-obs>-2.112</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBAE-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBAF-59C0-E053-1A041EAC5678</to>
+   <obs>12.5292200000000005</obs> <adj>12.5298898487073824</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>1316.192</std-residual>
+   <err-obs>0.670</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC3E-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBAE-59C0-E053-1A041EAC5678</to>
+   <obs>-8.6867000000000001</obs> <adj>-8.6887875248018815</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>416.672</std-residual>
+   <err-obs>-2.088</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBAF-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBAE-59C0-E053-1A041EAC5678</to>
+   <obs>-12.5305599999999995</obs> <adj>-12.5298898487073824</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>1316.489</std-residual>
+   <err-obs>0.670</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBAC-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC48-59C0-E053-1A041EAC5678</to>
+   <obs>-0.7760000000000000</obs> <adj>-0.7760000000000000</adj> <stdev>0.0018639556287345</stdev>
+   <qrr>0.000</qrr> <f>28.782</f> <std-residual>0.000</std-residual>
+   <err-obs>0.000</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC48-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBAC-59C0-E053-1A041EAC5678</to>
+   <obs>0.7760000000000000</obs> <adj>0.7760000000000000</adj> <stdev>0.0018639556287345</stdev>
+   <qrr>0.000</qrr> <f>29.800</f> <std-residual>0.000</std-residual>
+   <err-obs>0.000</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBA9-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA5-59C0-E053-1A041EAC5678</to>
+   <obs>-3.0376599999999998</obs> <adj>-3.0364803291632603</adj> <stdev>0.0003592415482064</stdev>
+   <qrr>0.000</qrr> <f>29.279</f> <std-residual>3284.698</std-residual>
+   <err-obs>2.360</err-obs> <err-adj>1.180</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBA9-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBAA-59C0-E053-1A041EAC5678</to>
+   <obs>-3.4757799999999999</obs> <adj>-3.4745501087484012</adj> <stdev>0.0003516127194559</stdev>
+   <qrr>0.000</qrr> <f>30.297</f> <std-residual>3400.235</std-residual>
+   <err-obs>2.392</err-obs> <err-adj>1.162</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBA5-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA9-59C0-E053-1A041EAC5678</to>
+   <obs>3.0352999999999999</obs> <adj>3.0364803291632603</adj> <stdev>0.0003592415482064</stdev>
+   <qrr>0.000</qrr> <f>29.299</f> <std-residual>3284.698</std-residual>
+   <err-obs>2.360</err-obs> <err-adj>1.180</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBAA-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA9-59C0-E053-1A041EAC5678</to>
+   <obs>3.4733200000000002</obs> <adj>3.4745501087484012</adj> <stdev>0.0003516127194559</stdev>
+   <qrr>0.000</qrr> <f>30.303</f> <std-residual>3400.251</std-residual>
+   <err-obs>2.392</err-obs> <err-adj>1.162</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBA7-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA2-59C0-E053-1A041EAC5678</to>
+   <obs>-5.2666800000000000</obs> <adj>-5.2654401076378505</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>2435.473</std-residual>
+   <err-obs>1.240</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBA2-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA7-59C0-E053-1A041EAC5678</to>
+   <obs>5.2641999999999998</obs> <adj>5.2654401076378505</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>2435.684</std-residual>
+   <err-obs>1.240</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBA4-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA3-59C0-E053-1A041EAC5678</to>
+   <obs>-9.4238199999999992</obs> <adj>-9.4233100088298603</adj> <stdev>0.0003604951455444</stdev>
+   <qrr>0.000</qrr> <f>29.289</f> <std-residual>1414.721</std-residual>
+   <err-obs>1.020</err-obs> <err-adj>0.510</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBA3-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBA4-59C0-E053-1A041EAC5678</to>
+   <obs>9.4228000000000005</obs> <adj>9.4233100088298603</adj> <stdev>0.0003604951455444</stdev>
+   <qrr>0.000</qrr> <f>29.290</f> <std-residual>1414.721</std-residual>
+   <err-obs>1.020</err-obs> <err-adj>0.510</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB75-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB74-59C0-E053-1A041EAC5678</to>
+   <obs>0.5546500000000000</obs> <adj>0.5547220044370771</adj> <stdev>0.0000765266442478</stdev>
+   <qrr>0.000</qrr> <f>59.520</f> <std-residual>416.526</std-residual>
+   <err-obs>0.086</err-obs> <err-adj>0.014</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB75-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB74-59C0-E053-1A041EAC5678</to>
+   <obs>0.5546800000000000</obs> <adj>0.5547220044370771</adj> <stdev>0.0000765266442478</stdev>
+   <qrr>0.000</qrr> <f>41.952</f> <std-residual>391.291</std-residual>
+   <err-obs>0.063</err-obs> <err-adj>0.021</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB74-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB75-59C0-E053-1A041EAC5678</to>
+   <obs>-0.5549900000000000</obs> <adj>-0.5547220044370771</adj> <stdev>0.0000765266442478</stdev>
+   <qrr>0.000</qrr> <f>59.723</f> <std-residual>1541.027</std-residual>
+   <err-obs>0.320</err-obs> <err-adj>0.052</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB74-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB75-59C0-E053-1A041EAC5678</to>
+   <obs>-0.5546700000000000</obs> <adj>-0.5547220044370771</adj> <stdev>0.0000765266442478</stdev>
+   <qrr>0.000</qrr> <f>41.952</f> <std-residual>484.446</std-residual>
+   <err-obs>-0.078</err-obs> <err-adj>-0.026</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB74-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DE0D-59C0-E053-1A041EAC5678</to>
+   <obs>0.1662600000000000</obs> <adj>0.1665085703960255</adj> <stdev>0.0001434637618552</stdev>
+   <qrr>0.000</qrr> <f>52.583</f> <std-residual>933.143</std-residual>
+   <err-obs>0.321</err-obs> <err-adj>0.072</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB74-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DE0D-59C0-E053-1A041EAC5678</to>
+   <obs>0.1664200000000000</obs> <adj>0.1665085703960255</adj> <stdev>0.0001434637618552</stdev>
+   <qrr>0.000</qrr> <f>47.481</f> <std-residual>381.012</std-residual>
+   <err-obs>0.122</err-obs> <err-adj>0.034</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DE0D-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB74-59C0-E053-1A041EAC5678</to>
+   <obs>-0.1665100000000000</obs> <adj>-0.1665085703960255</adj> <stdev>0.0001434637618552</stdev>
+   <qrr>0.000</qrr> <f>52.583</f> <std-residual>5.367</std-residual>
+   <err-obs>0.002</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DE0D-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB74-59C0-E053-1A041EAC5678</to>
+   <obs>-0.1668000000000000</obs> <adj>-0.1665085703960255</adj> <stdev>0.0001434637618552</stdev>
+   <qrr>0.000</qrr> <f>47.607</f> <std-residual>1249.515</std-residual>
+   <err-obs>0.402</err-obs> <err-adj>0.110</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC3D-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC2E-59C0-E053-1A041EAC5678</to>
+   <obs>-0.7371100000000000</obs> <adj>-0.7375599964158563</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>898.012</std-residual>
+   <err-obs>-0.450</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC2E-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC3D-59C0-E053-1A041EAC5678</to>
+   <obs>0.7380100000000001</obs> <adj>0.7375599964158563</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>898.019</std-residual>
+   <err-obs>-0.450</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC2D-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC2C-59C0-E053-1A041EAC5678</to>
+   <obs>-1.8948000000000000</obs> <adj>-1.8945700072609031</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>456.886</std-residual>
+   <err-obs>0.230</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC2C-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC2D-59C0-E053-1A041EAC5678</to>
+   <obs>1.8943399999999999</obs> <adj>1.8945700072609031</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>456.900</std-residual>
+   <err-obs>0.230</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC24-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC25-59C0-E053-1A041EAC5678</to>
+   <obs>-6.0156799999999997</obs> <adj>-6.0152249927937920</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>905.383</std-residual>
+   <err-obs>0.455</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC25-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC24-59C0-E053-1A041EAC5678</to>
+   <obs>6.0147700000000004</obs> <adj>6.0152249927937920</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>905.369</std-residual>
+   <err-obs>0.455</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC1F-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC20-59C0-E053-1A041EAC5678</to>
+   <obs>-5.9989699999999999</obs> <adj>-5.9989749994726438</adj> <stdev>0.0003572381157654</stdev>
+   <qrr>0.000</qrr> <f>29.390</f> <std-residual>13.955</std-residual>
+   <err-obs>-0.010</err-obs> <err-adj>-0.005</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC20-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC1F-59C0-E053-1A041EAC5678</to>
+   <obs>5.9989800000000004</obs> <adj>5.9989749994726438</adj> <stdev>0.0003572381157654</stdev>
+   <qrr>0.000</qrr> <f>29.398</f> <std-residual>13.955</std-residual>
+   <err-obs>-0.010</err-obs> <err-adj>-0.005</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC15-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC16-59C0-E053-1A041EAC5678</to>
+   <obs>-19.3719099999999997</obs> <adj>-19.3717950691037935</adj> <stdev>0.0003568031026084</stdev>
+   <qrr>0.000</qrr> <f>29.268</f> <std-residual>322.307</std-residual>
+   <err-obs>0.230</err-obs> <err-adj>0.115</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DC16-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DC15-59C0-E053-1A041EAC5678</to>
+   <obs>19.3716800000000013</obs> <adj>19.3717950691037935</adj> <stdev>0.0003568031026084</stdev>
+   <qrr>0.000</qrr> <f>29.311</f> <std-residual>322.307</std-residual>
+   <err-obs>0.230</err-obs> <err-adj>0.115</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB00-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB01-59C0-E053-1A041EAC5678</to>
+   <obs>1.2998200000000000</obs> <adj>1.2985049244616247</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>896.176</std-residual>
+   <err-obs>-1.315</err-obs> <err-adj>-0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB01-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB00-59C0-E053-1A041EAC5678</to>
+   <obs>-1.2971500000000000</obs> <adj>-1.2985049244616247</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>909.653</std-residual>
+   <err-obs>-1.355</err-obs> <err-adj>-0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB01-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DAE9-59C0-E053-1A041EAC5678</to>
+   <obs>-1.9271700000000000</obs> <adj>-1.9271152510905956</adj> <stdev>0.0004964069540770</stdev>
+   <qrr>0.000</qrr> <f>29.128</f> <std-residual>110.795</std-residual>
+   <err-obs>0.110</err-obs> <err-adj>0.055</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DAE9-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB01-59C0-E053-1A041EAC5678</to>
+   <obs>1.9270600000000000</obs> <adj>1.9271152510905956</adj> <stdev>0.0004964069540770</stdev>
+   <qrr>0.000</qrr> <f>29.451</f> <std-residual>110.795</std-residual>
+   <err-obs>0.110</err-obs> <err-adj>0.055</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBF7-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBF4-59C0-E053-1A041EAC5678</to>
+   <obs>3.6419100000000002</obs> <adj>3.6417300263403520</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>357.943</std-residual>
+   <err-obs>-0.180</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBF4-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBF7-59C0-E053-1A041EAC5678</to>
+   <obs>-3.6419199999999998</obs> <adj>-3.6417300263403520</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>377.831</std-residual>
+   <err-obs>0.190</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBF4-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBF7-59C0-E053-1A041EAC5678</to>
+   <obs>-3.6413600000000002</obs> <adj>-3.6417300263403520</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>735.853</std-residual>
+   <err-obs>-0.370</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBF1-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBED-59C0-E053-1A041EAC5678</to>
+   <obs>-6.1942800000000000</obs> <adj>-6.1927080245293968</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>3074.613</std-residual>
+   <err-obs>1.572</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBED-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBF1-59C0-E053-1A041EAC5678</to>
+   <obs>6.1911399999999999</obs> <adj>6.1927080245293968</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>3070.747</std-residual>
+   <err-obs>1.568</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBEE-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBEF-59C0-E053-1A041EAC5678</to>
+   <obs>-6.2521399999999998</obs> <adj>-6.2527150506139195</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>1137.357</std-residual>
+   <err-obs>-0.575</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DBEF-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DBEE-59C0-E053-1A041EAC5678</to>
+   <obs>6.2532899999999998</obs> <adj>6.2527150506139195</adj> <stdev>0.0000000000000000</stdev>
+   <qrr>0.000</qrr> <f>100.000</f> <std-residual>1137.257</std-residual>
+   <err-obs>-0.575</err-obs> <err-adj>0.000</err-adj>
+   </height-diff>
+
+</observations>
+
+</gama-local-adjustment>
