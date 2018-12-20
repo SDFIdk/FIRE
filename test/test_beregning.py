@@ -3,8 +3,6 @@ from fireapi import FireDb
 from fireapi.model import Sag, Koordinat, Punkt, Observation, Beregning
 
 
-
-
 def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt):
     observation = Observation(
         antal=0,
