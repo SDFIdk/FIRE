@@ -20,7 +20,7 @@ DEBUG = False
 
 
 class FireDb(object):
-    def __init__(self, connectionstring):
+    def __init__(self, connectionstring, debug=False):
         """
 
         Parameters
@@ -28,11 +28,16 @@ class FireDb(object):
         connectionstring : str
             Connection string for the oracle database where the FIRE database resides.
             Of the general form 'user:pass@host:port/dbname[?key=value&key=value...]'
+        debug: bool
+            if True, the SQLALchemy Engine will log all statements as well as a repr() of their parameter lists to the
+            engines logger, which defaults to sys.stdout
         """
         self.dialect = "oracle+cx_oracle"
         self.connectionstring = connectionstring
         self.engine = create_engine(
-            f"{self.dialect}://{self.connectionstring}", echo=DEBUG, encoding='utf8'
+            f"{self.dialect}://{self.connectionstring}",
+            connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
+            echo=debug,
         )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.session = self.sessionmaker()
