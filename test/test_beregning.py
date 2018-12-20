@@ -3,16 +3,6 @@ from fireapi import FireDb
 from fireapi.model import Sag, Koordinat, Punkt, Observation, Beregning
 
 
-def test_beregning(firedb: FireDb, beregning: Beregning):
-    firedb.session.commit()
-
-    b0 = firedb.session.query(Beregning).get(beregning.objectid)
-
-    assert b0.objectid == beregning.objectid
-
-    assert len(b0.observationer) == 2
-
-    assert b0.observationer[0].beregninger[0].objectid == beregning.objectid
 
 
 def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt):
