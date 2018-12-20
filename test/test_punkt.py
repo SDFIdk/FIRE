@@ -1,2 +1,18 @@
-def test_punkt(firedb, punkt):
+from fireapi import FireDb
+from fireapi.model import Punkt, Koordinat
+
+
+def test_punkt(firedb: FireDb, punkt: Punkt):
     firedb.session.commit()
+
+
+def test_hent_punkt(firedb: FireDb):
+    p = firedb.hent_punkt("7CA9F53D-DAE9-59C0-E053-1A041EAC5678")
+    assert isinstance(p, Punkt)
+    k = p.koordinater[0]
+    assert isinstance(k, Koordinat)
+
+
+def test_hent_alle_punkter(firedb: FireDb):
+    p = firedb.hent_alle_punkter()
+    assert isinstance(p, list)
