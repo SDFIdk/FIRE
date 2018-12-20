@@ -118,8 +118,6 @@ def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt):
     firedb.indset_observation(sag, observation)
     beregning = Beregning()
     beregning.observationer.append(observation)
-    sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="koordinat")
     koordinat = Koordinat(srid=-1, transformeret="false", punkt=punkt)
-    koordinat.sagsevent = sagsevent
     beregning.koordinater.append(koordinat)
     firedb.indset_beregning(sag, beregning)

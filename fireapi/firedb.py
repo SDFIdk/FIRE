@@ -167,5 +167,7 @@ class FireDb(object):
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="koordinat_beregnet")
         # self.session.add(sagsevent)
         beregning.sagsevent = sagsevent
+        for koordinat in beregning.koordinater:
+            koordinat.sagsevent = sagsevent
         self.session.add(beregning)
         self.session.commit()
