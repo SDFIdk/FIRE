@@ -13,9 +13,28 @@ from fireapi.model import (
     Geometry,
 )
 
+from fireapi.model.punkttyper import PunktInformationType
+
 
 def test_has_session(firedb):
     assert hasattr(firedb, "session")
+
+
+def test_utf8_roundtrip(firedb):
+    utf8text = "æøåÆØÅ"
+    newobject = PunktInformationType(
+        infotype=str(uuid.uuid4()), anvendelse="TEKST", beskrivelse=utf8text
+    )
+    firedb.session.add(newobject)
+    firedb.session.flush()
+
+    roundtripped = (
+        firedb.session.query(PunktInformationType)
+        .filter(PunktInformationType.beskrivelse == utf8text)
+        .one()
+    )
+    assert roundtripped is not None
+    assert roundtripped.beskrivelse == utf8text
 
 
 def test_hent_punkt(firedb):

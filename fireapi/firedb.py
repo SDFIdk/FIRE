@@ -16,8 +16,6 @@ from fireapi.model import (
 from typing import List, Optional, Union
 from datetime import datetime
 
-DEBUG = False
-
 
 class FireDb(object):
     def __init__(self, connectionstring, debug=False):
