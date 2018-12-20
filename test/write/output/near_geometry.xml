@@ -4,7 +4,7 @@
         <parameters algorithm="gso" angles="400" conf-pr="0.95" cov-band="0" ellipsoid="grs80" latitude="55.7" sigma-act="apriori" sigma-apr="1.0" tol-abs="1000.0" update-constrained-coordinates="no"/>
         <description>
             Network doc created by fire-gama (https://github.com/Septima/fire-gama)
-            Initiated by test/write_near_geometry.py
+            Initiated by test/near_geometry.py
             GamaWriter.take_observations() Antal observationer: 17
             GamaNetworkDoc.set_fixed_points: Antal punkter: 0
             GamaNetworkDoc.set_observations: Antal observationer: 17

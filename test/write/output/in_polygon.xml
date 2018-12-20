@@ -4,11 +4,11 @@
         <parameters algorithm="gso" angles="400" conf-pr="0.95" cov-band="0" ellipsoid="grs80" latitude="55.7" sigma-act="apriori" sigma-apr="1.0" tol-abs="1000.0" update-constrained-coordinates="no"/>
         <description>
             Network doc created by fire-gama (https://github.com/Septima/fire-gama)
-            test/write_in_polygon.py -> GamaWriter.take_observations() Antal observationer: 5
+            Initiated by test/in_polygon.py
+            GamaWriter.take_observations() Antal observationer: 5
             GamaNetworkDoc.set_fixed_points: Antal punkter: 1
             GamaNetworkDoc.set_observations: Antal observationer: 5
             observation_ids :[105,106,110,127,128]
-            Warnings:
         </description>
         <points-observations >
             <point id="7CA9F53D-DAE9-59C0-E053-1A041EAC5678" z="3.17582" fix="z" />

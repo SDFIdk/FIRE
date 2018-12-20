@@ -12,6 +12,8 @@ class GamaReader(object):
         
     def read(self, sags_id):
 
+        sag = self.fireDb.hent_sag(sags_id)
+
         namespace = "{http://www.gnu.org/software/gama/gama-local-adjustment}"
         tree = ET.parse(self.input_stream)
         root = tree.getroot()
@@ -36,9 +38,8 @@ class GamaReader(object):
             koordinat = Koordinat()
             koordinat.srid = srid
             koordinat.z = z
+            koordinat.transformeret = "false"
             koordinat.punktid = punktid
             self.beregning.koordinater.append(koordinat)
     
-        sag = self.fireDb.hent_sag(sags_id)
-
-        #self.fireDb.indset_beregning(sag, self.beregning)
+        self.fireDb.indset_beregning(sag, self.beregning)
