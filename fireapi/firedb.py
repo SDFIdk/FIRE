@@ -38,7 +38,7 @@ class FireDb(object):
             echo=debug,
         )
         self.sessionmaker = sessionmaker(bind=self.engine)
-        self.session = self.sessionmaker()
+        self.session = self.sessionmaker(autoflush=False)
 
         @event.listens_for(self.sessionmaker, "before_flush")
         def listener(thissession, flush_context, instances):
@@ -167,14 +167,12 @@ class FireDb(object):
         punkt.sagsevent = sagsevent
         for geometriobjekt in punkt.geometriobjekter:
             geometriobjekt.sagsevent = sagsevent
-        self.session.flush()
         self.session.add(punkt)
         self.session.commit()
 
     def indset_observation(self, sag: Sag, observation: Observation):
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="observation_indsat")
         self.session.add(sagsevent)
-        self.session.flush()
         observation.sagsevent = sagsevent
         self.session.add(observation)
         self.session.commit()
@@ -185,6 +183,5 @@ class FireDb(object):
         beregning.sagsevent = sagsevent
         for koordinat in beregning.koordinater:
             koordinat.sagsevent = sagsevent
-        self.session.flush()
         self.session.add(beregning)
         self.session.commit()
