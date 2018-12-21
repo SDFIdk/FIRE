@@ -1,9 +1,18 @@
+import uuid
 from fireapi import FireDb
-from fireapi.model import Punkt, Koordinat
+from fireapi.model import Sag, Punkt, Koordinat, GeometriObjekt, Point
 
 
 def test_punkt(firedb: FireDb, punkt: Punkt):
     firedb.session.commit()
+
+
+def test_indset_punkt(firedb: FireDb, sag: Sag):
+    p = Punkt(id=str(uuid.uuid4()))
+    go = GeometriObjekt()
+    go.geometri = Point([1, 1])
+    p.geometriobjekter.append(go)
+    firedb.indset_punkt(sag, p)
 
 
 def test_hent_punkt(firedb: FireDb):
