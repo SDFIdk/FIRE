@@ -160,8 +160,8 @@ class FireDb(object):
         self.session.commit()
 
     def indset_punkt(self, sag: Sag, punkt: Punkt):
-        if len(punkt.geometriobjekter) < 1:
-            raise Exception("At least one geometriobjekt must be added to the punkt")
+        if len(punkt.geometriobjekter) != 1:
+            raise Exception("A single geometriobjekt must be added to the punkt")
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="punkt_oprettet")
         self.session.add(sagsevent)
         punkt.sagsevent = sagsevent
