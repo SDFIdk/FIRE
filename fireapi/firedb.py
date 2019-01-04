@@ -79,27 +79,6 @@ class FireDb(object):
             .all()
         )
 
-    def __filter(
-        self,
-        g1,
-        g2,
-        distance: float,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None,
-    ):
-        exps = [
-            func.sdo_within_distance(
-                g1, g2, "distance=" + str(distance) + " unit=meter"
-            )
-            == "TRUE"
-        ]
-        if from_date:
-            exps.append(Observation.observationstidspunkt >= from_date)
-        if to_date:
-            exps.append(Observation.observationstidspunkt <= to_date)
-        filter = and_(*exps)
-        return filter
-
     def hent_observationer(self, objectids: List[int]) -> List[Observation]:
         return (
             self.session.query(Observation)
@@ -120,7 +99,11 @@ class FireDb(object):
             self.session.query(Observation)
             .join(g1, Observation.opstillingspunktid == g1.punktid)
             .join(g2, g2.punktid == punkt.id)
-            .filter(self.__filter(g1.geometri, g2.geometri, afstand, tidfra, tidtil))
+            .filter(
+                self._filter_observationer(
+                    g1.geometri, g2.geometri, afstand, tidfra, tidtil
+                )
+            )
             .all()
         )
 
@@ -147,7 +130,11 @@ class FireDb(object):
                 g.punktid == Observation.opstillingspunktid
                 or g.punktid == Observation.sigtepunktid,
             )
-            .filter(self.__filter(g.geometri, geometri, afstand, tidfra, tidtil))
+            .filter(
+                self._filter_observationer(
+                    g.geometri, geometri, afstand, tidfra, tidtil
+                )
+            )
             .all()
         )
 
@@ -202,6 +189,28 @@ class FireDb(object):
         self.session.commit()
 
     # Private methods
+
+    def _filter_observationer(
+        self,
+        g1,
+        g2,
+        distance: float,
+        from_date: Optional[datetime] = None,
+        to_date: Optional[datetime] = None,
+    ):
+        exps = [
+            func.sdo_within_distance(
+                g1, g2, "distance=" + str(distance) + " unit=meter"
+            )
+            == "TRUE"
+        ]
+        if from_date:
+            exps.append(Observation.observationstidspunkt >= from_date)
+        if to_date:
+            exps.append(Observation.observationstidspunkt <= to_date)
+        filter = and_(*exps)
+        return filter
+
     def _is_new_object(self, obj):
         """Check that the object has not been persisted to the database (= is 'new').
 
