@@ -15,6 +15,7 @@ from fireapi.model import (
     Sagsevent,
     Beregning,
     Geometry,
+    EventType,
 )
 
 
@@ -162,7 +163,7 @@ class FireDb(object):
             raise Exception(f"Cannot re-add already persistent punkt: {punkt}")
         if len(punkt.geometriobjekter) != 1:
             raise Exception("A single geometriobjekt must be added to the punkt")
-        self._check_and_prepare_sagsevent(sagsevent, "punkt_oprettet")
+        self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
         punkt.sagsevent = sagsevent
         for geometriobjekt in punkt.geometriobjekter:
             if not self._is_new_object(geometriobjekt):
@@ -176,7 +177,7 @@ class FireDb(object):
             raise Exception(
                 f"Cannot re-add already persistent observation: {observation}"
             )
-        self._check_and_prepare_sagsevent(sagsevent, "observation_indsat")
+        self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
         observation.sagsevent = sagsevent
         self.session.add(observation)
         self.session.commit()
@@ -185,7 +186,7 @@ class FireDb(object):
         if not self._is_new_object(beregning):
             raise Exception(f"Cannot re-add already persistent beregning: {beregning}")
 
-        self._check_and_prepare_sagsevent(sagsevent, "koordinat_beregnet")
+        self._check_and_prepare_sagsevent(sagsevent, EventType.KOORDINAT_BEREGNET)
         beregning.sagsevent = sagsevent
         for koordinat in beregning.koordinater:
             if not self._is_new_object(koordinat):
@@ -201,7 +202,7 @@ class FireDb(object):
 
     # region Private methods
 
-    def _check_and_prepare_sagsevent(self, sagsevent: Sagsevent, eventtype: str):
+    def _check_and_prepare_sagsevent(self, sagsevent: Sagsevent, eventtype: EventType):
         """Checks that the given Sagsevent is valid in the context given by eventtype.
 
         The sagsevent must be a "new" object (ie not persisted ot the database). It must have the specified eventtype.

@@ -16,6 +16,15 @@ def test_indset_punkt(firedb: FireDb, sag: Sag):
     firedb.indset_punkt(Sagsevent(sag=sag), p)
 
 
+def test_indset_punkt_with_invalid_sagsevent_eventtype(firedb: FireDb, sag: Sag):
+    p = Punkt(id=str(uuid.uuid4()))
+    go = GeometriObjekt()
+    go.geometri = Point([1, 1])
+    p.geometriobjekter.append(go)
+    with pytest.raises(Exception, match="Dav"):
+        firedb.indset_punkt(Sagsevent(sag=sag, event="Dav"), p)
+
+
 def test_hent_punkt(firedb: FireDb):
     p = firedb.hent_punkt("7CA9F53D-DAE9-59C0-E053-1A041EAC5678")
     assert isinstance(p, Punkt)
