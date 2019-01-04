@@ -24,7 +24,7 @@ port = os.environ.get("ORA_PORT") or "1521"
 db = os.environ.get("ORA_db") or "xe"
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def firedb():
     return FireDb(f"{user}:{password}@{host}:{port}/{db}", debug=True)
 
