@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import create_engine, func, event, and_
+from sqlalchemy import create_engine, func, event, and_, inspect
 from sqlalchemy.orm import sessionmaker, aliased
 from fireapi.model import (
     RegisteringTidObjekt,
@@ -44,7 +44,7 @@ class FireDb(object):
         def listener(thissession, flush_context, instances):
             for obj in thissession.deleted:
                 if isinstance(obj, RegisteringTidObjekt):
-                    obj.registreringtil = func.sysdate()
+                    obj._registreringtil = func.sysdate()
                     thissession.add(obj)
 
     def hent_punkt(self, id: str) -> Punkt:
@@ -152,6 +152,8 @@ class FireDb(object):
         )
 
     def indset_sag(self, sag: Sag):
+        if not self._is_new_object(sag):
+            raise Exception(f"Cannot re-add already persistent sag: {sag}")
         if len(sag.sagsinfos) < 1:
             raise Exception("At least one sagsinfo must be added to the sag")
         if sag.sagsinfos[-1].aktiv != "true":
@@ -160,6 +162,8 @@ class FireDb(object):
         self.session.commit()
 
     def indset_punkt(self, sag: Sag, punkt: Punkt):
+        if not self._is_new_object(punkt):
+            raise Exception(f"Cannot re-add already persistent punkt: {punkt}")
         if len(punkt.geometriobjekter) != 1:
             raise Exception("A single geometriobjekt must be added to the punkt")
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="punkt_oprettet")
@@ -171,6 +175,10 @@ class FireDb(object):
         self.session.commit()
 
     def indset_observation(self, sag: Sag, observation: Observation):
+        if not self._is_new_object(observation):
+            raise Exception(
+                f"Cannot re-add already persistent observation: {observation}"
+            )
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="observation_indsat")
         self.session.add(sagsevent)
         observation.sagsevent = sagsevent
@@ -178,6 +186,8 @@ class FireDb(object):
         self.session.commit()
 
     def indset_beregning(self, sag: Sag, beregning: Beregning):
+        if not self._is_new_object(beregning):
+            raise Exception(f"Cannot re-add already persistent beregning: {beregning}")
         sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="koordinat_beregnet")
         self.session.add(sagsevent)
         beregning.sagsevent = sagsevent
