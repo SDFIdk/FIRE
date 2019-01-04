@@ -47,6 +47,8 @@ class FireDb(object):
                     obj._registreringtil = func.sysdate()
                     thissession.add(obj)
 
+    # region "Hent" methods
+
     def hent_punkt(self, id: str) -> Punkt:
         p = aliased(Punkt)
         return (
@@ -138,6 +140,10 @@ class FireDb(object):
             .all()
         )
 
+    # endregion
+
+    # region "Indset" methods
+
     def indset_sag(self, sag: Sag):
         if not self._is_new_object(sag):
             raise Exception(f"Cannot re-add already persistent sag: {sag}")
@@ -188,7 +194,9 @@ class FireDb(object):
         self.session.add(beregning)
         self.session.commit()
 
-    # Private methods
+    # endregion
+
+    # region Private methods
 
     def _filter_observationer(
         self,
@@ -272,5 +280,4 @@ class FireDb(object):
                 k._registreringtil = func.sysdate()
             # self.session.add(newkoordinat)
 
-
-#
+    # endregion
