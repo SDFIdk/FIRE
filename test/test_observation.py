@@ -80,4 +80,4 @@ def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
         value7=0,
         value8=0,
     )
-    firedb.indset_observation(sag, observation)
+    firedb.indset_observation(Sagsevent(sag=sag), observation)

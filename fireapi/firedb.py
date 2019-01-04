@@ -154,35 +154,35 @@ class FireDb(object):
         self.session.add(sag)
         self.session.commit()
 
-    def indset_punkt(self, sag: Sag, punkt: Punkt):
+    def indset_punkt(self, sagsevent: Sagsevent, punkt: Punkt):
         if not self._is_new_object(punkt):
             raise Exception(f"Cannot re-add already persistent punkt: {punkt}")
         if len(punkt.geometriobjekter) != 1:
             raise Exception("A single geometriobjekt must be added to the punkt")
-        sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="punkt_oprettet")
-        self.session.add(sagsevent)
+        self._check_and_prepare_sagsevent(sagsevent, "punkt_oprettet")
         punkt.sagsevent = sagsevent
         for geometriobjekt in punkt.geometriobjekter:
+            if not self._is_new_object(geometriobjekt):
+                raise Exception(f"Added punkt cannot refer to existing geometriobjekt")
             geometriobjekt.sagsevent = sagsevent
         self.session.add(punkt)
         self.session.commit()
 
-    def indset_observation(self, sag: Sag, observation: Observation):
+    def indset_observation(self, sagsevent: Sagsevent, observation: Observation):
         if not self._is_new_object(observation):
             raise Exception(
                 f"Cannot re-add already persistent observation: {observation}"
             )
-        sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="observation_indsat")
-        self.session.add(sagsevent)
+        self._check_and_prepare_sagsevent(sagsevent, "observation_indsat")
         observation.sagsevent = sagsevent
         self.session.add(observation)
         self.session.commit()
 
-    def indset_beregning(self, sag: Sag, beregning: Beregning):
+    def indset_beregning(self, sagsevent: Sagsevent, beregning: Beregning):
         if not self._is_new_object(beregning):
             raise Exception(f"Cannot re-add already persistent beregning: {beregning}")
-        sagsevent = Sagsevent(id=str(uuid.uuid4()), sag=sag, event="koordinat_beregnet")
-        self.session.add(sagsevent)
+
+        self._check_and_prepare_sagsevent(sagsevent, "koordinat_beregnet")
         beregning.sagsevent = sagsevent
         for koordinat in beregning.koordinater:
             if not self._is_new_object(koordinat):
@@ -197,6 +197,21 @@ class FireDb(object):
     # endregion
 
     # region Private methods
+
+    def _check_and_prepare_sagsevent(self, sagsevent: Sagsevent, eventtype: str):
+        """Checks that the given Sagsevent is valid in the context given by eventtype.
+
+        The sagsevent must be a "new" object (ie not persisted ot the database). It must have the specified eventtype.
+        If the sagsevent doesnt have an id, this method will assign a guid.
+        """
+        if not self._is_new_object(sagsevent):
+            raise Exception("Do not attach new objects to an existing Sagsevent")
+        if sagsevent.event is None:
+            sagsevent.event = eventtype
+        elif sagsevent.event != eventtype:
+            raise Exception(f"'{sagsevent.event}' sagsevent. Should be {eventtype}")
+        if sagsevent.id is None:
+            sagsevent.id = str(uuid.uuid4())
 
     def _filter_observationer(
         self,
