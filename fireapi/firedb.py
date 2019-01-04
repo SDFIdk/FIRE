@@ -1,6 +1,10 @@
 import uuid
+from datetime import datetime
+from typing import List, Optional
+
 from sqlalchemy import create_engine, func, event, and_, inspect
 from sqlalchemy.orm import sessionmaker, aliased
+
 from fireapi.model import (
     RegisteringTidObjekt,
     Sag,
@@ -10,11 +14,8 @@ from fireapi.model import (
     Bbox,
     Sagsevent,
     Beregning,
-    Koordinat,
     Geometry,
 )
-from typing import List, Optional, Union
-from datetime import datetime
 
 
 class FireDb(object):
@@ -49,10 +50,12 @@ class FireDb(object):
 
     # region "Hent" methods
 
-    def hent_punkt(self, id: str) -> Punkt:
+    def hent_punkt(self, punktid: str) -> Punkt:
         p = aliased(Punkt)
         return (
-            self.session.query(p).filter(p.id == id, p._registreringtil == None).one()
+            self.session.query(p)
+            .filter(p.id == punktid, p._registreringtil == None)
+            .one()
         )
 
     def hent_geometri_objekt(self, punktid: str) -> GeometriObjekt:
@@ -66,8 +69,8 @@ class FireDb(object):
     def hent_alle_punkter(self) -> List[Punkt]:
         return self.session.query(Punkt).all()
 
-    def hent_sag(self, id: str) -> Sag:
-        return self.session.query(Sag).filter(Sag.id == id).one()
+    def hent_sag(self, sagid: str) -> Sag:
+        return self.session.query(Sag).filter(Sag.id == sagid).one()
 
     def hent_alle_sager(self) -> List[Sag]:
         return self.session.query(Sag).all()
@@ -231,8 +234,7 @@ class FireDb(object):
             exps.append(Observation.observationstidspunkt >= from_date)
         if to_date:
             exps.append(Observation.observationstidspunkt <= to_date)
-        filter = and_(*exps)
-        return filter
+        return and_(*exps)
 
     def _is_new_object(self, obj):
         """Check that the object has not been persisted to the database (= is 'new').
