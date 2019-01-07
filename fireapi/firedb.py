@@ -183,11 +183,11 @@ class FireDb(object):
         return self.session.query(Srid).filter(Srid.anvendelse.like(like_filter)).all()
 
     def hent_punktinformationtype(self, infotype: str):
-        typefilter = infotype.upper()
+        typefilter = infotype
         return (
             self.session.query(PunktInformationType)
             .filter(PunktInformationType.infotype == typefilter)
-            .all()
+            .first()
         )
 
     def hent_punktinformationtyper(self, namespace: Optional[str] = None):
