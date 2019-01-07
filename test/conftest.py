@@ -62,9 +62,9 @@ def punkt(firedb, sagsevent, guid):
 
 
 @pytest.fixture()
-def koordinat(firedb, sagsevent, punkt):
+def koordinat(firedb, sagsevent, punkt, srid):
     sagsevent.event = EventType.KOORDINAT_BEREGNET
-    k0 = Koordinat(sagsevent=sagsevent, punkt=punkt, transformeret="true", srid="-1")
+    k0 = Koordinat(sagsevent=sagsevent, punkt=punkt, transformeret="true", srid=srid)
     firedb.session.add(k0)
     return k0
 
@@ -168,8 +168,8 @@ def beregning(firedb, sagsevent, observationer):
 
 
 @pytest.fixture()
-def sridtype(firedb):
-    return firedb.hent_sridtyper()[0]
+def srid(firedb):
+    return firedb.hent_srider()[0]
 
 
 @pytest.fixture()

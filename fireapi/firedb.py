@@ -18,7 +18,7 @@ from fireapi.model import (
     Beregning,
     Geometry,
     EventType,
-    SridType,
+    Srid,
 )
 
 
@@ -147,23 +147,56 @@ class FireDb(object):
             .all()
         )
 
-    def hent_sridtyper(self, namespace=None):
+    def hent_srid(self, sridid: str):
+        """Gets a Srid object by its id.
+
+        Parameters
+        ----------
+        sridid : str
+            srid id string. For instance "EPSG:25832"
+
+        Returns
+        -------
+        Srid
+            Srid object with the specified id. None if not found.
+
+        """
+        srid_filter = str(sridid).upper()
+        return self.session.query(Srid).filter(srid_filter).first()
+
+    def hent_srider(self, namespace: Optional[str] = None):
+        """Gets Srid objects. Optionally filtering by srid namespace
+
+        Parameters
+        ----------
+        namespace: str - optional
+            Return only Srids with the specified namespace. For instance "EPSG". If not specified all objects are returned.
+
+        Returns
+        -------
+        List of Srid
+
+        """
         if not namespace:
-            return self.session.query(SridType).all()
+            return self.session.query(Srid).all()
         like_filter = f"{namespace}:%"
+        return self.session.query(Srid).filter(Srid.anvendelse.like(like_filter)).all()
+
+    def hent_punktinformationtype(self, infotype: str):
+        typefilter = infotype.upper()
         return (
-            self.session.query(SridType)
-            .filter(SridType.anvendelse.like(like_filter))
+            self.session.query(PunktInformationType)
+            .filter(PunktInformationType.infotype == typefilter)
             .all()
         )
 
-    def hent_punktinformationtyper(self, namespace=None):
+    def hent_punktinformationtyper(self, namespace: Optional[str] = None):
         if not namespace:
             return self.session.query(PunktInformationType).all()
         like_filter = f"{namespace}:%".upper()
         return (
             self.session.query(PunktInformationType)
-            .filter(PunktInformationType.anvendelse.like(like_filter))
+            .filter(PunktInformationType.infotype.like(like_filter))
             .all()
         )
 
@@ -324,10 +357,7 @@ class FireDb(object):
             [
                 k
                 for k in newkoordinat.punkt.koordinater
-                if (
-                    str(k.srid) == str(newkoordinat.srid)
-                    or (k.sridtype and k.sridtype is newkoordinat.sridtype)
-                )
+                if str(k.srid.srid) == str(newkoordinat.srid.srid)
                 and k.registreringtil is None
                 and k is not newkoordinat
             ]

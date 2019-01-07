@@ -1,17 +1,9 @@
 import datetime
 from fireapi import FireDb
-from fireapi.model import (
-    Koordinat,
-    Punkt,
-    Observation,
-    Beregning,
-    Sagsevent,
-    Sag,
-    SridType,
-)
+from fireapi.model import Koordinat, Punkt, Observation, Beregning, Sagsevent, Sag, Srid
 
 
-def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt, sridtype: SridType):
+def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt, srid: Srid):
     observation = Observation(
         antal=0,
         observationstypeid="geometrisk_koteforskel",
@@ -30,7 +22,7 @@ def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt, sridtype: Srid
     firedb.indset_observation(Sagsevent(sag=sag), observation)
     beregning = Beregning()
     beregning.observationer.append(observation)
-    koordinat = Koordinat(sridtype=sridtype, transformeret="false", punkt=punkt)
+    koordinat = Koordinat(srid=srid, transformeret="false", punkt=punkt)
     beregning.koordinater.append(koordinat)
     firedb.indset_beregning(Sagsevent(sag=sag), beregning)
 
@@ -38,7 +30,7 @@ def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt, sridtype: Srid
 
 
 def test_indset_beregning_invalidates_existing_koordinat(
-    firedb: FireDb, sag: Sag, punkt: Punkt, sridtype: SridType
+    firedb: FireDb, sag: Sag, punkt: Punkt, srid: Srid
 ):
     observation = Observation(
         antal=0,
@@ -57,17 +49,17 @@ def test_indset_beregning_invalidates_existing_koordinat(
     firedb.indset_observation(Sagsevent(sag=sag), observation)
     beregning = Beregning()
     beregning.observationer.append(observation)
-    koordinat = Koordinat(srid=sridtype.srid, transformeret="false", punkt=punkt)
+    koordinat = Koordinat(srid=srid, transformeret="false", punkt=punkt)
     beregning.koordinater.append(koordinat)
     firedb.indset_beregning(Sagsevent(sag=sag), beregning)
 
     # new beregning of the same observation with a new koordinat
     beregning2 = Beregning()
     beregning2.observationer.append(observation)
-    koordinat2 = Koordinat(srid=sridtype.srid, transformeret="false", punkt=punkt)
+    koordinat2 = Koordinat(srid=srid, transformeret="false", punkt=punkt)
     beregning2.koordinater.append(koordinat2)
     firedb.indset_beregning(Sagsevent(sag=sag), beregning2)
 
     assert len(punkt.koordinater) == 2
     assert len([k for k in punkt.koordinater if k.registreringtil is None]) == 1
-    assert koordinat2.sridtype is not None
+    assert koordinat2.srid is not None
