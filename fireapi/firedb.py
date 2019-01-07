@@ -9,6 +9,8 @@ from fireapi.model import (
     RegisteringTidObjekt,
     Sag,
     Punkt,
+    PunktInformation,
+    PunktInformationType,
     GeometriObjekt,
     Observation,
     Bbox,
@@ -145,8 +147,25 @@ class FireDb(object):
             .all()
         )
 
-    def hent_alle_sridtyper(self):
-        return self.session.query(SridType).all()
+    def hent_sridtyper(self, namespace=None):
+        if not namespace:
+            return self.session.query(SridType).all()
+        like_filter = f"{namespace}:%"
+        return (
+            self.session.query(SridType)
+            .filter(SridType.anvendelse.like(like_filter))
+            .all()
+        )
+
+    def hent_punktinformationtyper(self, namespace=None):
+        if not namespace:
+            return self.session.query(PunktInformationType).all()
+        like_filter = f"{namespace}:%".upper()
+        return (
+            self.session.query(PunktInformationType)
+            .filter(PunktInformationType.anvendelse.like(like_filter))
+            .all()
+        )
 
     # endregion
 
@@ -173,7 +192,25 @@ class FireDb(object):
             if not self._is_new_object(geometriobjekt):
                 raise Exception(f"Added punkt cannot refer to existing geometriobjekt")
             geometriobjekt.sagsevent = sagsevent
+        for punktinformation in punkt.punktinformationer:
+            if not self._is_new_object(punktinformation):
+                raise Exception(
+                    f"Added punkt cannot refer to existing punktinformation"
+                )
+            punktinformation.sagsevent = sagsevent
         self.session.add(punkt)
+        self.session.commit()
+
+    def indset_punktinformation(
+        self, sagsevent: Sagsevent, punktinformation: PunktInformation
+    ):
+        if not self._is_new_object(punktinformation):
+            raise Exception(
+                f"Cannot re-add already persistant punktinformation: {punktinformation}"
+            )
+        self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKTINFO_TILFOEJET)
+        punktinformation.sagsevent = sagsevent
+        self.session.add(punktinformation)
         self.session.commit()
 
     def indset_observation(self, sagsevent: Sagsevent, observation: Observation):
@@ -282,13 +319,14 @@ class FireDb(object):
         # According to constraint "KOOR_UNIQ_001" koordinates must be unique with regard to
         # SRID, PUNKTID, REGISTRERINGTIL
         # Note that new koordinat MAY have int srid
+        # Note that we have noth srid and sridtype and we need to check both...
         existing_koordinater = list(
             [
                 k
                 for k in newkoordinat.punkt.koordinater
                 if (
                     str(k.srid) == str(newkoordinat.srid)
-                    or k.sridtype is newkoordinat.sridtype
+                    or (k.sridtype and k.sridtype is newkoordinat.sridtype)
                 )
                 and k.registreringtil is None
                 and k is not newkoordinat
