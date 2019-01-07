@@ -4,6 +4,9 @@
 
 API til SDFEs kommende fikspunktsregister.
 
+[UML diagram](./misc/fireapi-uml.png)
+![fireapi UML](./misc/fireapi-uml.png)
+
 ## API
 Work in progress:
 ```python
@@ -54,8 +57,18 @@ ORA_PORT=1522
 ORA_DB=custom_databasename
 pytest
 ``` 
-
 See section on [Docker](#Docker) for an easy way to create a local database.
+
+### UML
+A [UML diagram](./misc/fireapi-uml.png) of the `fireapi` datamodel can be exported using the script [export-uml.py](./misc/export-uml.py).
+
+Run it in the `fikspunktsregister-dev` environment using
+```bash
+cd misc
+python export-uml.py
+```
+It isn't beautiful but it is useful.
+
 ## Windows
 
 TODO

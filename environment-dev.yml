@@ -5,9 +5,9 @@ dependencies:
   - python=3.6
   - cx_oracle=7.0
   - sqlalchemy=1.2.13
-  - pip=18.1
+  - pip
   - pytest=3.10
   - pip:
-    - black==18.9b0
-    - toml==0.10.0
+    - black
+    - sqlalchemy_schemadisplay
 
