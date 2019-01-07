@@ -15,6 +15,7 @@ __all__ = [
     "ObservationType",
     "Observation",
     "PunktInformation",
+    "SridType",
 ]
 
 
@@ -89,8 +90,8 @@ class PunktInformationType(DeclarativeBase):
 
 class Koordinat(FikspunktregisterObjekt):
     __tablename__ = "koordinat"
-    srid = Column(String, nullable=False)
-    # TODO: srid is foreign key constrained
+    srid = Column(String, ForeignKey("sridtype.srid"), nullable=False)
+    sridtype = relationship("SridType", back_populates="koordinater")
     sx = Column(Float)
     sy = Column(Float)
     sz = Column(Float)
@@ -192,3 +193,10 @@ class Observation(FikspunktregisterObjekt):
     beregninger = relationship(
         "Beregning", secondary=beregning_observation, back_populates="observationer"
     )
+
+
+class SridType(DeclarativeBase):
+    __tablename__ = "sridtype"
+    srid = Column(String(36), nullable=False, primary_key=True)
+    beskrivelse = Column(String(4000))
+    koordinater = relationship("Koordinat", back_populates="sridtype")
