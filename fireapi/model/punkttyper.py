@@ -1,4 +1,5 @@
-from sqlalchemy import Table, Column, String, Integer, Float, DateTime, ForeignKey
+import enum
+from sqlalchemy import Table, Column, String, Integer, Float, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 
 # DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
@@ -15,8 +16,16 @@ __all__ = [
     "ObservationType",
     "Observation",
     "PunktInformation",
+    "PunktInformationType",
+    "PunktInformationTypeAnvendelse",
     "SridType",
 ]
+
+
+class PunktInformationTypeAnvendelse(enum.Enum):
+    FLAG = "FLAG"
+    TAL = "TAL"
+    TEKST = "TEKST"
 
 
 beregning_koordinat = Table(
@@ -83,8 +92,8 @@ class PunktInformation(FikspunktregisterObjekt):
 class PunktInformationType(DeclarativeBase):
     __tablename__ = "punktinfotype"
     objectid = Column(Integer, primary_key=True)
-    infotype = Column(String(4000), nullable=False)
-    anvendelse = Column(String(9), nullable=False)
+    infotype = Column(String(4000), unique=True, nullable=False)
+    anvendelse = Column(Enum(PunktInformationTypeAnvendelse), nullable=False)
     beskrivelse = Column(String(4000), nullable=False)
 
 
@@ -161,7 +170,6 @@ class ObservationType(DeclarativeBase):
 
 class Observation(FikspunktregisterObjekt):
     __tablename__ = "observation"
-    objectid = Column(Integer, primary_key=True)
     value1 = Column(Float, nullable=False)
     value2 = Column(Float)
     value3 = Column(Float)
@@ -197,6 +205,7 @@ class Observation(FikspunktregisterObjekt):
 
 class SridType(DeclarativeBase):
     __tablename__ = "sridtype"
-    srid = Column(String(36), nullable=False, primary_key=True)
+    objectid = Column(Integer, primary_key=True)
+    srid = Column(String(36), nullable=False, unique=True)
     beskrivelse = Column(String(4000))
     koordinater = relationship("Koordinat", back_populates="sridtype")

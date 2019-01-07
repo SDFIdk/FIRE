@@ -15,6 +15,7 @@ from fireapi.model import (
     Sagsinfo,
     Beregning,
     Koordinat,
+    EventType,
 )
 
 user = os.environ.get("ORA_USER") or "fire"
@@ -54,6 +55,7 @@ def sagsevent(firedb, sag, guid):
 
 @pytest.fixture()
 def punkt(firedb, sagsevent, guid):
+    sagsevent.event = EventType.PUNKT_OPRETTET
     p0 = Punkt(id=guid, sagsevent=sagsevent)
     firedb.session.add(p0)
     return p0
@@ -61,6 +63,7 @@ def punkt(firedb, sagsevent, guid):
 
 @pytest.fixture()
 def koordinat(firedb, sagsevent, punkt):
+    sagsevent.event = EventType.KOORDINAT_BEREGNET
     k0 = Koordinat(sagsevent=sagsevent, punkt=punkt, transformeret="true", srid="-1")
     firedb.session.add(k0)
     return k0
@@ -74,6 +77,7 @@ def observationstype(firedb):
 
 @pytest.fixture()
 def observation(firedb, sagsevent, observationstype, punkt):
+    sagsevent.event = EventType.OBSERVATION_INDSAT
     o0 = Observation(
         sagsevent=sagsevent,
         value1=0,
@@ -103,6 +107,7 @@ def observation(firedb, sagsevent, observationstype, punkt):
 
 @pytest.fixture()
 def observationer(firedb, sagsevent, observationstype, punkt):
+    sagsevent.event = EventType.OBSERVATION_INDSAT
     o0 = Observation(
         sagsevent=sagsevent,
         value1=0,
@@ -156,6 +161,7 @@ def observationer(firedb, sagsevent, observationstype, punkt):
 
 @pytest.fixture()
 def beregning(firedb, sagsevent, observationer):
+    sagsevent.event = EventType.BEREGNING
     b0 = Beregning(sagsevent=sagsevent, observationer=observationer)
     firedb.session.add(b0)
     return b0
@@ -163,4 +169,9 @@ def beregning(firedb, sagsevent, observationer):
 
 @pytest.fixture()
 def sridtype(firedb):
-    return firedb.hent_alle_sridtyper()[0]
+    return firedb.hent_sridtyper()[0]
+
+
+@pytest.fixture()
+def punktinformationtype(firedb):
+    return firedb.hent_punktinformationtyper()[0]
