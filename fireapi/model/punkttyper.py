@@ -80,9 +80,10 @@ class PunktInformation(FikspunktregisterObjekt):
     __tablename__ = "punktinfo"
     sagseventid = Column(String(36), ForeignKey("sagsevent.id"), nullable=False)
     sagsevent = relationship("Sagsevent", back_populates="punktinformationer")
-    infotype = Column(
-        String(4000), ForeignKey("punktinfotype.infotype"), nullable=False
+    _infotypeid = Column(
+        "infotype", String(4000), ForeignKey("punktinfotype.infotype"), nullable=False
     )
+    infotype = relationship("PunktInformationType")
     tal = Column(Float)
     tekst = Column(String(4000))
     punktid = Column(String(36), ForeignKey("punkt.id"), nullable=False)
@@ -100,7 +101,7 @@ class PunktInformationType(DeclarativeBase):
 class Koordinat(FikspunktregisterObjekt):
     __tablename__ = "koordinat"
     _sridid = Column("srid", String, ForeignKey("sridtype.srid"), nullable=False)
-    srid = relationship("Srid", back_populates="koordinater")
+    srid = relationship("Srid")
     sx = Column(Float)
     sy = Column(Float)
     sz = Column(Float)
@@ -208,4 +209,3 @@ class Srid(DeclarativeBase):
     objectid = Column(Integer, primary_key=True)
     srid = Column(String(36), nullable=False, unique=True)
     beskrivelse = Column(String(4000))
-    koordinater = relationship("Koordinat", back_populates="srid")
