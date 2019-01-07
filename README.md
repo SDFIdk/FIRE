@@ -16,7 +16,46 @@ For now there are no data in the database so `punkter` is an empty list.
 
 
 ## Local development
+Install and activate development environment (called `fiskpunktsregister-dev`) and then run tests. Note that almost all 
+tests require an active database.
+```bash
+conda env update -f environment-dev.yml
+conda activate fikspunktsregister-dev
+pytest
+```
 
+### Tests
+Unit/integration tests are implemented with [pytest](https://pytest.org). Tests are run like described above.
+
+Most tests require an active database. Connection parameters used by the tests are set by the following code
+```python
+user = os.environ.get("ORA_USER") or "fire"
+password = os.environ.get("ORA_PASSWORD") or "fire"
+host = os.environ.get("ORA_HOST") or "localhost"
+port = os.environ.get("ORA_PORT") or "1521"
+db = os.environ.get("ORA_db") or "xe"
+```
+ 
+ With an active conda environment tests can be run against a custom database on *nix by
+```bash
+export ORA_USER=custom_username
+export ORA_PASSWORD=custom_password
+export ORA_HOST=custom_host
+export ORA_PORT=1522
+export ORA_DB=custom_databasename
+pytest
+```
+and on windows by
+```bash
+ORA_USER=custom_username
+ORA_PASSWORD=custom_password
+ORA_HOST=custom_host
+ORA_PORT=1522
+ORA_DB=custom_databasename
+pytest
+``` 
+
+See section on [Docker](#Docker) for an easy way to create a local database.
 ## Windows
 
 TODO
@@ -26,8 +65,6 @@ TODO
 Script to setup Oracle drivers can be found [here](misc/debian).
 
 Script to setup Oracle database can be found [here](misc/oracle).
-
-Unit/integration tests are implemented with [pytest](https://pytest.org).
 
 ## Docker
 
