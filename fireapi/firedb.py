@@ -16,6 +16,7 @@ from fireapi.model import (
     Beregning,
     Geometry,
     EventType,
+    SridType,
 )
 
 
@@ -143,6 +144,9 @@ class FireDb(object):
             )
             .all()
         )
+
+    def hent_alle_sridtyper(self):
+        return self.session.query(SridType).all()
 
     # endregion
 
@@ -282,7 +286,10 @@ class FireDb(object):
             [
                 k
                 for k in newkoordinat.punkt.koordinater
-                if str(k.srid) == str(newkoordinat.srid)
+                if (
+                    str(k.srid) == str(newkoordinat.srid)
+                    or k.sridtype is newkoordinat.sridtype
+                )
                 and k.registreringtil is None
                 and k is not newkoordinat
             ]

@@ -159,3 +159,8 @@ def beregning(firedb, sagsevent, observationer):
     b0 = Beregning(sagsevent=sagsevent, observationer=observationer)
     firedb.session.add(b0)
     return b0
+
+
+@pytest.fixture()
+def sridtype(firedb):
+    return firedb.hent_alle_sridtyper()[0]
