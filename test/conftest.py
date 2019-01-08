@@ -161,7 +161,7 @@ def observationer(firedb, sagsevent, observationstype, punkt):
 
 @pytest.fixture()
 def beregning(firedb, sagsevent, observationer):
-    sagsevent.event = EventType.BEREGNING
+    sagsevent.event = EventType.KOORDINAT_BEREGNET
     b0 = Beregning(sagsevent=sagsevent, observationer=observationer)
     firedb.session.add(b0)
     return b0
