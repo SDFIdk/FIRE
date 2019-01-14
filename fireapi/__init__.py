@@ -1,1 +1,3 @@
 from fireapi.firedb import FireDb
+
+__version__ = "0.2.0"
