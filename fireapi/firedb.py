@@ -162,7 +162,7 @@ class FireDb(object):
 
         """
         srid_filter = str(sridid).upper()
-        return self.session.query(Srid).filter(srid_filter).first()
+        return self.session.query(Srid).filter(Srid.srid == srid_filter).one()
 
     def hent_srider(self, namespace: Optional[str] = None):
         """Gets Srid objects. Optionally filtering by srid namespace
