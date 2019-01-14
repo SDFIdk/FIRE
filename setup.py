@@ -5,6 +5,7 @@ Setup script for the fireapi package.
 import os
 import subprocess
 from setuptools import setup
+from setuptools import find_packages
 
 import fireapi
 
@@ -37,7 +38,7 @@ setup(
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Utilities",
     ],
-    packages=["fireapi"],
+    packages=find_packages(),
     keywords="levelling database geodesy",
     url="https://github.com/Septima/fikspunktregister",
     author="Septima / SDFE",
