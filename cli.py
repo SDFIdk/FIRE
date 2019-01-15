@@ -10,7 +10,7 @@ from fireapi.model import (
     Geometry,
 )
 
-from adapter import GamaWriter
+from adapter import GamaWriter, GamaReader
 
 @click.group()
 def cli():
@@ -59,7 +59,6 @@ def write(db_con, output, geometri, geometrifil, buffer, fra, til, fixpunkter, f
             fixpunkter_literal = fixpunkterfil.read()
             
         fixpunkter_list = fixpunkter_literal.split(",")
-        #fixpunkter_list= ast.literal_eval("[" + fixpunkter_literal +"]")
         writer.set_fixed_point_ids(fixpunkter_list)
     
     parameters = configparser.ConfigParser()
@@ -68,11 +67,16 @@ def write(db_con, output, geometri, geometrifil, buffer, fra, til, fixpunkter, f
 
 
 @cli.command()
-@click.option("--db", help="Connection-streng til fire database")
-@click.option("-i", "input", help="navn på gama output, der skal indlæses (.xml)")
-def read(input):
+@click.option("-db", "db_con" , help="Connection-streng til fire database. [default: environment variabel %fire-db%]", type=str, required=False)
+@click.option("-i", "--in", "input", help="navn på gama output, der skal indlæses (.xml)")
+@click.option("-c", "--cid", "case_id", help="Case number under which to save in fire", type=str)
+def read(db_con, input, case_id):
     """Read a gama output file (read --help)"""
-    pass
+    if db_con is None:
+        db_con = os.environ.get("fire-db")
+    fireDb = FireDb(db_con)
+    reader = GamaReader(fireDb, input)
+    reader.read(case_id)
 
 
 if __name__ == "__main__":

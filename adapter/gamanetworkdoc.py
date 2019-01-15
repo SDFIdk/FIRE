@@ -175,7 +175,7 @@ class GamaNetworkDoc():
         for o in observations:
             observation_elements.append(self.get_dh_element(o))
             observation_ids.append(str(o.objectid))
-        self.add_description("observation_ids :[" + ",".join(observation_ids) + "]")
+        self.add_description("{observation_ids} :[" + ",".join(observation_ids) + "]{/observation_ids}")
         return str.replace(doc, "{obs}", '\n                '.join(observation_elements))
     
     def get_fixed_height_point_element(self, fixed_point: Punkt):

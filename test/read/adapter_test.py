@@ -1,8 +1,10 @@
 from fireapi import FireDb
 from adapter import GamaReader
+import os
+
 
 if __name__ == "__main__":
-    db = 'fire:fire@35.158.182.161:1521/xe'
+    db = os.environ.get("fire-db")
     fireDb = FireDb(db)
     input_stream = open('input/all_points.xml','r')
     reader = GamaReader(fireDb, input_stream)

@@ -8,7 +8,7 @@
             GamaWriter.take_observations() Antal observationer: 17
             GamaNetworkDoc.set_fixed_points: Antal punkter: 0
             GamaNetworkDoc.set_observations: Antal observationer: 17
-            observation_ids :[105,106,107,108,109,110,111,112,115,116,119,120,121,122,124,127,128]
+            {observation_ids} :[105,106,107,108,109,110,111,112,115,116,119,120,121,122,124,127,128]{/observation_ids}
             Warnings:
             No fixed points
         </description>
