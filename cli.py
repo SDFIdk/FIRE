@@ -6,9 +6,7 @@ import click
 from click_datetime import Datetime
 
 from fireapi import FireDb
-from fireapi.model import (
-    Geometry,
-)
+from fireapi.model import ( Geometry)
 
 from adapter import GamaWriter, GamaReader
 
