@@ -80,7 +80,7 @@ class PunktInformation(FikspunktregisterObjekt):
     __tablename__ = "punktinfo"
     sagseventid = Column(String(36), ForeignKey("sagsevent.id"), nullable=False)
     sagsevent = relationship("Sagsevent", back_populates="punktinformationer")
-    _infotypeid = Column(
+    infotypeid = Column(
         "infotype", String(4000), ForeignKey("punktinfotype.infotype"), nullable=False
     )
     infotype = relationship("PunktInformationType")
@@ -93,14 +93,14 @@ class PunktInformation(FikspunktregisterObjekt):
 class PunktInformationType(DeclarativeBase):
     __tablename__ = "punktinfotype"
     objectid = Column(Integer, primary_key=True)
-    infotype = Column(String(4000), unique=True, nullable=False)
+    name = Column("infotype", String(4000), unique=True, nullable=False)
     anvendelse = Column(Enum(PunktInformationTypeAnvendelse), nullable=False)
     beskrivelse = Column(String(4000), nullable=False)
 
 
 class Koordinat(FikspunktregisterObjekt):
     __tablename__ = "koordinat"
-    _sridid = Column("srid", String, ForeignKey("sridtype.srid"), nullable=False)
+    sridid = Column("srid", String, ForeignKey("sridtype.srid"), nullable=False)
     srid = relationship("Srid")
     sx = Column(Float)
     sy = Column(Float)
@@ -144,7 +144,7 @@ class Beregning(FikspunktregisterObjekt):
 class ObservationType(DeclarativeBase):
     __tablename__ = "observationtype"
     objectid = Column(Integer, primary_key=True)
-    observationstype = Column(String(4000), nullable=False)
+    name = Column("observationstype", String(4000), nullable=False)
     beskrivelse = Column(String(4000), nullable=False)
     value1 = Column(String, nullable=False)
     value2 = Column(String)
@@ -207,5 +207,5 @@ class Observation(FikspunktregisterObjekt):
 class Srid(DeclarativeBase):
     __tablename__ = "sridtype"
     objectid = Column(Integer, primary_key=True)
-    srid = Column(String(36), nullable=False, unique=True)
+    name = Column("srid", String(36), nullable=False, unique=True)
     beskrivelse = Column(String(4000))

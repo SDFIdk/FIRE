@@ -162,7 +162,7 @@ class FireDb(object):
 
         """
         srid_filter = str(sridid).upper()
-        return self.session.query(Srid).filter(Srid.srid == srid_filter).one()
+        return self.session.query(Srid).filter(Srid.name == srid_filter).one()
 
     def hent_srider(self, namespace: Optional[str] = None):
         """Gets Srid objects. Optionally filtering by srid namespace
@@ -186,7 +186,7 @@ class FireDb(object):
         typefilter = infotype
         return (
             self.session.query(PunktInformationType)
-            .filter(PunktInformationType.infotype == typefilter)
+            .filter(PunktInformationType.name == typefilter)
             .first()
         )
 
@@ -196,7 +196,7 @@ class FireDb(object):
         like_filter = f"{namespace}:%"
         return (
             self.session.query(PunktInformationType)
-            .filter(PunktInformationType.infotype.ilike(like_filter))
+            .filter(PunktInformationType.name.ilike(like_filter))
             .all()
         )
 
@@ -357,7 +357,7 @@ class FireDb(object):
             [
                 k
                 for k in newkoordinat.punkt.koordinater
-                if str(k.srid.srid) == str(newkoordinat.srid.srid)
+                if str(k.srid.name) == str(newkoordinat.srid.name)
                 and k.registreringtil is None
                 and k is not newkoordinat
             ]
