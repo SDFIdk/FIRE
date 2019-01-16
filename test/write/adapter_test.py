@@ -7,7 +7,7 @@ from fireapi import FireDb
 from fireapi.model import (
     Geometry,
 )
-from adapter import GamaWriter
+from firegama.adapter import GamaWriter
 
 def all_points():
     db = os.environ.get("fire-db")

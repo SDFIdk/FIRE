@@ -9,9 +9,11 @@
             GamaNetworkDoc.set_fixed_points: Antal punkter: 1
             GamaNetworkDoc.set_observations: Antal observationer: 5
             {observation_ids} :[105,106,110,127,128]{/observation_ids}
+            Warnings:
+            Fixed point with no z value. Punktid:7CA9F53D-DAE9-59C0-E053-1A041EAC5678
         </description>
         <points-observations >
-            <point id="7CA9F53D-DAE9-59C0-E053-1A041EAC5678" z="3.17582" fix="z" />
+            <point id="7CA9F53D-DAE9-59C0-E053-1A041EAC5678" fix="z" />
             <point id="7CA9F53D-DE26-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE50-59C0-E053-1A041EAC5678" adj="z" />
             <point id="7CA9F53D-DE50-59C0-E053-1A041EAC5678" adj="z" />

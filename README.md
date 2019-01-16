@@ -2,12 +2,12 @@
 FireDb Gama import and export module and CLI
 
 ### Requirements
-Python 3+
-fikspunktregister pip install 
+Python 3+  
+Install https://github.com/Septima/fikspunktsregister 
+install click 
 
 ## Install
-pip install
-
+pip install firegama
 
 ## Usage
 
@@ -22,11 +22,9 @@ Commands:
 
 ### Specifying database connection info
 
-For both write and read the database connectin string may be set _either_ by
+For both write and read the database connection string may be set _either_ by
 * an option; -db user:pass@host:port/database
-
 _or_ by
-
 * prior to the command setting the environment varable _fire-db_
 
 ### Write input file to gama

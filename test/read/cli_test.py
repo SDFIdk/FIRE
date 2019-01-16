@@ -1,6 +1,6 @@
 import click
 from click.testing import CliRunner
-from cli import cli
+from firegama.cli import cli
 
 def do_test(runner, title, args):
     click.echo("\nTest: " + title)

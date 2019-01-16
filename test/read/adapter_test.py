@@ -1,5 +1,5 @@
 from fireapi import FireDb
-from adapter import GamaReader
+from firegama.adapter import GamaReader
 import os
 
 
