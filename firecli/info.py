@@ -28,6 +28,11 @@ def info():
 def punkt(ident: str, **kwargs) -> None:
     """
     Vis al tilgængelig information om et fikspunkt
+
+    IDENT kan være enhver form for navn et punkt er kendt som, blandt andet
+    GNSS stationsnummer, G.I.-nummer, refnr, landsnummer osv.
+
+    Søgningen er versalfølsom.
     """
     pi = aliased(PunktInformation)
     pit = aliased(PunktInformationType)
@@ -115,7 +120,9 @@ def srid(srid: str, **kwargs):
 @click.argument("infotype")
 def infotype(infotype: str, **kwargs):
     """
-    Info on specific type of point attribute
+    Information om en punktinfotype.
+
+    Eksempler på punktinfotyper: IDENT:GNSS, AFM:diverse, ATTR:beskrivelse
     """
     try:
         pit = firedb.hent_punktinformationtype(infotype)
