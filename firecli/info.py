@@ -129,13 +129,3 @@ def infotype(infotype: str, **kwargs):
     firecli.print(f"  Name        :  {pit.name}")
     firecli.print(f"  Description :  {pit.beskrivelse}")
     firecli.print(f"  Type        :  {pit.anvendelse}")
-
-
-@info.command()
-@firecli.default_options()
-def test(**kwargs):
-    '''
-    flaf
-    '''
-    firecli.print("flaf")
-    firecli.print("boign", fg='red')
