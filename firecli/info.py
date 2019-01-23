@@ -25,12 +25,10 @@ def info():
 @info.command()
 @firecli.default_options()
 @click.argument("ident")
-def punkt(ident: str, monokrom: bool) -> None:
+def punkt(ident: str, **kwargs) -> None:
     """
     Vis al tilgængelig information om et fikspunkt
     """
-    firecli._show_colors = not monokrom
-
     pi = aliased(PunktInformation)
     pit = aliased(PunktInformationType)
 
@@ -94,13 +92,12 @@ def punkt(ident: str, monokrom: bool) -> None:
 @info.command()
 @firecli.default_options()
 @click.argument("srid")
-def srid(srid: str, monokrom: bool):
+def srid(srid: str, **kwargs):
     """
     Information om et givent SRID (Spatial Reference ID)
 
     Eksempler på SRID'er: EPSG:25832, DK:SYS34, TS:81013
     """
-    show_colors = not monokrom
     srid_name = srid
 
     try:
@@ -116,11 +113,10 @@ def srid(srid: str, monokrom: bool):
 @info.command()
 @firecli.default_options()
 @click.argument("infotype")
-def infotype(infotype: str, monochrome: bool):
+def infotype(infotype: str, **kwargs):
     """
     Info on specific type of point attribute
     """
-    show_colors = not monochrome
     try:
         pit = firedb.hent_punktinformationtype(infotype)
         if pit is None:
