@@ -8,6 +8,7 @@ from click_plugins import with_plugins
 
 @with_plugins(iter_entry_points('firecli.fire_commands'))
 @click.group()
+@click.help_option(help='Vis denne hjælp tekst')
 def fire():
     '''
     🔥 Kommandolinje adgang til FIRE.

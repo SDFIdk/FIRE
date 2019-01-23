@@ -24,6 +24,7 @@ def _set_monochrome(ctx, param, value):
 
 _default_options = [
     click.option("-m", "--monokrom", is_flag=True, callback=_set_monochrome, help="Vis ikke farver i terminalen"),
+    click.help_option(help='Vis denne hjælp tekst'),
 ]
 
 
