@@ -13,7 +13,7 @@ from fireapi.model import PunktInformation, PunktInformationType, Srid
 @click.group()
 def info():
     """
-    🔥 Information om objekter i FIRE
+    Information om objekter i FIRE
     """
     pass
 
