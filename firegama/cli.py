@@ -4,12 +4,12 @@ import configparser
 import os
 
 import click
-from clickdatetime import Datetime
+from firegama.clickdatetime import Datetime
 
 from fireapi import FireDb
 from fireapi.model import ( Geometry)
 
-from adapter import GamaReader, GamaWriter
+from firegama.adapter import GamaReader, GamaWriter
 
 @click.group()
 def cli():

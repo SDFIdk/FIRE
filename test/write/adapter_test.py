@@ -74,7 +74,7 @@ def naer_geometry():
     output.close    
     
 if __name__ == "__main__":
-    all_points()
+    #all_points()
     in_polygon()
     naer_geometry_time_interval()
     naer_geometry()
