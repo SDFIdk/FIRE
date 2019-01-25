@@ -7,11 +7,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import firecli
 from firecli import firedb
-from fireapi.model import (
-    PunktInformation,
-    PunktInformationType,
-    Srid,
-)
+from fireapi.model import PunktInformation, PunktInformationType, Srid
 
 
 @click.group()
@@ -39,9 +35,7 @@ def punkt(ident: str, **kwargs) -> None:
 
     try:
         punktinfo = (
-            firedb.session.query(pi)
-            .filter(pi.infotypeid.like("IDENT:%"), pi.tekst == ident)
-            .one()
+            firedb.session.query(pi).filter(pi.infotypeid.like("IDENT:%"), pi.tekst == ident).one()
         )
         punkt = punktinfo.punkt
     except NoResultFound:
@@ -71,9 +65,9 @@ def punkt(ident: str, **kwargs) -> None:
     for koord in punkt.koordinater:
         line = f"  {koord.sridid:20}:  {koord.x}, {koord.y}, {koord.z}, {koord.t}"
         if koord.registreringtil is not None:
-            firecli.print(line, fg='red')
+            firecli.print(line, fg="red")
         else:
-            firecli.print(line, fg='green')
+            firecli.print(line, fg="green")
     firecli.print("")
 
     firecli.print("--- OBSERVATINONER ---", bold=True)
@@ -106,7 +100,7 @@ def srid(srid: str, **kwargs):
     srid_name = srid
 
     try:
-         srid = firedb.hent_srid(srid_name)
+        srid = firedb.hent_srid(srid_name)
     except NoResultFound:
         firecli.print(f"Error! {srid_name} not found!", fg="red", err=True)
         sys.exit(1)
@@ -114,6 +108,7 @@ def srid(srid: str, **kwargs):
     firecli.print("--- SRID ---", bold=True)
     firecli.print(f" Name:       :  {srid.name}")
     firecli.print(f" Description :  {srid.beskrivelse}")
+
 
 @info.command()
 @firecli.default_options()
