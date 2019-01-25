@@ -17,7 +17,7 @@ _show_colors = True
 # Create decorator that handles all default options
 def _set_monochrome(ctx, param, value):
     '''
-    Grab value of --monokrom option and set global state of show colors
+    Grab value of --monokrom option and set global state of _show_colors
     '''
     global _show_colors
     _show_colors = not value
@@ -70,10 +70,10 @@ for conf_file in search_files:
                 if not ('username' in conf_db and 'password' in conf_db and
                         'hostname' in conf_db and 'database' in conf_db and
                         'service' in conf_db):
-                    raise ValueError('Malformed config file. Consult documentation!')
+                    raise ValueError('Fejl i konfigurationsfil. Konsulter dokumentationen!')
         break
 else:
-    raise EnvironmentError('Configuration file not found!')
+    raise EnvironmentError('Konfigurationsfil ikke fundet!')
 
 # Establish connection to database
 _username = conf_db['username']

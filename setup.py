@@ -8,7 +8,7 @@ from setuptools import setup
 
 import firecli
 
-SHORT_DESCR = 'Geodetic database system for storarge of information on levelling observations and points.'
+SHORT_DESCR = 'Kommandolinjeinterface til fikspunktsregistret FIRE'
 
 def readme():
     """
@@ -16,7 +16,7 @@ def readme():
     description for setuptools.setup.
     """
     try:
-        with open('readme.md') as f:
+        with open('README.md') as f:
             readme = f.read()
         return readme
     except:
@@ -46,10 +46,8 @@ setup(
     url='https://github.com/Kortforsyningen/fire-cli',
     author='Kristian Evers',
     author_email='kreve@sdfe.dk',
-    license='ISC',
+    license='MIT',
     py_modules=['firecli'],
-    test_suite='nose.collector',
-    tests_require=['nose'],
     install_requires=[
         'click',
         'click_plugins',
