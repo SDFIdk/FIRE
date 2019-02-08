@@ -3,15 +3,16 @@ FireDb Gama import and export module and CLI
 
 ### Requirements
 Python 3+  
-Install https://github.com/Septima/fikspunktsregister 
-install click 
+Install https://github.com/Septima/fikspunktsregister  
+install click (pip install click)
 
 ## Install
-pip install firegama
+* Download and unpack https://github.com/Septima/fire-gama/archive/master.zip (Suggestion c:/tmp/fire-gama)
+* pip install c:/tmp/fire-gama
 
 ## Usage
 
-Usage: cli.py [OPTIONS] COMMAND [ARGS]...
+Usage: fire-gama [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --help  Show this message and exit.
@@ -58,12 +59,5 @@ Options:
   --help                         Show this message and exit.
 ´´´
 
+### Read outut file from gama
 
-### Environment variable
-
-## Test
-
-###python
-
-
-### CLI 
