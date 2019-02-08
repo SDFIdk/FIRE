@@ -14,13 +14,13 @@ install click (pip install click)
 
 Usage: fire-gama [OPTIONS] COMMAND [ARGS]...
 
-´´´
-  fire-gama --help
+```
+fire-gama --help
 
 Commands:
   read   Read a gama output file (fire-gama read --help)  
   write  Create a gama input file (fire-gama write --help)
-´´´
+```
 
 ### Specifying database connection info
 
