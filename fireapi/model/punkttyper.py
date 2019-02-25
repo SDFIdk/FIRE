@@ -51,8 +51,14 @@ class FikspunktregisterObjekt(RegisteringTidObjekt):
 class Punkt(FikspunktregisterObjekt):
     __tablename__ = "punkt"
     id = Column(String, nullable=False, unique=True)
-    sagseventid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="punkter")
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="punkter"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent", foreign_keys=[sagseventtilid], back_populates="punkter_slettede"
+    )
     koordinater = relationship(
         "Koordinat", order_by="Koordinat.objectid", back_populates="punkt"
     )
@@ -78,8 +84,16 @@ class Punkt(FikspunktregisterObjekt):
 
 class PunktInformation(FikspunktregisterObjekt):
     __tablename__ = "punktinfo"
-    sagseventid = Column(String(36), ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="punktinformationer")
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="punktinformationer"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent",
+        foreign_keys=[sagseventtilid],
+        back_populates="punktinformationer_slettede",
+    )
     infotypeid = Column(
         "infotype", String(4000), ForeignKey("punktinfotype.infotype"), nullable=False
     )
@@ -110,8 +124,16 @@ class Koordinat(FikspunktregisterObjekt):
     x = Column(Float)
     y = Column(Float)
     z = Column(Float)
-    sagseventid = Column(String(36), ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="koordinater")
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="koordinater"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent",
+        foreign_keys=[sagseventtilid],
+        back_populates="koordinater_slettede",
+    )
     punktid = Column(String(36), ForeignKey("punkt.id"), nullable=False)
     punkt = relationship("Punkt", back_populates="koordinater")
     beregninger = relationship(
@@ -122,8 +144,16 @@ class Koordinat(FikspunktregisterObjekt):
 class GeometriObjekt(FikspunktregisterObjekt):
     __tablename__ = "geometriobjekt"
     geometri = Column(columntypes.Point(2, 4326), nullable=False)
-    sagseventid = Column(String(36), ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="geometriobjekter")
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="geometriobjekter"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent",
+        foreign_keys=[sagseventtilid],
+        back_populates="geometriobjekter_slettede",
+    )
     punktid = Column(String(36), ForeignKey("punkt.id"), nullable=False)
     punkt = relationship("Punkt", back_populates="geometriobjekter")
 
@@ -131,8 +161,16 @@ class GeometriObjekt(FikspunktregisterObjekt):
 class Beregning(FikspunktregisterObjekt):
     __tablename__ = "beregning"
     objectid = Column(Integer, primary_key=True)
-    sagseventid = Column(String(36), ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="beregninger")
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="beregninger"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent",
+        foreign_keys=[sagseventtilid],
+        back_populates="beregninger_slettede",
+    )
     koordinater = relationship(
         "Koordinat", secondary=beregning_koordinat, back_populates="beregninger"
     )
@@ -186,8 +224,16 @@ class Observation(FikspunktregisterObjekt):
     value13 = Column(Float)
     value14 = Column(Float)
     value15 = Column(Float)
-    sagseventid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship("Sagsevent", back_populates="observationer")
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="observationer"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent",
+        foreign_keys=[sagseventtilid],
+        back_populates="observationer_slettede",
+    )
     observationstidspunkt = Column(DateTime(timezone=True), nullable=False)
     antal = Column(Integer, nullable=False)
     gruppe = Column(Integer)

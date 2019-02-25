@@ -53,24 +53,76 @@ class Sagsevent(RegisteringFraObjekt):
     )
     # Fikspunktregisterobjekter
     punkter = relationship(
-        "Punkt", order_by="Punkt.objectid", back_populates="sagsevent"
+        "Punkt",
+        order_by="Punkt.objectid",
+        back_populates="sagsevent",
+        foreign_keys="Punkt.sagseventfraid",
+    )
+    punkter_slettede = relationship(
+        "Punkt",
+        order_by="Punkt.objectid",
+        back_populates="slettet",
+        foreign_keys="Punkt.sagseventtilid",
     )
     koordinater = relationship(
-        "Koordinat", order_by="Koordinat.objectid", back_populates="sagsevent"
+        "Koordinat",
+        order_by="Koordinat.objectid",
+        back_populates="sagsevent",
+        foreign_keys="Koordinat.sagseventfraid",
+    )
+    koordinater_slettede = relationship(
+        "Koordinat",
+        order_by="Koordinat.objectid",
+        back_populates="slettet",
+        foreign_keys="Koordinat.sagseventtilid",
     )
     geometriobjekter = relationship(
-        "GeometriObjekt", order_by="GeometriObjekt.objectid", back_populates="sagsevent"
+        "GeometriObjekt",
+        order_by="GeometriObjekt.objectid",
+        back_populates="sagsevent",
+        foreign_keys="GeometriObjekt.sagseventfraid",
+    )
+    geometriobjekter_slettede = relationship(
+        "GeometriObjekt",
+        order_by="GeometriObjekt.objectid",
+        back_populates="slettet",
+        foreign_keys="GeometriObjekt.sagseventtilid",
     )
     observationer = relationship(
-        "Observation", order_by="Observation.objectid", back_populates="sagsevent"
+        "Observation",
+        order_by="Observation.objectid",
+        back_populates="sagsevent",
+        foreign_keys="Observation.sagseventfraid",
+    )
+    observationer_slettede = relationship(
+        "Observation",
+        order_by="Observation.objectid",
+        back_populates="slettet",
+        foreign_keys="Observation.sagseventtilid",
     )
     punktinformationer = relationship(
         "PunktInformation",
         order_by="PunktInformation.objectid",
         back_populates="sagsevent",
+        foreign_keys="PunktInformation.sagseventfraid",
+    )
+    punktinformationer_slettede = relationship(
+        "PunktInformation",
+        order_by="PunktInformation.objectid",
+        back_populates="slettet",
+        foreign_keys="PunktInformation.sagseventtilid",
     )
     beregninger = relationship(
-        "Beregning", order_by="Beregning.objectid", back_populates="sagsevent"
+        "Beregning",
+        order_by="Beregning.objectid",
+        back_populates="sagsevent",
+        foreign_keys="Beregning.sagseventfraid",
+    )
+    beregninger_slettede = relationship(
+        "Beregning",
+        order_by="Beregning.objectid",
+        back_populates="slettet",
+        foreign_keys="Beregning.sagseventtilid",
     )
 
 
