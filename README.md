@@ -113,7 +113,6 @@ echo exit |  sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/data/F
 echo exit |  sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/data/FIRE_ADM.SAGSEVENTINFO_HTML.sql
 echo exit |  sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/data/FIRE_ADM.SRIDNAMESPACE.sql
 echo exit |  sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/data/FIRE_ADM.PUNKTINFOTYPE.sql
-echo exit |  sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/data/FIRE_ADM.SRIDNAMESPACE.sql
 echo exit |  sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/data/FIRE_ADM.SRIDTYPE.sql
 echo exit |  sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/data/FIRE_ADM.PUNKT.sql
 echo exit |  sqlplus64 -S fire/fire@//oracledb:1521/xe @test/fixtures/sql/data/FIRE_ADM.PUNKTINFOTYPENAMESPACE.sql
