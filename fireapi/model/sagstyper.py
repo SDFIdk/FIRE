@@ -84,9 +84,9 @@ class SagseventInfo(RegisteringTidObjekt):
         order_by="SagseventInfoMateriale.objectid",
         back_populates="sagseventinfo",
     )
-    rapporthtmler = relationship(
-        "SagseventInfoRapportHtml",
-        order_by="SagseventInfoRapportHtml.objectid",
+    htmler = relationship(
+        "SagseventInfoHtml",
+        order_by="SagseventInfoHtml.objectid",
         back_populates="sagseventinfo",
     )
 
@@ -102,11 +102,11 @@ class SagseventInfoMateriale(DeclarativeBase):
     sagseventinfo = relationship("SagseventInfo", back_populates="materialer")
 
 
-class SagseventInfoRapportHtml(DeclarativeBase):
-    __tablename__ = "sagseventinfo_rapporthtml"
+class SagseventInfoHtml(DeclarativeBase):
+    __tablename__ = "sagseventinfo_html"
     objectid = Column(Integer, primary_key=True)
-    rapporthtml = Column(String, nullable=False)
+    html = Column(String, nullable=False)
     sagseventinfoobjectid = Column(
         Integer, ForeignKey("sagseventinfo.objectid"), nullable=False
     )
-    sagseventinfo = relationship("SagseventInfo", back_populates="rapporthtmler")
+    sagseventinfo = relationship("SagseventInfo", back_populates="htmler")
