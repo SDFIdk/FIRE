@@ -6,29 +6,25 @@
 Insert into SRIDNAMESPACE
    (OBJECTID, NAMESPACE, BESKRIVELSE)
  Values
-   (1, 'DK', 'Ingen beskrivelse');
+   (1, 'DK', 'SDFE register over danske systemer');
 Insert into SRIDNAMESPACE
    (OBJECTID, NAMESPACE, BESKRIVELSE)
  Values
-   (2, 'EPSG', 'Ingen beskrivelse');
+   (2, 'EPSG', 'IOGP Geodetic Parameter Registry');
 Insert into SRIDNAMESPACE
    (OBJECTID, NAMESPACE, BESKRIVELSE)
  Values
-   (3, 'FO', 'Ingen beskrivelse');
+   (3, 'FO', 'SDFE register over færøske systemer');
 Insert into SRIDNAMESPACE
    (OBJECTID, NAMESPACE, BESKRIVELSE)
  Values
-   (4, 'GL', 'Ingen beskrivelse');
+   (4, 'GL', 'SDFE register over grønlandske systemer');
 Insert into SRIDNAMESPACE
    (OBJECTID, NAMESPACE, BESKRIVELSE)
  Values
-   (5, 'LOC', 'Ingen beskrivelse');
+   (5, 'NKG', 'Nordisk Kommission for Geodæsi register over nordisk/baltiske systemer');
 Insert into SRIDNAMESPACE
    (OBJECTID, NAMESPACE, BESKRIVELSE)
  Values
-   (6, 'NKG', 'Ingen beskrivelse');
-Insert into SRIDNAMESPACE
-   (OBJECTID, NAMESPACE, BESKRIVELSE)
- Values
-   (7, 'TS', 'Ingen beskrivelse');
+   (6, 'TS', 'SDFE register over tidsrækker');
 COMMIT;
