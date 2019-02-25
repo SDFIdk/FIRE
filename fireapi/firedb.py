@@ -286,7 +286,7 @@ class FireDb(object):
             raise Exception("Do not attach new objects to an existing Sagsevent")
         if sagsevent.eventtype is None:
             sagsevent.eventtype = eventtype
-        elif sagsevent.event != eventtype:
+        elif sagsevent.eventtype != eventtype:
             raise Exception(f"'{sagsevent.eventtype}' sagsevent. Should be {eventtype}")
         if sagsevent.id is None:
             sagsevent.id = str(uuid.uuid4())
