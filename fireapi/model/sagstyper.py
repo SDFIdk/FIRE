@@ -1,23 +1,23 @@
 import enum
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum
+from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 from fireapi.model import RegisteringTidObjekt, RegisteringFraObjekt, DeclarativeBase
-
+from fireapi.model.columntypes import IntegerEnum
 
 # Model this as a hard coded enum for now. This makes it a lot easier for the user. It would be nice to sync this with
 # the db table eventtype
 class EventType(enum.Enum):
-    KOORDINAT_BEREGNET = "koordinat_beregnet"
-    KOORDINAT_NEDLAGT = "koordinat_nedlagt"
-    OBSERVATION_INDSAT = "observation_indsat"
-    OBSERVATION_NEDLAGT = "observation_nedlagt"
-    PUNKTINFO_TILFOEJET = "punktinfo_tilføjet"
-    PUNKTINFO_FJERNET = "punktinfo_fjernet"
-    PUNKT_OPRETTET = "punkt_oprettet"
-    PUNKT_NEDLAGT = "punkt_nedlagt"
-    BEREGNING = "beregning"
-    KOMMENTAR = "kommentar"
+    KOORDINAT_BEREGNET = 1
+    KOORDINAT_NEDLAGT = 2
+    OBSERVATION_INDSAT = 3
+    OBSERVATION_NEDLAGT = 4
+    PUNKTINFO_TILFOEJET = 5
+    PUNKTINFO_FJERNET = 6
+    PUNKT_OPRETTET = 7
+    PUNKT_NEDLAGT = 8
+    BEREGNING = 9
+    KOMMENTAR = 10
 
 
 class Sag(RegisteringFraObjekt):
@@ -44,7 +44,7 @@ class Sagsinfo(RegisteringTidObjekt):
 class Sagsevent(RegisteringFraObjekt):
     __tablename__ = "sagsevent"
     id = Column(String(36), nullable=False)
-    event = Column(Enum(EventType), nullable=False)
+    eventtype = Column("eventtypeid", IntegerEnum(EventType), nullable=False)
     # beskrivelse = Column(String)
     sagid = Column(String(36), ForeignKey("sag.id"), nullable=False)
     sag = relationship("Sag", back_populates="sagsevents")

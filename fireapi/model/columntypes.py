@@ -1,4 +1,4 @@
-from sqlalchemy.types import UserDefinedType
+from sqlalchemy.types import UserDefinedType, TypeDecorator, Integer
 from sqlalchemy.sql import type_coerce
 from sqlalchemy import func
 from fireapi.model import geometry
@@ -61,3 +61,19 @@ class Curve(Geometry):
 
 class LineString(Curve):
     name = "LINESTRING"
+
+
+class IntegerEnum(TypeDecorator):
+    """Column type which persists the integer value of a Python enumeration"""
+
+    impl = Integer
+
+    def __init__(self, enumtype, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._enumtype = enumtype
+
+    def process_bind_param(self, value, dialect):
+        return value.value
+
+    def process_result_value(self, value, dialect):
+        return self._enumtype(value)
