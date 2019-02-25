@@ -114,7 +114,7 @@ class PunktInformationType(DeclarativeBase):
 
 class Koordinat(FikspunktregisterObjekt):
     __tablename__ = "koordinat"
-    sridid = Column("srid", String, ForeignKey("sridtype.srid"), nullable=False)
+    sridid = Column(String, ForeignKey("sridtype.srid"), nullable=False)
     srid = relationship("Srid")
     sx = Column(Float)
     sy = Column(Float)
