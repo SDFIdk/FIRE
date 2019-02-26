@@ -94,9 +94,7 @@ class PunktInformation(FikspunktregisterObjekt):
         foreign_keys=[sagseventtilid],
         back_populates="punktinformationer_slettede",
     )
-    infotypeid = Column(
-        "infotype", String(4000), ForeignKey("punktinfotype.infotype"), nullable=False
-    )
+    infotypeid = Column(Integer, ForeignKey("punktinfotype.infotypeid"), nullable=False)
     infotype = relationship("PunktInformationType")
     tal = Column(Float)
     tekst = Column(String(4000))
@@ -107,7 +105,8 @@ class PunktInformation(FikspunktregisterObjekt):
 class PunktInformationType(DeclarativeBase):
     __tablename__ = "punktinfotype"
     objectid = Column(Integer, primary_key=True)
-    name = Column("infotype", String(4000), unique=True, nullable=False)
+    infotypeid = Column(Integer, unique=True, nullable=False)
+    name = Column("infotype", String(4000), nullable=False)
     anvendelse = Column(Enum(PunktInformationTypeAnvendelse), nullable=False)
     beskrivelse = Column(String(4000), nullable=False)
 
