@@ -1,12 +1,22 @@
 import datetime
 from fireapi import FireDb
-from fireapi.model import Koordinat, Punkt, Observation, Beregning, Sagsevent, Sag, Srid
+from fireapi.model import (
+    Koordinat,
+    Punkt,
+    Observation,
+    Beregning,
+    Sagsevent,
+    Sag,
+    Srid,
+    ObservationType,
+)
 
 
 def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt, srid: Srid):
+    obstype = firedb.session.query(ObservationType).first()
     observation = Observation(
         antal=0,
-        observationstypeid="geometrisk_koteforskel",
+        observationstype=obstype,
         observationstidspunkt=datetime.datetime.utcnow(),
         opstillingspunkt=punkt,
         value1=0,
@@ -32,9 +42,10 @@ def test_indset_beregning(firedb: FireDb, sag: Sag, punkt: Punkt, srid: Srid):
 def test_indset_beregning_invalidates_existing_koordinat(
     firedb: FireDb, sag: Sag, punkt: Punkt, srid: Srid
 ):
+    obstype = firedb.session.query(ObservationType).first()
     observation = Observation(
         antal=0,
-        observationstypeid="geometrisk_koteforskel",
+        observationstype=obstype,
         observationstidspunkt=datetime.datetime.utcnow(),
         opstillingspunkt=punkt,
         value1=0,
