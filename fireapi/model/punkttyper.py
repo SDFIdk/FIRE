@@ -181,6 +181,7 @@ class Beregning(FikspunktregisterObjekt):
 class ObservationType(DeclarativeBase):
     __tablename__ = "observationtype"
     objectid = Column(Integer, primary_key=True)
+    observationstypeid = Column(Integer, unique=True, nullable=False)
     name = Column("observationstype", String(4000), nullable=False)
     beskrivelse = Column(String(4000), nullable=False)
     value1 = Column(String, nullable=False)
@@ -237,7 +238,7 @@ class Observation(FikspunktregisterObjekt):
     antal = Column(Integer, nullable=False)
     gruppe = Column(Integer)
     observationstypeid = Column(
-        "observationstype", String(4000), ForeignKey("observationtype.observationstype")
+        Integer, ForeignKey("observationtype.observationstypeid")
     )
     observationstype = relationship("ObservationType", back_populates="observationer")
     sigtepunktid = Column(String(36), ForeignKey("punkt.id"))
