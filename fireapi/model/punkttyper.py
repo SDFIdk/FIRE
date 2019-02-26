@@ -253,5 +253,5 @@ class Srid(DeclarativeBase):
     __tablename__ = "sridtype"
     objectid = Column(Integer, primary_key=True)
     sridid = Column(Integer, unique=True, nullable=False)
-    srid = Column("srid", String(36), nullable=False, unique=True)
+    srid = Column(String(36), nullable=False, unique=True)
     beskrivelse = Column(String(4000))
