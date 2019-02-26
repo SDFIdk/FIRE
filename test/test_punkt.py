@@ -1,7 +1,15 @@
 import pytest
 import uuid
 from fireapi import FireDb
-from fireapi.model import Sagsevent, Punkt, Koordinat, GeometriObjekt, Point, Sag
+from fireapi.model import (
+    Sagsevent,
+    Punkt,
+    Koordinat,
+    GeometriObjekt,
+    Point,
+    Sag,
+    EventType,
+)
 
 
 def test_punkt(firedb: FireDb, punkt: Punkt):
@@ -21,12 +29,12 @@ def test_indset_punkt_with_invalid_sagsevent_eventtype(firedb: FireDb, sag: Sag)
     go = GeometriObjekt()
     go.geometri = Point([1, 1])
     p.geometriobjekter.append(go)
-    with pytest.raises(Exception, match="Dav"):
-        firedb.indset_punkt(Sagsevent(sag=sag, event="Dav"), p)
+    with pytest.raises(Exception, match="KOMMENTAR"):
+        firedb.indset_punkt(Sagsevent(sag=sag, eventtype=EventType.KOMMENTAR), p)
 
 
 def test_hent_punkt(firedb: FireDb):
-    p = firedb.hent_punkt("7CA9F53D-DAE9-59C0-E053-1A041EAC5678")
+    p = firedb.hent_punkt("814E9044-1439-5A4E-E053-1A041EACF9E4")
     assert isinstance(p, Punkt)
     k = p.koordinater[0]
     assert isinstance(k, Koordinat)

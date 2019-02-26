@@ -1,23 +1,23 @@
 import enum
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum
+from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 from fireapi.model import RegisteringTidObjekt, RegisteringFraObjekt, DeclarativeBase
-
+from fireapi.model.columntypes import IntegerEnum
 
 # Model this as a hard coded enum for now. This makes it a lot easier for the user. It would be nice to sync this with
 # the db table eventtype
 class EventType(enum.Enum):
-    KOORDINAT_BEREGNET = "koordinat_beregnet"
-    KOORDINAT_NEDLAGT = "koordinat_nedlagt"
-    OBSERVATION_INDSAT = "observation_indsat"
-    OBSERVATION_NEDLAGT = "observation_nedlagt"
-    PUNKTINFO_TILFOEJET = "punktinfo_tilføjet"
-    PUNKTINFO_FJERNET = "punktinfo_fjernet"
-    PUNKT_OPRETTET = "punkt_oprettet"
-    PUNKT_NEDLAGT = "punkt_nedlagt"
-    BEREGNING = "beregning"
-    KOMMENTAR = "kommentar"
+    KOORDINAT_BEREGNET = 1
+    KOORDINAT_NEDLAGT = 2
+    OBSERVATION_INDSAT = 3
+    OBSERVATION_NEDLAGT = 4
+    PUNKTINFO_TILFOEJET = 5
+    PUNKTINFO_FJERNET = 6
+    PUNKT_OPRETTET = 7
+    PUNKT_NEDLAGT = 8
+    BEREGNING = 9
+    KOMMENTAR = 10
 
 
 class Sag(RegisteringFraObjekt):
@@ -44,7 +44,7 @@ class Sagsinfo(RegisteringTidObjekt):
 class Sagsevent(RegisteringFraObjekt):
     __tablename__ = "sagsevent"
     id = Column(String(36), nullable=False)
-    event = Column(Enum(EventType), nullable=False)
+    eventtype = Column("eventtypeid", IntegerEnum(EventType), nullable=False)
     # beskrivelse = Column(String)
     sagid = Column(String(36), ForeignKey("sag.id"), nullable=False)
     sag = relationship("Sag", back_populates="sagsevents")
@@ -53,24 +53,76 @@ class Sagsevent(RegisteringFraObjekt):
     )
     # Fikspunktregisterobjekter
     punkter = relationship(
-        "Punkt", order_by="Punkt.objectid", back_populates="sagsevent"
+        "Punkt",
+        order_by="Punkt.objectid",
+        back_populates="sagsevent",
+        foreign_keys="Punkt.sagseventfraid",
+    )
+    punkter_slettede = relationship(
+        "Punkt",
+        order_by="Punkt.objectid",
+        back_populates="slettet",
+        foreign_keys="Punkt.sagseventtilid",
     )
     koordinater = relationship(
-        "Koordinat", order_by="Koordinat.objectid", back_populates="sagsevent"
+        "Koordinat",
+        order_by="Koordinat.objectid",
+        back_populates="sagsevent",
+        foreign_keys="Koordinat.sagseventfraid",
+    )
+    koordinater_slettede = relationship(
+        "Koordinat",
+        order_by="Koordinat.objectid",
+        back_populates="slettet",
+        foreign_keys="Koordinat.sagseventtilid",
     )
     geometriobjekter = relationship(
-        "GeometriObjekt", order_by="GeometriObjekt.objectid", back_populates="sagsevent"
+        "GeometriObjekt",
+        order_by="GeometriObjekt.objectid",
+        back_populates="sagsevent",
+        foreign_keys="GeometriObjekt.sagseventfraid",
+    )
+    geometriobjekter_slettede = relationship(
+        "GeometriObjekt",
+        order_by="GeometriObjekt.objectid",
+        back_populates="slettet",
+        foreign_keys="GeometriObjekt.sagseventtilid",
     )
     observationer = relationship(
-        "Observation", order_by="Observation.objectid", back_populates="sagsevent"
+        "Observation",
+        order_by="Observation.objectid",
+        back_populates="sagsevent",
+        foreign_keys="Observation.sagseventfraid",
+    )
+    observationer_slettede = relationship(
+        "Observation",
+        order_by="Observation.objectid",
+        back_populates="slettet",
+        foreign_keys="Observation.sagseventtilid",
     )
     punktinformationer = relationship(
         "PunktInformation",
         order_by="PunktInformation.objectid",
         back_populates="sagsevent",
+        foreign_keys="PunktInformation.sagseventfraid",
+    )
+    punktinformationer_slettede = relationship(
+        "PunktInformation",
+        order_by="PunktInformation.objectid",
+        back_populates="slettet",
+        foreign_keys="PunktInformation.sagseventtilid",
     )
     beregninger = relationship(
-        "Beregning", order_by="Beregning.objectid", back_populates="sagsevent"
+        "Beregning",
+        order_by="Beregning.objectid",
+        back_populates="sagsevent",
+        foreign_keys="Beregning.sagseventfraid",
+    )
+    beregninger_slettede = relationship(
+        "Beregning",
+        order_by="Beregning.objectid",
+        back_populates="slettet",
+        foreign_keys="Beregning.sagseventtilid",
     )
 
 
@@ -84,9 +136,9 @@ class SagseventInfo(RegisteringTidObjekt):
         order_by="SagseventInfoMateriale.objectid",
         back_populates="sagseventinfo",
     )
-    rapporthtmler = relationship(
-        "SagseventInfoRapportHtml",
-        order_by="SagseventInfoRapportHtml.objectid",
+    htmler = relationship(
+        "SagseventInfoHtml",
+        order_by="SagseventInfoHtml.objectid",
         back_populates="sagseventinfo",
     )
 
@@ -102,11 +154,11 @@ class SagseventInfoMateriale(DeclarativeBase):
     sagseventinfo = relationship("SagseventInfo", back_populates="materialer")
 
 
-class SagseventInfoRapportHtml(DeclarativeBase):
-    __tablename__ = "sagseventinfo_rapporthtml"
+class SagseventInfoHtml(DeclarativeBase):
+    __tablename__ = "sagseventinfo_html"
     objectid = Column(Integer, primary_key=True)
-    rapporthtml = Column(String, nullable=False)
+    html = Column(String, nullable=False)
     sagseventinfoobjectid = Column(
         Integer, ForeignKey("sagseventinfo.objectid"), nullable=False
     )
-    sagseventinfo = relationship("SagseventInfo", back_populates="rapporthtmler")
+    sagseventinfo = relationship("SagseventInfo", back_populates="htmler")
