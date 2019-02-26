@@ -34,7 +34,7 @@ def test_indset_punkt_with_invalid_sagsevent_eventtype(firedb: FireDb, sag: Sag)
 
 
 def test_hent_punkt(firedb: FireDb):
-    p = firedb.hent_punkt("7CA9F53D-DAE9-59C0-E053-1A041EAC5678")
+    p = firedb.hent_punkt("814E9044-1439-5A4E-E053-1A041EACF9E4")
     assert isinstance(p, Punkt)
     k = p.koordinater[0]
     assert isinstance(k, Koordinat)
