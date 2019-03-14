@@ -35,7 +35,7 @@ def punkt(ident: str, **kwargs) -> None:
 
     try:
         punktinfo = (
-            firedb.session.query(pi).filter(pi.infotypeid.like("IDENT:%"), pi.tekst == ident).one()
+            firedb.session.query(pi).filter(pit.name.like("IDENT:%"), pi.tekst == ident).one()
         )
         punkt = punktinfo.punkt
     except NoResultFound:
