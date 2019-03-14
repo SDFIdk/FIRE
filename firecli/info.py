@@ -1,3 +1,4 @@
+import datetime
 import sys
 import itertools
 
@@ -62,8 +63,9 @@ def punkt(ident: str, **kwargs) -> None:
     firecli.print("")
 
     firecli.print("--- KOORDINATER ---", bold=True)
+    punkt.koordinater.sort(key=lambda x: x.srid.name, reverse=False)
     for koord in punkt.koordinater:
-        line = f"  {koord.sridid:20}:  {koord.x}, {koord.y}, {koord.z}, {koord.t}"
+        line = f"    {koord.t.strftime('%Y-%m-%d')}   {koord.srid.name:<15.15} {koord.x}, {koord.y}, {koord.z}"
         if koord.registreringtil is not None:
             firecli.print(line, fg="red")
         else:
