@@ -8,7 +8,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import firecli
 from firecli import firedb
-from fireapi.model import PunktInformation, PunktInformationType, Srid
+from fireapi.model import Punkt, PunktInformation, PunktInformationType, Srid
 
 
 @click.group()
@@ -17,6 +17,59 @@ def info():
     Information om objekter i FIRE
     """
     pass
+
+def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
+    """
+    Rapportgenerator for funktionen 'punkt' nedenfor.
+    """
+    firecli.print("")
+    firecli.print("-"*80)
+    firecli.print(f" PUNKT {ident} ({i}/{n})", bold=True)
+    firecli.print("-"*80)
+    firecli.print(f"  FIRE ID             :  {punkt.id}")
+    firecli.print(f"  Oprettelsesdato     :  {punkt.registreringfra}")
+    firecli.print("")
+
+    firecli.print("--- PUNKTINFO ---", bold=True)
+    for info in punkt.punktinformationer:
+        if info.registreringtil is not None:
+            continue
+        tekst = info.tekst or ""
+        tekst = tekst.replace("\n", "").replace("\r", "")
+        tal = info.tal or ""
+        firecli.print(f"  {info.infotype.name:20}:  {tekst:.80}{tal}")
+    firecli.print("")
+
+    firecli.print("--- KOORDINATER ---", bold=True)
+    punkt.koordinater.sort(key=lambda x: x.srid.name, reverse=False)
+    for koord in punkt.koordinater:
+        line = f"{koord.t.strftime('%Y-%m-%d')}   {koord.srid.name:<15.15} {koord.x}, {koord.y}, {koord.z}"
+        if koord.registreringtil is not None:
+            firecli.print("     "+line, fg="red")
+        else:
+            firecli.print("   * "+line, fg="green")
+    firecli.print("")
+
+    firecli.print("--- OBSERVATINONER ---", bold=True)
+    n_obs_til = len(punkt.observationer_til)
+    n_obs_fra = len(punkt.observationer_fra)
+    firecli.print(f"Antal observationer til:  {n_obs_til}")
+    firecli.print(f"Antal observationer fra:  {n_obs_fra}")
+
+    if n_obs_fra + n_obs_til > 0:
+        min_obs = datetime.datetime(9999,12,31)
+        max_obs = datetime.datetime(1,1,1)
+        for obs in itertools.chain(punkt.observationer_til, punkt.observationer_fra):
+            if obs.registreringfra < min_obs:
+                min_obs = obs.registreringfra
+            if obs.registreringfra > max_obs:
+                max_obs = obs.registreringfra
+
+        firecli.print(f"Ældste observation     :  {min_obs}")
+        firecli.print(f"Nyeste observation     :  {max_obs}")
+
+    firecli.print("")
+
 
 
 @info.command()
@@ -36,58 +89,19 @@ def punkt(ident: str, **kwargs) -> None:
 
     try:
         punktinfo = (
-            firedb.session.query(pi).filter(pit.name.startswith("IDENT:"), pi.tekst == ident).one()
+            firedb.session.query(pi).filter(pit.name.startswith("IDENT:"), pi.tekst == ident).all()
         )
-        punkt = punktinfo.punkt
+        n = len(punktinfo)
+        for i in range(n):
+            punkt_rapport(punktinfo[i].punkt, ident, i+1, n)
     except NoResultFound:
         try:
             punkt = firedb.hent_punkt(ident)
         except NoResultFound:
             firecli.print(f"Error! {ident} not found!", fg="red", err=True)
             sys.exit(1)
+        punkt_rapport(punkt, ident, 1, 1)
 
-    firecli.print("")
-    firecli.print("--- PUNKT ---", bold=True)
-    firecli.print(f"  FIRE ID             :  {punkt.id}")
-    firecli.print(f"  Oprettelsesdato     :  {punkt.registreringfra}")
-    firecli.print("")
-
-    firecli.print("--- PUNKTINFO ---", bold=True)
-    for info in punkt.punktinformationer:
-        if info.registreringtil is not None:
-            continue
-        tekst = info.tekst or ""
-        tekst = tekst.replace("\n", "").replace("\r", "")
-        tal = info.tal or ""
-        firecli.print(f"  {info.infotype.name:20}:  {tekst:.80}{tal}")
-    firecli.print("")
-
-    firecli.print("--- KOORDINATER ---", bold=True)
-    punkt.koordinater.sort(key=lambda x: x.srid.name, reverse=False)
-    for koord in punkt.koordinater:
-        line = f"    {koord.t.strftime('%Y-%m-%d')}   {koord.srid.name:<15.15} {koord.x}, {koord.y}, {koord.z}"
-        if koord.registreringtil is not None:
-            firecli.print(line, fg="red")
-        else:
-            firecli.print(line, fg="green")
-    firecli.print("")
-
-    firecli.print("--- OBSERVATINONER ---", bold=True)
-    n_obs_til = len(punkt.observationer_til)
-    n_obs_fra = len(punkt.observationer_fra)
-    firecli.print(f"Antal observationer til:  {n_obs_til}")
-    firecli.print(f"Antal observationer fra:  {n_obs_fra}")
-
-    min_obs = punkt.observationer_til[0].registreringfra
-    max_obs = punkt.observationer_til[0].registreringfra
-    for obs in itertools.chain(punkt.observationer_til, punkt.observationer_fra):
-        if obs.registreringfra < min_obs:
-            min_obs = obs.registreringfra
-        if obs.registreringfra > max_obs:
-            max_obs = obs.registreringfra
-
-    firecli.print(f"Ældste observation     :  {min_obs}")
-    firecli.print(f"Nyeste observation     :  {max_obs}")
 
 
 @info.command()
