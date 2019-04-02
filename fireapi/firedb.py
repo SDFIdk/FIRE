@@ -180,7 +180,7 @@ class FireDb(object):
         if not namespace:
             return self.session.query(Srid).all()
         like_filter = f"{namespace}:%"
-        return self.session.query(Srid).filter(Srid.anvendelse.ilike(like_filter)).all()
+        return self.session.query(Srid).filter(Srid.name.ilike(like_filter)).all()
 
     def hent_punktinformationtype(self, infotype: str):
         typefilter = infotype
