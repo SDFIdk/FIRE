@@ -15,10 +15,14 @@ from fireapi.model import (
     Observation,
     ObservationType,
     Bbox,
-    Sagsevent,Beregning,
+    Sagsevent,
+    Beregning,
     Geometry,
-    EventType,   Srid,
+    EventType,
+    Srid,
 )
+
+
 class FireDb(object):
     def __init__(self, connectionstring, debug=False):
         """
