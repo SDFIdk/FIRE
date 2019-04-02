@@ -7,8 +7,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install deps
-          command: apt-get -y install gawk
+          name: Activate conda
+          command: |
+            source /opt/conda/bin/activate fikspunktsregister
+            conda install -c conda-forge black
+            black --check fireapi/
       - run:
           name: Sleep 15 seconds to allow Oracle DB to ready itself
           command: sleep 15
