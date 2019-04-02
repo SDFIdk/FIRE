@@ -13,6 +13,7 @@ from fireapi.model import (
     PunktInformationType,
     GeometriObjekt,
     Observation,
+    ObservationType,
     Bbox,
     Sagsevent,
     Beregning,
@@ -85,6 +86,41 @@ class FireDb(object):
         return (
             self.session.query(GeometriObjekt)
             .filter(func.sdo_filter(GeometriObjekt.geometri, bbox) == "TRUE")
+            .all()
+        )
+
+    def hent_observationtype(self, name: str) -> ObservationType:
+        """Gets ObservationType by its name.
+
+        Parameters
+        ----------
+        observationstypeid : str
+            Name (including namespace) of the observationtype.
+
+        Returns
+        -------
+        ObservationType:
+            The first ObservationType matching the specified name. None if not found.
+
+        """
+        namefilter = name
+        return (
+            self.session.query(ObservationType)
+            .filter(ObservationType.name == namefilter)
+            .first()
+        )
+
+    def hent_observationtyper(
+        self, namespace: Optional[str] = None
+    ) -> List[ObservationType]:
+        """Gets all ObservationTyper optionally filtered by namespace.
+        """
+        if not namespace:
+            return self.session.query(ObservationType).all()
+        like_filter = f"{namespace}:%"
+        return (
+            self.session.query(ObservationType)
+            .filter(ObservationType.name.ilike(like_filter))
             .all()
         )
 
