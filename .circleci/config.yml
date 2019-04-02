@@ -7,8 +7,15 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install deps
-          command: apt-get -y install gawk
+          name: Install 'black' code format checker
+          command: |
+            source /opt/conda/bin/activate fikspunktsregister
+            conda install -c conda-forge black
+      - run:
+          name: Run 'black' code format check. If this fails you have not run 'black' on the failing files.
+          command: |
+            source /opt/conda/bin/activate fikspunktsregister
+            black --check ./
       - run:
           name: Sleep 15 seconds to allow Oracle DB to ready itself
           command: sleep 15
