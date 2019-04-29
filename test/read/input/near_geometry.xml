@@ -114,172 +114,172 @@
 
 <observations>
 
-<height-diff extern="abekat"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAD-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="16"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAD-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.7558900000000000</obs> <adj>-0.7544000289004235</adj> <stdev>0.1657421906723333</stdev>
    <qrr>0.000</qrr> <f>76.727</f> <std-residual>2.151</std-residual>
    <err-obs>1.575</err-obs> <err-adj>0.085</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAD-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="17"> <from>814E9044-1AAD-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
    <obs>0.7559399999999999</obs> <adj>0.7544000289004235</adj> <stdev>0.1657421906723333</stdev>
    <qrr>0.000</qrr> <f>76.727</f> <std-residual>2.223</std-residual>
    <err-obs>-1.628</err-obs> <err-adj>-0.088</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="18"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
    <obs>0.7994100000000000</obs> <adj>0.7978267529413741</adj> <stdev>0.2039954007094829</stdev>
    <qrr>0.000</qrr> <f>76.233</f> <std-residual>1.899</std-residual>
    <err-obs>-1.678</err-obs> <err-adj>-0.095</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="19"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.7994500000000000</obs> <adj>-0.7978267529413741</adj> <stdev>0.2039954007094829</stdev>
    <qrr>0.000</qrr> <f>76.233</f> <std-residual>1.947</std-residual>
    <err-obs>1.720</err-obs> <err-adj>0.097</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAE-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="20"> <from>814E9044-1AAE-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>0.1105500000000000</obs> <adj>0.1105851100282930</adj> <stdev>1.9105324269402242</stdev>
    <qrr>0.000</qrr> <f>29.401</f> <std-residual>0.018</std-residual>
    <err-obs>0.070</err-obs> <err-adj>0.035</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAE-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="21"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAE-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.1106200000000000</obs> <adj>-0.1105851100282930</adj> <stdev>1.9105324269402237</stdev>
    <qrr>0.000</qrr> <f>29.178</f> <std-residual>0.018</std-residual>
    <err-obs>0.070</err-obs> <err-adj>0.035</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAA-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="22"> <from>814E9044-1AAA-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.0046500000000000</obs> <adj>-0.0046531418313399</adj> <stdev>0.1833690174202882</stdev>
    <qrr>0.000</qrr> <f>74.816</f> <std-residual>0.004</std-residual>
    <err-obs>-0.003</err-obs> <err-adj>-0.000</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAA-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="23"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAA-5A4E-E053-1A041EACF9E4</to>
    <obs>0.0047000000000000</obs> <adj>0.0046531418313399</adj> <stdev>0.1833690174202882</stdev>
    <qrr>0.000</qrr> <f>74.816</f> <std-residual>0.066</std-residual>
    <err-obs>-0.050</err-obs> <err-adj>-0.003</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="458"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
    <obs>0.7979500000000000</obs> <adj>0.7978267529413741</adj> <stdev>0.2039954007094829</stdev>
    <qrr>0.000</qrr> <f>77.588</f> <std-residual>0.139</std-residual>
    <err-obs>-0.130</err-obs> <err-adj>-0.007</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="459"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.7978100000000000</obs> <adj>-0.7978267529413741</adj> <stdev>0.2039954007094829</stdev>
    <qrr>0.000</qrr> <f>77.588</f> <std-residual>0.019</std-residual>
    <err-obs>-0.018</err-obs> <err-adj>-0.001</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAA-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="460"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAA-5A4E-E053-1A041EACF9E4</to>
    <obs>0.0045600000000000</obs> <adj>0.0046531418313399</adj> <stdev>0.1833690174202882</stdev>
    <qrr>0.000</qrr> <f>77.166</f> <std-residual>0.119</std-residual>
    <err-obs>0.098</err-obs> <err-adj>0.005</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAA-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="461"> <from>814E9044-1AAA-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.0045800000000000</obs> <adj>-0.0046531418313399</adj> <stdev>0.1833690174202882</stdev>
    <qrr>0.000</qrr> <f>77.166</f> <std-residual>0.094</std-residual>
    <err-obs>-0.077</err-obs> <err-adj>-0.004</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAD-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="462"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAD-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.7546900000000000</obs> <adj>-0.7544000289004235</adj> <stdev>0.1657421906723333</stdev>
    <qrr>0.000</qrr> <f>75.597</f> <std-residual>0.440</std-residual>
    <err-obs>0.308</err-obs> <err-adj>0.018</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAD-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="463"> <from>814E9044-1AAD-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
    <obs>0.7545200000000000</obs> <adj>0.7544000289004235</adj> <stdev>0.1657421906723333</stdev>
    <qrr>0.000</qrr> <f>75.597</f> <std-residual>0.182</std-residual>
    <err-obs>-0.128</err-obs> <err-adj>-0.008</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAA-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="645"> <from>814E9044-1AAA-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.0046100000000000</obs> <adj>-0.0046531418313399</adj> <stdev>0.1833690174202882</stdev>
    <qrr>0.000</qrr> <f>74.816</f> <std-residual>0.061</std-residual>
    <err-obs>-0.046</err-obs> <err-adj>-0.003</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAA-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="646"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAA-5A4E-E053-1A041EACF9E4</to>
    <obs>0.0047700000000000</obs> <adj>0.0046531418313399</adj> <stdev>0.1833690174202882</stdev>
    <qrr>0.000</qrr> <f>74.816</f> <std-residual>0.166</std-residual>
    <err-obs>-0.125</err-obs> <err-adj>-0.008</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAD-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="647"> <from>814E9044-1AAD-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
    <obs>0.7546800000000000</obs> <adj>0.7544000289004235</adj> <stdev>0.1657421906723333</stdev>
    <qrr>0.000</qrr> <f>70.864</f> <std-residual>0.514</std-residual>
    <err-obs>-0.306</err-obs> <err-adj>-0.026</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAD-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="648"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAD-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.7545700000000000</obs> <adj>-0.7544000289004235</adj> <stdev>0.1657421906723333</stdev>
    <qrr>0.000</qrr> <f>70.864</f> <std-residual>0.312</std-residual>
    <err-obs>0.186</err-obs> <err-adj>0.016</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="649"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.7980699999999999</obs> <adj>-0.7978267529413741</adj> <stdev>0.2039954007094829</stdev>
    <qrr>0.000</qrr> <f>76.233</f> <std-residual>0.292</std-residual>
    <err-obs>0.258</err-obs> <err-adj>0.015</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="650"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
    <obs>0.7980300000000000</obs> <adj>0.7978267529413741</adj> <stdev>0.2039954007094829</stdev>
    <qrr>0.000</qrr> <f>76.233</f> <std-residual>0.244</std-residual>
    <err-obs>-0.215</err-obs> <err-adj>-0.012</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1D41-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="651"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1D41-5A4E-E053-1A041EACF9E4</to>
    <obs>0.1991900000000000</obs> <adj>0.1991957690267833</adj> <stdev>2.0554380990438488</stdev>
    <qrr>0.000</qrr> <f>34.954</f> <std-residual>0.002</std-residual>
    <err-obs>0.010</err-obs> <err-adj>0.004</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1D41-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="652"> <from>814E9044-1D41-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.1992000000000000</obs> <adj>-0.1991957690267833</adj> <stdev>2.0554380990438488</stdev>
    <qrr>0.000</qrr> <f>24.046</f> <std-residual>0.002</std-residual>
    <err-obs>0.010</err-obs> <err-adj>0.006</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="870"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
    <obs>0.7974400000000000</obs> <adj>0.7978267529413741</adj> <stdev>0.2039954007094829</stdev>
    <qrr>0.000</qrr> <f>60.497</f> <std-residual>0.815</std-residual>
    <err-obs>0.458</err-obs> <err-adj>0.072</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="871"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.7972200000000000</obs> <adj>-0.7978267529413741</adj> <stdev>0.2039954007094829</stdev>
    <qrr>0.000</qrr> <f>60.497</f> <std-residual>1.279</std-residual>
    <err-obs>-0.719</err-obs> <err-adj>-0.112</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAA-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="872"> <from>814E9044-1AAA-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.0046200000000000</obs> <adj>-0.0046531418313399</adj> <stdev>0.1833690174202883</stdev>
    <qrr>0.000</qrr> <f>58.187</f> <std-residual>0.083</std-residual>
    <err-obs>-0.040</err-obs> <err-adj>-0.007</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAA-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="873"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAA-5A4E-E053-1A041EACF9E4</to>
    <obs>0.0046400000000000</obs> <adj>0.0046531418313399</adj> <stdev>0.1833690174202883</stdev>
    <qrr>0.000</qrr> <f>58.187</f> <std-residual>0.033</std-residual>
    <err-obs>0.016</err-obs> <err-adj>0.003</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAD-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="874"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAD-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.7535200000000000</obs> <adj>-0.7544000289004235</adj> <stdev>0.1657421906723333</stdev>
    <qrr>0.000</qrr> <f>57.349</f> <std-residual>2.504</std-residual>
    <err-obs>-1.076</err-obs> <err-adj>-0.196</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAD-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="875"> <from>814E9044-1AAD-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
    <obs>0.7536200000000000</obs> <adj>0.7544000289004235</adj> <stdev>0.1657421906723333</stdev>
    <qrr>0.000</qrr> <f>57.349</f> <std-residual>2.219</std-residual>
    <err-obs>0.953</err-obs> <err-adj>0.173</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="1321"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.7976500000000000</obs> <adj>-0.7978267529413741</adj> <stdev>0.2039954007094829</stdev>
    <qrr>0.000</qrr> <f>57.486</f> <std-residual>0.407</std-residual>
    <err-obs>-0.216</err-obs> <err-adj>-0.039</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="1322"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
    <obs>0.7976900000000000</obs> <adj>0.7978267529413741</adj> <stdev>0.2039954007094829</stdev>
    <qrr>0.000</qrr> <f>57.486</f> <std-residual>0.315</std-residual>
    <err-obs>0.167</err-obs> <err-adj>0.030</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAD-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="1323"> <from>814E9044-1AAD-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAC-5A4E-E053-1A041EACF9E4</to>
    <obs>0.7547600000000000</obs> <adj>0.7544000289004235</adj> <stdev>0.1657421906723333</stdev>
    <qrr>0.000</qrr> <f>65.434</f> <std-residual>0.800</std-residual>
    <err-obs>-0.409</err-obs> <err-adj>-0.049</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAD-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="1324"> <from>814E9044-1AAC-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAD-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.7546700000000000</obs> <adj>-0.7544000289004235</adj> <stdev>0.1657421906723333</stdev>
    <qrr>0.000</qrr> <f>65.434</f> <std-residual>0.600</std-residual>
    <err-obs>0.307</err-obs> <err-adj>0.037</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAA-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="1325"> <from>814E9044-1AAB-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAA-5A4E-E053-1A041EACF9E4</to>
    <obs>0.0046900000000000</obs> <adj>0.0046531418313399</adj> <stdev>0.1833690174202882</stdev>
    <qrr>0.000</qrr> <f>61.767</f> <std-residual>0.083</std-residual>
    <err-obs>-0.043</err-obs> <err-adj>-0.006</err-adj>
    </height-diff>
-<height-diff> <from>814E9044-1AAA-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
+<height-diff extern="1326"> <from>814E9044-1AAA-5A4E-E053-1A041EACF9E4</from> <to>814E9044-1AAB-5A4E-E053-1A041EACF9E4</to>
    <obs>-0.0046800000000000</obs> <adj>-0.0046531418313399</adj> <stdev>0.1833690174202882</stdev>
    <qrr>0.000</qrr> <f>61.767</f> <std-residual>0.061</std-residual>
    <err-obs>0.031</err-obs> <err-adj>0.005</err-adj>

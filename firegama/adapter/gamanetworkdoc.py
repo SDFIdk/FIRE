@@ -180,8 +180,8 @@ class GamaNetworkDoc():
         observation_ids = []
         for o in observations:
             observation_elements.append(self.get_dh_element(o))
-            observation_ids.append(str(o.objectid))
-        self.add_description("{observation_ids} :[" + ",".join(observation_ids) + "]{/observation_ids}")
+            #observation_ids.append(str(o.objectid))
+        #self.add_description("{observation_ids} :[" + ",".join(observation_ids) + "]{/observation_ids}")
         return str.replace(doc, "{obs}", '\n                '.join(observation_elements))
     
     def get_fixed_height_point_element(self, fixed_point: Punkt):
@@ -206,9 +206,10 @@ class GamaNetworkDoc():
     def get_dh_element(self, observation: Observation):
         fromId= observation.opstillingspunktid
         toId=observation.sigtepunktid
+        oId=observation.objectid
         gamavalues = getattr(observation, 'gama_values')
         val=gamavalues['val']
         dist=gamavalues['dist']
         dev=gamavalues['dev']
-        return '<dh from="{fromId}" to="{toId}" val="{val}" dist="{dist}" stdev="{dev}" />'.format(fromId = fromId, toId=toId, val=val, dist=dist, dev=dev)
+        return '<dh from="{fromId}" to="{toId}" val="{val}" dist="{dist}" stdev="{dev}" extern="{oId}"/>'.format(fromId = fromId, toId=toId, val=val, dist=dist, dev=dev, oId=oId)
 

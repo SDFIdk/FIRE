@@ -1,4 +1,3 @@
-
 import click
 from click.testing import CliRunner
 from firegama.cli import cli
@@ -31,5 +30,5 @@ if __name__ == "__main__":
     do_test(runner, title, args)
 
     title = "Within distance of point (wkt from file) - fixed points from file - time interval"
-    args = ['write', '-o', 'output/cli_output_near_geometry_file_fra_til.xml', '-gf', 'geometry.wkt', '-b', '10000', '-ff', 'fixed_points.csv', '-df', '08-10-2015', '-dt', '09-10-2018']
+    args = ['write', '-o', 'output/cli_output_near_geometry_file_fixed_from_file_fra_til.xml', '-gf', 'geometry.wkt', '-b', '10000', '-ff', 'fixed_points.csv', '-df', '08-10-2015', '-dt', '09-10-2018']
     do_test(runner, title, args)

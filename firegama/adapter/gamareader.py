@@ -25,24 +25,21 @@ class GamaReader(object):
         description = description_element.text
         
         #.. find all obervation ids
-        observation_ids_start = description.find("{observation_ids}") + len("{observation_ids} :")
-        observation_ids_end = description.find("{/observation_ids}")
-        observation_ids = description[observation_ids_start:observation_ids_end]
-        observation_id_list= ast.literal_eval(observation_ids)
+        #observation_ids_start = description.find("{observation_ids}") + len("{observation_ids} :")
+        #bservation_ids_end = description.find("{/observation_ids}")
+        #observation_ids = description[observation_ids_start:observation_ids_end]
+        #observation_id_list= ast.literal_eval(observation_ids)
         
         #... and fetch those observations
-        observation_list = self.fireDb.hent_observationer(observation_id_list)
 
-        beregning = Beregning() 
-        beregning.observationer.extend(observation_list)
+        beregning = Beregning()
         
-        srid = self.fireDb.hent_srid('DK:DVR90')
+        srid = self.fireDb.hent_srid('EPSG:5799')
         
         adjusted_element = root.find(namespace + "coordinates").find(namespace + "adjusted")
         cov_mat_values =  root.find(namespace + "coordinates").find(namespace + "cov-mat").findall(namespace + "flt")
         original_index_indicies =  root.find(namespace + "coordinates").find(namespace + "original-index").findall(namespace + "ind")
         
-        #for point in adjusted_element.iter(namespace + "point"):
         for idx, point in enumerate(adjusted_element.iter(namespace + "point")):
             #Read values from the point
             z = point.find(namespace + "z").text
@@ -63,5 +60,14 @@ class GamaReader(object):
             koordinat.transformeret = "false"
             koordinat.punkt = self.fireDb.hent_punkt(point_id)
             beregning.koordinater.append(koordinat)
+            
+        observation_id_list = [] 
+        observations_element = root.find(namespace + "observations")
+        for idx, diff in enumerate(observations_element.iter(namespace + "height-diff")):
+            observationId = diff.get("extern")
+            observation_id_list.append(observationId)
     
+        observation_list = self.fireDb.hent_observationer(observation_id_list)
+        beregning.observationer.extend(observation_list)
+        
         self.fireDb.indset_beregning(Sagsevent(sag=sag), beregning)
