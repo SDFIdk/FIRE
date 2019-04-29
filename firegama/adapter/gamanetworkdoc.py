@@ -108,7 +108,8 @@ class GamaNetworkDoc():
             #Filter for None in udgang or sigte (o.opstillingspunktid, o.sigtepunktid not none)
             if (o.opstillingspunktid is not None) and (o.sigtepunktid is not None):
                 #Filter for suitability to establish height (o.observationstypeid in ['trigonometrisk_koteforskel', geometrisk_koteforskel])
-                if o.observationstypeid in ['trigonometrisk_koteforskel', 'geometrisk_koteforskel']:
+                #if o.observationstypeid in ['trigonometrisk_koteforskel', 'geometrisk_koteforskel']:
+                if o.observationstypeid in [1, 2]:
                     values = self.get_values(o, heights, positions)
                     if values is not None:
                         setattr(o, 'gama_values', values)
@@ -118,7 +119,8 @@ class GamaNetworkDoc():
         return filtered_observations
     
     def get_values(self, observation: Observation, heights: bool, positions: bool):
-        if observation.observationstypeid == 'trigonometrisk_koteforskel':
+        #if observation.observationstypeid == 'trigonometrisk_koteforskel':
+        if observation.observationstypeid == 2:
             if (observation.value4 is not None) and (observation.value5 is not None) and (observation.antal is not None) and (observation.antal != 0):
                 dev=math.sqrt((observation.value4 + observation.value5)/observation.antal)
                 val=observation.value1
@@ -127,7 +129,8 @@ class GamaNetworkDoc():
                 else: 
                     dist='?'
                 return {'dev': dev, 'val': val, 'dist': dist}
-        if observation.observationstypeid == 'geometrisk_koteforskel':
+        #if observation.observationstypeid == 'geometrisk_koteforskel':
+        if observation.observationstypeid == 1:
             if (observation.value5 is not None) and (observation.value6 is not None) and (observation.antal is not None) and (observation.antal != 0):
                 dev=math.sqrt((observation.value5 + observation.value6)/observation.antal)
                 val=observation.value1
@@ -140,17 +143,20 @@ class GamaNetworkDoc():
     
     def get_points_from_observations(self, observations: List[Observation]):
         points_list = []
+        point_ids_list = []
         for o in observations:
             op_id = o.opstillingspunktid
-            if op_id not in points_list: #Point not already found
+            if op_id not in point_ids_list: #Point not already found
                 if op_id not in self.fixed_point_ids: #Not given as a fixed point
                     op = self.fireDb.hent_punkt(op_id)
                     points_list.append(op)
+                    point_ids_list.append(op_id)
             sp_id = o.sigtepunktid
-            if sp_id not in points_list: #Point not already found
+            if sp_id not in point_ids_list: #Point not already found
                 if sp_id not in self.fixed_point_ids: #Not given as a fixed point
                     sp = self.fireDb.hent_punkt(sp_id)
                     points_list.append(sp)
+                    point_ids_list.append(sp_id)
         return points_list
     
     def insert_fixed_points(self, fixed_points: List[Punkt], heights: bool, positions: bool, doc):

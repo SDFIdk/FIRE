@@ -5,22 +5,39 @@
         <description>
             Network doc created by fire-gama (https://github.com/Septima/fire-gama)
             Initiated by Created by fire-gama
-            GamaWriter.take_observations() Antal observationer: 2
+            GamaWriter.take_observations() Antal observationer: 16
             GamaNetworkDoc.set_fixed_points: Antal punkter: 1
-            GamaNetworkDoc.set_observations: Antal observationer: 2
-            {observation_ids} :[110,109]{/observation_ids}
+            GamaNetworkDoc.set_observations: Antal observationer: 16
+            {observation_ids} :[1325,873,1326,1321,872,871,1323,1322,875,870,1324,874,1473,1474,1476,1475]{/observation_ids}
             Warnings:
-            Fixed point with no z value. Punktid:7CA9F53D-DAE9-59C0-E053-1A041EAC5678
+            Fixed point with no z value. Punktid:814E9044-1AAB-5A4E-E053-1A041EACF9E4
         </description>
         <points-observations >
-            <point id="7CA9F53D-DAE9-59C0-E053-1A041EAC5678" fix="z" />
-            <point id="7CA9F53D-DE27-59C0-E053-1A041EAC5678" adj="z" />
-            <point id="7CA9F53D-DE26-59C0-E053-1A041EAC5678" adj="z" />
-            <point id="7CA9F53D-DE26-59C0-E053-1A041EAC5678" adj="z" />
-            <point id="7CA9F53D-DE27-59C0-E053-1A041EAC5678" adj="z" />
+            <point id="814E9044-1AAB-5A4E-E053-1A041EACF9E4" fix="z" />
+            <point id="814E9044-1AAA-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1AAC-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1AAD-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB3-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1DB5-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB1-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB2-5A4E-E053-1A041EACF9E4" adj="z" />
             <height-differences>
-                <dh from="7CA9F53D-DE27-59C0-E053-1A041EAC5678" to="7CA9F53D-DE26-59C0-E053-1A041EAC5678" val="-3.56888" dist="0.221" stdev="0.000705230458786346" />
-                <dh from="7CA9F53D-DE26-59C0-E053-1A041EAC5678" to="7CA9F53D-DE27-59C0-E053-1A041EAC5678" val="3.56902" dist="0.218" stdev="0.0007004284403134985" />
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.00469" dist="0.023" stdev="0.00010011493395093461" />
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.00464" dist="0.023" stdev="9.154233993076646e-05" />
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00468" dist="0.023" stdev="0.00010011493395093461" />
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79765" dist="0.032" stdev="0.00010015987220439131" />
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00462" dist="0.023" stdev="9.154233993076646e-05" />
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79722" dist="0.032" stdev="0.00010779610382569492" />
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75476" dist="0.018" stdev="0.00010008995953640905" />
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79769" dist="0.032" stdev="0.00010015987220439131" />
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75362" dist="0.018" stdev="8.111719916269299e-05" />
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79744" dist="0.032" stdev="0.00010779610382569492" />
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75467" dist="0.018" stdev="0.00010008995953640905" />
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75352" dist="0.018" stdev="8.111719916269299e-05" />
+                <dh from="814E9044-1FB3-5A4E-E053-1A041EACF9E4" to="814E9044-1DB5-5A4E-E053-1A041EACF9E4" val="0.52313" dist="0.458" stdev="0.0010005151173270697" />
+                <dh from="814E9044-1DB5-5A4E-E053-1A041EACF9E4" to="814E9044-1FB3-5A4E-E053-1A041EACF9E4" val="-0.52377" dist="0.458" stdev="0.0010005151173270697" />
+                <dh from="814E9044-1FB1-5A4E-E053-1A041EACF9E4" to="814E9044-1FB2-5A4E-E053-1A041EACF9E4" val="0.70228" dist="0.742" stdev="0.0010008344018867456" />
+                <dh from="814E9044-1FB2-5A4E-E053-1A041EACF9E4" to="814E9044-1FB1-5A4E-E053-1A041EACF9E4" val="-0.69987" dist="0.716" stdev="0.0010008051758459285" />
             </height-differences>
         </points-observations>
     </network>

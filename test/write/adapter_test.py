@@ -48,8 +48,14 @@ def naer_geometry_time_interval():
     output = open('output/near_geometry_time_interval.xml','w')
     writer = GamaWriter(fireDb, output)
 
-    g = Geometry("POINT (10.4811749340072 56.3061226484564)")
-    observations = fireDb.hent_observationer_naer_geometri(g, 10000, datetime.datetime(2015, 10, 8), datetime.datetime(2015, 10, 9))
+    g = Geometry("POINT (12.5983815323665 55.7039994123763)")
+    observations = fireDb.hent_observationer_naer_geometri(g, 10000, datetime.datetime(2015, 10, 8), datetime.datetime(2018, 10, 9))
+    
+    #p = fireDb.hent_punkt("814E9044-1AAB-5A4E-E053-1A041EACF9E4")
+    #observations = fireDb.hent_observationer_naer_opstillingspunkt(p, 10000)
+    #observations = fireDb.hent_observationer_naer_opstillingspunkt(p, 10000, datetime.datetime(2015, 10, 8), datetime.datetime(2018, 10, 9))
+    
+    
     writer.take_observations(observations)
 
     parameters = configparser.ConfigParser()
@@ -75,6 +81,6 @@ def naer_geometry():
     
 if __name__ == "__main__":
     #all_points()
-    in_polygon()
+    #in_polygon()
     naer_geometry_time_interval()
-    naer_geometry()
+    #naer_geometry()
