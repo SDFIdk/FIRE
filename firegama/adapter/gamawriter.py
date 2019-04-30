@@ -5,7 +5,7 @@ from .gamanetworkdoc import GamaNetworkDoc
 
 class GamaWriter(object):
     def __init__(self, fireDb: FireDb, output_stream):
-        #Input parametrs
+        #Input parameters
         self.fireDb = fireDb
         self.output_stream = output_stream
         self.fixed_points = []

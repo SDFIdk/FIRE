@@ -1,12 +1,12 @@
 from typing import List, Dict
 import math
-from fireapi.model import Observation, Punkt, Koordinat
+from fireapi.model import Observation, Punkt
 from fireapi import FireDb
 from platform import dist
 
 class GamaNetworkDoc():
     def __init__(self, fireDb: FireDb, parameters: Dict):
-        #Input parametrs
+        #Input parameters
         self.fireDb = fireDb
         self.parameters = parameters
         self.observations = []
