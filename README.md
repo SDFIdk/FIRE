@@ -8,7 +8,7 @@ Installér https://github.com/Kortforsyningen/fire-cli
 installér click (pip install click)
 
 ## Installér
-Installér https://github.com/Septima/fikspunktsregister  
+Installér https://github.com/Septima/fire-gama  
 
 ## Brug
 
