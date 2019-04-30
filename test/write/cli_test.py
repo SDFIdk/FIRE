@@ -1,11 +1,11 @@
 import click
 from click.testing import CliRunner
-from firegama.cli import cli
+from firegama.cli import gama
 
 def do_test(runner, title, args):
     click.echo("\nTest: " + title)
-    click.echo(" Emulating: python cli.py " + ' '.join(args))
-    result = runner.invoke(cli, args)
+    click.echo(" Emulating: python gama " + ' '.join(args))
+    result = runner.invoke(gama, args)
     if result.exit_code != 0:
         click.echo(" Failed: " + str(args))
         click.echo(" Exception: " + str(result.exception))
