@@ -57,7 +57,7 @@ def print(*args, **kwargs):
 
 # Find settings file and read database credentials
 if os.environ.get("HOME"):
-    home = Path.os.environ["HOME"]
+    home = Path(os.environ["HOME"])
 else:
     home = Path("")
 
