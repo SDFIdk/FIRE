@@ -22,20 +22,33 @@ def mark():
 
 @mark.command()
 @firecli.default_options()
+@click.argument('filnavn', nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False))
+def observationsliste(filnavn: click.Path, **kwargs) -> None:
+    """List alle observationer der indgår i et nivellementsprojekt"""
+    get_all_observation_strings(filnavn, True)
+
+
+@mark.command()
+@firecli.default_options()
+@click.argument('filnavn', nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False))
+def punktliste(filnavn: click.Path, **kwargs) -> None:
+    """List alle punkter der indgår i et nivellementsprojekt"""
+    observationer = get_all_observation_strings(filnavn)
+    get_observation_points(observationer, True)
+
+
+@mark.command()
+@firecli.default_options()
 @click.option(
     '-o', '--output', default='', type=click.Path(writable=True, readable=False, allow_dash=True),
     help='Sæt navn på outputfil'
 )
-@click.option(
-    '-p', '--preload', default='', type=click.Path(writable=False, readable=True, allow_dash=False),
-    help='Angiv navn på fil med foreløbige punktnavne/placeringer'
-)
-@click.argument('filnavne', nargs=-1, type=click.File('rt'))
-def gamaficer(filnavne: List[click.File('rt')], output: click.Path, preload: click.Path, **kwargs) -> None:
+@click.argument('projektfil', nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False))
+def gamaficer(projektfil: click.Path, output: click.Path, **kwargs) -> None:
     """
-    Omsæt inputfil(er) til GNU Gama-format
+    Omsæt nivellementsprojektfil til GNU Gama-format
 
-    FILNAVNE er navn(e) på inputfil(er), fx 'KDI2018vest.txt'
+    PROJEKTFIL er navnet på projektet, fx 'KDI2018vest.np'
 
     Output skrives til en fil med samme fornavn, som første
     inputfil, men med '.xml' som efternavn.
@@ -45,76 +58,41 @@ def gamaficer(filnavne: List[click.File('rt')], output: click.Path, preload: cli
 
     Fuldt udjævningsworkflow:
 
-        fire mark gamaficer KDI2018vest.txt
+        fire mark gamaficer KDI2018vest.np
         gama-local KDI2018vest.xml --html resultat.html
         start resultat.html
         start resultat.qgz
     """
 
-    get_observations(get_observation_filenames(preload))
+    projektnavn = os.path.splitext(projektfil)[0]
+
     # Generer et fornuftigt outputfilnavn
     if (output==''):
-        fil = filnavne[0].name
-        if (fil=='<stdin>'):
-             output = '-'
-        else:
-            output = os.path.splitext(filnavne[0].name)[0] + '.xml'
-    stuff_punktinfo (preload)
+        output = projektnavn + '.xml'
+    prop_punktinfo_i_cachefil (projektfil)
 
     # Læs alle inputfiler og opbyg oversigter over hhv.
     # anvendte punkter og udførte observationer
-    try:
-        observationer = list()
-        punkter = set()
-        for fil in filnavne:
-            for line in fil:
-                if '#'!=line[0]:
-                    continue
-                line = line.lstrip('#').strip()
-                tokens = line.split()
-                assert len(tokens) in (9, 13), "Malformed input line: "+line
-                # print(tokens[0]+" "+tokens[1])
-                observationer.append(line)
-                punkter.add(tokens[0])
-                punkter.add(tokens[1])
-    except AssertionError as e:
-        firecli.print(str(e))
-        click.Abort()
-    except:
-        firecli.print("Fejl ved læsning af fil")
-        click.Abort()
+    observationer = get_all_observation_strings(projektfil)
+    punkter = get_observation_points(observationer)
+    eksporter(projektnavn, output, observationer, punkter)
 
-    print(f"OBSERVATIONER -- {len(observationer)}")
-    # print(observationer)
-    print(f"PUNKTER -- {len(punkter)}")
-    print(punkter)
-
-    eksporter(output, observationer, punkter)
-
-
-def eksporter(output: str, observationer: List[str], punkter: Set[str]) -> None:
+def eksporter(projektnavn: str, output: str, observationer: List[str], punkter: Set[str]) -> None:
     """Skriv geojson og Gama-XML outputfiler"""
-    koteid = None
-    new_cache_records = 0
+    koteid = hent_sridid(firedb, "EPSG:5799")
+    assert koteid != 0, "DVR90 (EPSG:5799) ikke fundet i srid-tabel"
 
-    # Generer dict med ident som nøgle og (position, kote, kotevarians) tuple som indhold
+    # Generer dict med ident som nøgle og (placering, kote, kotevarians) tuple som indhold
     punktinfo = get_cached_punktinfo()
     for ident in sorted(punkter):
-        if ident not in punktinfo:
-            if koteid is None:
-                koteid = hent_sridid(firedb, "EPSG:5799")
-            assert koteid != 0, "DVR90 (EPSG:5799) ikke fundet i srid-tabel"
-            pinfo = punkt_information(ident)
-            if pinfo is not None:
-                new_cache_records += 1
-            geo  = punkt_geometri(ident, pinfo)
-            kote = punkt_kote(pinfo, koteid)
-            (H, sH) = (0, 0) if kote is None else (kote.z, kote.sz)
-            punktinfo[ident] = (geo[0], geo[1], H, sH)
-    if new_cache_records > 0:
-        cache_punktinfo (punktinfo)
-    else:
-        cache_punktinfo (punktinfo)
+        if ident in punktinfo:
+            continue
+        info = punkt_information(ident)
+        geom = punkt_geometri(info, ident)
+        kote = punkt_kote(info, koteid)
+        (H, sH) = (0, 0) if kote is None else (kote.z, kote.sz)
+        punktinfo[ident] = (geom[0], geom[1], H, sH)
+    cache_punktinfo (punktinfo)
 
     # Skriv punktfil i geojson-format
     with open("punkter.geojson", "wt") as punktfil:
@@ -135,7 +113,7 @@ def eksporter(output: str, observationer: List[str], punkter: Set[str]) -> None:
     # Skriv Gama-inputfil i XML-format
     with open(output, "wt") as gamafil:
         xml_preamble(gamafil)
-        xml_description(gamafil, "bla bla bla")
+        xml_description(gamafil, "Nivellementsprojekt " + projektnavn)
         xml_fixed_points(gamafil)
         for key, val in punktinfo.items():
             if key.startswith("G."):
@@ -150,37 +128,75 @@ def eksporter(output: str, observationer: List[str], punkter: Set[str]) -> None:
             xml_obs(gamafil, obs)
         xml_postamble(gamafil)
 
-def get_observations(filnavne: str) -> List[str]:
-    observationer = list()
-    punkter = set()
-
+def get_all_observation_strings(projektfil: click.Path, verbose: bool = False) -> List[str]:
     try:
+        observationer = get_internal_observation_strings(projektfil, verbose)
+        filnavne = get_observation_filenames(projektfil)
+        if 0==len(filnavne):
+            return observationer
         for fil in filnavne:
-            with open(fil, "rt") as obsfil:
-                for line in obsfil:
-                    if '#'!=line[0]:
-                        continue
-                    line = line.lstrip('#').strip()
-                    tokens = line.split()
-                    print(line)
-                    assert len(tokens) in (9, 13), "Malformed input line: "+line+" in file: "+fil
-                    # print(tokens[0]+" "+tokens[1])
-                    observationer.append(line)
-                    punkter.add(tokens[0])
-                    punkter.add(tokens[1])
+            observationer += get_observation_strings(fil, verbose)
+        return observationer
     except AssertionError as e:
         firecli.print(str(e))
         click.Abort()
     except:
         firecli.print("Fejl ved læsning af fil")
         click.Abort()
-    for obs in observationer:
-        print(obs)
+
+
+def get_internal_observation_strings(nivproj: click.Path, verbose: bool = False) -> List[str]:
+    observationer = list()
+    if verbose:
+        print(f"\n# Interne fra {nivproj}\n")
+    with open(nivproj, "rt") as niv:
+        level = 0
+        for line in niv:
+            line = line.strip()
+            level = skip_until_section("OBSERVATIONER", line, level)
+            if (level!=4):
+                continue
+            # remove leading and trailing comments
+            line = line.split('#')[0].rstrip()
+            if len(line)==0:
+                continue
+            if verbose:
+                print(line)
+            observationer.append(line)
     return observationer
 
 
+def get_observation_strings(filnavn: str, verbose: bool = False) -> List[str]:
+    observationer = list()
+    with open(filnavn, "rt") as obsfil:
+        if verbose:
+            print(f"\n# Fra {filnavn}\n")
+        for line in obsfil:
+            if '#'!=line[0]:
+                continue
+            line = line.lstrip('#').strip()
+            if verbose:
+                print(line)
+            tokens = line.split()
+            assert len(tokens) in (9, 13), "Malformed input line: "+line+" in file: "+fil
+            observationer.append(line)
+    return observationer
+
+
+def get_observation_points(obstrings: List[str], verbose: bool = False) -> Set[str]:
+    points = set()
+    for obs in obstrings:
+        tokens = obs.split()
+        points.add(tokens[0])
+        points.add(tokens[1])
+    if verbose:
+        for p in sorted(points):
+            print(p)
+    return points
+
+
 def get_observation_filenames(nivproj: click.Path) -> List[str]:
-    """Indlæs foreløbige registreringer i cachefil"""
+    """Læs observationsfilnavne fra nivellementsprojektfil"""
     if nivproj=='':
         return
     names = list()
@@ -194,11 +210,8 @@ def get_observation_filenames(nivproj: click.Path) -> List[str]:
                 continue
 
             # remove leading and trailing comments
-            line = line.split('#')[0]
-            line.rstrip()
+            line = line.split('#')[0].rstrip()
             names += line.split()
-            print("OEPHGREASE")
-            print(names)
     return names
 
 
@@ -215,16 +228,17 @@ def cache_punktinfo(punktinfo: Dict):
         r = json.dump(punktinfo, cache, indent=4)
 
 
-def stuff_punktinfo(preload: click.Path):
+def prop_punktinfo_i_cachefil(nivproj: click.Path):
     """Indlæs foreløbige registreringer i cachefil"""
-    if preload=='':
+    if nivproj=='':
         return
     pinfo = get_cached_punktinfo()
     utm32 = Proj('+proj=utm +zone=32 +ellps=GRS80', preserve_units=False)
+    assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
 
-    with open(preload, "rt") as pre:
+    with open(nivproj, "rt") as np:
         level = 0
-        for line in pre:
+        for line in np:
             line = line.strip()
             level = skip_until_section("NYETABLEREDE PUNKTER", line, level)
             if (level!=4):
@@ -250,21 +264,28 @@ def stuff_punktinfo(preload: click.Path):
 
 
 def skip_until_section(section: str, line: str, level: int) -> int:
+    """Utterly ugly logic. Returns 4 at the start of the wanted section"""
+
     if level==3:
-        return 4
+        return 4     # we are now in the correct section
+
+    # At start or end of banner?
     if line[0:5]=="-----":
         if level==0:
-            return 1
+            return 1  # we just entered a banner
         if level==1:
-            return 0
+            return 0  # we just finished a wrong banner
         if level==2:
-            return 3
+            return 3  # we just finished the correct banner
         if level==4:
-            return 1
+            return 1  # we now entered a new banner at the end of the correct section
+
     if level!=1:
-        return level
+        return level  # nothing new
+
     if line==section:
-        return 2
+        return 2      # we are inside the right banner - continue skipping until "end of banner"
+
     return level
 
 
@@ -356,7 +377,7 @@ def punkt_kote(punktinfo: PunktInformation, koteid: int) -> Koordinat:
     return None
 
 
-def punkt_geometri(ident: str, punktinfo: PunktInformation) -> Tuple[float, float]:
+def punkt_geometri(punktinfo: PunktInformation, ident: str) -> Tuple[float, float]:
     """Find placeringskoordinat for punkt"""
     if punktinfo is None:
         return (11, 56)
