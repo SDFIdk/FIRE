@@ -24,7 +24,7 @@ def mark():
 @firecli.default_options()
 @click.argument('filnavn', nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False))
 def observationsliste(filnavn: click.Path, **kwargs) -> None:
-    """List alle observationer der indgår i et nivellementsprojekt"""
+    """Oplist alle observationer der indgår i et nivellementsprojekt"""
     get_all_observation_strings(filnavn, True)
 
 
@@ -32,9 +32,19 @@ def observationsliste(filnavn: click.Path, **kwargs) -> None:
 @firecli.default_options()
 @click.argument('filnavn', nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False))
 def punktliste(filnavn: click.Path, **kwargs) -> None:
-    """List alle punkter der indgår i et nivellementsprojekt"""
+    """Oplist alle punkter der indgår i et nivellementsprojekt"""
     observationer = get_all_observation_strings(filnavn)
     get_observation_points(observationer, True)
+
+
+@mark.command()
+@firecli.default_options()
+@click.argument('filnavn', nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False))
+def variabelliste(filnavn: click.Path, **kwargs) -> None:
+    """Oplist alle kontrolvariable fra SETUP-afsnit"""
+    s = get_setup_dict(filnavn)
+    for k,v in s.items():
+        print("s["+k+"] = '"+v+"'")
 
 
 @mark.command()
@@ -128,7 +138,9 @@ def eksporter(projektnavn: str, output: str, observationer: List[str], punkter: 
             xml_obs(gamafil, obs)
         xml_postamble(gamafil)
 
+
 def get_all_observation_strings(projektfil: click.Path, verbose: bool = False) -> List[str]:
+    """Læs alle observationer, både fra projektfil og fra projektets markfiler"""
     try:
         observationer = get_internal_observation_strings(projektfil, verbose)
         filnavne = get_observation_filenames(projektfil)
@@ -136,6 +148,7 @@ def get_all_observation_strings(projektfil: click.Path, verbose: bool = False) -
             return observationer
         for fil in filnavne:
             observationer += get_observation_strings(fil, verbose)
+        assert len(set(observationer)) == len(observationer), "Dublerede observationer - slå evt. eksterne filer fra."
         return observationer
     except AssertionError as e:
         firecli.print(str(e))
@@ -146,6 +159,7 @@ def get_all_observation_strings(projektfil: click.Path, verbose: bool = False) -
 
 
 def get_internal_observation_strings(nivproj: click.Path, verbose: bool = False) -> List[str]:
+    """Returner liste med alle observationsstrenge fra OBSERVATIONER afsnittet i projektfil"""
     observationer = list()
     if verbose:
         print(f"\n# Interne fra {nivproj}\n")
@@ -195,6 +209,29 @@ def get_observation_points(obstrings: List[str], verbose: bool = False) -> Set[s
     return points
 
 
+def get_setup_dict(nivproj: click.Path) -> Dict[str, str]:
+    """Læs setup-strenge fra nivellementsprojektfil"""
+    if nivproj=='':
+        return
+    names = dict()
+
+    with open(nivproj, "rt") as niv:
+        level = 0
+        for line in niv:
+            level = skip_until_section("SETUP", line, level)
+            if (level!=4):
+                continue
+            # remove leading and trailing comments
+            line = line.split('#')[0].strip().split("=")
+            if type(line) is not list:
+                continue
+            if len(line)!=2:
+                continue
+            names[line[0].strip()] = line[1].strip()
+    return names
+
+
+
 def get_observation_filenames(nivproj: click.Path) -> List[str]:
     """Læs observationsfilnavne fra nivellementsprojektfil"""
     if nivproj=='':
@@ -204,13 +241,11 @@ def get_observation_filenames(nivproj: click.Path) -> List[str]:
     with open(nivproj, "rt") as niv:
         level = 0
         for line in niv:
-            line = line.strip()
             level = skip_until_section("OBSERVATIONSFILER", line, level)
             if (level!=4):
                 continue
-
             # remove leading and trailing comments
-            line = line.split('#')[0].rstrip()
+            line = line.split('#')[0].strip()
             names += line.split()
     return names
 
@@ -264,7 +299,7 @@ def prop_punktinfo_i_cachefil(nivproj: click.Path):
 
 
 def skip_until_section(section: str, line: str, level: int) -> int:
-    """Utterly ugly logic. Returns 4 at the start of the wanted section"""
+    """Utterly ugly logic. Returns 4 at the start of the section wanted"""
 
     if level==3:
         return 4     # we are now in the correct section
@@ -283,7 +318,8 @@ def skip_until_section(section: str, line: str, level: int) -> int:
     if level!=1:
         return level  # nothing new
 
-    if line==section:
+    current_section = line.split(":")[0].strip()
+    if current_section==section:
         return 2      # we are inside the right banner - continue skipping until "end of banner"
 
     return level
