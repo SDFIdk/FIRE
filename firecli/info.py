@@ -92,6 +92,9 @@ def punkt(ident: str, **kwargs) -> None:
             firedb.session.query(pi).filter(pit.name.startswith("IDENT:"), pi.tekst == ident).all()
         )
         n = len(punktinfo)
+        if n == 0:
+            raise NoResultFound
+
         for i in range(n):
             punkt_rapport(punktinfo[i].punkt, ident, i+1, n)
     except NoResultFound:
