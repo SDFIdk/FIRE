@@ -50,7 +50,7 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
             firecli.print("   * "+line, fg="green")
     firecli.print("")
 
-    firecli.print("--- OBSERVATINONER ---", bold=True)
+    firecli.print("--- OBSERVATIONER ---", bold=True)
     n_obs_til = len(punkt.observationer_til)
     n_obs_fra = len(punkt.observationer_fra)
     firecli.print(f"Antal observationer til:  {n_obs_til}")
