@@ -282,6 +282,16 @@ class FireDb(object):
         self.session.add(punktinformation)
         self.session.commit()
 
+    def indset_punktinformationtype(self, punktinfotype: PunktInformationType):
+        if not self._is_new_object(punktinfotype):
+            raise Exception(
+                f"Cannot re-add already persistant punktinformationtype: {punktinfotype}"
+            )
+        n = self.session.query(func.max(PunktInformationType.infotypeid)).one()[0]
+        punktinfotype.infotypeid = n + 1
+        self.session.add(punktinfotype)
+        self.session.commit()
+
     def indset_observation(self, sagsevent: Sagsevent, observation: Observation):
         if not self._is_new_object(observation):
             raise Exception(
@@ -290,6 +300,16 @@ class FireDb(object):
         self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
         observation.sagsevent = sagsevent
         self.session.add(observation)
+        self.session.commit()
+
+    def indset_observationtype(self, observationtype: ObservationType):
+        if not self._is_new_object(observationtype):
+            raise Exception(
+                f"Cannot re-add already persistent observationtype: {observationtype}"
+            )
+        n = self.session.query(func.max(ObservationType.observationstypeid)).one()[0]
+        observationtype.observationstypeid = n + 1
+        self.session.add(observationtype)
         self.session.commit()
 
     def indset_beregning(self, sagsevent: Sagsevent, beregning: Beregning):
@@ -306,6 +326,15 @@ class FireDb(object):
             self._close_existing_koordinat(koordinat)
             koordinat.sagsevent = sagsevent
         self.session.add(beregning)
+        self.session.commit()
+
+    def indset_srid(self, srid: Srid):
+        if not self._is_new_object(srid):
+            raise Exception(f"Cannot re-add already persistent Srid: {srid}")
+
+        n = self.session.query(func.max(Srid.sridid)).one()[0]
+        srid.sridid = n + 1
+        self.session.add(srid)
         self.session.commit()
 
     # endregion
