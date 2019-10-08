@@ -250,6 +250,14 @@ class FireDb(object):
         self.session.add(sag)
         self.session.commit()
 
+    def indset_sagsevent(self, sagsevent: Sagsevent):
+        if not self._is_new_object(sagsevent):
+            raise Exception(f"Cannot re-add already persistent sagsevent: {sagsevent}")
+        if len(sagsevent.sagseventinfos) < 1:
+            raise Exception("At least one sagseventinfo must be added to the sagsevent")
+        self.session.add(sagsevent)
+        self.session.commit()
+
     def indset_punkt(self, sagsevent: Sagsevent, punkt: Punkt):
         if not self._is_new_object(punkt):
             raise Exception(f"Cannot re-add already persistent punkt: {punkt}")
