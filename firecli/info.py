@@ -40,21 +40,26 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
         firecli.print(f"  {info.infotype.name:20}:  {tekst:.80}{tal}")
     firecli.print("")
 
+    firecli.print("--- GEOMETRI ---", bold=True)
+    for geometriobjekt in punkt.geometriobjekter:
+        firecli.print(f"  {geometriobjekt.geometri}")
+        firecli.print("")
+
     firecli.print("--- KOORDINATER ---", bold=True)
     punkt.koordinater.sort(key=lambda x: x.srid.name, reverse=False)
     for koord in punkt.koordinater:
-        line = f"{koord.t.strftime('%Y-%m-%d')}   {koord.srid.name:<15.15} {koord.x}, {koord.y}, {koord.z}"
+        line = f"{koord.t.strftime('%Y-%m-%d %H:%M')}   {koord.srid.name:<15.15} {koord.x}, {koord.y}, {koord.z}   ({koord.sz})"
         if koord.registreringtil is not None:
-            firecli.print("     "+line, fg="red")
+            firecli.print("  "+line, fg="red")
         else:
-            firecli.print("   * "+line, fg="green")
+            firecli.print("* "+line, fg="green")
     firecli.print("")
 
     firecli.print("--- OBSERVATIONER ---", bold=True)
     n_obs_til = len(punkt.observationer_til)
     n_obs_fra = len(punkt.observationer_fra)
-    firecli.print(f"Antal observationer til:  {n_obs_til}")
-    firecli.print(f"Antal observationer fra:  {n_obs_fra}")
+    firecli.print(f"  Antal observationer til:  {n_obs_til}")
+    firecli.print(f"  Antal observationer fra:  {n_obs_fra}")
 
     if n_obs_fra + n_obs_til > 0:
         min_obs = datetime.datetime(9999,12,31)
@@ -65,8 +70,8 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
             if obs.registreringfra > max_obs:
                 max_obs = obs.registreringfra
 
-        firecli.print(f"Ældste observation     :  {min_obs}")
-        firecli.print(f"Nyeste observation     :  {max_obs}")
+        firecli.print(f"  Ældste observation     :  {min_obs}")
+        firecli.print(f"  Nyeste observation     :  {max_obs}")
 
     firecli.print("")
 
