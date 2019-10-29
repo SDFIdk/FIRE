@@ -5,6 +5,7 @@ import itertools
 import click
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import or_
 
 import firecli
 from firecli import firedb
@@ -18,14 +19,15 @@ def info():
     """
     pass
 
+
 def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
     """
     Rapportgenerator for funktionen 'punkt' nedenfor.
     """
     firecli.print("")
-    firecli.print("-"*80)
+    firecli.print("-" * 80)
     firecli.print(f" PUNKT {ident} ({i}/{n})", bold=True)
-    firecli.print("-"*80)
+    firecli.print("-" * 80)
     firecli.print(f"  FIRE ID             :  {punkt.id}")
     firecli.print(f"  Oprettelsesdato     :  {punkt.registreringfra}")
     firecli.print("")
@@ -35,9 +37,11 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
         if info.registreringtil is not None:
             continue
         tekst = info.tekst or ""
-        tekst = tekst.replace("\n", "").replace("\r", "")
+        # efter mellemrum rykkes teksten ind på linje med resten af
+        # attributteksten
+        tekst = tekst.replace("\n", "\n"+" "*25).replace("\r", "")
         tal = info.tal or ""
-        firecli.print(f"  {info.infotype.name:20}:  {tekst:.80}{tal}")
+        firecli.print(f"  {info.infotype.name:20}:  {tekst}{tal}")
     firecli.print("")
 
     firecli.print("--- GEOMETRI ---", bold=True)
@@ -50,9 +54,9 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
     for koord in punkt.koordinater:
         line = f"{koord.t.strftime('%Y-%m-%d %H:%M')}   {koord.srid.name:<15.15} {koord.x}, {koord.y}, {koord.z}   ({koord.sz})"
         if koord.registreringtil is not None:
-            firecli.print("  "+line, fg="red")
+            firecli.print("  " + line, fg="red")
         else:
-            firecli.print("* "+line, fg="green")
+            firecli.print("* " + line, fg="green")
     firecli.print("")
 
     firecli.print("--- OBSERVATIONER ---", bold=True)
@@ -62,8 +66,8 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
     firecli.print(f"  Antal observationer fra:  {n_obs_fra}")
 
     if n_obs_fra + n_obs_til > 0:
-        min_obs = datetime.datetime(9999,12,31)
-        max_obs = datetime.datetime(1,1,1)
+        min_obs = datetime.datetime(9999, 12, 31)
+        max_obs = datetime.datetime(1, 1, 1)
         for obs in itertools.chain(punkt.observationer_til, punkt.observationer_fra):
             if obs.registreringfra < min_obs:
                 min_obs = obs.registreringfra
@@ -74,7 +78,6 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
         firecli.print(f"  Nyeste observation     :  {max_obs}")
 
     firecli.print("")
-
 
 
 @info.command()
@@ -94,14 +97,23 @@ def punkt(ident: str, **kwargs) -> None:
 
     try:
         punktinfo = (
-            firedb.session.query(pi).filter(pit.name.startswith("IDENT:"), pi.tekst == ident).all()
+            firedb.session.query(pi)
+            .filter(
+                pit.name.startswith("IDENT:"),
+                or_(
+                    pi.tekst == ident,
+                    pi.tekst.like(f"FO  %{ident}"),
+                    pi.tekst.like(f"GL  %{ident}"),
+                ),
+            )
+            .all()
         )
         n = len(punktinfo)
         if n == 0:
             raise NoResultFound
 
         for i in range(n):
-            punkt_rapport(punktinfo[i].punkt, ident, i+1, n)
+            punkt_rapport(punktinfo[i].punkt, ident, i + 1, n)
     except NoResultFound:
         try:
             punkt = firedb.hent_punkt(ident)
@@ -109,7 +121,6 @@ def punkt(ident: str, **kwargs) -> None:
             firecli.print(f"Error! {ident} not found!", fg="red", err=True)
             sys.exit(1)
         punkt_rapport(punkt, ident, 1, 1)
-
 
 
 @info.command()
