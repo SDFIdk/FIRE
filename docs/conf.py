@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = "fireapi"
-copyright = "2018, Asger Sigurd Skovbo Petersen, Björn Harrtell"
-author = "Asger Sigurd Skovbo Petersen, Björn Harrtell"
+copyright = "2019, Asger Sigurd Skovbo Petersen, Björn Harrtell, Kristian Evers"
+author = "Asger Sigurd Skovbo Petersen, Björn Harrtell, Kristian Evers"
 
 # The short X.Y version
 version = ""
@@ -128,7 +128,7 @@ latex_documents = [
         master_doc,
         "fireapi.tex",
         "fireapi Documentation",
-        "Asger Sigurd Skovbo Petersen, Björn Harrtell",
+        "Asger Sigurd Skovbo Petersen, Björn Harrtell, Kristian Evers",
         "manual",
     )
 ]
