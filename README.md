@@ -134,3 +134,18 @@ Activate the conda environment with:
 At this point you should be able to execute `pytest` as follows:
 
 > ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=oracledb pytest
+
+## Docs
+Docs can be compiled locally using sphinx:
+```
+sphinx-build -b html ./docs ./docs/_build
+```
+This will build html documents in the directory [./docs/_build](./docs/_build).
+
+Whenever modules have been added or deleted the api docs (files residing in docs/api) need to be updated. This can be done by
+```
+cd docs
+sphinx-apidoc -e -o api ../fireapi
+```
+
+
