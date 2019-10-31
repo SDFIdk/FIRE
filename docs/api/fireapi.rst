@@ -1,22 +1,24 @@
 fireapi package
-================
+===============
 
 Subpackages
 -----------
 
 .. toctree::
 
+   fireapi.model
+
 Submodules
 ----------
 
 .. toctree::
 
-   fireapi.model
+   fireapi.firedb
 
 Module contents
 ---------------
 
-.. automodule:: fireapi.firedb
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: fireapi
+   :members:
+   :undoc-members:
+   :show-inheritance:
