@@ -19,6 +19,33 @@ def info():
     """
     pass
 
+def koordinat_linje(koord):
+    """
+    Konstruer koordinatoutput ud fra koordinatens dimensionalitet
+    """
+    meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}   {koord.srid.name:<15.15}"
+
+    dimensioner = 0
+    if koord.x is not None and koord.y is not None:
+        dimensioner = 2
+
+    if koord.z is not None:
+        if dimensioner == 2:
+            dimensioner = 3
+        else:
+            dimensioner = 1
+
+    if dimensioner == 1:
+        linje = meta + f"{koord.z} ({koord.sz})"
+
+    if dimensioner == 2:
+        linje = meta + f"{koord.x:.9}, {koord.y:.9} ({koord.sx}, {koord.sy})"
+
+    if dimensioner == 3:
+        linje = meta + f"{koord.x:.9}, {koord.y:.9}, {koord.z:.7}"
+        linje += f"  ({koord.sx}, {koord.sy}, {koord.sz})"
+
+    return linje
 
 def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
     """
@@ -52,11 +79,10 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
     firecli.print("--- KOORDINATER ---", bold=True)
     punkt.koordinater.sort(key=lambda x: x.srid.name, reverse=False)
     for koord in punkt.koordinater:
-        line = f"{koord.t.strftime('%Y-%m-%d %H:%M')}   {koord.srid.name:<15.15} {koord.x}, {koord.y}, {koord.z}   ({koord.sz})"
         if koord.registreringtil is not None:
-            firecli.print("  " + line, fg="red")
+            firecli.print("  " + koordinat_linje (koord), fg="red")
         else:
-            firecli.print("* " + line, fg="green")
+            firecli.print("* " + koordinat_linje (koord), fg="green")
     firecli.print("")
 
     firecli.print("--- OBSERVATIONER ---", bold=True)
