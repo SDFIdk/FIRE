@@ -52,7 +52,7 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
     firecli.print("--- KOORDINATER ---", bold=True)
     punkt.koordinater.sort(key=lambda x: (x.srid.name, x.t.strftime('%Y-%m-%dT%H:%M')), reverse=True)
     for koord in punkt.koordinater:
-        line = f"{koord.t.strftime('%Y-%m-%d %H:%M')}   {koord.srid.name:<15.15} {koord.x}, {koord.y}, {koord.z}"
+        line = f"{koord.t.strftime('%Y-%m-%d %H:%M')}   {koord.srid.name:<15.15} {koord.x}, {koord.y}, {koord.z}   ({koord.sz})"
         if koord.registreringtil is not None:
             firecli.print("  " + line, fg="red")
         else:
