@@ -77,7 +77,7 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
         firecli.print("")
 
     firecli.print("--- KOORDINATER ---", bold=True)
-    punkt.koordinater.sort(key=lambda x: x.srid.name, reverse=False)
+    punkt.koordinater.sort(key=lambda x: (x.srid.name, x.t.strftime('%Y-%m-%dT%H:%M')), reverse=True)
     for koord in punkt.koordinater:
         if koord.registreringtil is not None:
             firecli.print("  " + koordinat_linje (koord), fg="red")
