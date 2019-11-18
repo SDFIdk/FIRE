@@ -1,0 +1,30 @@
+language: python
+
+python:
+  - "3.7"
+
+script:
+   # Set up conda
+  - sudo apt-get update
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda env create -f environment.yml
+  - conda activate fikspunktsregister-dev
+  - conda install -c conda-forge sphinx sphinx_rtd_theme
+  - sphinx-build -b html ./docs ./docs/_build
+
+deploy:
+  provider: pages
+  github_token: $GITHUB_TOKEN
+  skip_cleanup: true
+  local_dir: docs/_build/
+  name: FIRE
+  email: fire@sdfe.dk
+  on:
+      branch: master
