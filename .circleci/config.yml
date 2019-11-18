@@ -7,10 +7,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install 'black' code format checker
+          name: Install 'black' code format checker and pytest
           command: |
             source /opt/conda/bin/activate fikspunktsregister
-            conda install -c conda-forge black
+            conda install -c conda-forge black pytest
       - run:
           name: Run 'black' code format check. If this fails you have not run 'black' on the failing files.
           command: |
@@ -60,4 +60,5 @@ jobs:
           name: Run tests
           command: |
             source /opt/conda/bin/activate fikspunktsregister
+
             ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest
