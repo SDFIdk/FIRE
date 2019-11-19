@@ -18,13 +18,18 @@ script:
   - conda activate fikspunktsregister-dev
   - conda install -c conda-forge sphinx sphinx_rtd_theme
   - sphinx-build -b html ./docs ./docs/_build
+  # GitHub pages ignores folder starting with _, can be avoid by
+  # adding a .nojekyll file
+  - touch ./docs/_build/.nojekyll
 
 deploy:
-  provider: pages
-  github_token: $GITHUB_TOKEN
-  skip_cleanup: true
+  provider: pages:git
+  token: $GITHUB_TOKEN
+  cleanup: false
   local_dir: docs/_build/
   name: FIRE
   email: fire@sdfe.dk
+  commit_message: Deploy %{project_name} to %{url}:%{target_branch} [skip ci]
+  edge: true
   on:
       branch: master
