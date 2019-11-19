@@ -29,6 +29,7 @@ deploy:
   local_dir: docs/_build/
   name: FIRE
   email: fire@sdfe.dk
+  keep_history: false
   commit_message: Deploy %{project_name} to %{url}:%{target_branch} [skip ci]
   edge: true
   on:
