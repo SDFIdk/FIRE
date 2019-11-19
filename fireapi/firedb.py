@@ -296,6 +296,8 @@ class FireDb(object):
                 f"Cannot re-add already persistant punktinformationtype: {punktinfotype}"
             )
         n = self.session.query(func.max(PunktInformationType.infotypeid)).one()[0]
+        if n is None:
+            n = 0
         punktinfotype.infotypeid = n + 1
         self.session.add(punktinfotype)
         self.session.commit()
@@ -316,6 +318,8 @@ class FireDb(object):
                 f"Cannot re-add already persistent observationtype: {observationtype}"
             )
         n = self.session.query(func.max(ObservationType.observationstypeid)).one()[0]
+        if n is None:
+            n = 0
         observationtype.observationstypeid = n + 1
         self.session.add(observationtype)
         self.session.commit()
@@ -341,6 +345,8 @@ class FireDb(object):
             raise Exception(f"Cannot re-add already persistent Srid: {srid}")
 
         n = self.session.query(func.max(Srid.sridid)).one()[0]
+        if n is None:
+            n = 0
         srid.sridid = n + 1
         self.session.add(srid)
         self.session.commit()
