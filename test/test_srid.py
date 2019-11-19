@@ -2,21 +2,10 @@ from fireapi.model import Srid
 
 
 def test_hent_srid(firedb):
-    key = "EPSG:5799"
+    # DK:TEST is created by the srid fixture, should be present when this test is run
+    key = "DK:TEST"
     srid = firedb.hent_srid(key)
     assert srid.name == key
-
-
-def test_hent_srider(firedb):
-    srids = list(firedb.hent_srider())
-    assert len(srids) > 1
-
-
-def test_hent_srider_med_namespace(firedb):
-    key = "EPSG"
-    srids = list(firedb.hent_srider(key))
-    assert len(srids) > 1
-    assert all([s.name.startswith(key) for s in srids])
 
 
 def test_indset_srid(firedb):
@@ -25,3 +14,16 @@ def test_indset_srid(firedb):
     so = firedb.hent_srid("EPSG:4977")
 
     assert so.name == si.name
+
+
+def test_hent_srider(firedb):
+    srids = list(firedb.hent_srider())
+    assert len(srids) > 1
+
+
+def test_hent_srider_med_namespace(firedb):
+    # DK:TEST is created by the srid fixture, should be present when this test is run
+    key = "DK"
+    srids = list(firedb.hent_srider(key))
+    assert len(srids) >= 1
+    assert all([s.name.startswith(key) for s in srids])

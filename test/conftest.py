@@ -16,6 +16,9 @@ from fireapi.model import (
     Beregning,
     Koordinat,
     EventType,
+    Srid,
+    PunktInformationType,
+    PunktInformationTypeAnvendelse,
 )
 
 user = os.environ.get("ORA_USER") or "fire"
@@ -40,7 +43,6 @@ def sag(firedb, guid):
     s0 = Sag(id=guid)
     si0 = Sagsinfo(sag=s0, aktiv="true", behandler="yyy")
     firedb.session.add(si0)
-    # s0 = Sag(id=guid, sagstype="dummy", behandler="yyy")
     firedb.session.add(s0)
     firedb.session.flush()
     return s0
@@ -169,9 +171,27 @@ def beregning(firedb, sagsevent, observationer):
 
 @pytest.fixture()
 def srid(firedb):
-    return firedb.hent_srider()[0]
+    try:
+        srid = firedb.hent_srider()[0]
+    except IndexError:
+        firedb.indset_srid(
+            Srid(name="DK:TEST", beskrivelse="SRID til brug i test-suite")
+        )
+        srid = firedb.hent_srider()[0]
+    return srid
 
 
 @pytest.fixture()
 def punktinformationtype(firedb):
-    return firedb.hent_punktinformationtyper()[0]
+    try:
+        pi = firedb.hent_punktinformationtyper()[0]
+    except IndexError:
+        firedb.indset_punktinformationtype(
+            PunktInformationType(
+                name="ATTR:fixture",
+                anvendelse=PunktInformationTypeAnvendelse.FLAG,
+                beskrivelse="Punktinfotype oprettet af test fixture",
+            )
+        )
+        pi = firedb.hent_punktinformationtyper()[0]
+    return pi
