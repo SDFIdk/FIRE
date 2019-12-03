@@ -249,6 +249,7 @@ class Observation(FikspunktregisterObjekt):
         "Beregning", secondary=beregning_observation, back_populates="observationer"
     )
 
+
 class Srid(DeclarativeBase):
     __tablename__ = "sridtype"
     objectid = Column(Integer, primary_key=True)
