@@ -1,0 +1,7 @@
+eclipse.preferences.version=1
+encoding//fikspunktregister/__init__.py=utf-8
+encoding//fikspunktregister/algorithms/export_observationer_algorithm.py=utf-8
+encoding//fikspunktregister/algorithms/import_koordinater_algorithm.py=utf-8
+encoding//fikspunktregister/algorithms/import_observationer_algorithm.py=utf-8
+encoding//fikspunktregister/fire_plugin.py=utf-8
+encoding//fikspunktregister/fire_plugin_provider.py=utf-8

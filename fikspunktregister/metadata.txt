@@ -1,0 +1,32 @@
+[general]
+name=Fikspunktregister
+qgisMinimumVersion=3.00
+qgisMaximumVersion=3.99
+description=FikspunktRegister Plugin (Processing funcs)
+version=0.1
+author=Septima
+email=kontakt@septima.dk
+
+about=FIRE Procesing
+
+# End of mandatory metadata
+
+# Recommended items:
+
+# Uncomment the following line and add your changelog:
+changelog=2019-12-02: version 0.1, First release
+
+# Tags are comma separated with spaces allowed
+tags=Bla bla
+
+homepage=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen_v3
+tracker=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen_v3/issues
+repository=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen_v3
+category=Fikspunktregister
+icon=images/icon.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
