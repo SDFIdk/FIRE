@@ -1,16 +1,19 @@
 from math import sqrt
 from pyproj import Proj
 from typing import Dict, List, Set, Tuple, IO
+import getpass
 import json
 import os
+import subprocess
 import sys
+import uuid
 
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
 import click
 
 from firecli import firedb
-from fireapi.model import Punkt, PunktInformation, PunktInformationType, Srid, Koordinat
+from fireapi.model import Sag, Sagsevent, Sagsinfo, Punkt, PunktInformation, PunktInformationType, Srid, Koordinat
 import firecli
 
 
@@ -22,10 +25,50 @@ def mark():
 
 @mark.command()
 @firecli.default_options()
+@click.argument('beskrivelse', nargs=-1, type=click.STRING)
+@click.option('-o', '--output', type=click.File('wt'))
+def nyt_projekt(beskrivelse: click.STRING, output: click.File, **kwargs) -> None:
+    """Skriv skelet til ny projektfil"""
+    banner("NIVELLEMENTSPROJEKT: "+' '.join(beskrivelse), file=output)
+    print("<uddybende beskrivelse (fri tekst) her>", file=output)
+    banner("NYETABLEREDE PUNKTER", file=output)
+    banner("FASTHOLDTE", file=output)
+    banner("PUBLIKATION", file=output)
+    banner("OBSERVATIONER", file=output)
+    banner("OBSERVATIONSFILER", file=output)
+    banner("SETUP", file=output)
+    print("sagsbehandler = " + getpass.getuser(), file=output)
+    print("sagsid = " + str(uuid.uuid4()), file=output)
+
+
+def banner(bannertekst: str, **kwargs):
+    """Hjælpefunktion til nyt_projekt - skriv np banner"""
+    if ('file' in kwargs):
+        ofile = kwargs['file']
+    else:
+        ofile = sys.stdout
+    if not bannertekst.startswith("NIVELLEMENTSPROJEKT: "):
+        print("\n\n", file=ofile)
+    print(80*'-', file=ofile)
+    print(bannertekst, file=ofile)
+    print(80*'-', file=ofile)
+
+
+@mark.command()
+@click.option(
+    '-s', '--sort', is_flag=True, default=False,
+    help='Sorter observationer efter journalside'
+)
+@firecli.default_options()
 @click.argument('filnavn', nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False))
-def observationsliste(filnavn: click.Path, **kwargs) -> None:
+def observationsliste(sort: click.BOOL, filnavn: click.Path, **kwargs) -> None:
     """Oplist alle observationer der indgår i et nivellementsprojekt"""
-    get_all_observation_strings(filnavn, True)
+    if sort:
+        observationer = get_all_observation_strings(filnavn, False)
+        for obs in sorter_observationer_parvis(observationer):
+            print(obs)
+    else:
+        get_all_observation_strings(filnavn, True)
 
 
 @mark.command()
@@ -35,6 +78,38 @@ def punktliste(filnavn: click.Path, **kwargs) -> None:
     """Oplist alle punkter der indgår i et nivellementsprojekt"""
     observationer = get_all_observation_strings(filnavn)
     get_observation_points(observationer, True)
+
+
+@mark.command()
+@firecli.default_options()
+@click.argument('filnavn', nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False))
+def registrer_sag(filnavn: click.Path, **kwargs) -> None:
+    """Skriv indledende sagsoplysninger til FIRE"""
+    s = get_setup_dict(filnavn)
+    assert "sagsid" in s
+    assert "sagsbehandler" in s
+
+    beskrivelse = afsnitsoverskrift(filnavn, "NIVELLEMENTSPROJEKT")
+
+    sagsinfo = Sagsinfo(aktiv="true", behandler=s["sagsbehandler"], beskrivelse=beskrivelse)
+    sag = Sag(id=s["sagsid"], sagsinfos=[sagsinfo])
+
+    # Allerede registreret?
+    try:
+        sag2 = firedb.hent_sag(sag.id)
+    except NoResultFound:
+        firedb.indset_sag(sag)
+    else:
+        print("Sag allerede registreret")
+
+    sag2 = firedb.hent_sag(sag.id)
+    assert sag2.id==sag.id
+    assert sag2.sagsinfos[0].beskrivelse==sag2.sagsinfos[0].beskrivelse
+    print(sag2)
+    assert sag2.id==sag.id
+    for sagsinfo in sag.sagsinfos:
+        print(repr(sagsinfo))
+
 
 
 @mark.command()
@@ -54,14 +129,14 @@ def variabelliste(filnavn: click.Path, **kwargs) -> None:
     help='Sæt navn på outputfil'
 )
 @click.argument('projektfil', nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False))
-def gamaficer(projektfil: click.Path, output: click.Path, **kwargs) -> None:
+def regn(projektfil: click.Path, output: click.Path, **kwargs) -> None:
     """
     Omsæt nivellementsprojektfil til GNU Gama-format
 
     PROJEKTFIL er navnet på projektet, fx 'KDI2018vest.np'
 
-    Output skrives til en fil med samme fornavn, som første
-    inputfil, men med '.xml' som efternavn.
+    Output skrives til en fil med samme fornavn, som PROJEKTFIL,
+    men med '.xml' som efternavn.
 
     (Dette kan overstyres ved eksplicit at anføre et outputfilnavn
     med brug af option '-o NAVN')
@@ -82,12 +157,18 @@ def gamaficer(projektfil: click.Path, output: click.Path, **kwargs) -> None:
     prop_punktinfo_i_cachefil (projektfil)
 
     # Læs alle inputfiler og opbyg oversigter over hhv.
-    # anvendte punkter og udførte observationer
+    # anvendte punkter, fastholdte punkter, og udførte observationer
     observationer = get_all_observation_strings(projektfil)
     punkter = get_observation_points(observationer)
-    eksporter(projektnavn, output, observationer, punkter)
+    fastholdte = set(alle_elementer_i_afsnit(projektfil, "FASTHOLDTE"))
+    eksporter(projektnavn, output, observationer, punkter, fastholdte)
+    ret = subprocess.call(["gama-local", output, "--html", "resultat.html"])
+    assert 0==ret
+    # ret = subprocess.call(["c:/Program Files/Mozilla Firefox/firefox.exe", "resultat.html"])
+    assert 0==ret
 
-def eksporter(projektnavn: str, output: str, observationer: List[str], punkter: Set[str]) -> None:
+
+def eksporter(projektnavn: str, output: str, observationer: List[str], punkter: Set[str], fastholdte: Set[str]) -> None:
     """Skriv geojson og Gama-XML outputfiler"""
     koteid = hent_sridid(firedb, "EPSG:5799")
     assert koteid != 0, "DVR90 (EPSG:5799) ikke fundet i srid-tabel"
@@ -100,6 +181,7 @@ def eksporter(projektnavn: str, output: str, observationer: List[str], punkter: 
         info = punkt_information(ident)
         geom = punkt_geometri(info, ident)
         kote = punkt_kote(info, koteid)
+        print(kote)
         (H, sH) = (0, 0) if kote is None else (kote.z, kote.sz)
         punktinfo[ident] = (geom[0], geom[1], H, sH)
     cache_punktinfo (punktinfo)
@@ -126,11 +208,11 @@ def eksporter(projektnavn: str, output: str, observationer: List[str], punkter: 
         xml_description(gamafil, "Nivellementsprojekt " + projektnavn)
         xml_fixed_points(gamafil)
         for key, val in punktinfo.items():
-            if key.startswith("G."):
+            if key in fastholdte:
                 xml_point(gamafil, True, key, val)
         xml_adjusted_points(gamafil)
         for key, val in punktinfo.items():
-            if key.startswith("G.")==False:
+            if key not in fastholdte:
                 xml_point(gamafil, False, key, val)
         xml_observations(gamafil)
 
@@ -143,7 +225,7 @@ def get_all_observation_strings(projektfil: click.Path, verbose: bool = False) -
     """Læs alle observationer, både fra projektfil og fra projektets markfiler"""
     try:
         observationer = get_internal_observation_strings(projektfil, verbose)
-        filnavne = get_observation_filenames(projektfil)
+        filnavne = alle_elementer_i_afsnit(projektfil, "OBSERVATIONSFILER")
         if 0==len(filnavne):
             return observationer
         for fil in filnavne:
@@ -197,6 +279,30 @@ def get_observation_strings(filnavn: str, verbose: bool = False) -> List[str]:
     return observationer
 
 
+def sorter_observationer_parvis(observationer: List[str]) -> List[str]:
+    """Sorter observationer efter journalsidenumre"""
+    sorterede = list()
+    for obs in observationer:
+        tokens = obs.split()
+        if tokens[5].endswith("-557"):
+            tokens[5] = tokens[5][:-4]
+
+        tokens[0] = '{:<12}'.format(tokens[0])
+        tokens[1] = '{:<14}'.format(tokens[1])
+        tokens[3] = '{:<6}'.format(tokens[3])
+        tokens[4] = '{:>7}'.format(tokens[4])
+        tokens[5] = '{:>9}  '.format(tokens[5])
+        tokens[6] += '  '
+        tokens[7] = '{:>4}'.format(tokens[7])
+        obs = ' '.join(tokens)
+        sorterede.append((tokens[6], obs))
+    sorterede.sort()
+    dekapiterede = list()
+    for obs in sorterede:
+        dekapiterede.append(obs[1])
+    return dekapiterede
+
+
 def get_observation_points(obstrings: List[str], verbose: bool = False) -> Set[str]:
     points = set()
     for obs in obstrings:
@@ -231,23 +337,34 @@ def get_setup_dict(nivproj: click.Path) -> Dict[str, str]:
     return names
 
 
-
-def get_observation_filenames(nivproj: click.Path) -> List[str]:
-    """Læs observationsfilnavne fra nivellementsprojektfil"""
+def afsnitsoverskrift(nivproj: click.Path, afsnit: str) -> List[str]:
+    """Læs alle elementer fra givent afsnit af nivellementsprojektfil"""
     if nivproj=='':
-        return
-    names = list()
+        return None
 
     with open(nivproj, "rt") as niv:
         level = 0
         for line in niv:
-            level = skip_until_section("OBSERVATIONSFILER", line, level)
+            level = skip_until_section(afsnit, line, level)
+            if (level==2):
+                return line.strip()
+    return ""
+
+def alle_elementer_i_afsnit(nivproj: click.Path, afsnit: str) -> List[str]:
+    """Læs alle elementer fra givent afsnit af nivellementsprojektfil"""
+    if nivproj=='':
+        return
+    tokens = list()
+
+    with open(nivproj, "rt") as niv:
+        level = 0
+        for line in niv:
+            level = skip_until_section(afsnit, line, level)
             if (level!=4):
                 continue
-            # remove leading and trailing comments
-            line = line.split('#')[0].strip()
-            names += line.split()
-    return names
+            line = line.split('#')[0].strip()  # fjern kommentarer
+            tokens += line.split()
+    return tokens
 
 
 def get_cached_punktinfo() -> Dict:
@@ -260,7 +377,7 @@ def get_cached_punktinfo() -> Dict:
 
 def cache_punktinfo(punktinfo: Dict):
     with open("cached_punktinfo.json", "wt") as cache:
-        r = json.dump(punktinfo, cache, indent=4)
+        json.dump(punktinfo, cache, indent=4)
 
 
 def prop_punktinfo_i_cachefil(nivproj: click.Path):
@@ -293,7 +410,6 @@ def prop_punktinfo_i_cachefil(nivproj: click.Path):
             # Heuristic for determining whether coordinate is UTM or degrees
             if (abs(lat) > 1000):
                 (lon, lat) = utm32(lon, lat, inverse=True)
-                print(f'{line} -- transformeres til: {lat}, {lon}')
             pinfo[ident] = [lon, lat, 0, 0]
     cache_punktinfo(pinfo)
 
@@ -473,9 +589,10 @@ def xml_postamble(fil: IO['wt']) -> None:
 
 def xml_point(fil: IO['wt'], fix: bool, key: str, val: Dict) -> None:
     """skriv punkt i Gama XML-notation"""
-    fixadj = 'fix="Z"' if fix==True else 'adj="z"'
-    z = val[2]
-    fil.write(f'<point {fixadj} id="{key}" z="{z}"/>\n')
+    if fix:
+        fil.write(f'<point fix="Z" id="{key}" z="{val[2]}"/>\n')
+    else:
+        fil.write(f'<point adj="z" id="{key}"/>\n')
 
 
 def xml_obs(fil: IO['wt'], obs: Dict) -> None:
