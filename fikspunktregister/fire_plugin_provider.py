@@ -6,10 +6,10 @@ __copyright__ = '(C) 2019 by Septima'
 
 import os
 from qgis.core import QgsProcessingProvider
-from .algorithms.import_observationer_algorithm import ImportObservationerAlgorithm
+from .algorithms.import_observationer_by_location import ImportObservationerByLocationAlgorithm
 from .algorithms.export_observationer_algorithm import ExportObservationerAlgorithm
-from .algorithms.import_koordinater_algorithm import ImportKoordinaterAlgorithm
-
+from .algorithms.import_punkter_by_punktid_file import ImportPunkterByFilespecAlgorithm
+from .algorithms.import_observationer_by_observationid_file import ImportObservationerByFilespecAlgorithm
 from .settings.settings import Settings
 
 from PyQt5.QtGui import QIcon
@@ -22,9 +22,10 @@ class FireProvider(QgsProcessingProvider):
         
         self.settings = Settings()
 
-        self.alglist = [ImportObservationerAlgorithm(self.settings),
+        self.alglist = [ImportObservationerByLocationAlgorithm(self.settings),
                         ExportObservationerAlgorithm(self.settings),
-                        ImportKoordinaterAlgorithm(self.settings)]
+                        ImportPunkterByFilespecAlgorithm(self.settings),
+                        ImportObservationerByFilespecAlgorithm(self.settings)]
 
     def unload(self):
         pass

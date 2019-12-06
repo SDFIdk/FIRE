@@ -19,7 +19,7 @@ from qgis.core import (QgsProcessing,
 from .datetime_widget import DateTimeWidget
 from .ui.nullable_datetime_wrapper import NullableDateTimeWrapper
 
-class ImportObservationerAlgorithm(QgsProcessingAlgorithm):
+class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
 
     OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
@@ -33,7 +33,7 @@ class ImportObservationerAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
-                self.tr('Indlæs observationer indenfor (within)'),
+                self.tr('Importér observationer indenfor (within)'),
                 [QgsProcessing.TypeVectorPolygon]
             )
         )
@@ -94,10 +94,10 @@ class ImportObservationerAlgorithm(QgsProcessingAlgorithm):
         return {self.OUTPUT: dest_id}
 
     def name(self):
-        return 'fire-import-observations'
+        return 'fire-import-observations-location'
 
     def displayName(self):
-        return 'Indlæs observationer fra FIRE'
+        return 'Importér observationer fra FIRE ud fra placering'
 
     def group(self):
         return ''
@@ -109,7 +109,7 @@ class ImportObservationerAlgorithm(QgsProcessingAlgorithm):
         return QCoreApplication.translate('Processing', string)
 
     def createInstance(self):
-        return ImportObservationerAlgorithm(self.settings)
+        return ImportObservationerByLocationAlgorithm(self.settings)
     
     def shortHelpString(self):
         error_message = ''

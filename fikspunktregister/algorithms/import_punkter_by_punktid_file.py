@@ -15,7 +15,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterExpression)
 
-class ImportKoordinaterAlgorithm(QgsProcessingAlgorithm):
+class ImportPunkterByFilespecAlgorithm(QgsProcessingAlgorithm):
 
     OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
@@ -29,7 +29,7 @@ class ImportKoordinaterAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
-                self.tr('Koordinat-kilde'),
+                self.tr("Kilde til punktid'er"),
                 [QgsProcessing.TypeVector]
             )
         )
@@ -37,11 +37,10 @@ class ImportKoordinaterAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterExpression(
                 self.EXPRESSION,
-                self.tr('Koordinat-udtryk'),
+                self.tr('punktid-udtryk'),
                 parentLayerParameterName = self.INPUT
             )
         )        
-        
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
@@ -57,10 +56,10 @@ class ImportKoordinaterAlgorithm(QgsProcessingAlgorithm):
         return {self.OUTPUT: dest_id}
 
     def name(self):
-        return 'fire-import_coordinates'
+        return 'fire-import_points_by_filespec'
 
     def displayName(self):
-        return 'Importér koordinater fra FIRE'
+        return "Importér punkter fra FIRE ud fra liste af punktid'er"
 
     def group(self):
         return ''
@@ -72,8 +71,15 @@ class ImportKoordinaterAlgorithm(QgsProcessingAlgorithm):
         return QCoreApplication.translate('Processing', string)
 
     def createInstance(self):
-        return ImportKoordinaterAlgorithm(self.settings)
+        return ImportPunkterByFilespecAlgorithm(self.settings)
 
     def icon(self):
         icon_path = os.path.join(os.path.dirname(__file__), 'ui','fire-export.png')
         return QIcon (icon_path)
+
+        error_message = ''
+        fire_connection_string = self.settings.value('fire_connection_string')
+        if fire_connection_string is None:
+            error_message = "Fejl i konfigurationsfil eller kan ikke finde konfigurationsfil. Se venligst dokumentationen"
+        return self.tr("Importerer punkter fra Fikstpunktregistret, hvor id indgår i kilden til punktid'er\n\n" + error_message)
+
