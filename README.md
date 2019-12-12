@@ -10,7 +10,7 @@ Installér afhængigheder
 
 ```
 C:\> py3_env
-C:\> pip3 install https://github.com/Kortforsyningen/fikspunktsregister/zipball/0e80d8684d4e019ba8b1798f9558b6a934dad9f9
+C:\> pip3 install https://github.com/Kortforsyningen/fikspunktsregister/zipball/master
 ```
 
 ### Download og installér plugin
