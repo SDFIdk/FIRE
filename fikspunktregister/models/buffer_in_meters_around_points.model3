@@ -1,0 +1,256 @@
+<!DOCTYPE model>
+<Option type="Map">
+  <Option type="Map" name="children">
+    <Option type="Map" name="native:buffer_1">
+      <Option type="bool" value="true" name="active"/>
+      <Option name="alg_config"/>
+      <Option type="QString" value="native:buffer" name="alg_id"/>
+      <Option type="QString" value="Buffer" name="component_description"/>
+      <Option type="double" value="351" name="component_pos_x"/>
+      <Option type="double" value="436" name="component_pos_y"/>
+      <Option name="dependencies"/>
+      <Option type="QString" value="native:buffer_1" name="id"/>
+      <Option name="outputs"/>
+      <Option type="bool" value="true" name="outputs_collapsed"/>
+      <Option type="bool" value="true" name="parameters_collapsed"/>
+      <Option type="Map" name="params">
+        <Option type="List" name="DISSOLVE">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="bool" value="false" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="DISTANCE">
+          <Option type="Map">
+            <Option type="QString" value="buffer" name="parameter_name"/>
+            <Option type="int" value="0" name="source"/>
+          </Option>
+        </Option>
+        <Option type="List" name="END_CAP_STYLE">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="int" value="0" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="INPUT">
+          <Option type="Map">
+            <Option type="QString" value="qgis:concavehull_1" name="child_id"/>
+            <Option type="QString" value="OUTPUT" name="output_name"/>
+            <Option type="int" value="1" name="source"/>
+          </Option>
+        </Option>
+        <Option type="List" name="JOIN_STYLE">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="int" value="0" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="MITER_LIMIT">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="double" value="2" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="SEGMENTS">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="int" value="5" name="static_value"/>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+    <Option type="Map" name="native:reprojectlayer_1">
+      <Option type="bool" value="true" name="active"/>
+      <Option name="alg_config"/>
+      <Option type="QString" value="native:reprojectlayer" name="alg_id"/>
+      <Option type="QString" value="Reprojektér lag" name="component_description"/>
+      <Option type="double" value="236" name="component_pos_x"/>
+      <Option type="double" value="252" name="component_pos_y"/>
+      <Option name="dependencies"/>
+      <Option type="QString" value="native:reprojectlayer_1" name="id"/>
+      <Option name="outputs"/>
+      <Option type="bool" value="true" name="outputs_collapsed"/>
+      <Option type="bool" value="true" name="parameters_collapsed"/>
+      <Option type="Map" name="params">
+        <Option type="List" name="INPUT">
+          <Option type="Map">
+            <Option type="QString" value="punkter2" name="parameter_name"/>
+            <Option type="int" value="0" name="source"/>
+          </Option>
+        </Option>
+        <Option type="List" name="TARGET_CRS">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QgsCoordinateReferenceSystem" name="static_value">
+              <spatialrefsys>
+                <proj4>+proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+                <srsid>2105</srsid>
+                <srid>25832</srid>
+                <authid>EPSG:25832</authid>
+                <description>ETRS89 / UTM zone 32N</description>
+                <projectionacronym>utm</projectionacronym>
+                <ellipsoidacronym>GRS80</ellipsoidacronym>
+                <geographicflag>false</geographicflag>
+              </spatialrefsys>
+            </Option>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+    <Option type="Map" name="native:reprojectlayer_2">
+      <Option type="bool" value="true" name="active"/>
+      <Option name="alg_config"/>
+      <Option type="QString" value="native:reprojectlayer" name="alg_id"/>
+      <Option type="QString" value="Reprojektér lag" name="component_description"/>
+      <Option type="double" value="459" name="component_pos_x"/>
+      <Option type="double" value="541" name="component_pos_y"/>
+      <Option name="dependencies"/>
+      <Option type="QString" value="native:reprojectlayer_2" name="id"/>
+      <Option type="Map" name="outputs">
+        <Option type="Map" name="Buffer om valgte punkter">
+          <Option type="QString" value="native:reprojectlayer_2" name="child_id"/>
+          <Option type="QString" value="Buffer om valgte punkter" name="component_description"/>
+          <Option type="double" value="606" name="component_pos_x"/>
+          <Option type="double" value="646" name="component_pos_y"/>
+          <Option type="Map" name="default_value">
+            <Option type="QString" value="QgsProcessingOutputLayerDefinition" name="class"/>
+            <Option type="Map" name="create_options">
+              <Option type="QString" value="System" name="fileEncoding"/>
+            </Option>
+            <Option type="Map" name="sink">
+              <Option type="bool" value="true" name="active"/>
+              <Option type="int" value="1" name="type"/>
+              <Option type="QString" value="TEMPORARY_OUTPUT" name="val"/>
+            </Option>
+          </Option>
+          <Option type="bool" value="true" name="mandatory"/>
+          <Option type="QString" value="Buffer om valgte punkter" name="name"/>
+          <Option type="QString" value="OUTPUT" name="output_name"/>
+        </Option>
+      </Option>
+      <Option type="bool" value="true" name="outputs_collapsed"/>
+      <Option type="bool" value="true" name="parameters_collapsed"/>
+      <Option type="Map" name="params">
+        <Option type="List" name="INPUT">
+          <Option type="Map">
+            <Option type="QString" value="native:buffer_1" name="child_id"/>
+            <Option type="QString" value="OUTPUT" name="output_name"/>
+            <Option type="int" value="1" name="source"/>
+          </Option>
+        </Option>
+        <Option type="List" name="TARGET_CRS">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QgsCoordinateReferenceSystem" name="static_value">
+              <spatialrefsys>
+                <proj4>+proj=longlat +datum=WGS84 +no_defs</proj4>
+                <srsid>3452</srsid>
+                <srid>4326</srid>
+                <authid>EPSG:4326</authid>
+                <description>WGS 84</description>
+                <projectionacronym>longlat</projectionacronym>
+                <ellipsoidacronym>WGS84</ellipsoidacronym>
+                <geographicflag>true</geographicflag>
+              </spatialrefsys>
+            </Option>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+    <Option type="Map" name="qgis:concavehull_1">
+      <Option type="bool" value="true" name="active"/>
+      <Option name="alg_config"/>
+      <Option type="QString" value="qgis:concavehull" name="alg_id"/>
+      <Option type="QString" value="Konkavt hul (alfa-form)" name="component_description"/>
+      <Option type="double" value="337" name="component_pos_x"/>
+      <Option type="double" value="336" name="component_pos_y"/>
+      <Option name="dependencies"/>
+      <Option type="QString" value="qgis:concavehull_1" name="id"/>
+      <Option name="outputs"/>
+      <Option type="bool" value="true" name="outputs_collapsed"/>
+      <Option type="bool" value="true" name="parameters_collapsed"/>
+      <Option type="Map" name="params">
+        <Option type="List" name="ALPHA">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="double" value="1" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="HOLES">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="bool" value="false" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="INPUT">
+          <Option type="Map">
+            <Option type="QString" value="native:reprojectlayer_1" name="child_id"/>
+            <Option type="QString" value="OUTPUT" name="output_name"/>
+            <Option type="int" value="1" name="source"/>
+          </Option>
+        </Option>
+        <Option type="List" name="NO_MULTIGEOMETRY">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="bool" value="false" name="static_value"/>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+  </Option>
+  <Option name="help"/>
+  <Option name="modelVariables"/>
+  <Option type="QString" value="Fikspunktregister (SDFE)" name="model_group"/>
+  <Option type="QString" value="Buffer i meter om punkter" name="model_name"/>
+  <Option type="Map" name="parameterDefinitions">
+    <Option type="Map" name="buffer">
+      <Option type="int" value="1" name="data_type"/>
+      <Option type="QString" value="10" name="default"/>
+      <Option type="int" value="9" name="default_unit"/>
+      <Option type="QString" value="Buffer i meter" name="description"/>
+      <Option type="int" value="0" name="flags"/>
+      <Option type="double" value="50" name="max"/>
+      <Option name="metadata"/>
+      <Option type="double" value="2" name="min"/>
+      <Option type="QString" value="buffer" name="name"/>
+      <Option type="QString" value="distance" name="parameter_type"/>
+      <Option type="QString" value="" name="parent"/>
+    </Option>
+    <Option type="Map" name="native:reprojectlayer_2:Buffer om valgte punkter">
+      <Option type="bool" value="true" name="create_by_default"/>
+      <Option type="int" value="-1" name="data_type"/>
+      <Option name="default"/>
+      <Option type="QString" value="Buffer om valgte punkter" name="description"/>
+      <Option type="int" value="0" name="flags"/>
+      <Option name="metadata"/>
+      <Option type="QString" value="native:reprojectlayer_2:Buffer om valgte punkter" name="name"/>
+      <Option type="QString" value="sink" name="parameter_type"/>
+      <Option type="bool" value="true" name="supports_non_file_outputs"/>
+    </Option>
+    <Option type="Map" name="punkter2">
+      <Option type="List" name="data_types">
+        <Option type="int" value="0"/>
+      </Option>
+      <Option type="invalid" name="default"/>
+      <Option type="QString" value="Om disse punkter" name="description"/>
+      <Option type="int" value="0" name="flags"/>
+      <Option name="metadata"/>
+      <Option type="QString" value="punkter2" name="name"/>
+      <Option type="QString" value="source" name="parameter_type"/>
+    </Option>
+  </Option>
+  <Option type="Map" name="parameters">
+    <Option type="Map" name="buffer">
+      <Option type="QString" value="buffer" name="component_description"/>
+      <Option type="double" value="108" name="component_pos_x"/>
+      <Option type="double" value="340" name="component_pos_y"/>
+      <Option type="QString" value="buffer" name="name"/>
+    </Option>
+    <Option type="Map" name="punkter2">
+      <Option type="QString" value="punkter2" name="component_description"/>
+      <Option type="double" value="114" name="component_pos_x"/>
+      <Option type="double" value="75" name="component_pos_y"/>
+      <Option type="QString" value="punkter2" name="name"/>
+    </Option>
+  </Option>
+</Option>

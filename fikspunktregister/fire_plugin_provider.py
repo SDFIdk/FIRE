@@ -8,8 +8,8 @@ import os
 from qgis.core import QgsProcessingProvider
 from .algorithms.import_observationer_by_location import ImportObservationerByLocationAlgorithm
 from .algorithms.export_observationer_algorithm import ExportObservationerAlgorithm
-from .algorithms.import_punkter_by_punktid_file import ImportPunkterByFilespecAlgorithm
-from .algorithms.import_observationer_by_observationid_file import ImportObservationerByFilespecAlgorithm
+from .algorithms.apply_style_to_line_layer_algorithm import ApplyStyleToLineLayerAlgorithm
+from .algorithms.buffer_in_meters_around_points_algorithm import BufferInMetersAroundPointsAlgorithm
 from .settings.settings import Settings
 
 from PyQt5.QtGui import QIcon
@@ -24,8 +24,8 @@ class FireProvider(QgsProcessingProvider):
 
         self.alglist = [ImportObservationerByLocationAlgorithm(self.settings),
                         ExportObservationerAlgorithm(self.settings),
-                        ImportPunkterByFilespecAlgorithm(self.settings),
-                        ImportObservationerByFilespecAlgorithm(self.settings)]
+                        ApplyStyleToLineLayerAlgorithm(self.settings),
+                        BufferInMetersAroundPointsAlgorithm(self.settings)]
 
     def unload(self):
         pass

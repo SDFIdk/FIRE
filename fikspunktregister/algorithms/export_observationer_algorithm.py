@@ -31,22 +31,31 @@ class ExportObservationerAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
                 self.tr('Observationer'),
-                [QgsProcessing.TypeVector]
+                [QgsProcessing.TypeVectorLine]
             )
         )
 
         self.addParameter(QgsProcessingParameterFileDestination(
-            name=self.PrmOutputFile,
+            name=self.OUTPUT,
             description="Output-fil",
-            fileFilter ="xml(*.xml);csv(*.csv);"
+            fileFilter = 'csv(*.csv)'
             )
         )
         
     def processAlgorithm(self, parameters, context, feedback):
-        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
-                context, source.fields(), source.wkbType(), source.sourceCrs())
+        source = self.parameterAsSource(parameters, self.INPUT, context)
+        
+        output = self.parameterAsFile(parameters, self.OUTPUT, context)
+        
+        features = source.getFeatures()
 
-        return {self.OUTPUT: dest_id}
+        with open(output, 'w') as f:
+            f.write('<pre>')
+            for current, feature in enumerate(features):
+                f.write(str(s))
+            f.write('</pre>')
+
+        return {self.OUTPUT: output}
 
     def name(self):
         return 'fire-export-observations'

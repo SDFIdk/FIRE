@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from fireapi.model.punkttyper import GeometriObjekt
 
 __author__ = 'Septima'
 __date__ = '2019-12-02'
@@ -22,7 +23,8 @@ from qgis.core import (QgsProcessing,
                        QgsFeature,
                        QgsField,
                        QgsFields,
-                       QgsProcessingFeedback)
+                       QgsProcessingFeedback,
+                       QgsGeometry)
 
 from qgis.PyQt.QtCore import (
     QVariant
@@ -38,11 +40,14 @@ from fireapi.model import (
 from .datetime_widget import DateTimeWidget
 from .ui.nullable_datetime_wrapper import NullableDateTimeWrapper
 
+import processing
+
 class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
 
     OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
     OBSERVATION_TYPE = 'OBSERVATION_TYPE'
+    APPLY_THEME = 'APPLY_THEME'
 
     def __init__(self, settings):
         QgsProcessingAlgorithm.__init__(self)
@@ -57,16 +62,18 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             )
         )
 
-        self.OBSERVATION_TYPES = [("type1", self.tr("Type 1")), ("type2", self.tr("Type 2"))]
+        self.OBSERVATION_TYPES = [
+            ("geometrisk_koteforskel", self.tr("Koteforskel opmålt geometrisk")),
+            ("trigonometrisk_koteforskel", self.tr("Koteforskel opmålt trigonometrisk"))]
         self.addParameter(
             QgsProcessingParameterEnum(
-                self.OBSERVATION_TYPE,
-                self.tr('Observationstype'),
+                name=self.OBSERVATION_TYPE,
+                description=self.tr('Observationstype'),
                 options=[x[1] for x in self.OBSERVATION_TYPES], 
-                allowMultiple = True
+                allowMultiple = True,
+                defaultValue = [0,1]
             )
         )
-
 
         param = QgsProcessingParameterString(name = 'from_date', description = 'Fra Dato', optional = True)
         param.setMetadata({
@@ -86,26 +93,24 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                 self.tr('Observationer')
             )
         )
+        
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.APPLY_THEME,
+                self.tr('Anvend standard fikspunktregister-symbologi')
+            )
+        )
 
     def processAlgorithm(self, parameters, context, feedback: QgsProcessingFeedback):
 
+        feedback.setProgressText('processAlgorithm kaldt med parametre =  =  {parameters}'.format(parameters = str(parameters)))
         source = self.parameterAsSource(parameters, self.INPUT, context)
-        features = source.getFeatures()
-
-        #Felter, der skal gemmes på feature:
-        # observation_id String(36)
-        # Fikspunkt1_id String(36)
-        # Fikspunkt2_id String(36)
-        # registrering_fra DateTime
-        # koteforskel 
-        # nivellementslængde
-        # antal opstillinger (value3) Float
-        # afstandsafhængig varians (value5 for id=1, value4 for id=2) Float
-        # afstandsUafhængig varians (value6 for id=1, value5 for id=2) Float
-        # Præcisionsnivellement (value7 for id=1, altid 0 for id=2) Float
+        
+        observation_type = self.parameterAsEnums(parameters, self.OBSERVATION_TYPE, context)
 
         fields = QgsFields()
         fields.append(QgsField("observation_id", QVariant.String))
+        fields.append(QgsField("observation_type_id", QVariant.Double))
         fields.append(QgsField("fikspunkt1_id", QVariant.String))
         fields.append(QgsField("fikspunkt2_id", QVariant.String))
         fields.append(QgsField("registrering_fra", QVariant.DateTime))
@@ -124,10 +129,10 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             QgsWkbTypes.LineString,
             source.sourceCrs())
 
-        #Get firedb object
         fire_connection_string = self.settings.value('fire_connection_string')
         fireDb = FireDb(fire_connection_string)
 
+        features = source.getFeatures()
         for current, feature in enumerate(features):
             wkt = feature.geometry().asWkt().upper()
             geometry = Geometry(wkt)
@@ -136,29 +141,41 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             points = self.get_points_from_observations(fireDb, observations)
             feedback.setProgressText('Fandt {antal} punkter'.format(antal = len(points)))
             for current, observation in enumerate(observations):
-                feature = self.create_feature_from_observation(observation, points)
+                feature = self.create_feature_from_observation(observation, points, feedback)
                 if feature: 
                     sink.addFeature(feature, QgsFeatureSink.FastInsert)
                     feedback.setProgressText('En observation blev oprettet for id =  {id}'.format(id = observation.objectid))
                 else:
                     feedback.setProgressText('En observation blev IKKE oprettet for id =  {id}'.format(id = observation.objectid))
+                    
+        apply_theme = self.parameterAsBool(parameters, self.APPLY_THEME, context)
+        if apply_theme:
+            style_file = os.path.join(os.path.dirname(__file__),'..', 'styles','observation.qml')
+            alg_params = {
+                        'INPUT': dest_id,
+                        'STYLE': style_file
+                    }
+            processing.run('qgis:setstyleforvectorlayer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
 
         return {self.OUTPUT: dest_id}
     
-    def create_feature_from_observation(self, observation: Observation, points: Dict[str, Punkt]):
+    def create_feature_from_observation(self, observation: Observation, points: Dict[str, Punkt], feedback: QgsProcessingFeedback):
+        observation_id = observation.objectid
+        
         fikspunkt1_id = observation.opstillingspunktid
         fikspunkt1: Punkt = points[fikspunkt1_id]
         
         fikspunkt2_id = observation.sigtepunktid
         fikspunkt2 = points[fikspunkt2_id]
         
-        line_geometry = self.create_line_geometry(fikspunkt1, fikspunkt2)
+        line_geometry = self.create_line_geometry(fikspunkt1, fikspunkt2, feedback)
         if line_geometry:
             # create the feature
             fet = QgsFeature()
             fet.setGeometry(line_geometry)
             #Felter, der skal gemmes på feature:
             #    [QgsField("observation_id", QVariant.String),
+            #     QgsField("observation_type_id", QVariant.Double)
             #     QgsField("fikspunkt1_id", QVariant.String),
             #     QgsField("fikspunkt2_id", QVariant.String),
             #     QgsField("registrering_fra", QVariant.DateTime),
@@ -169,28 +186,29 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             #     QgsField("afstandsuafhaengig_varians", QVariant.Double),  (value6 for id=1, value5 for id=2) 
             #     QgsField("Praecisionsnivellement", QVariant.Double)],  (value7 for id=1, 0 for id=2) 
             
-            observationstypeid = observation.observationstypeid
-            observation_id = observation.objectid
+            observation_type_id = observation.observationstypeid
             registrering_fra = observation.registreringfra
             koteforskel = observation.value1
             nivellementslaengde = observation.value2
             antal_opstillinger = observation.value3
-            if observationstypeid == 1:
+            if observation_type_id == 1:
                 afstandsafhaengig_varians= observation.value5
                 afstandsuafhaengig_varians= observation.value6
                 Praecisionsnivellement= observation.value7
-            elif observationstypeid == 2:
+            elif observation_type_id == 2:
                 afstandsafhaengig_varians = observation.value4
                 afstandsuafhaengig_varians = observation.value5
                 Praecisionsnivellement = 0
             else:
-                #observationstypeid > 2
+                #Observationstypeid > 2
+                feedback.setProgressText('observation_type_id > 2 for observation med id =  {id}. Springes over'.format(id = observation_id))
                 return None
             
             # create the feature
             feature = QgsFeature()
             feature.setGeometry(line_geometry)
             feature.setAttributes([observation_id,
+                               observation_type_id,
                                fikspunkt1_id,
                                fikspunkt2_id,
                                registrering_fra,
@@ -204,23 +222,24 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             return feature
         else:
             #A geometry could not be established
+            feedback.setProgressText('En liniegeometri kunne IKKE opettes for observation med id =  {id}'.format(id = observation_id))
             return None
 
-    def create_line_geometry(self, punkt1: Punkt, punkt2: Punkt):
-        punkt1_k = None
-        punkt1_kl: List[Koordinat] =  punkt1.koordinater
-        for k in punkt1_kl:
-            if k.srid == 'EPSG:4326':
-                punkt1_k = k
-                
-        punkt2_k = None
-        punkt2_kl: List[Koordinat] =  punkt2.koordinater
-        for k in punkt2_kl:
-            if k.srid == 'EPSG:4326':
-                punkt2_k = k
-        
-        if punkt1_k and punkt2_k: 
-            wkt = 'LINESTRING ({x1} {y1}, {x2} {y2})'.format(x1 = punkt1_k.x,  y1 = punkt1_k.y, x2 = punkt2_k.x,  y2 = punkt2_k.y)
+    def create_line_geometry(self, punkt1: Punkt, punkt2: Punkt, feedback: QgsProcessingFeedback):
+        punkt1_g: GeometriObjekt = None
+        punkt1_gl: List[GeometriObjekt] =  punkt1.geometriobjekter
+        if len(punkt1_gl) > 0:
+            punkt1_g = punkt1_gl[0] 
+
+        punkt2_g: GeometriObjekt = None
+        punkt2_gl: List[GeometriObjekt] =  punkt2.geometriobjekter
+        if len(punkt2_gl) > 0:
+            punkt2_g = punkt2_gl[0] 
+
+        if punkt1_g and punkt2_g:
+            punkt1_k = punkt1_g.geometri._geom['coordinates']
+            punkt2_k = punkt2_g.geometri._geom['coordinates']
+            wkt = 'LINESTRING ({x1} {y1}, {x2} {y2})'.format(x1 = punkt1_k[0],  y1 = punkt1_k[1], x2 = punkt2_k[0],  y2 = punkt2_k[1])
             geom = QgsGeometry.fromWkt(wkt)
             return geom
         else:
