@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from qgis._core import QgsProcessingParameterVectorDestination
 
 __author__ = 'Septima'
 __date__ = '2019-12-02'
@@ -13,7 +14,9 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterExpression,
-                       QgsProcessingParameterFileDestination)
+                       QgsProcessingParameterFileDestination,
+                       QgsVectorFileWriter,
+                       QgsProcessingFeatureSource)
 
 class ExportObservationerAlgorithm(QgsProcessingAlgorithm):
 
@@ -35,27 +38,60 @@ class ExportObservationerAlgorithm(QgsProcessingAlgorithm):
             )
         )
 
-        self.addParameter(QgsProcessingParameterFileDestination(
+        #self.addParameter(QgsProcessingParameterFileDestination(
+        #    name=self.OUTPUT,
+        #    description="Output-fil",
+        #   fileFilter = 'csv(*.csv)'
+        #   )
+        #)
+        
+        
+        self.addParameter(QgsProcessingParameterVectorDestination(
             name=self.OUTPUT,
-            description="Output-fil",
-            fileFilter = 'csv(*.csv)'
+            description="Output"
             )
         )
         
     def processAlgorithm(self, parameters, context, feedback):
         source = self.parameterAsSource(parameters, self.INPUT, context)
         
-        output = self.parameterAsFile(parameters, self.OUTPUT, context)
-        
+        (sink, dest_id) = self.parameterAsSink(
+            parameters,
+            self.OUTPUT,
+            context,
+            source.fields(),
+            source.wkbType(),
+            source.sourceCrs())
+
         features = source.getFeatures()
+        for current, feature in enumerate(features):
+            sink.addFeature(feature, QgsFeatureSink.FastInsert)
 
-        with open(output, 'w') as f:
-            f.write('<pre>')
-            for current, feature in enumerate(features):
-                f.write(str(s))
-            f.write('</pre>')
+        
 
-        return {self.OUTPUT: output}
+        
+        
+        
+        
+        
+        #output = self.parameterAsFile(parameters, self.OUTPUT, context)
+        
+        #https://qgis.org/pyqgis/3.0/core/Vector/QgsVectorFileWriter.html#qgis.core.QgsVectorFileWriter.writeAsVectorFormat
+        #https://books.google.dk/books?id=qLkrDwAAQBAJ&pg=PA375&lpg=PA375&dq=qgis+plugin+write+geojson&source=bl&ots=gJ5UecYDvV&sig=ACfU3U3xmsw4-y7678jgE0PemOekd_vv1g&hl=en&sa=X&ved=2ahUKEwjx27Xaq7LmAhXBGuwKHSflDWoQ6AEwCXoECAoQAQ#v=onepage&q=qgis%20plugin%20write%20geojson&f=false
+        #QgsVectorFileWriter.writeAsVectorFormat(layer = source  , filename = output, driverName = "GeoJSON")
+        #https://qgis.org/pyqgis/3.0/core/Vector/QgsVectorFileWriter.html#qgis.core.QgsVectorFileWriter.FieldValueConverter
+        
+        
+        
+        #features = source.getFeatures()
+
+        #with open(output, 'w') as f:
+        #    f.write('<pre>')
+        #    for current, feature in enumerate(features):
+        #        f.write(str(s))
+        #    f.write('</pre>')
+
+        return {self.OUTPUT: dest_id}
 
     def name(self):
         return 'fire-export-observations'

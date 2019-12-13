@@ -23,7 +23,7 @@ class FireProvider(QgsProcessingProvider):
         self.settings = Settings()
 
         self.alglist = [ImportObservationerByLocationAlgorithm(self.settings),
-                        ExportObservationerAlgorithm(self.settings),
+                        #ExportObservationerAlgorithm(self.settings),
                         ApplyStyleToLineLayerAlgorithm(self.settings),
                         BufferInMetersAroundPointsAlgorithm(self.settings)]
 

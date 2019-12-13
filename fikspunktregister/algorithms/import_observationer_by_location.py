@@ -27,9 +27,10 @@ from qgis.core import (QgsProcessing,
                        QgsGeometry)
 
 from qgis.PyQt.QtCore import (
-    QVariant
+    Qt,
+    QVariant,
+    QDateTime
 )
-
 from fireapi import FireDb
 from fireapi.model import (
     Geometry,
@@ -114,6 +115,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         fields.append(QgsField("fikspunkt1_id", QVariant.String))
         fields.append(QgsField("fikspunkt2_id", QVariant.String))
         fields.append(QgsField("registrering_fra", QVariant.DateTime))
+        fields.append(QgsField("registrering_fra_iso", QVariant.String))
         fields.append(QgsField("koteforskel", QVariant.Double))
         fields.append(QgsField("nivellementslaengde", QVariant.Double))
         fields.append(QgsField("antal_opstillinger", QVariant.Double))
@@ -179,6 +181,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             #     QgsField("fikspunkt1_id", QVariant.String),
             #     QgsField("fikspunkt2_id", QVariant.String),
             #     QgsField("registrering_fra", QVariant.DateTime),
+            #     QgsField("registrering_fra_iso", QVariant.String),
             #     QgsField("koteforskel", QVariant.Double),
             #     QgsField("nivellementslaengde", QVariant.Double),
             #     QgsField("antal_opstillinger", QVariant.Double), Value3
@@ -187,7 +190,8 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             #     QgsField("Praecisionsnivellement", QVariant.Double)],  (value7 for id=1, 0 for id=2) 
             
             observation_type_id = observation.observationstypeid
-            registrering_fra = observation.registreringfra
+            registrering_fra = QDateTime(observation.registreringfra)
+            registrering_fra_iso = registrering_fra.toString(Qt.ISODate)
             koteforskel = observation.value1
             nivellementslaengde = observation.value2
             antal_opstillinger = observation.value3
@@ -212,6 +216,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                                fikspunkt1_id,
                                fikspunkt2_id,
                                registrering_fra,
+                               registrering_fra_iso,
                                koteforskel,
                                nivellementslaengde,
                                antal_opstillinger,

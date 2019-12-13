@@ -93,7 +93,10 @@ class BufferInMetersAroundPointsAlgorithm(QgsProcessingAlgorithm):
                 }
         processing.run('qgis:setstyleforvectorlayer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
 
+
         # Omdøb lag
+        #Virker ikke, men læs følgende link
+        #Se https://gis.stackexchange.com/questions/280740/using-temporary-layer-as-input-for-other-algorithm-in-processing-script
         alg_params = {
             'INPUT': outputs['ReprojektrLag']['OUTPUT'],
             'NAME': 'Buffer om punkter'
