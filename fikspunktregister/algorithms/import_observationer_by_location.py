@@ -33,7 +33,11 @@ from qgis.PyQt.QtCore import (
     QVariant,
     QDateTime
 )
-from fireapi import FireDb
+try:
+    from fireapi import FireDb
+except:
+    FireDb = None
+    
 from fireapi.model import (
     Geometry,
     Observation,
@@ -316,12 +320,19 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         return ImportObservationerByLocationAlgorithm(self.settings)
     
     def canExecute(self):
+        if FireDb is None:
+            return False, "Dette plugin er afhængigt af API'et til Fikspunktregistret. Se venligst https://github.com/Septima/fire-qgis#installation"
         fire_connection_string = self.settings.value('fire_connection_string')
         if fire_connection_string is None:
-            conf_message = 'Se venligst https://github.com/Kortforsyningen/fire-cli#konfigurationsfil for format og placering af konfigurationsfil'
+            conf_message = 'Kan ikke finde konfigurationsfil. Se venligst https://github.com/Kortforsyningen/fire-cli#konfigurationsfil for format og placering af konfigurationsfil'
             return False, conf_message
         else:
-            return True, 'OK'
+            try:
+                fireDb = FireDb(fire_connection_string)
+                fireDb.hent_observationtyper()
+                return True, 'OK'
+            except:
+                return False, 'Fejl i forbindelse til Fikspunktregistret. Se venligst https://github.com/Kortforsyningen/fire-cli#konfigurationsfil for format og indhold af konfigurationsfil'
     
     def shortHelpString(self):
         help_string = 'Importerer observationer fra Fikstpunktregistret, hvor\n- enten p1 eller p2 er indeholdt i forespørgselsgeometrien,\n- observationstype er som ønsket og\n- registrering-fra ligger indenfor dato-interval (Optionelt)\n\n'
