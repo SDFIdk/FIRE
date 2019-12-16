@@ -6,6 +6,7 @@ __date__ = '2019-12-02'
 __copyright__ = '(C) 2019 by Septima'
 
 import os
+from datetime import datetime
 
 from typing import List, Dict
 
@@ -24,7 +25,8 @@ from qgis.core import (QgsProcessing,
                        QgsField,
                        QgsFields,
                        QgsProcessingFeedback,
-                       QgsGeometry)
+                       QgsGeometry,
+                       QgsProject)
 
 from qgis.PyQt.QtCore import (
     Qt,
@@ -49,6 +51,8 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
     INPUT = 'INPUT'
     OBSERVATION_TYPE = 'OBSERVATION_TYPE'
     APPLY_THEME = 'APPLY_THEME'
+    FROM_DATE = 'FROM_DATE'
+    TO_DATE = 'TO_DATE'
 
     def __init__(self, settings):
         QgsProcessingAlgorithm.__init__(self)
@@ -64,25 +68,29 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         )
 
         self.OBSERVATION_TYPES = [
-            ("geometrisk_koteforskel", self.tr("Koteforskel opmålt geometrisk")),
-            ("trigonometrisk_koteforskel", self.tr("Koteforskel opmålt trigonometrisk"))]
-        self.addParameter(
-            QgsProcessingParameterEnum(
+            (1, self.tr("Koteforskel opmålt geometrisk")),
+            (2, self.tr("Koteforskel opmålt trigonometrisk"))]
+        
+        o = QgsProcessingParameterEnum(
                 name=self.OBSERVATION_TYPE,
                 description=self.tr('Observationstype'),
                 options=[x[1] for x in self.OBSERVATION_TYPES], 
                 allowMultiple = True,
                 defaultValue = [0,1]
             )
-        )
+        o.setMetadata({
+            'widget_wrapper': {
+                'useCheckBoxes': True,
+                'columns': 2}})
+        self.addParameter(o)
 
-        param = QgsProcessingParameterString(name = 'from_date', description = 'Fra Dato', optional = True)
+        param = QgsProcessingParameterString(name = self.FROM_DATE, description = 'Fra Dato', optional = True)
         param.setMetadata({
             'widget_wrapper': {
                 'class': NullableDateTimeWrapper}})
         self.addParameter(param)
         
-        param = QgsProcessingParameterString(name = 'to_date', description = 'Til Dato', optional = True)
+        param = QgsProcessingParameterString(name = self.TO_DATE, description = 'Til Dato', optional = True)
         param.setMetadata({
             'widget_wrapper': {
                 'class': NullableDateTimeWrapper}})
@@ -103,11 +111,25 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         )
 
     def processAlgorithm(self, parameters, context, feedback: QgsProcessingFeedback):
-
+        
         feedback.setProgressText('processAlgorithm kaldt med parametre =  =  {parameters}'.format(parameters = str(parameters)))
         source = self.parameterAsSource(parameters, self.INPUT, context)
         
-        observation_type = self.parameterAsEnums(parameters, self.OBSERVATION_TYPE, context)
+        #Filter parameters
+        observation_type_indices = self.parameterAsEnums(parameters, self.OBSERVATION_TYPE, context)
+        observation_types = list(map(lambda i: self.OBSERVATION_TYPES[i][0], observation_type_indices))
+
+        from_date = None
+        from_date_string = self.parameterAsString(parameters, self.FROM_DATE, context)
+        if from_date_string:
+            from_date = datetime.fromisoformat(from_date_string)
+        feedback.setProgressText('from_date: {from_date}'.format(from_date = str(from_date)))
+
+        to_date = None
+        to_date_string = self.parameterAsString(parameters, self.TO_DATE, context)
+        if to_date_string:
+            to_date = datetime.fromisoformat(to_date_string)
+        feedback.setProgressText('to_date: {to_date}'.format(to_date = str(to_date)))
 
         fields = QgsFields()
         fields.append(QgsField("observation_id", QVariant.String))
@@ -136,19 +158,27 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
 
         features = source.getFeatures()
         for current, feature in enumerate(features):
+            if feedback.isCanceled():
+                return {}
             wkt = feature.geometry().asWkt().upper()
             geometry = Geometry(wkt)
-            observations = fireDb.hent_observationer_naer_geometri(geometry, 0)
+            observations = fireDb.hent_observationer_naer_geometri(geometri=geometry, afstand=0, tidfra=from_date, tidtil=to_date)
             feedback.setProgressText('Fandt {antal} observationer'.format(antal = len(observations)))
             points = self.get_points_from_observations(fireDb, observations)
             feedback.setProgressText('Fandt {antal} punkter'.format(antal = len(points)))
             for current, observation in enumerate(observations):
-                feature = self.create_feature_from_observation(observation, points, feedback)
-                if feature: 
-                    sink.addFeature(feature, QgsFeatureSink.FastInsert)
-                    feedback.setProgressText('En observation blev oprettet for id =  {id}'.format(id = observation.objectid))
+                if feedback.isCanceled():
+                    return {}
+                observation_type_id = observation.observationstypeid
+                if observation_type_id in observation_types:
+                    feature = self.create_feature_from_observation(observation, points, feedback)
+                    if feature: 
+                        sink.addFeature(feature, QgsFeatureSink.FastInsert)
+                        feedback.setProgressText('En observation blev oprettet for id =  {id}'.format(id = observation.objectid))
+                    else:
+                        feedback.setProgressText('En observation blev IKKE oprettet for id =  {id}'.format(id = observation.objectid))
                 else:
-                    feedback.setProgressText('En observation blev IKKE oprettet for id =  {id}'.format(id = observation.objectid))
+                    feedback.setProgressText('En observation blev IKKE oprettet for id =  {id} (type ikke i kriterier)'.format(id = observation.objectid))
                     
         apply_theme = self.parameterAsBool(parameters, self.APPLY_THEME, context)
         if apply_theme:
@@ -158,7 +188,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                         'STYLE': style_file
                     }
             processing.run('qgis:setstyleforvectorlayer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-
+            
         return {self.OUTPUT: dest_id}
     
     def create_feature_from_observation(self, observation: Observation, points: Dict[str, Punkt], feedback: QgsProcessingFeedback):
@@ -285,12 +315,24 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
     def createInstance(self):
         return ImportObservationerByLocationAlgorithm(self.settings)
     
-    def shortHelpString(self):
-        error_message = ''
+    def canExecute(self):
         fire_connection_string = self.settings.value('fire_connection_string')
         if fire_connection_string is None:
-            error_message = "Fejl i konfigurationsfil eller kan ikke finde konfigurationsfil. Se venligst dokumentationen"
-        return self.tr('Importerer observationer fra Fikstpunktregistret, hvor enten p1 eller p2 er indeholdt i forespørgselsgeometrien\n\n' + error_message)
+            conf_message = 'Se venligst https://github.com/Kortforsyningen/fire-cli#konfigurationsfil for format og placering af konfigurationsfil'
+            return False, conf_message
+        else:
+            return True, 'OK'
+    
+    def shortHelpString(self):
+        help_string = 'Importerer observationer fra Fikstpunktregistret, hvor\n- enten p1 eller p2 er indeholdt i forespørgselsgeometrien,\n- observationstype er som ønsket og\n- registrering-fra ligger indenfor dato-interval (Optionelt)\n\n'
+        conf_message = ''
+        fire_connection_string = self.settings.value('fire_connection_string')
+        if fire_connection_string is None:
+            conf_message = "Fejl i konfigurationsfil eller kan ikke finde konfigurationsfil. Se venligst https://github.com/Kortforsyningen/fire-cli#konfigurationsfil"
+        else:
+            fire_connection_file_path = self.settings.value('fire_connection_file_path')
+            conf_message = "Konfigurationsfil: " + fire_connection_file_path
+        return self.tr(help_string + conf_message)
 
     def icon(self):
         icon_path = os.path.join(os.path.dirname(__file__), 'ui','fire-export.png')

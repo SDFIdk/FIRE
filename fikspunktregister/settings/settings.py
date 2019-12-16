@@ -8,32 +8,45 @@ import getpass
 from pathlib import Path
 
 class Settings():
+    
+    def __init__(self):
 
-    def value(self, setting):
-        # This class mimics qgissettingmanager api
-        if setting == 'fire_connection_string':
-            return self.get_fire_connections_string()
-        else:
-            return None
-
-    def get_fire_connections_string(self):
-        #Conf file is read at every call. This gives the user the ability to correct the file without reloading the plugin
         RC_NAME = "fire_settings.json"
-        # Find settings file and read database credentials
+
         if os.environ.get("HOME"):
             home = Path(os.environ["HOME"])
         else:
             home = Path("")
-        
-        search_files = [
+            
+        self.search_files = [
             home / Path(RC_NAME),
             home / Path("." + RC_NAME),
             Path("/etc") / Path(RC_NAME),
             Path("C:\\Users") / Path(getpass.getuser()) / Path(RC_NAME),
             Path("C:\\Users\\Default\\AppData\\Local\\fire") / Path(RC_NAME),
         ]
+
+    def value(self, setting):
+        # This class mimics qgissettingmanager api
+        if setting == 'fire_connection_string':
+            return self.get_fire_connection_string()
+        elif setting == 'fire_connection_file_path':
+            return self.get_fire_connection_file_path()
+        else:
+            return None
+
+    
+    def get_fire_connection_file_path(self):
+        # Find settings file and read database credentials
+        for conf_file in self.search_files:
+            if os.path.isfile(conf_file):
+                return str(conf_file)
+        return None
         
-        for conf_file in search_files:
+    def get_fire_connection_string(self):
+        #Conf file is read at every call. This gives the user the ability to correct the file without reloading the plugin
+        
+        for conf_file in self.search_files:
             if os.path.isfile(conf_file):
                 with open(conf_file) as conf:
                     settings = json.load(conf)

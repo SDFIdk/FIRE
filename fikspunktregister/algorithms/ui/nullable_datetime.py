@@ -21,7 +21,8 @@ class NullableDateTimeEdit(QWidget, WIDGET):
         self.dateTimeEdit.setEnabled(self.checkBox.isChecked())
         
     def value(self):
-        if self.checkBox == True:
-            return self.dateTimeEdit.dateTime()
+        if self.checkBox.isChecked():
+            date = self.dateTimeEdit.dateTime()
+            return date
         else:
             return None

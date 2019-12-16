@@ -1,5 +1,8 @@
 from processing.gui.wrappers import WidgetWrapper
 from .nullable_datetime import NullableDateTimeEdit
+from qgis.PyQt.QtCore import (
+    Qt
+)
 
 class NullableDateTimeWrapper(WidgetWrapper):
 
@@ -12,4 +15,4 @@ class NullableDateTimeWrapper(WidgetWrapper):
         if date_chosen:
             return date_chosen.toString(Qt.ISODate)
         else:
-            return ''
+            return None
