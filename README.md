@@ -14,6 +14,6 @@ C:\> pip3 install https://github.com/Kortforsyningen/fikspunktsregister/zipball/
 ```
 
 ### Download og installér plugin
-* Download https://github.com/Septima/fire-qgis/archive/master.zip
+* Download seneste fikspunkregister.zip fra releases
 * I QGIS: Vælg menuen _plugins->Administrér og installér plugins_.
 * Klik på _Installér fra ZIP_
