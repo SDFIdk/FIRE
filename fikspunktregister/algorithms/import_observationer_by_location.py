@@ -331,8 +331,10 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                 fireDb = FireDb(fire_connection_string)
                 fireDb.hent_observationtyper()
                 return True, 'OK'
-            except:
-                return False, 'Fejl i forbindelse til Fikspunktregistret. Se venligst https://github.com/Kortforsyningen/fire-cli#konfigurationsfil for format og indhold af konfigurationsfil'
+            except Exception as ex:
+                str_ex = str(ex)
+                fire_connection_file_path = self.settings.value('fire_connection_file_path')
+                return False, 'Fejl i forbindelse til Fikspunktregistret. Se venligst https://github.com/Kortforsyningen/fire-cli#konfigurationsfil for format og indhold af konfigurationsfil.          Exception:[' + str_ex + ']  Konfigurationsfil:[' + fire_connection_file_path + ']'
     
     def shortHelpString(self):
         help_string = 'Importerer observationer fra Fikstpunktregistret, hvor\n- enten p1 eller p2 er indeholdt i forespørgselsgeometrien,\n- observationstype er som ønsket og\n- registrering-fra ligger indenfor dato-interval (Optionelt)\n\n'

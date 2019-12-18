@@ -16,7 +16,7 @@ class BufferInMetersAroundPointsAlgorithm(QgsProcessingAlgorithm):
         self.settings = settings
 
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterDistance('buffer', 'Buffer i meter', parentParameterName='', minValue=2, maxValue=50, defaultValue=10))
+        self.addParameter(QgsProcessingParameterDistance('buffer', 'Buffer i meter', parentParameterName='', minValue=0, maxValue=500, defaultValue=10))
         self.addParameter(QgsProcessingParameterFeatureSource('punkter2', 'Om disse punkter', types=[QgsProcessing.TypeVectorPoint], defaultValue=None))
         self.addParameter(QgsProcessingParameterFeatureSink('BufferOmValgtePunkter', 'Buffer om valgte punkter', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True ))
 
