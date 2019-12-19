@@ -3,6 +3,7 @@ from qgis.core import QgsProcessing
 from qgis.core import QgsProcessingAlgorithm
 from qgis.core import QgsProcessingMultiStepFeedback
 from qgis.core import QgsProcessingParameterDistance
+from qgis.core import QgsProcessingParameterBoolean
 from qgis.core import QgsProcessingParameterFeatureSource
 from qgis.core import QgsProcessingParameterFeatureSink
 from qgis.core import QgsCoordinateReferenceSystem
@@ -18,6 +19,13 @@ class BufferInMetersAroundPointsAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterDistance('buffer', 'Buffer i meter', parentParameterName='', minValue=0, maxValue=15000, defaultValue=10))
         self.addParameter(QgsProcessingParameterFeatureSource('punkter2', 'Om disse punkter', types=[QgsProcessing.TypeVectorPoint], defaultValue=None))
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                'dan_concavehull',
+                'Dan buffer om punkternes konkave hull',
+                defaultValue = False
+            )
+        )
         self.addParameter(QgsProcessingParameterFeatureSink('BufferOmValgtePunkter', 'Buffer om valgte punkter', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True ))
 
     def processAlgorithm(self, parameters, context, model_feedback):
@@ -35,22 +43,29 @@ class BufferInMetersAroundPointsAlgorithm(QgsProcessingAlgorithm):
         }
         outputs['ReprojektrLag'] = processing.run('native:reprojectlayer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
 
-        # Konkavt hul (alfa-form)
-        alg_params = {
-            'ALPHA': 1,
-            'HOLES': False,
-            'INPUT': outputs['ReprojektrLag']['OUTPUT'],
-            'NO_MULTIGEOMETRY': False,
-            'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
-        }
-        outputs['KonkavtHulAlfaform'] = processing.run('qgis:concavehull', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
+        dan_concavehull = self.parameterAsBool(parameters, 'dan_concavehull', context)
+        if dan_concavehull:
+            # Konkavt hul (alfa-form)
+            alg_params = {
+                'ALPHA': 1,
+                'HOLES': False,
+                'INPUT': outputs['ReprojektrLag']['OUTPUT'],
+                'NO_MULTIGEOMETRY': False,
+                'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
+            }
+            outputs['KonkavtHulAlfaform'] = processing.run('qgis:concavehull', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
 
+        if dan_concavehull:
+            buffer_input = outputs['KonkavtHulAlfaform']['OUTPUT']
+        else:
+            buffer_input = outputs['ReprojektrLag']['OUTPUT']
+            
         # Buffer
         alg_params = {
             'DISSOLVE': False,
             'DISTANCE': parameters['buffer'],
             'END_CAP_STYLE': 0,
-            'INPUT': outputs['KonkavtHulAlfaform']['OUTPUT'],
+            'INPUT': buffer_input,
             'JOIN_STYLE': 0,
             'MITER_LIMIT': 2,
             'SEGMENTS': 5,

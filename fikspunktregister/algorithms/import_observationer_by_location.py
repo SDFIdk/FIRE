@@ -112,7 +112,8 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.APPLY_THEME,
-                self.tr('Anvend standard fikspunktregister-symbologi')
+                self.tr('Anvend standard fikspunktregister-symbologi'),
+                defaultValue = True
             )
         )
 
@@ -159,29 +160,29 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         fire_connection_string = self.settings.value('fire_connection_string')
         fireDb = FireDb(fire_connection_string, debug=True)
 
-        total_num_observations = 0
-        total_num_observations_processed = 0
-        features = source.getFeatures()
-        for current, feature in enumerate(features):
+        features = list(source.getFeatures())
+        total_num_features = len(features)
+        total_num_features_processed = 0
+        #for current, feature in enumerate(features):
+        for feature in features:
             if feedback.isCanceled():
                 return {}
             wkt = feature.geometry().asWkt().upper()
             geometry = Geometry(wkt)
             observations = fireDb.hent_observationer_naer_geometri(geometri=geometry, afstand=0, tidfra=from_date, tidtil=to_date)
-            total_num_observations = total_num_observations + len(observations)
             feedback.setProgressText('Fandt {antal} observationer'.format(antal = len(observations)))
             geometriobjekter = self.get_geometriobjekter_from_observations(fireDb, observations)
             feedback.setProgressText('Fandt {antal} geometriobjekter'.format(antal = len(geometriobjekter)))
             for current, observation in enumerate(observations):
-                total_num_observations_processed = total_num_observations_processed +1
                 observation_type_id = observation.observationstypeid
                 if observation_type_id in observation_types:
                     feature = self.create_feature_from_observation(observation, geometriobjekter, feedback)
                     if feature: 
                         sink.addFeature(feature, QgsFeatureSink.FastInsert)
-                feedback.setProgress(total_num_observations/total_num_observations_processed)
-                if feedback.isCanceled():
-                    return {}
+            total_num_features_processed = total_num_features_processed + 1
+            feedback.setProgress(total_num_features_processed/total_num_features)
+            if feedback.isCanceled():
+                return {}
                         
         apply_theme = self.parameterAsBool(parameters, self.APPLY_THEME, context)
         if apply_theme:
