@@ -26,12 +26,14 @@ from qgis.core import (QgsProcessing,
                        QgsFields,
                        QgsProcessingFeedback,
                        QgsGeometry,
+                       QgsPoint,
                        QgsProject)
 
 from qgis.PyQt.QtCore import (
     Qt,
     QVariant,
-    QDateTime
+    QDateTime,
+    QTime
 )
 try:
     from fireapi import FireDb
@@ -116,7 +118,6 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
 
     def processAlgorithm(self, parameters, context, feedback: QgsProcessingFeedback):
         
-        feedback.setProgressText('processAlgorithm kaldt med parametre =  =  {parameters}'.format(parameters = str(parameters)))
         source = self.parameterAsSource(parameters, self.INPUT, context)
         
         #Filter parameters
@@ -127,13 +128,11 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         from_date_string = self.parameterAsString(parameters, self.FROM_DATE, context)
         if from_date_string:
             from_date = datetime.fromisoformat(from_date_string)
-        feedback.setProgressText('from_date: {from_date}'.format(from_date = str(from_date)))
 
         to_date = None
         to_date_string = self.parameterAsString(parameters, self.TO_DATE, context)
         if to_date_string:
             to_date = datetime.fromisoformat(to_date_string)
-        feedback.setProgressText('to_date: {to_date}'.format(to_date = str(to_date)))
 
         fields = QgsFields()
         fields.append(QgsField("observation_id", QVariant.String))
@@ -158,8 +157,10 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             source.sourceCrs())
 
         fire_connection_string = self.settings.value('fire_connection_string')
-        fireDb = FireDb(fire_connection_string)
+        fireDb = FireDb(fire_connection_string, debug=True)
 
+        total_num_observations = 0
+        total_num_observations_processed = 0
         features = source.getFeatures()
         for current, feature in enumerate(features):
             if feedback.isCanceled():
@@ -167,23 +168,21 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             wkt = feature.geometry().asWkt().upper()
             geometry = Geometry(wkt)
             observations = fireDb.hent_observationer_naer_geometri(geometri=geometry, afstand=0, tidfra=from_date, tidtil=to_date)
+            total_num_observations = total_num_observations + len(observations)
             feedback.setProgressText('Fandt {antal} observationer'.format(antal = len(observations)))
-            points = self.get_points_from_observations(fireDb, observations)
-            feedback.setProgressText('Fandt {antal} punkter'.format(antal = len(points)))
+            geometriobjekter = self.get_geometriobjekter_from_observations(fireDb, observations)
+            feedback.setProgressText('Fandt {antal} geometriobjekter'.format(antal = len(geometriobjekter)))
             for current, observation in enumerate(observations):
-                if feedback.isCanceled():
-                    return {}
+                total_num_observations_processed = total_num_observations_processed +1
                 observation_type_id = observation.observationstypeid
                 if observation_type_id in observation_types:
-                    feature = self.create_feature_from_observation(observation, points, feedback)
+                    feature = self.create_feature_from_observation(observation, geometriobjekter, feedback)
                     if feature: 
                         sink.addFeature(feature, QgsFeatureSink.FastInsert)
-                        feedback.setProgressText('En observation blev oprettet for id =  {id}'.format(id = observation.objectid))
-                    else:
-                        feedback.setProgressText('En observation blev IKKE oprettet for id =  {id}'.format(id = observation.objectid))
-                else:
-                    feedback.setProgressText('En observation blev IKKE oprettet for id =  {id} (type ikke i kriterier)'.format(id = observation.objectid))
-                    
+                feedback.setProgress(total_num_observations/total_num_observations_processed)
+                if feedback.isCanceled():
+                    return {}
+                        
         apply_theme = self.parameterAsBool(parameters, self.APPLY_THEME, context)
         if apply_theme:
             style_file = os.path.join(os.path.dirname(__file__),'..', 'styles','observation.qml')
@@ -192,19 +191,22 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                         'STYLE': style_file
                     }
             processing.run('qgis:setstyleforvectorlayer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-            
+
         return {self.OUTPUT: dest_id}
     
-    def create_feature_from_observation(self, observation: Observation, points: Dict[str, Punkt], feedback: QgsProcessingFeedback):
+    def create_feature_from_observation(self, observation: Observation, geometriobjekter: Dict[str, GeometriObjekt], feedback: QgsProcessingFeedback):
         observation_id = observation.objectid
         
         fikspunkt1_id = observation.opstillingspunktid
-        fikspunkt1: Punkt = points[fikspunkt1_id]
+        #fikspunkt1: Punkt = points[fikspunkt1_id]
+        geometriobjekt1 = geometriobjekter[fikspunkt1_id]
         
         fikspunkt2_id = observation.sigtepunktid
-        fikspunkt2 = points[fikspunkt2_id]
+        #fikspunkt2 = points[fikspunkt2_id]
+        geometriobjekt2 = geometriobjekter[fikspunkt2_id]
         
-        line_geometry = self.create_line_geometry(fikspunkt1, fikspunkt2, feedback)
+        #line_geometry = self.create_line_geometry_from_points(fikspunkt1, fikspunkt2, feedback)
+        line_geometry = self.create_line_geometry_from_geometriobjekter(geometriobjekt1, geometriobjekt2, feedback)
         if line_geometry:
             # create the feature
             fet = QgsFeature()
@@ -264,7 +266,20 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             feedback.setProgressText('En liniegeometri kunne IKKE opettes for observation med id =  {id}'.format(id = observation_id))
             return None
 
-    def create_line_geometry(self, punkt1: Punkt, punkt2: Punkt, feedback: QgsProcessingFeedback):
+    def create_line_geometry_from_geometriobjekter(self, geometriobjekt1: GeometriObjekt, geometriobjekt2: GeometriObjekt, feedback: QgsProcessingFeedback):
+        if geometriobjekt1 and geometriobjekt2:
+            wkt1 = geometriobjekt1.geometri.wkt
+            g1 =  QgsPoint()
+            g1.fromWkt(wkt1)
+            wkt2 = geometriobjekt2.geometri.wkt
+            g2 =  QgsPoint()
+            g2.fromWkt(wkt2)
+            geom = QgsGeometry.fromPolyline([g1,g2])
+            return geom
+        else:
+            return None
+    
+    def create_line_geometry_from_points_delete(self, punkt1: Punkt, punkt2: Punkt, feedback: QgsProcessingFeedback):
         punkt1_g: GeometriObjekt = None
         punkt1_gl: List[GeometriObjekt] =  punkt1.geometriobjekter
         if len(punkt1_gl) > 0:
@@ -275,16 +290,9 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         if len(punkt2_gl) > 0:
             punkt2_g = punkt2_gl[0] 
 
-        if punkt1_g and punkt2_g:
-            punkt1_k = punkt1_g.geometri._geom['coordinates']
-            punkt2_k = punkt2_g.geometri._geom['coordinates']
-            wkt = 'LINESTRING ({x1} {y1}, {x2} {y2})'.format(x1 = punkt1_k[0],  y1 = punkt1_k[1], x2 = punkt2_k[0],  y2 = punkt2_k[1])
-            geom = QgsGeometry.fromWkt(wkt)
-            return geom
-        else:
-            return None
+        return self.create_line_geometry_from_geometriobjekter(punkt1_g, punkt2_g, feedback)
 
-    def get_points_from_observations(self, fireDb, observations: List[Observation]):
+    def get_points_from_observations_delete(self, fireDb, observations: List[Observation]):
         #returns dict of {id: Punkt}
         points = {}
         for o in observations:
@@ -297,6 +305,26 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                 sp = fireDb.hent_punkt(sp_id)
                 points[sp_id] = sp
         return points
+    
+    def get_geometriobjekter_from_observations(self, fireDb, observations: List[Observation]):
+        #return dict of {punktid: geometriobjekt
+        
+        #First create list of point id's
+        pid_list = []
+        for o in observations:
+            op_id = o.opstillingspunktid
+            if op_id not in pid_list: #Point not already found
+                pid_list.append(op_id)
+            sp_id = o.sigtepunktid
+            if sp_id not in pid_list: #Point not already found
+                pid_list.append(sp_id)
+                
+        #Get geometriobjekter
+        go_by_pid = {}
+        gos: List[GeometriObjekt] = fireDb.session.query(GeometriObjekt).filter(GeometriObjekt.punktid.in_(pid_list), GeometriObjekt._registreringtil == None).all()
+        for go in gos:
+            go_by_pid[go.punktid] = go
+        return go_by_pid
 
     def name(self):
         return 'fire-import-observations-location'
