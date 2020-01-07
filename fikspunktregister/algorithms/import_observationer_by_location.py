@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from fireapi.model.punkttyper import GeometriObjekt
+from fireapi.model.punkttyper import GeometriObjekt, PunktInformation
 
 __author__ = 'Septima'
 __date__ = '2019-12-02'
@@ -118,8 +118,9 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         )
 
     def processAlgorithm(self, parameters, context, feedback: QgsProcessingFeedback):
-        
+        #Input / Output
         source = self.parameterAsSource(parameters, self.INPUT, context)
+        (sink, dest_id) = self.create_output_sink(parameters, context, source.sourceCrs())
         
         #Filter parameters
         observation_type_indices = self.parameterAsEnums(parameters, self.OBSERVATION_TYPE, context)
@@ -135,28 +136,6 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         if to_date_string:
             to_date = datetime.fromisoformat(to_date_string)
 
-        fields = QgsFields()
-        fields.append(QgsField("observation_id", QVariant.String))
-        fields.append(QgsField("observation_type_id", QVariant.Double))
-        fields.append(QgsField("fikspunkt1_id", QVariant.String))
-        fields.append(QgsField("fikspunkt2_id", QVariant.String))
-        fields.append(QgsField("registrering_fra", QVariant.DateTime))
-        fields.append(QgsField("registrering_fra_iso", QVariant.String))
-        fields.append(QgsField("koteforskel", QVariant.Double))
-        fields.append(QgsField("nivellementslaengde", QVariant.Double))
-        fields.append(QgsField("antal_opstillinger", QVariant.Double))
-        fields.append(QgsField("afstandsafhaengig_varians", QVariant.Double))
-        fields.append(QgsField("afstandsuafhaengig_varians", QVariant.Double))
-        fields.append(QgsField("Praecisionsnivellement", QVariant.Double))
-
-        (sink, dest_id) = self.parameterAsSink(
-            parameters,
-            self.OUTPUT,
-            context,
-            fields,
-            QgsWkbTypes.LineString,
-            source.sourceCrs())
-
         fire_connection_string = self.settings.value('fire_connection_string')
         fireDb = FireDb(fire_connection_string, debug=True)
 
@@ -170,13 +149,18 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             wkt = feature.geometry().asWkt().upper()
             geometry = Geometry(wkt)
             observations = fireDb.hent_observationer_naer_geometri(geometri=geometry, afstand=0, tidfra=from_date, tidtil=to_date)
+            
+            pid_list = self.get_pids_from_observations(observations)
+            geometriobjekter = self.get_geometriobjekter_from_pids(fireDb, pid_list)
+            idents = self.get_idents_from_pids(fireDb, pid_list)
+            
             feedback.setProgressText('Fandt {antal} observationer'.format(antal = len(observations)))
-            geometriobjekter = self.get_geometriobjekter_from_observations(fireDb, observations)
             feedback.setProgressText('Fandt {antal} geometriobjekter'.format(antal = len(geometriobjekter)))
+            feedback.setProgressText('Fandt {antal} idents'.format(antal = len(idents)))
             for current, observation in enumerate(observations):
                 observation_type_id = observation.observationstypeid
                 if observation_type_id in observation_types:
-                    feature = self.create_feature_from_observation(observation, geometriobjekter, feedback)
+                    feature = self.create_feature_from_observation(observation, geometriobjekter, idents, feedback)
                     if feature: 
                         sink.addFeature(feature, QgsFeatureSink.FastInsert)
             total_num_features_processed = total_num_features_processed + 1
@@ -194,20 +178,134 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             processing.run('qgis:setstyleforvectorlayer', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
 
         return {self.OUTPUT: dest_id}
-    
-    def create_feature_from_observation(self, observation: Observation, geometriobjekter: Dict[str, GeometriObjekt], feedback: QgsProcessingFeedback):
-        observation_id = observation.objectid
+
+    def create_output_sink(self, parameters, context, crs):
+        fields = QgsFields()
+        fields.append(QgsField("observation_id", QVariant.String))
+        fields.append(QgsField("observation_type_id", QVariant.Double))
+        fields.append(QgsField("fikspunkt1_uuid", QVariant.String))
+        fields.append(QgsField("fikspunkt1_ident", QVariant.String))
+        fields.append(QgsField("fikspunkt2_uuid", QVariant.String))
+        fields.append(QgsField("fikspunkt2_ident", QVariant.String))
+        fields.append(QgsField("registrering_fra", QVariant.DateTime))
+        fields.append(QgsField("registrering_fra_iso", QVariant.String))
+        fields.append(QgsField("koteforskel", QVariant.Double))
+        fields.append(QgsField("nivellementslaengde", QVariant.Double))
+        fields.append(QgsField("antal_opstillinger", QVariant.Double))
+        fields.append(QgsField("afstandsafhaengig_varians", QVariant.Double))
+        fields.append(QgsField("afstandsuafhaengig_varians", QVariant.Double))
+        fields.append(QgsField("Praecisionsnivellement", QVariant.Double))
+
+        (sink, dest_id) = self.parameterAsSink(
+            parameters,
+            self.OUTPUT,
+            context,
+            fields,
+            QgsWkbTypes.LineString,
+            crs)
         
+        return (sink, dest_id)
+
+    def get_pids_from_observations(self, observations: List[Observation]):
+        pid_list = []
+        for o in observations:
+            op_id = o.opstillingspunktid
+            if op_id not in pid_list: #Point not already found
+                pid_list.append(op_id)
+            sp_id = o.sigtepunktid
+            if sp_id not in pid_list: #Point not already found
+                pid_list.append(sp_id)
+        return pid_list
+        
+    def get_geometriobjekter_from_pids(self, fireDb, pid_list):
+        #return dict of {punktid: geometriobjekt}
+                
+        #Get geometriobjekter
+        gos: List[GeometriObjekt] = fireDb.session.query(GeometriObjekt).filter(GeometriObjekt.punktid.in_(pid_list), GeometriObjekt._registreringtil == None).all()
+        go_by_pid = {}
+        for go in gos:
+            go_by_pid[go.punktid] = go
+        return go_by_pid
+
+    def get_idents_from_pids(self, fireDb, pid_list):
+        #return dict of {punktid: ident: string}
+        
+        #GI(346)->GNSS(343)->landsnr(342)->refgeo_id(344)->uuid
+        info_type_list = [346, 343, 342, 344]
+        infos: List[PunktInformation] = fireDb.session.query(PunktInformation).filter(PunktInformation.punktid.in_(pid_list), PunktInformation.infotypeid.in_(info_type_list)).order_by(PunktInformation.punktid, PunktInformation.infotypeid).all()
+        
+        ident_by_pid = {}
+        if len(infos) > 0:
+            current_index = 0 
+            while current_index is not None:
+                current_info: PunktInformation = infos[current_index]
+                current_pid = current_info.punktid
+                ident = self.get_index_ident(current_index, infos)
+                ident_by_pid[current_pid] = ident
+                current_index = self.next_index(current_index, infos)
+        return ident_by_pid
+    
+    def get_index_ident(self, current_index, infos: List[PunktInformation]):
+        current_pid = infos[current_index].punktid
+        best_info = infos[current_index]
+        best_info_weight = self.get_info_weight(best_info)
+        inc = 1
+        while current_index + inc < len(infos) and infos[current_index + inc].punktid == current_pid:
+            current_info = infos[current_index + inc]
+            current_info_weight = self.get_info_weight(current_info)
+            if current_info_weight > best_info_weight:
+                best_info = current_info
+                best_info_weight = current_info_weight
+            inc = inc + 1
+        return self.get_ident_text(best_info)
+
+    def get_info_weight(self, info: PunktInformation):
+        if info.infotypeid == 346:
+            return 4
+        elif info.infotypeid == 343:
+            return 3
+        elif info.infotypeid == 342:
+            return 2
+        elif info.infotypeid == 344:
+            return 1
+    
+    def get_ident_text(self, info: PunktInformation):
+        if info.infotypeid == 346:
+            return 'GI:' + info.tekst
+        elif info.infotypeid == 343:
+            return 'GNSS:' + info.tekst
+        elif info.infotypeid == 342:
+            return 'landsnr:' + info.tekst
+        elif info.infotypeid == 344:
+            return 'refgeo_id:' + info.tekst
+        
+    def next_index(self, current_index, infos: List[PunktInformation]):
+        current_pid = infos[current_index].punktid
+        inc = 1
+        while current_index + inc < len(infos) and infos[current_index + inc].punktid == current_pid:
+            inc = inc + 1
+        if current_index + inc < len(infos):
+            return current_index + inc
+        else:
+            return None 
+
+    def create_feature_from_observation(self, observation: Observation, geometriobjekter: Dict[str, GeometriObjekt], idents: Dict[str, str], feedback: QgsProcessingFeedback):
+        observation_id = observation.objectid
+
         fikspunkt1_id = observation.opstillingspunktid
-        #fikspunkt1: Punkt = points[fikspunkt1_id]
-        geometriobjekt1 = geometriobjekter[fikspunkt1_id]
+        fikspunkt1_ident = 'uuid:' + fikspunkt1_id
+        if fikspunkt1_id in idents:
+            fikspunkt1_ident = idents[fikspunkt1_id]
         
         fikspunkt2_id = observation.sigtepunktid
-        #fikspunkt2 = points[fikspunkt2_id]
+        fikspunkt2_ident = 'uuid:' + fikspunkt2_id
+        if fikspunkt2_id in idents:
+            fikspunkt2_ident = idents[fikspunkt2_id]
+
+        geometriobjekt1 = geometriobjekter[fikspunkt1_id]
         geometriobjekt2 = geometriobjekter[fikspunkt2_id]
-        
-        #line_geometry = self.create_line_geometry_from_points(fikspunkt1, fikspunkt2, feedback)
         line_geometry = self.create_line_geometry_from_geometriobjekter(geometriobjekt1, geometriobjekt2, feedback)
+
         if line_geometry:
             # create the feature
             fet = QgsFeature()
@@ -216,7 +314,9 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             #    [QgsField("observation_id", QVariant.String),
             #     QgsField("observation_type_id", QVariant.Double)
             #     QgsField("fikspunkt1_id", QVariant.String),
+            #     QgsField("fikspunkt1_ident", QVariant.String),
             #     QgsField("fikspunkt2_id", QVariant.String),
+            #     QgsField("fikspunkt2_ident", QVariant.String),
             #     QgsField("registrering_fra", QVariant.DateTime),
             #     QgsField("registrering_fra_iso", QVariant.String),
             #     QgsField("koteforskel", QVariant.Double),
@@ -251,7 +351,9 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             feature.setAttributes([observation_id,
                                observation_type_id,
                                fikspunkt1_id,
+                               fikspunkt1_ident,
                                fikspunkt2_id,
+                               fikspunkt2_ident,
                                registrering_fra,
                                registrering_fra_iso,
                                koteforskel,
@@ -280,53 +382,6 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         else:
             return None
     
-    def create_line_geometry_from_points_delete(self, punkt1: Punkt, punkt2: Punkt, feedback: QgsProcessingFeedback):
-        punkt1_g: GeometriObjekt = None
-        punkt1_gl: List[GeometriObjekt] =  punkt1.geometriobjekter
-        if len(punkt1_gl) > 0:
-            punkt1_g = punkt1_gl[0] 
-
-        punkt2_g: GeometriObjekt = None
-        punkt2_gl: List[GeometriObjekt] =  punkt2.geometriobjekter
-        if len(punkt2_gl) > 0:
-            punkt2_g = punkt2_gl[0] 
-
-        return self.create_line_geometry_from_geometriobjekter(punkt1_g, punkt2_g, feedback)
-
-    def get_points_from_observations_delete(self, fireDb, observations: List[Observation]):
-        #returns dict of {id: Punkt}
-        points = {}
-        for o in observations:
-            op_id = o.opstillingspunktid
-            if op_id not in points: #Point not already found
-                op = fireDb.hent_punkt(op_id)
-                points[op_id] = op
-            sp_id = o.sigtepunktid
-            if sp_id not in points: #Point not already found
-                sp = fireDb.hent_punkt(sp_id)
-                points[sp_id] = sp
-        return points
-    
-    def get_geometriobjekter_from_observations(self, fireDb, observations: List[Observation]):
-        #return dict of {punktid: geometriobjekt
-        
-        #First create list of point id's
-        pid_list = []
-        for o in observations:
-            op_id = o.opstillingspunktid
-            if op_id not in pid_list: #Point not already found
-                pid_list.append(op_id)
-            sp_id = o.sigtepunktid
-            if sp_id not in pid_list: #Point not already found
-                pid_list.append(sp_id)
-                
-        #Get geometriobjekter
-        go_by_pid = {}
-        gos: List[GeometriObjekt] = fireDb.session.query(GeometriObjekt).filter(GeometriObjekt.punktid.in_(pid_list), GeometriObjekt._registreringtil == None).all()
-        for go in gos:
-            go_by_pid[go.punktid] = go
-        return go_by_pid
-
     def name(self):
         return 'fire-import-observations-location'
 
