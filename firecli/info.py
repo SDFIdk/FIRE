@@ -7,6 +7,8 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import or_
 
+from pyproj import CRS
+
 import firecli
 from firecli import firedb
 from fireapi.model import Punkt, PunktInformation, PunktInformationType, Srid
@@ -30,10 +32,11 @@ def koordinat_linje(koord):
     meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}  {koord.srid.name:<15.15} {raw_or_transformed} "
 
     grader = False
-    if koord.srid.name in (
-        "EPSG:4326", "EPSG:4258", "EPSG:4937", "EPSG:4936",
-        "EPSG:4230", "EPSG:4231", "EPSG:4747", "EPSG:4909", "GL:NAD83G"):
-        grader = True
+    try:
+        if CRS(koord.srid.name).axis_info[0].unit_name in ("degree", "radian"):
+            grader = True
+    except:
+        pass  # ignore pyproj.exceptions.CRSError - assume unknown coordinate systems are linear
 
     dimensioner = 0
     if koord.x is not None and koord.y is not None:
