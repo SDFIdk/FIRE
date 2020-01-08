@@ -24,10 +24,16 @@ def koordinat_linje(koord):
     Konstruer koordinatoutput ud fra koordinatens dimensionalitet
     """
     raw_or_transformed = "t"
-    if (koord.transformeret=="false"):
+    if koord.transformeret=="false":
         raw_or_transformed = "r"
 
     meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}  {koord.srid.name:<15.15} {raw_or_transformed} "
+
+    grader = False
+    if koord.srid.name in (
+        "EPSG:4326", "EPSG:4258", "EPSG:4937", "EPSG:4936",
+        "EPSG:4230", "EPSG:4231", "EPSG:4747", "EPSG:4909", "GL:NAD83G"):
+        grader = True
 
     dimensioner = 0
     if koord.x is not None and koord.y is not None:
@@ -43,7 +49,10 @@ def koordinat_linje(koord):
         linje = meta + f"{koord.z:.5f} ({koord.sz:.0f})"
 
     if dimensioner == 2:
-        linje = meta + f"{koord.x:.4f}, {koord.y:.4f} ({koord.sx:.0f}, {koord.sy:.0f})"
+        if grader:
+            linje = meta + f"{koord.x:.10f}, {koord.y:.10f} ({koord.sx:.0f}, {koord.sy:.0f})"
+        else:
+            linje = meta + f"{koord.x:.4f}, {koord.y:.4f} ({koord.sx:.0f}, {koord.sy:.0f})"
 
     if dimensioner == 3:
         linje = meta + f"{koord.x:.10f}, {koord.y:.10f}, {koord.z:.5f}"
