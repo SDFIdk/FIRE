@@ -23,20 +23,25 @@ def info():
 
 def koordinat_linje(koord):
     """
-    Konstruer koordinatoutput ud fra koordinatens dimensionalitet
+    Konstruer koordinatoutput i overensstemmelse med koordinatens dimensionalitet,
+    enhed og proveniens.
     """
-    raw_or_transformed = "t"
+    native_or_transformed = "t"
     if koord.transformeret=="false":
-        raw_or_transformed = "r"
+        native_or_transformed = "n"
 
-    meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}  {koord.srid.name:<15.15} {raw_or_transformed} "
+    meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}  {koord.srid.name:<15.15} {native_or_transformed} "
 
-    grader = False
+    # Se i proj.db: Er koordinatsystemet lineært eller vinkelbaseret?
     try:
+        grader = False
         if CRS(koord.srid.name).axis_info[0].unit_name in ("degree", "radian"):
             grader = True
     except:
-        pass  # ignore pyproj.exceptions.CRSError - assume unknown coordinate systems are linear
+        # ignorer pyproj.exceptions.CRSError: Antag at ukendte koordinatsystemers enheder
+        # er lineære, bortset fra specialtilfældet NAD83G
+        if koord.srid.name=="GL:NAD83G":
+            grader = True
 
     dimensioner = 0
     if koord.x is not None and koord.y is not None:
@@ -96,7 +101,7 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
     punkt.koordinater.sort(key=lambda x: (x.srid.name, x.t.strftime('%Y-%m-%dT%H:%M')), reverse=True)
     for koord in punkt.koordinater:
         if koord.registreringtil is not None:
-            firecli.print("  " + koordinat_linje (koord), fg="red")
+            firecli.print(". " + koordinat_linje (koord), fg="red")
         else:
             firecli.print("* " + koordinat_linje (koord), fg="green")
     firecli.print("")
