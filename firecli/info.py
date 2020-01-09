@@ -7,6 +7,8 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import or_
 
+from pyproj import CRS
+
 import firecli
 from firecli import firedb
 from fireapi.model import Punkt, PunktInformation, PunktInformationType, Srid
@@ -21,9 +23,25 @@ def info():
 
 def koordinat_linje(koord):
     """
-    Konstruer koordinatoutput ud fra koordinatens dimensionalitet
+    Konstruer koordinatoutput i overensstemmelse med koordinatens dimensionalitet,
+    enhed og proveniens.
     """
-    meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}   {koord.srid.name:<15.15}"
+    native_or_transformed = "t"
+    if koord.transformeret=="false":
+        native_or_transformed = "n"
+
+    meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}  {koord.srid.name:<15.15} {native_or_transformed} "
+
+    # Se i proj.db: Er koordinatsystemet lineært eller vinkelbaseret?
+    try:
+        grader = False
+        if CRS(koord.srid.name).axis_info[0].unit_name in ("degree", "radian"):
+            grader = True
+    except:
+        # ignorer pyproj.exceptions.CRSError: Antag at ukendte koordinatsystemers enheder
+        # er lineære, bortset fra specialtilfældet NAD83G
+        if koord.srid.name=="GL:NAD83G":
+            grader = True
 
     dimensioner = 0
     if koord.x is not None and koord.y is not None:
@@ -36,14 +54,17 @@ def koordinat_linje(koord):
             dimensioner = 1
 
     if dimensioner == 1:
-        linje = meta + f"{koord.z} ({koord.sz})"
+        linje = meta + f"{koord.z:.5f} ({koord.sz:.0f})"
 
     if dimensioner == 2:
-        linje = meta + f"{koord.x:.9}, {koord.y:.9} ({koord.sx}, {koord.sy})"
+        if grader:
+            linje = meta + f"{koord.x:.10f}, {koord.y:.10f} ({koord.sx:.0f}, {koord.sy:.0f})"
+        else:
+            linje = meta + f"{koord.x:.4f}, {koord.y:.4f} ({koord.sx:.0f}, {koord.sy:.0f})"
 
     if dimensioner == 3:
-        linje = meta + f"{koord.x:.9}, {koord.y:.9}, {koord.z:.7}"
-        linje += f"  ({koord.sx}, {koord.sy}, {koord.sz})"
+        linje = meta + f"{koord.x:.10f}, {koord.y:.10f}, {koord.z:.5f}"
+        linje += f"  ({koord.sx:.0f}, {koord.sy:.0f}, {koord.sz:.0f})"
 
     return linje
 
@@ -80,7 +101,7 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
     punkt.koordinater.sort(key=lambda x: (x.srid.name, x.t.strftime('%Y-%m-%dT%H:%M')), reverse=True)
     for koord in punkt.koordinater:
         if koord.registreringtil is not None:
-            firecli.print("  " + koordinat_linje (koord), fg="red")
+            firecli.print(". " + koordinat_linje (koord), fg="red")
         else:
             firecli.print("* " + koordinat_linje (koord), fg="green")
     firecli.print("")
