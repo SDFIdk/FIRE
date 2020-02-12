@@ -4,6 +4,22 @@ import sqlalchemy.ext.declarative
 from sqlalchemy import Column, Integer, DateTime, func
 
 
+class IntEnum(sqlalchemy.types.TypeDecorator):
+    """Add an integer enum class"""
+
+    impl = sqlalchemy.Integer
+
+    def __init__(self, enumtype, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._enumtype = enumtype
+
+    def process_bind_param(self, value, dialect):
+        return value.value
+
+    def process_result_value(self, value, dialect):
+        return self._enumtype(value)
+
+
 class ReprBase(object):
     """Extend the base class
     Provides a nicer representation when a class instance is printed.
