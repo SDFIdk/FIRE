@@ -4,13 +4,14 @@ from sqlalchemy.orm import relationship
 
 # DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
 
-from fireapi.model import RegisteringTidObjekt, DeclarativeBase, columntypes
+from fireapi.model import IntEnum, RegisteringTidObjekt, DeclarativeBase, columntypes
 
 # Eksports
 __all__ = [
     "FikspunktregisterObjekt",
     "Punkt",
     "Koordinat",
+    "Artskode",
     "GeometriObjekt",
     "Beregning",
     "ObservationType",
@@ -26,6 +27,33 @@ class PunktInformationTypeAnvendelse(enum.Enum):
     FLAG = "FLAG"
     TAL = "TAL"
     TEKST = "TEKST"
+
+
+class Artskode(enum.Enum):
+    """
+    Uddybende beskrivelser fra REFGEO:
+
+    artskode = 1 control point in fundamental network, first order.
+    artskode = 2 control point in superior plane network.
+    artskode = 2 control point in superior height network.
+    artskode = 3 control point in network of high quality.
+    artskode = 4 control point in network of lower or unknown quality.
+    artskode = 5 coordinate computed on just a few measurements.
+    artskode = 6 coordinate transformed from local or an not valid coordinate system.
+    artskode = 7 coordinate computed on an not valid coordinate system, or system of unknown origin.
+    artskode = 8 coordinate computed on few measurements, and on an not valid coordinate system.
+    artskode = 9 location coordinate or location height.
+    """
+
+    FUNDAMENTAL_PUNKT = 1
+    NETVAERK_AF_GOD_KVALITET = 2
+    NETVAERK_AF_HOEJ_KVALITET = 3
+    NETVAERK_AF_LAV_KVALITET = 4
+    BESTEMT_FRA_FAA_OBSERVATIONER = 5
+    TRANSFORMERET = 6
+    UKENDT_KOORDINATSYSTEM = 7
+    FAA_OBS_OG_UKENDT_KOORDINATSYSTEM = 8
+    LOKATIONSKOORDINAT = 9
 
 
 beregning_koordinat = Table(
@@ -120,6 +148,7 @@ class Koordinat(FikspunktregisterObjekt):
     sz = Column(Float)
     t = Column(DateTime(timezone=True))
     transformeret = Column(String, nullable=False)
+    artskode = Column(IntEnum(Artskode), default=Artskode.NETVAERK_AF_LAV_KVALITET)
     x = Column(Float)
     y = Column(Float)
     z = Column(Float)

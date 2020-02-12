@@ -53,6 +53,7 @@ CREATE TABLE KOORDINAT (
    SZ NUMBER,
    T TIMESTAMP WITH TIME ZONE,
    TRANSFORMERET VARCHAR2(5) NOT NULL,
+   ARTSKODE INTEGER,
    X NUMBER,
    Y NUMBER,
    Z NUMBER,
@@ -269,6 +270,20 @@ COMMENT ON COLUMN KOORDINAT.SY IS 'A posteriori spredning på andenkoordinaten.'
 COMMENT ON COLUMN KOORDINAT.SZ IS 'A posteriori spredning på tredjekoordinaten.';
 COMMENT ON COLUMN KOORDINAT.T IS 'Observationstidspunktet.';
 COMMENT ON COLUMN KOORDINAT.TRANSFORMERET IS 'Angivelse om positionen er målt, eller transformeret fra et andet koordinatsystem';
+COMMENT ON COLUMN KOORDINAT.ARTSKODE IS 'Fra REFGEO. Værdierne skal forstås som følger:
+
+ artskode = 1 control point in fundamental network, first order.
+ artskode = 2 control point in superior plane network.
+ artskode = 2 control point in superior height network.
+ artskode = 3 control point in network of high quality.
+ artskode = 4 control point in network of lower or unknown quality.
+ artskode = 5 coordinate computed on just a few measurements.
+ artskode = 6 coordinate transformed from local or an not valid coordinate system.
+ artskode = 7 coordinate computed on an not valid coordinate system, or system of unknown origin.
+ artskode = 8 coordinate computed on few measurements, and on an not valid coordinate system.
+ artskode = 9 location coordinate or location height.
+ 
+ Artskode er kun tilgængelig for koordinater der stammer fra REFGEO.';
 COMMENT ON COLUMN KOORDINAT.X IS 'Førstekoordinat.';
 COMMENT ON COLUMN KOORDINAT.Y IS 'Andenkoordinat.';
 COMMENT ON COLUMN KOORDINAT.Z IS 'Tredjekoordinat.';
@@ -724,7 +739,6 @@ end;
 /
 
 
-
 CREATE OR REPLACE TRIGGER AUD#PUNKT
 after update ON PUNKT
 for each row
@@ -1110,4 +1124,4 @@ VALUES ('bruges når nye koordinater skabes. Knytter observationer til koordinat
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
 VALUES ('bruges til at tilføje fritekst kommentarer til sagen i tilfælde af at der er behov for at påhæfte sagen yderligere information som ikke passer i andre hændelser. Bruges fx også til påhæftning af materiale på sagen.', 'kommentar', 10);
 
--- End
+-- End
