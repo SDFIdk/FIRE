@@ -1,6 +1,7 @@
 """
-Setup script for the fireapi package.
+Setup script for the FIRE package.
 """
+
 
 import os
 import subprocess
@@ -8,8 +9,10 @@ from setuptools import setup
 from setuptools import find_packages
 
 import fireapi
+import firecli
 
-SHORT_DESCR = "Geodetic database system for storage of information on levelling observations and markers."
+
+SHORT_DESCR = "FIRE - FIkspunktREgister"
 
 
 def readme():
@@ -26,7 +29,7 @@ def readme():
 
 
 setup(
-    name="fireapi",
+    name="fire",
     version=fireapi.__version__,
     description=SHORT_DESCR,
     long_description=readme(),
@@ -40,12 +43,25 @@ setup(
     ],
     packages=find_packages(),
     keywords="levelling database geodesy",
-    url="https://github.com/Septima/fikspunktregister",
+    url="https://github.com/Kortforsyningen/fire",
     author="Septima / SDFE",
     author_email="grf@sdfe.dk",
     license="MIT",
     test_suite="pytest",
     tests_require=["pytest>=3.1"],
-    install_requires=["cx_Oracle>=7.0", "sqlalchemy>=1.2.13"],
+    install_requires=[
+        "cx_Oracle>=7.0",
+        "sqlalchemy>=1.2.13",
+        "click",
+        "click_plugins",
+    ],
     python_requires=">=3.6",
+    py_modules=["fireapi", "firecli"],
+    entry_points="""
+        [console_scripts]
+        fire=firecli.main:fire
+
+        [firecli.fire_commands]
+        info=firecli.info:info
+    """,
 )

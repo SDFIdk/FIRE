@@ -19,7 +19,7 @@ For now there are no data in the database so `punkter` is an empty list.
 
 
 ## Local development
-Install and activate development environment (called `fiskpunktsregister-dev`) and then run tests. Note that almost all 
+Install and activate development environment (called `fiskpunktsregister-dev`) and then run tests. Note that almost all
 tests require an active database.
 ```bash
 conda env update -f environment-dev.yml
@@ -38,7 +38,7 @@ host = os.environ.get("ORA_HOST") or "localhost"
 port = os.environ.get("ORA_PORT") or "1521"
 db = os.environ.get("ORA_db") or "xe"
 ```
- 
+
  With an active conda environment tests can be run against a custom database on *nix by
 ```bash
 export ORA_USER=custom_username
@@ -56,7 +56,7 @@ ORA_HOST=custom_host
 ORA_PORT=1522
 ORA_DB=custom_databasename
 pytest
-``` 
+```
 See section on [Docker](#Docker) for an easy way to create a local database.
 
 ### UML
@@ -137,15 +137,127 @@ At this point you should be able to execute `pytest` as follows:
 
 ## Docs
 Docs can be compiled locally using sphinx:
+
 ```
 sphinx-build -b html ./docs ./docs/_build
 ```
 This will build html documents in the directory [./docs/_build](./docs/_build).
 
 Whenever modules have been added or deleted the api docs (files residing in docs/api) need to be updated. This can be done by
+
 ```
 cd docs
 sphinx-apidoc -e -o api ../fireapi
 ```
 
+
+# fire-cli
+
+Kommandolinje interface til FIRE.
+
+## Installation
+
+Afhængigheder:
+ - `click`
+
+På nuværende tidspunkt er `fire-cli` ikke klar til produktion hvorfor det kun giver mening at
+installere pakken i udviklingsmode:
+
+```
+pip install -e.
+```
+
+Det anbefales at installere `fire-cli` i et særskilt conda miljø.
+
+## Dokumentation
+
+`fire-cli` installerer kommandolinjeapplikationen `fire`. `fire` er indgangen til en række
+kommandoer, der igen gør en række underkommandoer tilgængelige. Kald til `fire` følger mønsteret:
+
+```
+fire <kommando> <underkommda> <argumenter>
+```
+
+Det er hensigten at `fire` i så høj grad som muligt er selv-dokumenterende. Dokumentationen tilgås
+ved hjælp af valgmuligheden `--help` efterfulgt af en kommando eller underkommando. En oversigt over
+tilgængelige kommandoer fås ved at køre `--help` på `fire`:
+
+```
+> fire --help
+Usage: fire [OPTIONS] COMMAND [ARGS]...
+
+  🔥 Kommandolinje adgang til FIRE.
+
+Options:
+  --help     Vis denne hjælp tekst
+  --version  Vis versionsnummer
+
+Commands:
+  info  Information om objekter i FIRE
+  stat  Statistik plugin til FIRE.
+```
+
+Bemærk at de tilgængelige kommandoer kan variere fra installation til installation, da det er muligt
+at installere plugins i `fire` som tilføjer yderligere funktionalitet.
+
+### Konfigurationsfil
+
+For at `fire-cli` kan forbinde til databasen er det nødvendigt at tilføje en konfigurationsfil til
+systemet hvori adgangsinformation til databasen er registreret. Konfigurationsfilen er en JSON fil,
+der er struktureret på følgende måde:
+```
+{
+    "connection":
+    {
+        "password": "<adgangskode>",
+        "username": "<brugernavn>",
+        "hostname": "<netværksadresse>",
+        "database": "<databasenavn>",
+        "service": "<servicenavn>"
+    }
+}
+```
+
+Under Windows placeres konfigurationsfilen i en af følgende stier:
+
+```
+    C:\Users\<brugernavn>\fire_settings.json
+    C:\Users\Default\AppData\Local\\fire\fire_settings.json
+```
+
+og på et UNIX-baseret system placeres filen et af følgende steder:
+
+```
+    home/<brugernavn>/fire_settings.json
+    home/<brugernavn>/.fire_settings.json
+    /etc/fire_settings.json
+```
+
+## Udvikling
+
+### Sprog
+
+`fire-cli` taler dansk til brugeren. Dokumentation skrives ligeledes på dansk. Det er tilladt
+at skrive kommentarer, funktions- og variabelnavne på engelsk. git commits bør så vidt muligt
+skrives på dansk.
+
+## Plugins
+
+Det er muligt at installere plugins i `fire-cli`. Dette gør det muligt at udvikle ny funktionalitet i et separat miljø uden at påvirke hovedapplikationen. Desuden åbner det for
+muligheden for at have speciel funktionalitet kun få brugere har behov for, fx et
+administrationsmodul.
+
+Plugins laves som selvstående Pythonpakker, der tilføjer *entry points* til
+`firecli.fire_commands`. Click bruges til at håndtere disse entry points. Se
+[`fire-stats`](https://github.com/Kortforsyningen/fire-stats) for et fungerende
+eksempel.
+
+### Kodestil
+
+`fire-cli` formateres med `black`, der sørger for at koden følger best practice for formatering
+af Python kode. Inden kode commites bør `black` køres:
+
+```
+> black --line-length 100 --py36 setup.py firecli
+```
 
