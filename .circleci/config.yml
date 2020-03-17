@@ -32,4 +32,4 @@ jobs:
           command: |
             source /opt/conda/bin/activate fikspunktsregister-dev
 
-            ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest
+            ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest --ignore=test/read/ --ignore=test/write/
