@@ -78,7 +78,6 @@ target/
 profile_default/
 ipython_config.py
 
-
 # pyenv
 .python-version
 
@@ -109,7 +108,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-<<<<<<< HEAD
 
 # PyCharm and friends
 .idea
@@ -126,6 +124,7 @@ cx_Oracle-doc
 dmypy.json
 
 # Pyre type checker
+<<<<<<< HEAD
 .pyre/
 /.project
 /.pydevproject

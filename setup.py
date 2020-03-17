@@ -2,7 +2,6 @@
 Setup script for the FIRE package.
 """
 
-
 import os
 import subprocess
 from setuptools import setup
@@ -56,7 +55,7 @@ setup(
         "click_plugins",
     ],
     python_requires=">=3.6",
-    py_modules=["fireapi", "firecli", "firegama"],
+    py_modules=["fireapi", "firecli", "firegama", "firemark"],
     entry_points="""
         [console_scripts]
         fire=firecli.main:fire
@@ -64,6 +63,6 @@ setup(
         [firecli.fire_commands]
         info=firecli.info:info
         gama=firegama.cli:gama
+        mark=firemark.cli:mark
     """,
 )
-
