@@ -56,12 +56,14 @@ setup(
         "click_plugins",
     ],
     python_requires=">=3.6",
-    py_modules=["fireapi", "firecli"],
+    py_modules=["fireapi", "firecli", "firegama"],
     entry_points="""
         [console_scripts]
         fire=firecli.main:fire
 
         [firecli.fire_commands]
         info=firecli.info:info
+        gama=firegama.cli:gama
     """,
 )
+

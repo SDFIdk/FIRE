@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+<gama-local xmlns="http://www.gnu.org/software/gama/gama-local">
+    <network >
+        <parameters />
+        <description>
+            Network doc created by fire-gama (https://github.com/Septima/fire-gama)
+            Initiated by Created by fire-gama
+            GamaWriter.take_observations() Antal observationer: 46
+            GamaNetworkDoc.set_fixed_points: Antal punkter: 1
+            GamaNetworkDoc.set_observations: Antal observationer: 46
+            Warnings:
+            Fixed point with no z value. Punktid:814E9044-1AAB-5A4E-E053-1A041EACF9E4
+        </description>
+        <points-observations >
+            <point id="814E9044-1AAB-5A4E-E053-1A041EACF9E4" fix="z" />
+            <point id="814E9044-1AAC-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1AAD-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1AAE-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1AAA-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1DBA-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1DB9-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1DB4-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1DB5-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1DB8-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1D70-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1D75-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1D6F-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1D41-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB3-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB2-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB1-5A4E-E053-1A041EACF9E4" adj="z" />
+            <height-differences>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75589" dist="0.022" stdev="0.00014866068747318504" extern="16"/>
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75594" dist="0.022" stdev="0.00014866068747318504" extern="17"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79941" dist="0.032" stdev="0.00017916472867168917" extern="18"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79945" dist="0.032" stdev="0.00017916472867168917" extern="19"/>
+                <dh from="814E9044-1AAE-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="0.11055" dist="0.319" stdev="0.000564889369699944" extern="20"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAE-5A4E-E053-1A041EACF9E4" val="-0.11062" dist="0.317" stdev="0.0005631163290120435" extern="21"/>
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00465" dist="0.023" stdev="0.00015198684153570663" extern="22"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.0047" dist="0.023" stdev="0.00015198684153570663" extern="23"/>
+                <dh from="814E9044-1DBA-5A4E-E053-1A041EACF9E4" to="814E9044-1DB9-5A4E-E053-1A041EACF9E4" val="-0.01346" dist="0.177" stdev="0.0006311497445139308" extern="88"/>
+                <dh from="814E9044-1DB9-5A4E-E053-1A041EACF9E4" to="814E9044-1DBA-5A4E-E053-1A041EACF9E4" val="0.01394" dist="0.177" stdev="0.0006311497445139308" extern="89"/>
+                <dh from="814E9044-1DB4-5A4E-E053-1A041EACF9E4" to="814E9044-1DB5-5A4E-E053-1A041EACF9E4" val="0.04976" dist="0.487" stdev="0.0010468285437453453" extern="92"/>
+                <dh from="814E9044-1DB5-5A4E-E053-1A041EACF9E4" to="814E9044-1DB4-5A4E-E053-1A041EACF9E4" val="-0.04906" dist="0.488" stdev="0.0010479026672358459" extern="93"/>
+                <dh from="814E9044-1DB9-5A4E-E053-1A041EACF9E4" to="814E9044-1DB8-5A4E-E053-1A041EACF9E4" val="0.47804" dist="0.392" stdev="0.000939201788754685" extern="94"/>
+                <dh from="814E9044-1DB8-5A4E-E053-1A041EACF9E4" to="814E9044-1DB9-5A4E-E053-1A041EACF9E4" val="-0.47766" dist="0.393" stdev="0.0009403988515518297" extern="95"/>
+                <dh from="814E9044-1D70-5A4E-E053-1A041EACF9E4" to="814E9044-1D75-5A4E-E053-1A041EACF9E4" val="1.57289" dist="0.494" stdev="0.0010543244282477761" extern="440"/>
+                <dh from="814E9044-1D6F-5A4E-E053-1A041EACF9E4" to="814E9044-1D75-5A4E-E053-1A041EACF9E4" val="-7.21113" dist="0.614" stdev="0.0011754148203932092" extern="445"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79795" dist="0.036" stdev="0.00019" extern="458"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79781" dist="0.036" stdev="0.00019" extern="459"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.00456" dist="0.028" stdev="0.0001676305461424021" extern="460"/>
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00458" dist="0.028" stdev="0.0001676305461424021" extern="461"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75469" dist="0.02" stdev="0.00014177446878757826" extern="462"/>
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75452" dist="0.02" stdev="0.00014177446878757826" extern="463"/>
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00461" dist="0.023" stdev="0.00015198684153570663" extern="645"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.00477" dist="0.023" stdev="0.00015198684153570663" extern="646"/>
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75468" dist="0.014" stdev="0.00011874342087037917" extern="647"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75457" dist="0.014" stdev="0.00011874342087037917" extern="648"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79807" dist="0.032" stdev="0.00017916472867168917" extern="649"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79803" dist="0.032" stdev="0.00017916472867168917" extern="650"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1D41-5A4E-E053-1A041EACF9E4" val="0.19919" dist="0.435" stdev="0.0006596211033616193" extern="651"/>
+                <dh from="814E9044-1D41-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.1992" dist="0.319" stdev="0.000564889369699944" extern="652"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79744" dist="0.032" stdev="0.00010779610382569492" extern="870"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79722" dist="0.032" stdev="0.00010779610382569492" extern="871"/>
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00462" dist="0.023" stdev="9.154233993076646e-05" extern="872"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.00464" dist="0.023" stdev="9.154233993076646e-05" extern="873"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75352" dist="0.018" stdev="8.111719916269299e-05" extern="874"/>
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75362" dist="0.018" stdev="8.111719916269299e-05" extern="875"/>
+                <dh from="814E9044-1FB3-5A4E-E053-1A041EACF9E4" to="814E9044-1DB5-5A4E-E053-1A041EACF9E4" val="0.52313" dist="0.458" stdev="0.0010005151173270697" extern="1473"/>
+                <dh from="814E9044-1DB5-5A4E-E053-1A041EACF9E4" to="814E9044-1FB3-5A4E-E053-1A041EACF9E4" val="-0.52377" dist="0.458" stdev="0.0010005151173270697" extern="1474"/>
+                <dh from="814E9044-1FB2-5A4E-E053-1A041EACF9E4" to="814E9044-1FB1-5A4E-E053-1A041EACF9E4" val="-0.69987" dist="0.716" stdev="0.0010008051758459285" extern="1475"/>
+                <dh from="814E9044-1FB1-5A4E-E053-1A041EACF9E4" to="814E9044-1FB2-5A4E-E053-1A041EACF9E4" val="0.70228" dist="0.742" stdev="0.0010008344018867456" extern="1476"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79765" dist="0.032" stdev="0.00010015987220439131" extern="1321"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79769" dist="0.032" stdev="0.00010015987220439131" extern="1322"/>
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75476" dist="0.018" stdev="0.00010008995953640905" extern="1323"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75467" dist="0.018" stdev="0.00010008995953640905" extern="1324"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.00469" dist="0.023" stdev="0.00010011493395093461" extern="1325"/>
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00468" dist="0.023" stdev="0.00010011493395093461" extern="1326"/>
+            </height-differences>
+        </points-observations>
+    </network>
+</gama-local>
