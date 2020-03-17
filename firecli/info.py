@@ -11,7 +11,7 @@ from pyproj import CRS
 
 import firecli
 from firecli import firedb
-from fireapi.model import Punkt, PunktInformation, PunktInformationType, Srid
+from fire.api.model import Punkt, PunktInformation, PunktInformationType, Srid
 
 
 @click.group()

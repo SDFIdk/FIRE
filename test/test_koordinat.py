@@ -1,5 +1,5 @@
-from fireapi import FireDb
-from fireapi.model import Koordinat, Artskode
+from fire.api import FireDb
+from fire.api.model import Koordinat, Artskode
 
 
 def test_koordinat(firedb: FireDb, koordinat: Koordinat):

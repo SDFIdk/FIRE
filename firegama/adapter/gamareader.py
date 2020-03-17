@@ -3,8 +3,8 @@ import math
 import ast
 import xml.etree.ElementTree as ET
 
-from fireapi import FireDb
-from fireapi.model import Beregning, Koordinat, Sagsevent
+from fire.api import FireDb
+from fire.api.model import Beregning, Koordinat, Sagsevent
 
 
 class GamaReader(object):

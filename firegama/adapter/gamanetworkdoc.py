@@ -1,7 +1,7 @@
 from typing import List, Dict
 import math
-from fireapi.model import Observation, Punkt
-from fireapi import FireDb
+from fire.api.model import Observation, Punkt
+from fire.api import FireDb
 
 
 class GamaNetworkDoc:

@@ -1,6 +1,6 @@
-from fireapi import FireDb
+from fire.api import FireDb
 
-from fireapi.model.punkttyper import PunktInformationType
+from fire.api.model.punkttyper import PunktInformationType
 
 
 def test_has_session(firedb: FireDb):

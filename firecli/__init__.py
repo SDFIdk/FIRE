@@ -5,7 +5,7 @@ from pathlib import Path
 
 import click
 
-from fireapi import FireDb
+from fire.api import FireDb
 
 __version__ = "0.0.1"
 

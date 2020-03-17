@@ -7,7 +7,7 @@ from firegama.clickdatetime import Datetime
 
 import firecli
 from firecli import firedb
-from fireapi.model import Geometry
+from fire.api.model import Geometry
 
 from firegama.adapter import GamaReader, GamaWriter
 

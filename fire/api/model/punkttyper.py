@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 
 # DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
 
-from fireapi.model import IntEnum, RegisteringTidObjekt, DeclarativeBase, columntypes
+from fire.api.model import IntEnum, RegisteringTidObjekt, DeclarativeBase, columntypes
 
 # Eksports
 __all__ = [

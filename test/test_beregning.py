@@ -1,6 +1,6 @@
 import datetime
-from fireapi import FireDb
-from fireapi.model import (
+from fire.api import FireDb
+from fire.api.model import (
     Koordinat,
     Punkt,
     Observation,

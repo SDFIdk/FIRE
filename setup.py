@@ -7,7 +7,7 @@ import subprocess
 from setuptools import setup
 from setuptools import find_packages
 
-import fireapi
+import fire
 import firecli
 
 
@@ -29,7 +29,7 @@ def readme():
 
 setup(
     name="fire",
-    version=fireapi.__version__,
+    version=fire.__version__,
     description=SHORT_DESCR,
     long_description=readme(),
     classifiers=[
@@ -50,7 +50,7 @@ setup(
     tests_require=["pytest>=3.1"],
     install_requires=["cx_Oracle>=7.0", "sqlalchemy>=1.2.13", "click", "click_plugins"],
     python_requires=">=3.6",
-    py_modules=["fireapi", "firecli", "firegama", "firemark"],
+    py_modules=["fire", "firecli", "firegama", "firemark"],
     entry_points="""
         [console_scripts]
         fire=firecli.main:fire

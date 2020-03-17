@@ -1,4 +1,4 @@
-from fireapi.model import Srid
+from fire.api.model import Srid
 
 
 def test_hent_srid(firedb):

@@ -1,6 +1,6 @@
 from typing import List, Dict
-from fireapi import FireDb
-from fireapi.model import Punkt, Observation
+from fire.api import FireDb
+from fire.api.model import Punkt, Observation
 from .gamanetworkdoc import GamaNetworkDoc
 
 
