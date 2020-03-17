@@ -57,6 +57,6 @@ setup(
         [fire.cli.fire_commands]
         info=fire.cli.info:info
         gama=firegama.cli:gama
-        mark=firemark.cli:mark
+        mark=fire.cli.mark:mark
     """,
 )
