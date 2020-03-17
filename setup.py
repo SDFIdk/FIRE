@@ -48,12 +48,7 @@ setup(
     license="MIT",
     test_suite="pytest",
     tests_require=["pytest>=3.1"],
-    install_requires=[
-        "cx_Oracle>=7.0",
-        "sqlalchemy>=1.2.13",
-        "click",
-        "click_plugins",
-    ],
+    install_requires=["cx_Oracle>=7.0", "sqlalchemy>=1.2.13", "click", "click_plugins"],
     python_requires=">=3.6",
     py_modules=["fireapi", "firecli", "firegama", "firemark"],
     entry_points="""

@@ -82,7 +82,9 @@ for conf_file in search_files:
                     and "database" in conf_db
                     and "service" in conf_db
                 ):
-                    raise ValueError("Fejl i konfigurationsfil. Konsulter dokumentationen!")
+                    raise ValueError(
+                        "Fejl i konfigurationsfil. Konsulter dokumentationen!"
+                    )
         break
 else:
     raise EnvironmentError("Konfigurationsfil ikke fundet!")

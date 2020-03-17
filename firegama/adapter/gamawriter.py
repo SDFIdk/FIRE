@@ -3,22 +3,23 @@ from fireapi import FireDb
 from fireapi.model import Punkt, Observation
 from .gamanetworkdoc import GamaNetworkDoc
 
+
 class GamaWriter(object):
     def __init__(self, fireDb: FireDb, output_stream):
-        #Input parameters
+        # Input parameters
         self.fireDb = fireDb
         self.output_stream = output_stream
         self.fixed_points = []
-        
-        #Local parameters
+
+        # Local parameters
         self.obsList = []
-        
+
     def set_fixed_point_ids(self, fixed_points: List[str]):
         self.fixed_points = fixed_points
-        
+
     def take_all_points(self):
         points = self.fireDb.hent_alle_punkter()
-        #id='3840df67-94aa-49ca-84fb-ea9e808b44d1', objectid=2, sagseventid='3840df67-94aa-49ca-84fb-ea9e808b44d1'
+        # id='3840df67-94aa-49ca-84fb-ea9e808b44d1', objectid=2, sagseventid='3840df67-94aa-49ca-84fb-ea9e808b44d1'
         obsDict = {}
         for point in points:
             of = point.observationer_fra
@@ -31,21 +32,24 @@ class GamaWriter(object):
                 if o.objectid not in obsDict:
                     obsDict[o.objectid] = o
                     self.obsList.append(o)
-            
-        self.point_set_description = "GamaWriter.take_all_points() Antal punkter: " + str(len(points))
-        
+
+        self.point_set_description = (
+            "GamaWriter.take_all_points() Antal punkter: " + str(len(points))
+        )
+
     def take_observations(self, observations: List[Observation]):
         self.obsList = observations
-        self.point_set_description = "GamaWriter.take_observations() Antal observationer: " + str(len(observations))
-        
+        self.point_set_description = (
+            "GamaWriter.take_observations() Antal observationer: "
+            + str(len(observations))
+        )
+
     def write(self, heights, pos, parent_description, parameters: Dict):
         self.parent_description = parent_description
-        
-        doc = GamaNetworkDoc( self.fireDb, parameters)
+
+        doc = GamaNetworkDoc(self.fireDb, parameters)
         doc.add_description("Initiated by " + parent_description)
         doc.add_description(self.point_set_description)
         doc.set_fixed_point_ids(self.fixed_points)
         doc.set_observations(self.obsList)
         doc.write(self.output_stream, heights, pos)
-    
-    
