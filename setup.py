@@ -8,7 +8,6 @@ from setuptools import setup
 from setuptools import find_packages
 
 import fire
-import firecli
 
 
 SHORT_DESCR = "FIRE - FIkspunktREgister"
@@ -53,10 +52,10 @@ setup(
     py_modules=["fire", "firecli", "firegama", "firemark"],
     entry_points="""
         [console_scripts]
-        fire=firecli.main:fire
+        fire=fire.cli.main:fire
 
-        [firecli.fire_commands]
-        info=firecli.info:info
+        [fire.cli.fire_commands]
+        info=fire.cli.info:info
         gama=firegama.cli:gama
         mark=firemark.cli:mark
     """,

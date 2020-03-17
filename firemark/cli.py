@@ -12,8 +12,8 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
 import click
 
-from firecli import firedb
-from fireapi.model import (
+from fire.cli import firedb
+from fire.api.model import (
     Sag,
     Sagsevent,
     Sagsinfo,
@@ -23,7 +23,7 @@ from fireapi.model import (
     Srid,
     Koordinat,
 )
-import firecli
+import fire.cli
 
 
 @click.group()
@@ -33,7 +33,7 @@ def mark():
 
 
 @mark.command()
-@firecli.default_options()
+@fire.cli.default_options()
 @click.argument("beskrivelse", nargs=-1, type=click.STRING)
 @click.option("-o", "--output", type=click.File("wt"))
 def nyt_projekt(beskrivelse: click.STRING, output: click.File, **kwargs) -> None:
@@ -71,7 +71,7 @@ def banner(bannertekst: str, **kwargs):
     default=False,
     help="Sorter observationer efter journalside",
 )
-@firecli.default_options()
+@fire.cli.default_options()
 @click.argument(
     "filnavn", nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False)
 )
@@ -86,7 +86,7 @@ def observationsliste(sort: click.BOOL, filnavn: click.Path, **kwargs) -> None:
 
 
 @mark.command()
-@firecli.default_options()
+@fire.cli.default_options()
 @click.argument(
     "filnavn", nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False)
 )
@@ -97,7 +97,7 @@ def punktliste(filnavn: click.Path, **kwargs) -> None:
 
 
 @mark.command()
-@firecli.default_options()
+@fire.cli.default_options()
 @click.argument(
     "filnavn", nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False)
 )
@@ -132,7 +132,7 @@ def registrer_sag(filnavn: click.Path, **kwargs) -> None:
 
 
 @mark.command()
-@firecli.default_options()
+@fire.cli.default_options()
 @click.argument(
     "filnavn", nargs=1, type=click.Path(writable=False, readable=True, allow_dash=False)
 )
@@ -144,7 +144,7 @@ def variabelliste(filnavn: click.Path, **kwargs) -> None:
 
 
 @mark.command()
-@firecli.default_options()
+@fire.cli.default_options()
 @click.option(
     "-o",
     "--output",
@@ -271,10 +271,10 @@ def get_all_observation_strings(
         ), "Dublerede observationer - slå evt. eksterne filer fra."
         return observationer
     except AssertionError as e:
-        firecli.print(str(e))
+        fire.cli.print(str(e))
         click.Abort()
     except:
-        firecli.print("Fejl ved læsning af fil")
+        fire.cli.print("Fejl ved læsning af fil")
         click.Abort()
 
 
@@ -545,9 +545,9 @@ def punkt_information(ident: str) -> PunktInformation:
             .first()
         )
     except NoResultFound:
-        firecli.print(f"Error! {ident} not found!", fg="red", err=True)
+        fire.cli.print(f"Error! {ident} not found!", fg="red", err=True)
         sys.exit(1)
-    firecli.print(f"Fandt {ident}", fg="green", err=False)
+    fire.cli.print(f"Fandt {ident}", fg="green", err=False)
     print(punktinfo)
     return punktinfo
 
@@ -574,7 +574,7 @@ def punkt_geometri(punktinfo: PunktInformation, ident: str) -> Tuple[float, floa
         geo = eval(str(geom.geometri).lstrip("POINT ").replace(" ", ","))
         assert len(geo) == 2, "Bad geometry format: " + str(geom.geometri)
     except NoResultFound:
-        firecli.print(f"Error! Geometry for {ident} not found!", fg="red", err=True)
+        fire.cli.print(f"Error! Geometry for {ident} not found!", fg="red", err=True)
         sys.exit(1)
     return geo
 

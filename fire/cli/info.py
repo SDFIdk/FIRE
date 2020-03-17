@@ -9,8 +9,8 @@ from sqlalchemy import or_
 
 from pyproj import CRS
 
-import firecli
-from firecli import firedb
+import fire.cli
+from fire.cli import firedb
 from fire.api.model import Punkt, PunktInformation, PunktInformationType, Srid
 
 
@@ -79,15 +79,15 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
     """
     Rapportgenerator for funktionen 'punkt' nedenfor.
     """
-    firecli.print("")
-    firecli.print("-" * 80)
-    firecli.print(f" PUNKT {ident} ({i}/{n})", bold=True)
-    firecli.print("-" * 80)
-    firecli.print(f"  FIRE ID             :  {punkt.id}")
-    firecli.print(f"  Oprettelsesdato     :  {punkt.registreringfra}")
-    firecli.print("")
+    fire.cli.print("")
+    fire.cli.print("-" * 80)
+    fire.cli.print(f" PUNKT {ident} ({i}/{n})", bold=True)
+    fire.cli.print("-" * 80)
+    fire.cli.print(f"  FIRE ID             :  {punkt.id}")
+    fire.cli.print(f"  Oprettelsesdato     :  {punkt.registreringfra}")
+    fire.cli.print("")
 
-    firecli.print("--- PUNKTINFO ---", bold=True)
+    fire.cli.print("--- PUNKTINFO ---", bold=True)
     for info in punkt.punktinformationer:
         if info.registreringtil is not None:
             continue
@@ -96,30 +96,30 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
         # attributteksten
         tekst = tekst.replace("\n", "\n" + " " * 25).replace("\r", "")
         tal = info.tal or ""
-        firecli.print(f"  {info.infotype.name:20}:  {tekst}{tal}")
-    firecli.print("")
+        fire.cli.print(f"  {info.infotype.name:20}:  {tekst}{tal}")
+    fire.cli.print("")
 
-    firecli.print("--- GEOMETRI ---", bold=True)
+    fire.cli.print("--- GEOMETRI ---", bold=True)
     for geometriobjekt in punkt.geometriobjekter:
-        firecli.print(f"  {geometriobjekt.geometri}")
-        firecli.print("")
+        fire.cli.print(f"  {geometriobjekt.geometri}")
+        fire.cli.print("")
 
-    firecli.print("--- KOORDINATER ---", bold=True)
+    fire.cli.print("--- KOORDINATER ---", bold=True)
     punkt.koordinater.sort(
         key=lambda x: (x.srid.name, x.t.strftime("%Y-%m-%dT%H:%M")), reverse=True
     )
     for koord in punkt.koordinater:
         if koord.registreringtil is not None:
-            firecli.print(". " + koordinat_linje(koord), fg="red")
+            fire.cli.print(". " + koordinat_linje(koord), fg="red")
         else:
-            firecli.print("* " + koordinat_linje(koord), fg="green")
-    firecli.print("")
+            fire.cli.print("* " + koordinat_linje(koord), fg="green")
+    fire.cli.print("")
 
-    firecli.print("--- OBSERVATIONER ---", bold=True)
+    fire.cli.print("--- OBSERVATIONER ---", bold=True)
     n_obs_til = len(punkt.observationer_til)
     n_obs_fra = len(punkt.observationer_fra)
-    firecli.print(f"  Antal observationer til:  {n_obs_til}")
-    firecli.print(f"  Antal observationer fra:  {n_obs_fra}")
+    fire.cli.print(f"  Antal observationer til:  {n_obs_til}")
+    fire.cli.print(f"  Antal observationer fra:  {n_obs_fra}")
 
     if n_obs_fra + n_obs_til > 0:
         min_obs = datetime.datetime(9999, 12, 31)
@@ -130,14 +130,14 @@ def punkt_rapport(punkt: Punkt, ident: str, i: int, n: int) -> None:
             if obs.registreringfra > max_obs:
                 max_obs = obs.registreringfra
 
-        firecli.print(f"  Ældste observation     :  {min_obs}")
-        firecli.print(f"  Nyeste observation     :  {max_obs}")
+        fire.cli.print(f"  Ældste observation     :  {min_obs}")
+        fire.cli.print(f"  Nyeste observation     :  {max_obs}")
 
-    firecli.print("")
+    fire.cli.print("")
 
 
 @info.command()
-@firecli.default_options()
+@fire.cli.default_options()
 @click.argument("ident")
 def punkt(ident: str, **kwargs) -> None:
     """
@@ -174,13 +174,13 @@ def punkt(ident: str, **kwargs) -> None:
         try:
             punkt = firedb.hent_punkt(ident)
         except NoResultFound:
-            firecli.print(f"Error! {ident} not found!", fg="red", err=True)
+            fire.cli.print(f"Error! {ident} not found!", fg="red", err=True)
             sys.exit(1)
         punkt_rapport(punkt, ident, 1, 1)
 
 
 @info.command()
-@firecli.default_options()
+@fire.cli.default_options()
 @click.argument("srid")
 def srid(srid: str, **kwargs):
     """
@@ -193,16 +193,16 @@ def srid(srid: str, **kwargs):
     try:
         srid = firedb.hent_srid(srid_name)
     except NoResultFound:
-        firecli.print(f"Error! {srid_name} not found!", fg="red", err=True)
+        fire.cli.print(f"Error! {srid_name} not found!", fg="red", err=True)
         sys.exit(1)
 
-    firecli.print("--- SRID ---", bold=True)
-    firecli.print(f" Name:       :  {srid.name}")
-    firecli.print(f" Description :  {srid.beskrivelse}")
+    fire.cli.print("--- SRID ---", bold=True)
+    fire.cli.print(f" Name:       :  {srid.name}")
+    fire.cli.print(f" Description :  {srid.beskrivelse}")
 
 
 @info.command()
-@firecli.default_options()
+@fire.cli.default_options()
 @click.argument("infotype")
 def infotype(infotype: str, **kwargs):
     """
@@ -215,10 +215,10 @@ def infotype(infotype: str, **kwargs):
         if pit is None:
             raise NoResultFound
     except NoResultFound:
-        firecli.print(f"Error! {infotype} not found!", fg="red", err=True)
+        fire.cli.print(f"Error! {infotype} not found!", fg="red", err=True)
         sys.exit(1)
 
-    firecli.print("--- PUNKTINFOTYPE ---", bold=True)
-    firecli.print(f"  Name        :  {pit.name}")
-    firecli.print(f"  Description :  {pit.beskrivelse}")
-    firecli.print(f"  Type        :  {pit.anvendelse}")
+    fire.cli.print("--- PUNKTINFOTYPE ---", bold=True)
+    fire.cli.print(f"  Name        :  {pit.name}")
+    fire.cli.print(f"  Description :  {pit.beskrivelse}")
+    fire.cli.print(f"  Type        :  {pit.anvendelse}")
