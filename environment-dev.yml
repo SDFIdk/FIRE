@@ -1,14 +1,15 @@
-name: fikspunktsregister-dev
+name: fire-dev
 channels:
-  - defaults
+  - conda-forge
 dependencies:
   - python=3.6
   - cx_oracle=7.0
   - sqlalchemy=1.2.13
-  - pip
-  - pytest=3.10
+  - pyproj
+  - gama
+  - pytest
   - sphinx
-  - pip:
-    - black
-    - sqlalchemy_schemadisplay
-
+  - sphinx_rtd_theme
+  - black
+  - pylint
+  - sqlalchemy_schemadisplay

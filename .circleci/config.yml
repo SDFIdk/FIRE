@@ -10,11 +10,12 @@ jobs:
           name: Install 'black' code format checker and pytest
           command: |
             source /opt/conda/bin/activate base
+            conda update -q -n base -c defaults conda
             conda env create -f environment-dev.yml
       - run:
           name: Run 'black' code format check. If this fails you have not run 'black' on the failing files.
           command: |
-            source /opt/conda/bin/activate fikspunktsregister-dev
+            source /opt/conda/bin/activate fire-dev
             black --check ./
       - run:
           name: Sleep 15 seconds to allow Oracle DB to ready itself
@@ -30,6 +31,6 @@ jobs:
       - run:
           name: Run tests
           command: |
-            source /opt/conda/bin/activate fikspunktsregister-dev
+            source /opt/conda/bin/activate fire-dev
 
             ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest --ignore=test/read/ --ignore=test/write/
