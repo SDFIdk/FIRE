@@ -1,7 +1,7 @@
 fireapi.model.columntypes module
 ================================
 
-.. automodule:: fireapi.model.columntypes
+.. automodule:: fire.api.model.columntypes
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,4 +1,4 @@
-Welcome to fireapi's documentation!
+FIRE - FIkspunktREgister
 ===================================
 
 .. toctree::

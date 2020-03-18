@@ -12,21 +12,24 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(".."))
+
+import fire
 
 
 # -- Project information -----------------------------------------------------
 
-project = "fireapi"
+project = "FIRE"
 copyright = "2019, Asger Sigurd Skovbo Petersen, Björn Harrtell, Kristian Evers"
 author = "Asger Sigurd Skovbo Petersen, Björn Harrtell, Kristian Evers"
 
 # The short X.Y version
-version = ""
+version = fire.__version__
 # The full version, including alpha/beta/rc tags
-release = ""
+release = version
 
 
 # -- General configuration ---------------------------------------------------
@@ -100,7 +103,7 @@ html_static_path = ["_static"]
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "fireapidoc"
+htmlhelp_basename = "FIRE"
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -175,7 +178,3 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ["search.html"]
-
-import os, sys
-
-sys.path.insert(0, os.path.abspath(".."))

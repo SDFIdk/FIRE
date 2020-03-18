@@ -1,4 +1,4 @@
-Python API Reference
+FIRE API Reference
 ====================
 
 .. toctree::

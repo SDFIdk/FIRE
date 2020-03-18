@@ -1,4 +1,4 @@
-fireapi package
+fire package
 ===============
 
 Subpackages
@@ -18,7 +18,7 @@ Submodules
 Module contents
 ---------------
 
-.. automodule:: fireapi
+.. automodule:: fire.api
    :members:
    :undoc-members:
    :show-inheritance:
