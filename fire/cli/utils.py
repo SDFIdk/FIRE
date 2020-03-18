@@ -1,4 +1,7 @@
-# Stolen from https://github.com/click-contrib/click-datetime/blob/master/click_datetime/__init__.py
+"""
+Various utilities for 
+"""
+
 import click
 from datetime import datetime
 
@@ -8,6 +11,9 @@ class Datetime(click.ParamType):
     A datetime object parsed via datetime.strptime.
     Format specifiers can be found here :
     https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+
+    Stolen from
+    https://github.com/click-contrib/click-datetime/blob/master/click_datetime/__init__.py
     """
 
     name = "date"

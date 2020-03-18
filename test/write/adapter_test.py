@@ -3,9 +3,9 @@ import datetime
 
 import os
 
-from fireapi import FireDb
-from fireapi.model import Geometry
-from firegama.adapter import GamaWriter
+from fire.api import FireDb
+from fire.api.model import Geometry
+from fire.api.gama import GamaWriter
 
 
 def all_points():

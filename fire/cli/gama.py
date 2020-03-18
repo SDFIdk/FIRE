@@ -1,15 +1,13 @@
 import configparser
-
 import os
 
 import click
-from firegama.clickdatetime import Datetime
 
 import fire.cli
 from fire.cli import firedb
+from fire.cli.utils import Datetime
 from fire.api.model import Geometry
-
-from firegama.adapter import GamaReader, GamaWriter
+from fire.api.gama import GamaReader, GamaWriter
 
 
 @click.group()

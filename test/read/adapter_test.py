@@ -1,5 +1,5 @@
-from fireapi import FireDb
-from firegama.adapter import GamaReader
+from fire.api import FireDb
+from fire.api.gama import GamaReader
 import os
 
 

@@ -1,6 +1,6 @@
 import click
 from click.testing import CliRunner
-from firegama.cli import gama
+from fire.cli.gama import gama
 
 
 def do_test(runner, title, args):
