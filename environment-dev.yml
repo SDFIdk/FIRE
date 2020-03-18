@@ -10,6 +10,7 @@ dependencies:
   - pytest
   - sphinx
   - sphinx_rtd_theme
+  - sphinx-click
   - black
   - pylint
   - sqlalchemy_schemadisplay
