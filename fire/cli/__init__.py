@@ -7,8 +7,6 @@ import click
 
 from fire.api import FireDb
 
-__version__ = "0.0.1"
-
 # Used for controlling the database setup when running the test suite
 RC_NAME = "fire_settings.json"
 
