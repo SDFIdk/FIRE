@@ -1,4 +1,4 @@
-# fire-qgis
+# flame
 QGIS plugin til FIRE database
 
 
@@ -14,6 +14,6 @@ C:\> pip3 install https://github.com/Kortforsyningen/fikspunktsregister/zipball/
 ```
 
 ### Download og installér plugin
-* Download seneste fikspunkregister.zip fra releases
+* Download seneste flame.zip fra releases
 * I QGIS: Vælg menuen _plugins->Administrér og installér plugins_.
 * Klik på _Installér fra ZIP_

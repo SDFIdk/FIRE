@@ -1,7 +1,7 @@
 #/***************************************************************************
-# Fire
+# Flame
 #
-# FikspunktRegister Plugin (Processing funcs)
+# FIRE Plugin (Processing funcs)
 #							 -------------------
 #		begin				: 2019-12-02
 #		git sha				: $Format:%H$
@@ -38,13 +38,13 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	fire_plugin.py 
+	flame_plugin.py 
 
-PLUGINNAME = fire_plugin
+PLUGINNAME = flame_plugin
 
 PY_FILES = \
 	__init__.py \
-	fire_plugin.py 
+	flame_plugin.py 
 
 UI_FILES = 
 

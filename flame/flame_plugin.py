@@ -2,9 +2,9 @@
 
 """
 /***************************************************************************
- Fire
+ Flame
                                  A QGIS plugin
- FikspunktRegister Plugin (Processing funcs)
+ FIRE Plugin (Processing funcs)
                               -------------------
         begin                : 2019-12-02
         copyright            : (C) 2019 by Septima
@@ -30,12 +30,12 @@ import sys
 import inspect
 
 from qgis.core import QgsProcessingAlgorithm, QgsApplication
-from .fire_plugin_provider import FireProvider
+from .flame_plugin_provider import FlameProvider
 
-class FirePlugin(object):
+class FlamePlugin(object):
 
     def __init__(self):
-        self.provider = FireProvider()
+        self.provider = FlameProvider()
 
     def initGui(self):
         QgsApplication.processingRegistry().addProvider(self.provider)

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from fireapi.model.punkttyper import GeometriObjekt, PunktInformation
+from fire.api.model.punkttyper import GeometriObjekt, PunktInformation
 
 __author__ = 'Septima'
 __date__ = '2019-12-02'
@@ -36,11 +36,11 @@ from qgis.PyQt.QtCore import (
     QTime
 )
 try:
-    from fireapi import FireDb
+    from fire.api import FireDb
 except:
     FireDb = None
-    
-from fireapi.model import (
+
+from fire.api.model import (
     Geometry,
     Observation,
     Punkt,
@@ -76,11 +76,11 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         self.OBSERVATION_TYPES = [
             (1, self.tr("Koteforskel opmålt geometrisk")),
             (2, self.tr("Koteforskel opmålt trigonometrisk"))]
-        
+
         o = QgsProcessingParameterEnum(
                 name=self.OBSERVATION_TYPE,
                 description=self.tr('Observationstype'),
-                options=[x[1] for x in self.OBSERVATION_TYPES], 
+                options=[x[1] for x in self.OBSERVATION_TYPES],
                 allowMultiple = True,
                 defaultValue = [0,1]
             )
@@ -95,20 +95,20 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             'widget_wrapper': {
                 'class': NullableDateTimeWrapper}})
         self.addParameter(param)
-        
+
         param = QgsProcessingParameterString(name = self.TO_DATE, description = 'Til Dato', optional = True)
         param.setMetadata({
             'widget_wrapper': {
                 'class': NullableDateTimeWrapper}})
         self.addParameter(param)
-        
+
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.OUTPUT,
                 self.tr('Observationer')
             )
         )
-        
+
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.APPLY_THEME,
@@ -121,7 +121,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         #Input / Output
         source = self.parameterAsSource(parameters, self.INPUT, context)
         (sink, dest_id) = self.create_output_sink(parameters, context, source.sourceCrs())
-        
+
         #Filter parameters
         observation_type_indices = self.parameterAsEnums(parameters, self.OBSERVATION_TYPE, context)
         observation_types = list(map(lambda i: self.OBSERVATION_TYPES[i][0], observation_type_indices))
@@ -149,11 +149,11 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             wkt = feature.geometry().asWkt().upper()
             geometry = Geometry(wkt)
             observations = fireDb.hent_observationer_naer_geometri(geometri=geometry, afstand=0, tidfra=from_date, tidtil=to_date)
-            
+
             pid_list = self.get_pids_from_observations(observations)
             geometriobjekter = self.get_geometriobjekter_from_pids(fireDb, pid_list)
             idents = self.get_idents_from_pids(fireDb, pid_list)
-            
+
             feedback.setProgressText('Fandt {antal} observationer'.format(antal = len(observations)))
             feedback.setProgressText('Fandt {antal} geometriobjekter'.format(antal = len(geometriobjekter)))
             feedback.setProgressText('Fandt {antal} idents'.format(antal = len(idents)))
@@ -161,13 +161,13 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                 observation_type_id = observation.observationstypeid
                 if observation_type_id in observation_types:
                     feature = self.create_feature_from_observation(observation, geometriobjekter, idents, feedback)
-                    if feature: 
+                    if feature:
                         sink.addFeature(feature, QgsFeatureSink.FastInsert)
             total_num_features_processed = total_num_features_processed + 1
             feedback.setProgress(total_num_features_processed/total_num_features)
             if feedback.isCanceled():
                 return {}
-                        
+
         apply_theme = self.parameterAsBool(parameters, self.APPLY_THEME, context)
         if apply_theme:
             style_file = os.path.join(os.path.dirname(__file__),'..', 'styles','observation.qml')
@@ -203,7 +203,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             fields,
             QgsWkbTypes.LineString,
             crs)
-        
+
         return (sink, dest_id)
 
     def get_pids_from_observations(self, observations: List[Observation]):
@@ -216,10 +216,10 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             if sp_id not in pid_list: #Point not already found
                 pid_list.append(sp_id)
         return pid_list
-        
+
     def get_geometriobjekter_from_pids(self, fireDb, pid_list):
         #return dict of {punktid: geometriobjekt}
-                
+
         #Get geometriobjekter
         gos: List[GeometriObjekt] = fireDb.session.query(GeometriObjekt).filter(GeometriObjekt.punktid.in_(pid_list), GeometriObjekt._registreringtil == None).all()
         go_by_pid = {}
@@ -229,14 +229,14 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
 
     def get_idents_from_pids(self, fireDb, pid_list):
         #return dict of {punktid: ident: string}
-        
+
         #GI(346)->GNSS(343)->landsnr(342)->refgeo_id(344)->uuid
         info_type_list = [346, 343, 342, 344]
         infos: List[PunktInformation] = fireDb.session.query(PunktInformation).filter(PunktInformation.punktid.in_(pid_list), PunktInformation.infotypeid.in_(info_type_list)).order_by(PunktInformation.punktid, PunktInformation.infotypeid).all()
-        
+
         ident_by_pid = {}
         if len(infos) > 0:
-            current_index = 0 
+            current_index = 0
             while current_index is not None:
                 current_info: PunktInformation = infos[current_index]
                 current_pid = current_info.punktid
@@ -244,7 +244,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                 ident_by_pid[current_pid] = ident
                 current_index = self.next_index(current_index, infos)
         return ident_by_pid
-    
+
     def get_index_ident(self, current_index, infos: List[PunktInformation]):
         current_pid = infos[current_index].punktid
         best_info = infos[current_index]
@@ -268,7 +268,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             return 2
         elif info.infotypeid == 344:
             return 1
-    
+
     def get_ident_text(self, info: PunktInformation):
         if info.infotypeid == 346:
             return 'GI:' + info.tekst
@@ -278,7 +278,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             return 'landsnr:' + info.tekst
         elif info.infotypeid == 344:
             return 'refgeo_id:' + info.tekst
-        
+
     def next_index(self, current_index, infos: List[PunktInformation]):
         current_pid = infos[current_index].punktid
         inc = 1
@@ -287,7 +287,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         if current_index + inc < len(infos):
             return current_index + inc
         else:
-            return None 
+            return None
 
     def create_feature_from_observation(self, observation: Observation, geometriobjekter: Dict[str, GeometriObjekt], idents: Dict[str, str], feedback: QgsProcessingFeedback):
         observation_id = observation.objectid
@@ -296,7 +296,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         fikspunkt1_ident = 'uuid:' + fikspunkt1_id
         if fikspunkt1_id in idents:
             fikspunkt1_ident = idents[fikspunkt1_id]
-        
+
         fikspunkt2_id = observation.sigtepunktid
         fikspunkt2_ident = 'uuid:' + fikspunkt2_id
         if fikspunkt2_id in idents:
@@ -322,10 +322,10 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             #     QgsField("koteforskel", QVariant.Double),
             #     QgsField("nivellementslaengde", QVariant.Double),
             #     QgsField("antal_opstillinger", QVariant.Double), Value3
-            #     QgsField("afstandsafhaengig_varians", QVariant.Double),  (value5 for id=1, value4 for id=2) 
-            #     QgsField("afstandsuafhaengig_varians", QVariant.Double),  (value6 for id=1, value5 for id=2) 
-            #     QgsField("Praecisionsnivellement", QVariant.Double)],  (value7 for id=1, 0 for id=2) 
-            
+            #     QgsField("afstandsafhaengig_varians", QVariant.Double),  (value5 for id=1, value4 for id=2)
+            #     QgsField("afstandsuafhaengig_varians", QVariant.Double),  (value6 for id=1, value5 for id=2)
+            #     QgsField("Praecisionsnivellement", QVariant.Double)],  (value7 for id=1, 0 for id=2)
+
             observation_type_id = observation.observationstypeid
             registrering_fra = QDateTime(observation.registreringfra)
             registrering_fra_iso = registrering_fra.toString(Qt.ISODate)
@@ -344,7 +344,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                 #Observationstypeid > 2
                 feedback.setProgressText('observation_type_id > 2 for observation med id =  {id}. Springes over'.format(id = observation_id))
                 return None
-            
+
             # create the feature
             feature = QgsFeature()
             feature.setGeometry(line_geometry)
@@ -362,7 +362,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                                afstandsafhaengig_varians,
                                afstandsuafhaengig_varians,
                                Praecisionsnivellement])
-            
+
             return feature
         else:
             #A geometry could not be established
@@ -381,7 +381,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             return geom
         else:
             return None
-    
+
     def name(self):
         return 'fire-import-observations-location'
 
@@ -396,13 +396,13 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
 
     def flags(self):
         return QgsProcessingAlgorithm.FlagNoThreading
-    
+
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)
 
     def createInstance(self):
         return ImportObservationerByLocationAlgorithm(self.settings)
-    
+
     def canExecute(self):
         if FireDb is None:
             return False, "Dette plugin er afhængigt af API'et til Fikspunktregistret. Se venligst https://github.com/Septima/fire-qgis#installation"
@@ -419,7 +419,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
                 str_ex = str(ex)
                 fire_connection_file_path = self.settings.value('fire_connection_file_path')
                 return False, 'Fejl i forbindelse til Fikspunktregistret. Se venligst https://github.com/Kortforsyningen/fire-cli#konfigurationsfil for format og indhold af konfigurationsfil.          Exception:[' + str_ex + ']  Konfigurationsfil:[' + fire_connection_file_path + ']'
-    
+
     def shortHelpString(self):
         help_string = 'Importerer observationer fra Fikstpunktregistret, hvor\n- enten p1 eller p2 er indeholdt i forespørgselsgeometrien,\n- observationstype er som ønsket og\n- registrering-fra ligger indenfor dato-interval (Optionelt)\n\n'
         conf_message = ''

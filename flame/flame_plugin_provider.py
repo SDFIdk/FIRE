@@ -15,11 +15,11 @@ from .settings.settings import Settings
 from PyQt5.QtGui import QIcon
 
 
-class FireProvider(QgsProcessingProvider):
+class FlameProvider(QgsProcessingProvider):
 
     def __init__(self):
         QgsProcessingProvider.__init__(self)
-        
+
         self.settings = Settings()
 
         self.alglist = [ImportObservationerByLocationAlgorithm(self.settings),
@@ -35,10 +35,10 @@ class FireProvider(QgsProcessingProvider):
             self.addAlgorithm( alg )
 
     def id(self):
-        return 'fire'
+        return 'flame'
 
     def name(self):
-        return self.tr('Fikspunktregister (SDFE)')
+        return self.tr('Flame')
 
     def longName(self):
         return self.name()

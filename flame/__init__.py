@@ -26,5 +26,5 @@ __copyright__ = '(C) 2019 by Septima'
 
 
 def classFactory(iface):  # pylint: disable=invalid-name
-    from .fire_plugin import FirePlugin
-    return FirePlugin()
+    from .flame_plugin import FlamePlugin
+    return FlamePlugin()
