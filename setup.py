@@ -31,25 +31,34 @@ setup(
     version=fire.__version__,
     description=SHORT_DESCR,
     long_description=readme(),
+    long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 4 - Beta",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
+        "Natural Language :: Danish",
+        "Programming Language :: Python :: 3 :: Only",
         "Topic :: Scientific/Engineering :: GIS",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Utilities",
     ],
-    packages=find_packages(),
+    packages=find_packages(exclude=["test"]),
     keywords="levelling database geodesy",
     url="https://github.com/Kortforsyningen/fire",
-    author="Septima / SDFE",
+    author="SDFE, Septima",
     author_email="grf@sdfe.dk",
     license="MIT",
     test_suite="pytest",
     tests_require=["pytest>=3.1"],
-    install_requires=["cx_Oracle>=7.0", "sqlalchemy>=1.2.13", "click", "click_plugins"],
+    install_requires=[
+        "cx_Oracle>=7.0",
+        "sqlalchemy>=1.2.13",
+        "click",
+        "click_plugins"
+    ],
     python_requires=">=3.6",
-    py_modules=["fire", "firecli", "firegama", "firemark"],
     entry_points="""
         [console_scripts]
         fire=fire.cli.main:fire
