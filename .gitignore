@@ -124,10 +124,15 @@ cx_Oracle-doc
 dmypy.json
 
 # Pyre type checker
-<<<<<<< HEAD
 .pyre/
 /.project
 /.pydevproject
 
 #pycharm
 /.idea
+/.project
+/.pydevproject
+/dev/
+/.settings/
+/flame.zip
+/flame/zip_build
