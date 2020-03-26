@@ -11,6 +11,8 @@ jobs:
           command: |
             source /opt/conda/bin/activate base
             conda update -q -n base -c defaults conda
+            sed -i '/msys2/d' environment-dev.yml
+            sed -i '/m2-zip/d' environment-dev.yml
             conda env create -f environment-dev.yml
       - run:
           name: Run 'black' code format check. If this fails you have not run 'black' on the failing files.

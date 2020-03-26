@@ -14,6 +14,9 @@ script:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
+  # Remove conda packages that are only available on Windows
+  - sed -i '/msys2/d' environment-dev.yml
+  - sed -i '/m2-zip/d' environment-dev.yml
   - conda env create -f environment-dev.yml
   - conda activate fire-dev
   - sphinx-build -b html ./docs ./docs/_build

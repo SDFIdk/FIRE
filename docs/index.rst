@@ -5,6 +5,8 @@ FIRE - FIkspunktREgister
     :maxdepth: 2
     :caption: Contents:
 
+    installation
+    for_udviklere
     apps/index
     api/index
 

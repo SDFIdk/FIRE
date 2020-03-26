@@ -1,6 +1,7 @@
 name: fire-dev
 channels:
   - conda-forge
+  - msys2
 dependencies:
   - python=3.6
   - cx_oracle=7.0
@@ -14,3 +15,7 @@ dependencies:
   - black
   - pylint
   - sqlalchemy_schemadisplay
+  - m2-zip
+  - pip
+  - pip:
+     - pb_tool
