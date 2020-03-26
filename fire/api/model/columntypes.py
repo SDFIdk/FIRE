@@ -1,7 +1,7 @@
 from sqlalchemy.types import UserDefinedType, TypeDecorator, Integer
 from sqlalchemy.sql import type_coerce
 from sqlalchemy import func
-from fireapi.model import geometry
+from fire.api.model import geometry
 
 # Based on https://github.com/zzzeek/sqlalchemy/blob/master/examples/postgis/postgis.py
 

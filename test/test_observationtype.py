@@ -1,6 +1,6 @@
 import pytest
-from fireapi import FireDb
-from fireapi.model import ObservationType
+from fire.api import FireDb
+from fire.api.model import ObservationType
 
 
 def test_hent_observationtype(firedb: FireDb):

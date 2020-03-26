@@ -5,7 +5,7 @@ from typing import List, Optional
 from sqlalchemy import create_engine, func, event, and_, inspect
 from sqlalchemy.orm import sessionmaker, aliased
 
-from fireapi.model import (
+from fire.api.model import (
     RegisteringTidObjekt,
     Sag,
     Punkt,

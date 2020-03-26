@@ -14,7 +14,7 @@ Submodules
 Module contents
 ---------------
 
-.. automodule:: fireapi.model
+.. automodule:: fire.api.model
    :members:
    :undoc-members:
    :show-inheritance:

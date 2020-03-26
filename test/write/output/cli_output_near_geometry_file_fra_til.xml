@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<gama-local xmlns="http://www.gnu.org/software/gama/gama-local">
+    <network >
+        <parameters />
+        <description>
+            Network doc created by fire-gama (https://github.com/Septima/fire-gama)
+            Initiated by Created by fire-gama
+            GamaWriter.take_observations() Antal observationer: 16
+            GamaNetworkDoc.set_fixed_points: Antal punkter: 1
+            GamaNetworkDoc.set_observations: Antal observationer: 16
+            Warnings:
+            Fixed point with no z value. Punktid:814E9044-1AAB-5A4E-E053-1A041EACF9E4
+        </description>
+        <points-observations >
+            <point id="814E9044-1AAB-5A4E-E053-1A041EACF9E4" fix="z" />
+            <point id="814E9044-1AAA-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1AAC-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1AAD-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB3-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1DB5-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB1-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB2-5A4E-E053-1A041EACF9E4" adj="z" />
+            <height-differences>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.00469" dist="0.023" stdev="0.00010011493395093461" extern="1325"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.00464" dist="0.023" stdev="9.154233993076646e-05" extern="873"/>
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00468" dist="0.023" stdev="0.00010011493395093461" extern="1326"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79765" dist="0.032" stdev="0.00010015987220439131" extern="1321"/>
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00462" dist="0.023" stdev="9.154233993076646e-05" extern="872"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79722" dist="0.032" stdev="0.00010779610382569492" extern="871"/>
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75476" dist="0.018" stdev="0.00010008995953640905" extern="1323"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79769" dist="0.032" stdev="0.00010015987220439131" extern="1322"/>
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75362" dist="0.018" stdev="8.111719916269299e-05" extern="875"/>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79744" dist="0.032" stdev="0.00010779610382569492" extern="870"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75467" dist="0.018" stdev="0.00010008995953640905" extern="1324"/>
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75352" dist="0.018" stdev="8.111719916269299e-05" extern="874"/>
+                <dh from="814E9044-1FB3-5A4E-E053-1A041EACF9E4" to="814E9044-1DB5-5A4E-E053-1A041EACF9E4" val="0.52313" dist="0.458" stdev="0.0010005151173270697" extern="1473"/>
+                <dh from="814E9044-1DB5-5A4E-E053-1A041EACF9E4" to="814E9044-1FB3-5A4E-E053-1A041EACF9E4" val="-0.52377" dist="0.458" stdev="0.0010005151173270697" extern="1474"/>
+                <dh from="814E9044-1FB1-5A4E-E053-1A041EACF9E4" to="814E9044-1FB2-5A4E-E053-1A041EACF9E4" val="0.70228" dist="0.742" stdev="0.0010008344018867456" extern="1476"/>
+                <dh from="814E9044-1FB2-5A4E-E053-1A041EACF9E4" to="814E9044-1FB1-5A4E-E053-1A041EACF9E4" val="-0.69987" dist="0.716" stdev="0.0010008051758459285" extern="1475"/>
+            </height-differences>
+        </points-observations>
+    </network>
+</gama-local>

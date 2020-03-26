@@ -1,7 +1,9 @@
-name: fikspunktsregister-dev
+name: fire
 channels:
-  - defaults
+  - conda-forge
 dependencies:
   - python=3.6
   - cx_oracle=7.0
   - sqlalchemy=1.2.13
+  - pyproj
+  - gama

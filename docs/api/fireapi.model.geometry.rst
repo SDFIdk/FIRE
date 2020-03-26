@@ -1,7 +1,7 @@
 fireapi.model.geometry module
 =============================
 
-.. automodule:: fireapi.model.geometry
+.. automodule:: fire.api.model.geometry
    :members:
    :undoc-members:
    :show-inheritance:

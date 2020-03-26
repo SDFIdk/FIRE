@@ -1,7 +1,7 @@
 fireapi.firedb module
 =====================
 
-.. automodule:: fireapi.firedb
+.. automodule:: fire.api.firedb
    :members:
    :undoc-members:
    :show-inheritance:

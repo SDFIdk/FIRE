@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<gama-local-adjustment xmlns="http://www.gnu.org/software/gama/gama-local-adjustment">
+
+<description>
+            Network doc created by fire-gama (https://github.com/Septima/fire-gama)
+            Initiated by test/all_points.py
+            GamaWriter.take_all_points() Antal punkter: 1905
+            GamaNetworkDoc.set_fixed_points: Antal punkter: 1
+            GamaNetworkDoc.set_observations: Antal observationer: 1217
+            {observation_ids} :[366,367,388,389,387,386,385,384,379,378,376,377,371,370,381,380,494,493,491,492,372,373,218,234,222,227,216,238,220,221,217,232,230,237,235,239,219,223,224,231,214,226,228,236,229,215,225,233,375,374,368,369,395,394,396,397,393,392,382,383,309,312,308,313,310,311,482,483,481,484,12,14,23,40,57,24,170,41,5,157,47,59,58,61,70,60,42,36,71,86,77,158,159,6,25,43,21,72,78,26,44,80,13,160,27,37,28,9,161,55,79,62,46,3,45,22,63,11,49,73,15,29,162,48,441,406,456,455,74,2,81,38,163,64,31,39,30,4,82,164,65,50,83,69,33,16,165,51,32,67,166,1,167,84,7,52,66,34,168,85,17,75,10,340,342,54,341,343,68,443,20,442,56,53,445,475,444,476,477,478,463,464,467,468,465,466,457,458,447,446,94,93,347,346,344,345,348,349,299,300,301,303,302,298,180,189,179,190,429,181,186,430,182,185,437,176,438,175,439,440,171,184,172,183,254,305,255,306,253,304,252,307,129,130,132,131,339,338,337,336,210,211,213,212,286,288,290,292,287,289,291,293,282,284,283,285,390,391,332,333,432,431,174,173,191,192,187,188,436,435,35,8,76,18,169,19,353,352,351,350,355,354,453,454,448,449,472,471,496,495,460,459,488,487,490,489,434,433,178,177,328,329,319,318,331,330,327,326,315,314,320,321,322,323,334,335,324,325,317,316,247,248,246,249,404,405,398,399,400,401,402,403,486,485,361,360,357,356,358,359,479,480,363,362,427,428,423,424,426,425,197,242,245,243,244,240,251,241,250,205,207,209,202,206,208,203,204,198,200,199,201,294,297,295,296,89,90,92,91,118,117,106,105,120,119,107,108,114,113,121,122,123,124,125,126,127,128,110,109,116,115,112,111,451,450,452,462,461,473,474,470,469,139,141,273,422,280,407,140,142,260,262,408,421,138,96,256,137,95,267,134,418,277,133,264,417,150,98,274,149,97,275,145,263,268,416,146,258,259,415,156,420,276,155,419,278,144,265,414,143,269,413,147,152,99,270,271,410,148,151,100,257,409,279,135,154,101,261,266,412,136,153,102,272,411,281,104,364,103,365,87,88,194,193,195,196]{/observation_ids}
+            Warnings:
+            Fixed point with no z value. Punktid:7CA9F53D-DAE9-59C0-E053-1A041EAC5678
+        </description>
+
+<network-general-parameters
+   gama-local-version="2.00"
+   gama-local-algorithm="gso"
+   gama-local-compiler="msvc++ 19.13"
+   axes-xy="en"
+   angles="left-handed"
+   epoch="0.0000000"
+   latitude="55.7000000"
+   ellipsoid="grs80"
+/>
+
+<network-processing-summary>
+
+<coordinates-summary>
+   <coordinates-summary-adjusted>    <count-xyz>0</count-xyz> <count-xy>0</count-xy> <count-z>2</count-z> </coordinates-summary-adjusted>
+   <coordinates-summary-constrained> <count-xyz>0</count-xyz> <count-xy>0</count-xy> <count-z>0</count-z> </coordinates-summary-constrained>
+   <coordinates-summary-fixed>       <count-xyz>0</count-xyz> <count-xy>0</count-xy> <count-z>1</count-z> </coordinates-summary-fixed>
+</coordinates-summary>
+
+<observations-summary>
+   <distances>0</distances>
+   <directions>0</directions>
+   <angles>0</angles>
+   <xyz-coords>0</xyz-coords>
+   <h-diffs>4</h-diffs>
+   <z-angles>0</z-angles>
+   <s-dists>0</s-dists>
+   <vectors>0</vectors>
+   <azimuths>0</azimuths>
+</observations-summary>
+
+<project-equations>
+   <equations>4</equations>
+   <unknowns>2</unknowns>
+   <degrees-of-freedom>2</degrees-of-freedom>
+   <defect>0</defect>
+   <sum-of-squares>1.6428752e+06</sum-of-squares>
+   <connected-network/>
+</project-equations>
+
+<standard-deviation>
+   <apriori>1.0000000e+00</apriori>
+   <aposteriori>9.0633194e+02</aposteriori>
+   <used>apriori</used>
+
+   <probability>0.950</probability>
+   <ratio>906.332</ratio>
+   <lower>0.159</lower>
+   <upper>1.921</upper>
+   <failed/>
+
+   <confidence-scale>1.9599640e+00</confidence-scale>
+</standard-deviation>
+
+</network-processing-summary>
+
+<coordinates>
+
+<fixed>
+   <point> <id>7CA9F53D-DAE9-59C0-E053-1A041EAC5678</id> <z>3.175820</z> </point>
+</fixed>
+
+<approximate>
+   <point> <id>7CA9F53D-DB00-59C0-E053-1A041EAC5678</id> <z>3.803170</z> </point>
+   <point> <id>7CA9F53D-DB01-59C0-E053-1A041EAC5678</id> <z>5.102990</z> </point>
+</approximate>
+
+<!-- capital X,Y,Z denote constrained coordinates -->
+<adjusted>
+   <point> <id>7CA9F53D-DB00-59C0-E053-1A041EAC5678</id> <z>3.8044303266289705</z> </point>
+   <point> <id>7CA9F53D-DB01-59C0-E053-1A041EAC5678</id> <z>5.1029352510905950</z> </point>
+</adjusted>
+
+<orientation-shifts>
+</orientation-shifts>
+
+<!-- upper part of symmetric matrix band by rows -->
+<cov-mat>
+<dim>2</dim> <band>0</band>
+<flt>1.3391639e-06</flt> <flt>2.4641986e-07</flt> </cov-mat>
+
+<!-- original indexes from the adjustment -->
+<original-index>
+<ind>1</ind>
+<ind>2</ind>
+</original-index>
+
+</coordinates>
+
+<observations>
+
+<height-diff> <from>7CA9F53D-DB00-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB01-59C0-E053-1A041EAC5678</to>
+   <obs>1.2998200000000000</obs> <adj>1.2985049244616247</adj> <stdev>0.0010453439821363</stdev>
+   <qrr>0.000</qrr> <f>28.764</f> <std-residual>1276.949</std-residual>
+   <err-obs>-2.670</err-obs> <err-adj>-1.355</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB01-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB00-59C0-E053-1A041EAC5678</to>
+   <obs>-1.2971500000000000</obs> <adj>-1.2985049244616247</adj> <stdev>0.0010453439821363</stdev>
+   <qrr>0.000</qrr> <f>29.819</f> <std-residual>1276.949</std-residual>
+   <err-obs>-2.670</err-obs> <err-adj>-1.315</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DB01-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DAE9-59C0-E053-1A041EAC5678</to>
+   <obs>-1.9271700000000000</obs> <adj>-1.9271152510905956</adj> <stdev>0.0004964069540770</stdev>
+   <qrr>0.000</qrr> <f>29.128</f> <std-residual>110.795</std-residual>
+   <err-obs>0.110</err-obs> <err-adj>0.055</err-adj>
+   </height-diff>
+<height-diff> <from>7CA9F53D-DAE9-59C0-E053-1A041EAC5678</from> <to>7CA9F53D-DB01-59C0-E053-1A041EAC5678</to>
+   <obs>1.9270600000000000</obs> <adj>1.9271152510905956</adj> <stdev>0.0004964069540770</stdev>
+   <qrr>0.000</qrr> <f>29.451</f> <std-residual>110.795</std-residual>
+   <err-obs>0.110</err-obs> <err-adj>0.055</err-adj>
+   </height-diff>
+
+</observations>
+
+</gama-local-adjustment>

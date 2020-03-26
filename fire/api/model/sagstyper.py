@@ -2,8 +2,8 @@ import enum
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
-from fireapi.model import RegisteringTidObjekt, RegisteringFraObjekt, DeclarativeBase
-from fireapi.model.columntypes import IntegerEnum
+from fire.api.model import RegisteringTidObjekt, RegisteringFraObjekt, DeclarativeBase
+from fire.api.model.columntypes import IntegerEnum
 
 # Model this as a hard coded enum for now. This makes it a lot easier for the user. It would be nice to sync this with
 # the db table eventtype

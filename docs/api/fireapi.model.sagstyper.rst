@@ -1,7 +1,7 @@
 fireapi.model.sagstyper module
 ==============================
 
-.. automodule:: fireapi.model.sagstyper
+.. automodule:: fire.api.model.sagstyper
    :members:
    :undoc-members:
    :show-inheritance:

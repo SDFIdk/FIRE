@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<gama-local xmlns="http://www.gnu.org/software/gama/gama-local">
+    <network axes-xy="en" angles="left-handed" epoch="0.0">
+        <parameters algorithm="gso" angles="400" conf-pr="0.95" cov-band="0" ellipsoid="grs80" latitude="55.7" sigma-act="apriori" sigma-apr="1.0" tol-abs="1000.0" update-constrained-coordinates="no"/>
+        <description>
+            Network doc created by fire-gama (https://github.com/Septima/fire-gama)
+            Initiated by test/near_geometry_time_interval.py
+            GamaWriter.take_observations() Antal observationer: 16
+            GamaNetworkDoc.set_fixed_points: Antal punkter: 0
+            GamaNetworkDoc.set_observations: Antal observationer: 16
+            {observation_ids} :[1325,873,1326,1321,872,871,1323,1322,875,870,1324,874,1473,1474,1476,1475]{/observation_ids}
+            Warnings:
+            No fixed points
+        </description>
+        <points-observations >
+            
+            <point id="814E9044-1AAB-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1AAA-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1AAC-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1AAD-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB3-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1DB5-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB1-5A4E-E053-1A041EACF9E4" adj="z" />
+            <point id="814E9044-1FB2-5A4E-E053-1A041EACF9E4" adj="z" />
+            <height-differences>
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.00469" dist="0.023" stdev="0.00010011493395093461" />
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAA-5A4E-E053-1A041EACF9E4" val="0.00464" dist="0.023" stdev="9.154233993076646e-05" />
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00468" dist="0.023" stdev="0.00010011493395093461" />
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79765" dist="0.032" stdev="0.00010015987220439131" />
+                <dh from="814E9044-1AAA-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.00462" dist="0.023" stdev="9.154233993076646e-05" />
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAB-5A4E-E053-1A041EACF9E4" val="-0.79722" dist="0.032" stdev="0.00010779610382569492" />
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75476" dist="0.018" stdev="0.00010008995953640905" />
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79769" dist="0.032" stdev="0.00010015987220439131" />
+                <dh from="814E9044-1AAD-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.75362" dist="0.018" stdev="8.111719916269299e-05" />
+                <dh from="814E9044-1AAB-5A4E-E053-1A041EACF9E4" to="814E9044-1AAC-5A4E-E053-1A041EACF9E4" val="0.79744" dist="0.032" stdev="0.00010779610382569492" />
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75467" dist="0.018" stdev="0.00010008995953640905" />
+                <dh from="814E9044-1AAC-5A4E-E053-1A041EACF9E4" to="814E9044-1AAD-5A4E-E053-1A041EACF9E4" val="-0.75352" dist="0.018" stdev="8.111719916269299e-05" />
+                <dh from="814E9044-1FB3-5A4E-E053-1A041EACF9E4" to="814E9044-1DB5-5A4E-E053-1A041EACF9E4" val="0.52313" dist="0.458" stdev="0.0010005151173270697" />
+                <dh from="814E9044-1DB5-5A4E-E053-1A041EACF9E4" to="814E9044-1FB3-5A4E-E053-1A041EACF9E4" val="-0.52377" dist="0.458" stdev="0.0010005151173270697" />
+                <dh from="814E9044-1FB1-5A4E-E053-1A041EACF9E4" to="814E9044-1FB2-5A4E-E053-1A041EACF9E4" val="0.70228" dist="0.742" stdev="0.0010008344018867456" />
+                <dh from="814E9044-1FB2-5A4E-E053-1A041EACF9E4" to="814E9044-1FB1-5A4E-E053-1A041EACF9E4" val="-0.69987" dist="0.716" stdev="0.0010008051758459285" />
+            </height-differences>
+        </points-observations>
+    </network>
+</gama-local>

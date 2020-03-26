@@ -1,6 +1,6 @@
 import pytest
-from fireapi import FireDb
-from fireapi.model import Sag, Sagsinfo, Sagsevent, SagseventInfo, EventType
+from fire.api import FireDb
+from fire.api.model import Sag, Sagsinfo, Sagsevent, SagseventInfo, EventType
 
 
 def test_hent_sag(firedb: FireDb, sag: Sag):
