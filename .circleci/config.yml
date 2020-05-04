@@ -34,5 +34,6 @@ jobs:
           name: Run tests
           command: |
             source /opt/conda/bin/activate fire-dev
+            cp .circleci/fire_settings.json ~/fire_settings.json
 
             ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest --ignore=test/read/ --ignore=test/write/

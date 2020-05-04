@@ -1,9 +1,13 @@
-from fire.api import FireDb
-from fire.api.gama import GamaReader
 import os
 
+import pytest
 
-if __name__ == "__main__":
+from fire.api import FireDb
+from fire.api.gama import GamaReader
+
+
+@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
+def test_read():
     db = os.environ.get("fire-db")
     fireDb = FireDb(db)
     input_stream = open("input/all_points.xml", "r")

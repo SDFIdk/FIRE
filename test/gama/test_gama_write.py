@@ -1,14 +1,16 @@
 import configparser
 import datetime
-
 import os
+
+import pytest
 
 from fire.api import FireDb
 from fire.api.model import Geometry
 from fire.api.gama import GamaWriter
 
 
-def all_points():
+@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
+def test_all_points():
     db = os.environ.get("fire-db")
     fireDb = FireDb(db)
     output = open("output/all_points.xml", "w")
@@ -23,7 +25,8 @@ def all_points():
     output.close
 
 
-def in_polygon():
+@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
+def test_in_polygon():
     db = os.environ.get("fire-db")
     fireDb = FireDb(db)
     output = open("output/in_polygon.xml", "w")
@@ -43,7 +46,8 @@ def in_polygon():
     output.close
 
 
-def naer_geometry_time_interval():
+@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
+def test_naer_geometry_time_interval():
     db = os.environ.get("fire-db")
     fireDb = FireDb(db)
     output = open("output/near_geometry_time_interval.xml", "w")
@@ -66,7 +70,8 @@ def naer_geometry_time_interval():
     output.close
 
 
-def naer_geometry():
+@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
+def test_naer_geometry():
     db = os.environ.get("fire-db")
     fireDb = FireDb(db)
     output = open("output/near_geometry.xml", "w")
@@ -81,10 +86,3 @@ def naer_geometry():
     parameters.read("fire-gama.ini")
     writer.write(True, False, "test/near_geometry.py", parameters)
     output.close
-
-
-if __name__ == "__main__":
-    # all_points()
-    # in_polygon()
-    naer_geometry_time_interval()
-    # naer_geometry()

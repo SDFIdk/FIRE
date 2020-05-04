@@ -1,22 +1,25 @@
 import click
+import pytest
+
 from click.testing import CliRunner
 from fire.cli.gama import gama
 
 
-def do_test(runner, title, args):
+def _run_cli(runner, title, args):
     click.echo("\nTest: " + title)
     click.echo(" Emulating: python gama " + " ".join(args))
     result = runner.invoke(gama, args)
     if result.exit_code != 0:
         click.echo(" Failed: " + str(args))
         click.echo(" Exception: " + str(result.exception))
-        return False, result.exception
+        return False
     else:
         click.echo(" Success: " + str(args))
-        return True, result.output
+        return True
 
 
-if __name__ == "__main__":
+@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
+def test_within_distance_of_point1():
     runner = CliRunner()
 
     title = "Within distance of point (wkt)"
@@ -31,8 +34,11 @@ if __name__ == "__main__":
         "-f",
         "814E9044-1AAB-5A4E-E053-1A041EACF9E4",
     ]
-    do_test(runner, title, args)
+    assert _run_cli(runner, title, args)
 
+
+@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
+def test_within_distance_of_point2():
     title = "Within distance of point (wkt) - time interval"
     args = [
         "write",
@@ -49,8 +55,11 @@ if __name__ == "__main__":
         "-dt",
         "09-10-2018",
     ]
-    do_test(runner, title, args)
+    assert _run_cli(runner, title, args)
 
+
+@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
+def test_within_distance_of_point3():
     title = "Within distance of point (wkt from file) - time interval"
     args = [
         "write",
@@ -67,8 +76,11 @@ if __name__ == "__main__":
         "-dt",
         "09-10-2018",
     ]
-    do_test(runner, title, args)
+    assert _run_cli(runner, title, args)
 
+
+@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
+def test_within_distance_of_point4():
     title = "Within distance of point (wkt from file) - fixed points from file - time interval"
     args = [
         "write",
@@ -85,4 +97,5 @@ if __name__ == "__main__":
         "-dt",
         "09-10-2018",
     ]
-    do_test(runner, title, args)
+
+    assert _run_cli(runner, title, args)
