@@ -136,3 +136,6 @@ dmypy.json
 /.settings/
 /flame.zip
 /flame/zip_build
+
+# Visual Studio code
+*.code-workspace
