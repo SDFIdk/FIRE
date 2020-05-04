@@ -1,2 +1,0 @@
-gama-local write/output/cli_output_near_geometry.xml --xml read/input/near_geometry.xml
-rem python firegama/cli.py write -o test\write\output\output.xml -g "POINT(10.4811749340072 56.3061226484564)" -b 10000
