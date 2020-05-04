@@ -25,11 +25,11 @@ jobs:
       - run:
           name: Execute init.sql
           command: |
-            ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S system/oracle@//localhost:1521/xe @test/fixtures/sql/init.sql
+            ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S system/oracle@//localhost:1521/xe @.circleci/init.sql
       - run:
-          name: Execute fikspunkt_forvaltning.sql
+          name: Execute ddl.sql
           command: |
-            ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @test/fixtures/sql/fikspunkt_forvaltning.sql
+            ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @sql/ddl.sql
       - run:
           name: Run tests
           command: |
