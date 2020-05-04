@@ -1,0 +1,10 @@
+{
+    "connection":
+    {
+        "password": "fire",
+        "username": "fire",
+        "hostname": "localhost",
+        "database": "xe",
+        "service": "fire"
+    }
+}
