@@ -282,7 +282,7 @@ COMMENT ON COLUMN KOORDINAT.ARTSKODE IS 'Fra REFGEO. Værdierne skal forstås so
  artskode = 7 coordinate computed on an not valid coordinate system, or system of unknown origin.
  artskode = 8 coordinate computed on few measurements, and on an not valid coordinate system.
  artskode = 9 location coordinate or location height.
- 
+
  Artskode er kun tilgængelig for koordinater der stammer fra REFGEO.';
 COMMENT ON COLUMN KOORDINAT.X IS 'Førstekoordinat.';
 COMMENT ON COLUMN KOORDINAT.Y IS 'Andenkoordinat.';
@@ -437,7 +437,7 @@ ENABLE VALIDATE;
 
 CREATE UNIQUE INDEX OBSERVATIONSTYPE_IDX_001 ON OBSERVATIONTYPE
 (OBSERVATIONSTYPEID);
- 
+
 ALTER TABLE OBSERVATIONTYPE ADD
 CONSTRAINT OBSERVATIONTYPE_U01
 UNIQUE (OBSERVATIONSTYPEID)
@@ -445,124 +445,124 @@ USING INDEX OBSERVATIONSTYPE_IDX_001
 ENABLE VALIDATE;
 
 
-ALTER TABLE KOORDINAT ADD 
-CONSTRAINT KOORDINAT_R01 
-FOREIGN KEY (SRIDID) 
+ALTER TABLE KOORDINAT ADD
+CONSTRAINT KOORDINAT_R01
+FOREIGN KEY (SRIDID)
 REFERENCES SRIDTYPE (SRIDID)
 ENABLE VALIDATE;
 
-ALTER TABLE KOORDINAT ADD 
-CONSTRAINT PUNKTID_CON_0001 
-FOREIGN KEY (PUNKTID) 
+ALTER TABLE KOORDINAT ADD
+CONSTRAINT PUNKTID_CON_0001
+FOREIGN KEY (PUNKTID)
 REFERENCES PUNKT (ID)
 ENABLE VALIDATE;
 
-ALTER TABLE OBSERVATION ADD 
+ALTER TABLE OBSERVATION ADD
 CONSTRAINT OBSERVATION_SP_CON_0001
 FOREIGN KEY (SIGTEPUNKTID)
 REFERENCES PUNKT (ID)
 ENABLE VALIDATE;
 
-ALTER TABLE OBSERVATION ADD 
+ALTER TABLE OBSERVATION ADD
 CONSTRAINT OBSERVATION_OP1_CON_0001
 FOREIGN KEY (OPSTILLINGSPUNKTID)
 REFERENCES PUNKT (ID)
 ENABLE VALIDATE;
 
-ALTER TABLE OBSERVATION ADD 
+ALTER TABLE OBSERVATION ADD
 CONSTRAINT OBSERVATION_R01
 FOREIGN KEY (OBSERVATIONSTYPEID)
 REFERENCES OBSERVATIONTYPE (OBSERVATIONSTYPEID)
 ENABLE VALIDATE;
 
-ALTER TABLE PUNKTINFO ADD 
+ALTER TABLE PUNKTINFO ADD
 CONSTRAINT PUNKTINFO_CON_001
 FOREIGN KEY (PUNKTID)
 REFERENCES PUNKT (ID)
 ENABLE VALIDATE;
 
-ALTER TABLE PUNKTINFO ADD 
+ALTER TABLE PUNKTINFO ADD
 CONSTRAINT PUNKTINFO_R01
 FOREIGN KEY (INFOTYPEID)
 REFERENCES PUNKTINFOTYPE (INFOTYPEID)
 ENABLE VALIDATE;
 
 -- Constraint der tjekker at registreringtil er større end registreringfra
-ALTER TABLE BEREGNING ADD 
+ALTER TABLE BEREGNING ADD
 CONSTRAINT BEREGNING_CON_0001
 CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
-ENABLE VALIDATE;   
-   
-ALTER TABLE GEOMETRIOBJEKT ADD 
+ENABLE VALIDATE;
+
+ALTER TABLE GEOMETRIOBJEKT ADD
 CONSTRAINT GEOMETRIOBJEKT_CON_0001
 CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
-ENABLE VALIDATE;     
-   
-ALTER TABLE KOORDINAT ADD 
+ENABLE VALIDATE;
+
+ALTER TABLE KOORDINAT ADD
 CONSTRAINT KOORDINAT_CON_0001
 CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
-ENABLE VALIDATE;  
-   
-ALTER TABLE OBSERVATION ADD 
+ENABLE VALIDATE;
+
+ALTER TABLE OBSERVATION ADD
 CONSTRAINT OBSERVATION_con_0001
 CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
 ENABLE VALIDATE;
- 
- 
-ALTER TABLE PUNKT ADD 
+
+
+ALTER TABLE PUNKT ADD
 CONSTRAINT PUNKT_CON_0001
 CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
 ENABLE VALIDATE;
- 
- 
-ALTER TABLE PUNKTINFO ADD 
+
+
+ALTER TABLE PUNKTINFO ADD
 CONSTRAINT PUNKTINFO_CON_0001
 CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
 ENABLE VALIDATE;
 
-ALTER TABLE SAG ADD ( 
+ALTER TABLE SAG ADD (
 CONSTRAINT SAG_U01
 UNIQUE (ID)
 ENABLE VALIDATE);
 
 ALTER TABLE SAGSINFO ADD (
-CONSTRAINT SAGSINFO_R01 
-FOREIGN KEY (SAGID) 
+CONSTRAINT SAGSINFO_R01
+FOREIGN KEY (SAGID)
 REFERENCES SAG (ID)
 ENABLE VALIDATE);
 
 
-ALTER TABLE SAGSINFO ADD 
+ALTER TABLE SAGSINFO ADD
 CONSTRAINT SAGSINFO_CON_0001
 CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
-ENABLE VALIDATE; 
- 
+ENABLE VALIDATE;
+
 -- Constraint der sikre at en sag eksisterer som en sagsevent referere til
 ALTER TABLE SAGSEVENT ADD
-CONSTRAINT SAGSEVENT_R01 
-FOREIGN KEY (SAGID) 
+CONSTRAINT SAGSEVENT_R01
+FOREIGN KEY (SAGID)
 REFERENCES SAG (ID)
 ENABLE VALIDATE;
 
 ALTER TABLE SAGSEVENT ADD
-CONSTRAINT SAGSEVENT_R02 
-FOREIGN KEY (EVENTTYPEID) 
+CONSTRAINT SAGSEVENT_R02
+FOREIGN KEY (EVENTTYPEID)
 REFERENCES EVENTTYPE (EVENTTYPEID)
 ENABLE VALIDATE;
 
-ALTER TABLE SAGSEVENT ADD ( 
+ALTER TABLE SAGSEVENT ADD (
 CONSTRAINT SAGSEVENT_U01
 UNIQUE (ID)
 ENABLE VALIDATE);
 
-ALTER TABLE SAGSEVENTINFO ADD 
+ALTER TABLE SAGSEVENTINFO ADD
 CONSTRAINT SAGSEVENTINFO_CON_0001
 CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
-ENABLE VALIDATE;  
- 
+ENABLE VALIDATE;
+
 ALTER TABLE SAGSEVENTINFO ADD (
-CONSTRAINT SAGSEVENTINFO_R01 
-FOREIGN KEY (SAGSEVENTID) 
+CONSTRAINT SAGSEVENTINFO_R01
+FOREIGN KEY (SAGSEVENTID)
 REFERENCES SAGSEVENT (ID)
 ENABLE VALIDATE);
 
@@ -851,9 +851,9 @@ begin
     and sagid = :new.sagid;
   exception when no_data_found then cnt:=0;
   end;
-  
+
   if cnt = 0 then
-    RAISE_APPLICATION_ERROR(-20000,'Ingen aktiv sag fundet paa sagid'||:new.sagid); 
+    RAISE_APPLICATION_ERROR(-20000,'Ingen aktiv sag fundet paa sagid'||:new.sagid);
   END IF;
 
 end;
@@ -916,54 +916,54 @@ begin
          val15
   from observationtype a
   where A.OBSERVATIONSTYPEID = :new.OBSERVATIONSTYPEID;
-         
+
 
   if :new.value1 is null and val1 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value1 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value1 må ikke være NULL');
   end if;
   if :new.value2 is null and val2 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value2 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value2 må ikke være NULL');
   end if;
   if :new.value3 is null and val3 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value3 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value3 må ikke være NULL');
   end if;
   if :new.value4 is null and val4 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value4 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value4 må ikke være NULL');
   end if;
   if :new.value5 is null and val5 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value5 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value5 må ikke være NULL');
   end if;
   if :new.value6 is null and val6 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value6 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value6 må ikke være NULL');
   end if;
   if :new.value7 is null and val7 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value7 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value7 må ikke være NULL');
   end if;
   if :new.value8 is null and val8 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value8 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value8 må ikke være NULL');
   end if;
   if :new.value9 is null and val9 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value9 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value9 må ikke være NULL');
   end if;
   if :new.value10 is null and val10 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value10 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value10 må ikke være NULL');
   end if;
   if :new.value11 is null and val11 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value11 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value11 må ikke være NULL');
   end if;
   if :new.value12 is null and val12 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value12 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value12 må ikke være NULL');
   end if;
   if :new.value13 is null and val13 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value13 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value13 må ikke være NULL');
   end if;
   if :new.value14 is null and val14 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value14 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value14 må ikke være NULL');
   end if;
   if :new.value15 is null and val15 is not null THEN
-    RAISE_APPLICATION_ERROR(-20000,'Value15 må ikke være NULL'); 
+    RAISE_APPLICATION_ERROR(-20000,'Value15 må ikke være NULL');
   end if;
-  
+
 end;
 /
 
@@ -971,19 +971,19 @@ end;
 
 
 -- Constraints der sikre at namespacedelen er korrekt i PUNKTINFOTYPE, OBSERVATIONTYPE og SRIDTYPE
-ALTER TABLE PUNKTINFOTYPE ADD 
+ALTER TABLE PUNKTINFOTYPE ADD
 CONSTRAINT PUNKTINFOTYPE_CON_0001
 CHECK (substr(infotype,1,instr(infotype,':')-1) in ('AFM','ATTR','IDENT','NET','PS','REGION','SKITSE'))
 ENABLE
 VALIDATE;
 
-ALTER TABLE OBSERVATIONTYPE ADD 
+ALTER TABLE OBSERVATIONTYPE ADD
 CONSTRAINT OBSERVATIONTYPE_CON_0001
 CHECK (substr(observationstype,1,instr(observationstype,':')-1) in ('OBS'))
 ENABLE
 VALIDATE;
 
-ALTER TABLE SRIDTYPE ADD 
+ALTER TABLE SRIDTYPE ADD
 CONSTRAINT OT_SRID_0001
 CHECK (substr(SRID,1,instr(SRID,':')-1) in ('DK','EPSG','FO','GL','LOC','NKG','TS'))
 ENABLE VALIDATE;
@@ -997,10 +997,10 @@ DECLARE
 this_andv varchar2(10);
 begin
   begin
-    select anvendelse into this_andv 
-    from punktinfotype 
+    select anvendelse into this_andv
+    from punktinfotype
     where infotypeid = :new.infotypeid;
-  
+
    exception  when no_data_found then
       RAISE_APPLICATION_ERROR(-20000,'No infotype found(!)');
   end;
@@ -1027,14 +1027,14 @@ for each row
 declare
 cnt1 number;
 begin
-IF :new.REGISTRERINGFRA = :new.REGISTRERINGTIL THEN 
+IF :new.REGISTRERINGFRA = :new.REGISTRERINGTIL THEN
 
-  select count(*) into cnt1 
+  select count(*) into cnt1
   from PUNKT
   where REGISTRERINGTIL = :new.REGISTRERINGFRA;
-  
-  if cnt1 = 0 THEN 
-    RAISE_APPLICATION_ERROR(-20000,'No parent record found (!) '); 
+
+  if cnt1 = 0 THEN
+    RAISE_APPLICATION_ERROR(-20000,'No parent record found (!) ');
   END IF;
 
 END IF;
@@ -1048,14 +1048,14 @@ for each row
 declare
 cnt1 number;
 begin
-IF :new.REGISTRERINGFRA = :new.REGISTRERINGTIL THEN 
+IF :new.REGISTRERINGFRA = :new.REGISTRERINGTIL THEN
 
-  select count(*) into cnt1 
+  select count(*) into cnt1
   from KOORDINAT
   where REGISTRERINGTIL = :new.REGISTRERINGFRA;
-  
-  if cnt1 = 0 THEN 
-    RAISE_APPLICATION_ERROR(-20000,'No parent record found (!) '); 
+
+  if cnt1 = 0 THEN
+    RAISE_APPLICATION_ERROR(-20000,'No parent record found (!) ');
   END IF;
 
 END IF;
