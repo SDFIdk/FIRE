@@ -16,12 +16,12 @@ Opsætning
 
 Start med at clone git repositoriet::
 
-    > git clone https://github.com/Kortforsyningen/fire.git
+    > git clone https://github.com/Kortforsyningen/FIRE.git
 
 Et godt udviklingsmiljø at tage udgangspunkt i er `fire-dev.yaml`, som nemt
 installeres med Conda. Fra fire git-repositoriet køres::
 
-    > conda create --file environment-dev.yml
+    > conda env create --file environment-dev.yml
     > conda activate fire-dev
 
 Herefter burde alle de essentielle programmer og biblioteker være til rådighed.
@@ -38,7 +38,7 @@ skrives ligeledes på dansk. Det er tilladt at skrive kommentarer, funktions- og
 variabelnavne på engelsk. git commits bør så vidt muligt skrives på dansk.
 
 Al kode i fire repositoriet skal køres gennem ``black`` inden det committes.
-Dette gøres for at skabe et ensartet udtryk på tværs af hele kodebasen. Desuden 
+Dette gøres for at skabe et ensartet udtryk på tværs af hele kodebasen. Desuden
 har black den bivirking at forstyrrende, overflødige ændringer typisk forsvinder
 fra diffs mellem to commits, hvilket gør det væsentligt nemmere at lave review
 af kodeændringer.
