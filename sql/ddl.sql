@@ -853,7 +853,7 @@ begin
   end;
 
   if cnt = 0 then
-    RAISE_APPLICATION_ERROR(-20000,'Ingen aktiv sag fundet paa sagid'||:new.sagid);
+    RAISE_APPLICATION_ERROR(-20000,'Ingen aktiv sag fundet paa sagid '||:new.sagid);
   END IF;
 
 end;
