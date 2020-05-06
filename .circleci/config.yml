@@ -35,6 +35,10 @@ jobs:
           command: |
             ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @sql/ddl.sql
       - run:
+          name: Insert test data
+          command: |
+            ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @test/sql/testdata.sql
+      - run:
           name: Run tests
           command: |
             source /opt/conda/bin/activate fire-dev
