@@ -2,13 +2,8 @@ name: fire
 channels:
   - conda-forge
 dependencies:
-  - python=3.6
+  - python=3.7
   - cx_oracle=7.0
   - sqlalchemy=1.2.13
-  - fiona
-  - pandas
   - qgis=3.10
-  - statsmodels
-  - xlsxwriter
-  - xlrd
   - gama
