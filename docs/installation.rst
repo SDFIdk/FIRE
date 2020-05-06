@@ -18,7 +18,7 @@ Installation
 ------------
 
 Der er en række trin der skal gennemføres for at få en komplet installation.
-Herunder tager vi dem et ad gangen 
+Herunder tager vi dem et ad gangen
 
 Conda
 +++++
@@ -48,12 +48,12 @@ den med git::
 
     > mkdir C:\fire
     > cd C:\fire
-    > git clone https://github.com/Kortforsyningen/fikspunktsregister
+    > git clone https://github.com/Kortforsyningen/FIRE.git
 
 Initialiser et "conda environment" til FIRE:
 
-    > cd fikspunktsregister
-    > conda create --file environment.yml -y
+    > cd FIRE
+    > conda env create --file environment.yml -y
 
 Gør som ``conda`` siger og aktiverer dit nye "fire environment"::
 

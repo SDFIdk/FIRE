@@ -7,6 +7,12 @@ dependencies:
   - cx_oracle=7.0
   - sqlalchemy=1.2.13
   - pyproj
+  - fiona
+  - pandas
+  - qgis=3.10
+  - statsmodels
+  - xlsxwriter
+  - xlrd
   - gama
   - pytest
   - sphinx
