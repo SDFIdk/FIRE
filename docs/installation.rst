@@ -50,7 +50,7 @@ den med git::
     > cd C:\fire
     > git clone https://github.com/Kortforsyningen/FIRE.git
 
-Initialiser et "conda environment" til FIRE:
+Initialiser et "conda environment" til FIRE::
 
     > cd FIRE
     > conda env create --file environment.yml -y
