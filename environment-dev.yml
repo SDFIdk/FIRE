@@ -7,8 +7,8 @@ dependencies:
   - cx_oracle=7.0
   - sqlalchemy=1.2.13
   - pyproj
-  - pandas
   - qgis=3.10
+  - pandas
   - statsmodels
   - xlsxwriter
   - xlrd
