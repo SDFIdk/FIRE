@@ -8,6 +8,7 @@ import click
 import fire.cli
 from fire.cli import firedb
 from fire.api.model import (
+    # Typingelementer fra databaseAPIet:
     Koordinat,
     Punkt,
     PunktInformation,
@@ -268,7 +269,7 @@ def find_inputfiler():
 
 def find_observationer(importér):
     """Opbyg dataframe med alle observationer"""
-    # Hvis inportér ikke er sat: Læs observationer direkte i projektregnearket
+    # Hvis importér ikke er sat: Læs observationer direkte i projektregnearket
     if not importér:
         print("Læser observationer")
         try:
