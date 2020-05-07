@@ -33,14 +33,18 @@ import pandas as pd
 import xlsxwriter
 from datetime import date, time
 
+
 # ------------------------------------------------------------------------------
+
 
 @click.group()
 def mtl():
     """Motoriseret trigonometrisk nivellement: Arbejdsflow, beregning og analyse"""
     pass
 
+
 # ------------------------------------------------------------------------------
+
 
 def get_observation_strings(
     filinfo: List[Tuple[str, float]], verbose: bool = False
@@ -123,7 +127,9 @@ def get_observation_strings(
                 observationer.append(reordered)
     return observationer
 
+
 # ------------------------------------------------------------------------------
+
 
 def punkt_information(ident: str) -> PunktInformation:
     """Find alle informationer for et fikspunkt"""
@@ -136,15 +142,17 @@ def punkt_information(ident: str) -> PunktInformation:
             .first()
         )
     except NoResultFound:
-        firecli.print(f"Error! {ident} not found!", fg="red", err=True)
+        fire.cli.print(f"Error! {ident} not found!", fg="red", err=True)
         sys.exit(1)
     if punktinfo is not None:
-        firecli.print(f"Fandt {ident}", fg="green", err=False)
+        fire.cli.print(f"Fandt {ident}", fg="green", err=False)
     else:
-        firecli.print(f"Fandt ikke {ident}", fg="cyan", err=False)
+        fire.cli.print(f"Fandt ikke {ident}", fg="cyan", err=False)
     return punktinfo
 
+
 # ------------------------------------------------------------------------------
+
 
 def punkt_kote(punktinfo: PunktInformation, koteid: int) -> Koordinat:
     """Find aktuelle koordinatværdi for koordinattypen koteid"""
@@ -157,7 +165,9 @@ def punkt_kote(punktinfo: PunktInformation, koteid: int) -> Koordinat:
             return koord
     return None
 
+
 # ------------------------------------------------------------------------------
+
 
 def punkt_geometri(punktinfo: PunktInformation, ident: str) -> Tuple[float, float]:
     """Find placeringskoordinat for punkt"""
@@ -167,29 +177,34 @@ def punkt_geometri(punktinfo: PunktInformation, ident: str) -> Tuple[float, floa
         geom = firedb.hent_geometri_objekt(punktinfo.punktid)
         # Turn the string "POINT (lon lat)" into the tuple "(lon, lat)"
         geo = eval(str(geom.geometri).lstrip("POINT").strip().replace(" ", ","))
+        # TODO: Perhaps just return (56,11) Kattegat pain instead
         assert len(geo) == 2, "Bad geometry format: " + str(geom.geometri)
     except NoResultFound:
-        firecli.print(f"Error! Geometry for {ident} not found!", fg="red", err=True)
+        fire.cli.print(f"Error! Geometry for {ident} not found!", fg="red", err=True)
         sys.exit(1)
     return geo
 
+
 # ------------------------------------------------------------------------------
 
-# Bør nok være en del af API
+# TODO: Bør nok være en del af API
 def hent_sridid(db, srid: str) -> int:
     srider = db.hent_srider()
     for s in srider:
         if s.name == srid:
             return s.sridid
+    # TODO: kast en undtagelse (throw an exception)
     return 0
 
+
 # ------------------------------------------------------------------------------
+
 
 def find_path(graph, start, end, path=[]):
     """
     Mikroskopisk backtracking netkonnektivitetstest. Baseret på et
     essay af GvR fra https://www.python.org/doc/essays/graphs/, men
-    her moderniseret fra Python 1.8(?) til 3.6 og modificeret til
+    her moderniseret fra Python 1.5 til 3.7 og modificeret til
     at arbejde på dict-over-set (originalen brugte dict-over-list)
     """
     path = path + [start]
@@ -203,6 +218,7 @@ def find_path(graph, start, end, path=[]):
             if newpath:
                 return newpath
     return None
+
 
 # ------------------------------------------------------------------------------
 # Eksempel:
@@ -221,7 +237,9 @@ def find_path(graph, start, end, path=[]):
 # print (find_path (graph, 'A', 'G'))
 # ------------------------------------------------------------------------------
 
+
 # ------------------------------------------------------------------------------
+
 
 def find_nyetablerede():
     """Opbyg oversigt over nyetablerede punkter"""
@@ -249,7 +267,9 @@ def find_nyetablerede():
     # som nyetablerede.at[punktnavn, elementnavn]
     return nyetablerede.set_index("Foreløbigt navn")
 
+
 # ------------------------------------------------------------------------------
+
 
 def find_inputfiler():
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning"""
@@ -265,7 +285,9 @@ def find_inputfiler():
     assert len(filnavne) > 0, "Ingen inputfiler anført"
     return list(zip(filnavne, spredning))
 
+
 # ------------------------------------------------------------------------------
+
 
 def find_observationer(importér):
     """Opbyg dataframe med alle observationer"""
@@ -306,7 +328,9 @@ def find_observationer(importér):
     )
     return observationer.sort_values(by="journal").set_index("journal").reset_index()
 
+
 # ------------------------------------------------------------------------------
+
 
 def find_punktoversigt(udførPunktliste, nyetablerede, allePunkter, nyePunkter):
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
@@ -359,6 +383,7 @@ def find_punktoversigt(udførPunktliste, nyetablerede, allePunkter, nyePunkter):
         # ved først at hente koteid når vi ved vi har brug for den
         if np.isnan(koteid):
             koteid = hent_sridid(firedb, "EPSG:5799")
+            # TODO: Klar det med try:..except i stedet
             assert koteid != 0, "DVR90 (EPSG:5799) ikke fundet i srid-tabel"
 
         info = punkt_information(punkt)
@@ -412,7 +437,9 @@ def find_punktoversigt(udførPunktliste, nyetablerede, allePunkter, nyePunkter):
     # Reformater datarammen så den egner sig til output
     return punktoversigt.sort_values(by="punkt").reset_index()
 
+
 # ------------------------------------------------------------------------------
+
 
 def netanalyse(observationer, allePunkter, fastholdtePunkter):
     print("Analyserer net")
@@ -479,12 +506,16 @@ def netanalyse(observationer, allePunkter, fastholdtePunkter):
     ensomme = pd.DataFrame(sorted(ensommePunkter), columns=["Punkt"])
     return netf, ensomme
 
+
 # ------------------------------------------------------------------------------
+
 
 def spredning(afstand_i_m, slope_i_mm_pr_sqrt_km=0.6, bias=0.0005):
     return 0.001 * (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias)
 
+
 # ------------------------------------------------------------------------------
+
 
 def designmatrix(observationer, punkter, estimerede, fastholdte):
     # Frasorter observationer mellem to fastholdte punkter, og
@@ -525,9 +556,11 @@ def designmatrix(observationer, punkter, estimerede, fastholdte):
 
     return X, P, y
 
+
 # ------------------------------------------------------------------------------
 # Her starter hovedprogrammet...
 # ------------------------------------------------------------------------------
+
 
 @mtl.command()
 @fire.cli.default_options()
