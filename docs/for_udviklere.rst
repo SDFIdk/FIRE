@@ -30,6 +30,20 @@ Installer en udviklingsversion af fire med::
 
     > pip install -e .
 
+Test-suiten køres med::
+
+    > pytest
+
+.. warning::
+
+    Test-suiten kræver adgang til en Oracle database hvor DDL og testdata er
+    indlæst. Normalvis er det ikke filfældet på SIT arbejdsstationer hvorfor
+    tests som udgangspunkt ikke kan afvikles lokalt. Test-suiten kører automatisk
+    på pull requests mod https://github.com/Kortforsyningen/FIRE.
+
+    Se :ref:`testlokalt` for mere om hvordan et testmiljø kan sættes op lokalt.
+
+
 Kodestil
 --------
 
@@ -88,3 +102,36 @@ Flame pakkes til release ved brug af ``pb_tool``::
 hvorefter filen ``flame_plugin.zip`` placeres i ``flame/zip``.
 
 Mere om ``pb_tool`` her https://github.com/g-sherman/plugin_build_tool.
+
+
+.. _testlokalt:
+
+Lokalt testmiljø
+----------------
+
+Forudsat du har Docker og nogle Oracle-værktøjer (instaclient og SQLplus) installeret
+er det muligt at sætte en lokal testdatbase op. Fremgangsmåden er nogenlunde som følger.
+Først startes en Oracle-database med ``docker-compose``. Fra roden af repositoryet
+køres::
+
+    > docker-compose up
+
+Først gang kommandoen køres downloades en række Docker images. Det tager sin tid, så
+vær tålmodig. Når databasen er færdig installeret og startet op får du besked herom.
+
+Start en ny terminal op og initialiser databasen med brugerrettigheder, DDL og
+testdata::
+
+    ORACLE_PATH=misc/oracle sqlplus -S system/oracle@//localhost:1521/xe @.circleci/init.sql
+    ORACLE_PATH=misc/oracle sqlplus -S fire/fire@//localhost:1521/xe @sql/ddl.sql
+    ORACLE_PATH=misc/oracle sqlplus -S fire/fire@//localhost:1521/xe @test/sql/testdata.sql
+
+.. note::
+
+    Databasen skal initialiseres hver gang den startes op. Det anbefales at lave et
+    script der automatiserer processen.
+
+Kopier opsætningsfilen ``.circleci/fire_settings.json`` til din :envvar:`HOME`-mappe.
+Herefter burde det være muligt at køre test-suiten.
+
+
