@@ -352,7 +352,6 @@ def find_punktoversigt(udførPunktliste, nyetablerede, allePunkter, nyePunkter):
     print("Checker for manglende kote og placering")
     print(allePunkter)
     print(nyePunkter)
-    print(observeredePunkter)
 
     koteid = np.nan
     for punkt in allePunkter:
@@ -538,7 +537,7 @@ def designmatrix(observationer, punkter, estimerede, fastholdte):
 @mtl.command()
 @fire.cli.default_options()
 @click.argument("projektnavn")
-def go(ident: str, **kwargs) -> None:
+def go(**kwargs) -> None:
     print("Så kører vi")
 
     # -----------------------------------------------------
