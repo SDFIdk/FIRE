@@ -245,7 +245,7 @@ def find_nyetablerede():
         )
     except:
         nyetablerede = pd.DataFrame(
-            columns={"Foreløbigt navn", "Endeligt navn", "φ", "λ", "Foreløbig kote"},
+            columns=["Foreløbigt navn", "Endeligt navn", "φ", "λ", "Foreløbig kote"],
         )
         assert nyetablerede.shape[0] == 0, "Forventede tom dataframe"
 
@@ -472,7 +472,7 @@ def netanalyse(observationer, allePunkter, fastholdtePunkter):
     maxAntalNaboer = max([len(net[e]) for e in net])
     nyt = dict()
     for punkt in net:
-        naboer = list(net[punkt]) + maxAntalNaboer * [""]
+        naboer = list(sorted(net[punkt])) + maxAntalNaboer * [""]
         nyt[punkt] = tuple(naboer[0:maxAntalNaboer])
 
     # Ombyg og omdøb søjler med smart trick fra @piRSquared, https://stackoverflow.com/users/2336654/pirsquared
@@ -554,9 +554,9 @@ def go(**kwargs) -> None:
     # -> ... og gå så direkte til -> find_observationer()
     observeredePunkter = set(observationer["fra"].append(observationer["til"]))
     # Vi er færdige med mængdeoperationer nu, så gør punktmængderne immutable
-    allePunkter = tuple(observeredePunkter.union(nyePunkter))
-    nyePunkter = tuple(nyePunkter)
-    observeredePunkter = tuple(observeredePunkter)
+    allePunkter = tuple(sorted(observeredePunkter.union(nyePunkter)))
+    nyePunkter = tuple(sorted(nyePunkter))
+    observeredePunkter = tuple(sorted(observeredePunkter))
 
     # -----------------------------------------------------
     # Opbyg oversigt over alle punkter
@@ -570,18 +570,18 @@ def go(**kwargs) -> None:
     if len(fastholdtePunkter) == 0:
         fastholdtePunkter = [observeredePunkter[0]]
         fastholdteKoter = [observeredeKoter[0]]
+    fastholdte = dict(zip(fastholdtePunkter, fastholdteKoter))
 
     # -----------------------------------------------------
     # Udfør netanalyse
     # -----------------------------------------------------
     (net, ensomme) = netanalyse(observationer, allePunkter, fastholdtePunkter)
+    forbundnePunkter = tuple(sorted(net["Punkt"]))
+    estimerede = tuple(sorted(set(forbundnePunkter) - set(fastholdtePunkter)))
 
     # -----------------------------------------------------
     # Opstil designmatrix, responsvektor og vægtvektor
     # -----------------------------------------------------
-    forbundnePunkter = tuple(net["Punkt"])
-    estimerede = tuple(sorted(set(forbundnePunkter) - set(fastholdtePunkter)))
-    fastholdte = dict(zip(fastholdtePunkter, fastholdteKoter))
     (X, P, y) = designmatrix(observationer, forbundnePunkter, estimerede, fastholdte)
 
     # -----------------------------------------------------
