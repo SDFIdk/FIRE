@@ -272,7 +272,7 @@ def find_inputfiler():
 
 # ------------------------------------------------------------------------------
 def import_observationer():
-    """Opbyg dataframe med alle observationer"""
+    """Opbyg dataframe med observationer importeret fra rådatafil"""
     print("Importerer observationer")
     observationer = pd.DataFrame(
         get_observation_strings(find_inputfiler()),
@@ -300,7 +300,7 @@ def import_observationer():
 
 # ------------------------------------------------------------------------------
 def find_observationer():
-    """Opbyg dataframe med alle observationer"""
+    """Opbyg dataframe med allerede importerede observationer"""
     print("Læser observationer")
     try:
         observationer = pd.read_excel(
