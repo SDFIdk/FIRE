@@ -646,4 +646,3 @@ def go(**kwargs) -> None:
             a[1].to_excel(writer, sheet_name=a[0], index=False)
     writer.save()
     print("Færdig - output kan ses i [netoversigt.xlsx]")
-
