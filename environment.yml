@@ -6,4 +6,9 @@ dependencies:
   - cx_oracle=7.0
   - sqlalchemy=1.2.13
   - qgis=3.10
+  - pyproj
+  - pandas
+  - statsmodels
+  - xlsxwriter
+  - xlrd
   - gama
