@@ -35,8 +35,6 @@ from datetime import date, time
 
 
 # ------------------------------------------------------------------------------
-
-
 @click.group()
 def mtl():
     """Motoriseret trigonometrisk nivellement: Arbejdsflow, beregning og analyse"""
@@ -44,8 +42,6 @@ def mtl():
 
 
 # ------------------------------------------------------------------------------
-
-
 def get_observation_strings(
     filinfo: List[Tuple[str, float]], verbose: bool = False
 ) -> List[str]:
@@ -129,8 +125,6 @@ def get_observation_strings(
 
 
 # ------------------------------------------------------------------------------
-
-
 def punkt_information(ident: str) -> PunktInformation:
     """Find alle informationer for et fikspunkt"""
     pi = aliased(PunktInformation)
@@ -152,8 +146,6 @@ def punkt_information(ident: str) -> PunktInformation:
 
 
 # ------------------------------------------------------------------------------
-
-
 def punkt_kote(punktinfo: PunktInformation, koteid: int) -> Koordinat:
     """Find aktuelle koordinatværdi for koordinattypen koteid"""
     if punktinfo is None:
@@ -167,8 +159,6 @@ def punkt_kote(punktinfo: PunktInformation, koteid: int) -> Koordinat:
 
 
 # ------------------------------------------------------------------------------
-
-
 def punkt_geometri(punktinfo: PunktInformation, ident: str) -> Tuple[float, float]:
     """Find placeringskoordinat for punkt"""
     if punktinfo is None:
@@ -186,8 +176,8 @@ def punkt_geometri(punktinfo: PunktInformation, ident: str) -> Tuple[float, floa
 
 
 # ------------------------------------------------------------------------------
-
 # TODO: Bør nok være en del af API
+# ------------------------------------------------------------------------------
 def hent_sridid(db, srid: str) -> int:
     srider = db.hent_srider()
     for s in srider:
@@ -198,8 +188,6 @@ def hent_sridid(db, srid: str) -> int:
 
 
 # ------------------------------------------------------------------------------
-
-
 def find_path(graph, start, end, path=[]):
     """
     Mikroskopisk backtracking netkonnektivitetstest. Baseret på et
@@ -239,8 +227,6 @@ def find_path(graph, start, end, path=[]):
 
 
 # ------------------------------------------------------------------------------
-
-
 def find_nyetablerede():
     """Opbyg oversigt over nyetablerede punkter"""
     print("Finder nyetablerede punkter")
@@ -269,8 +255,6 @@ def find_nyetablerede():
 
 
 # ------------------------------------------------------------------------------
-
-
 def find_inputfiler():
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning"""
     try:
@@ -287,23 +271,8 @@ def find_inputfiler():
 
 
 # ------------------------------------------------------------------------------
-
-
-def find_observationer(importér):
+def import_observationer():
     """Opbyg dataframe med alle observationer"""
-    # Hvis importér ikke er sat: Læs observationer direkte i projektregnearket
-    if not importér:
-        print("Læser observationer")
-        try:
-            observationer = pd.read_excel(
-                "projekt.xlsx", sheet_name="Observationer", usecols="A:P"
-            )
-        except:
-            sys.exit('Kan ikke finde fanebladet "Observationer" i projektfil')
-        # Opbyg liste over alle punkter (set(...) eliminerer dubletter)
-        return observationer
-
-    # Hvis importér er sat: Opbyg dataframe med alle observationer
     print("Importerer observationer")
     observationer = pd.DataFrame(
         get_observation_strings(find_inputfiler()),
@@ -330,8 +299,20 @@ def find_observationer(importér):
 
 
 # ------------------------------------------------------------------------------
+def find_observationer():
+    """Opbyg dataframe med alle observationer"""
+    print("Læser observationer")
+    try:
+        observationer = pd.read_excel(
+            "projekt.xlsx", sheet_name="Observationer", usecols="A:P"
+        )
+    except:
+        sys.exit('Kan ikke finde fanebladet "Observationer" i projektfil')
+    # Opbyg liste over alle punkter (set(...) eliminerer dubletter)
+    return observationer
 
 
+# ------------------------------------------------------------------------------
 def find_punktoversigt(udførPunktliste, nyetablerede, allePunkter, nyePunkter):
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
@@ -439,8 +420,6 @@ def find_punktoversigt(udførPunktliste, nyetablerede, allePunkter, nyePunkter):
 
 
 # ------------------------------------------------------------------------------
-
-
 def netanalyse(observationer, allePunkter, fastholdtePunkter):
     print("Analyserer net")
     assert len(fastholdtePunkter) > 0, "Netanalyse kræver mindst et fastholdt punkt"
@@ -508,15 +487,11 @@ def netanalyse(observationer, allePunkter, fastholdtePunkter):
 
 
 # ------------------------------------------------------------------------------
-
-
 def spredning(afstand_i_m, slope_i_mm_pr_sqrt_km=0.6, bias=0.0005):
     return 0.001 * (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias)
 
 
 # ------------------------------------------------------------------------------
-
-
 def designmatrix(observationer, punkter, estimerede, fastholdte):
     # Frasorter observationer mellem to fastholdte punkter, og
     # observationer som involverer punkt(er) som ikke indgår i
@@ -560,8 +535,6 @@ def designmatrix(observationer, punkter, estimerede, fastholdte):
 # ------------------------------------------------------------------------------
 # Her starter hovedprogrammet...
 # ------------------------------------------------------------------------------
-
-
 @mtl.command()
 @fire.cli.default_options()
 @click.argument("projektnavn")
@@ -577,7 +550,9 @@ def go(ident: str, **kwargs) -> None:
     # -----------------------------------------------------
     # Opbyg oversigt over alle observationer
     # -----------------------------------------------------
-    observationer = find_observationer(True)
+    # TODO: spring import over, når kontrolscriptet siger det
+    observationer = import_observationer()
+    # -> ... og gå så direkte til -> find_observationer()
     observeredePunkter = set(observationer["fra"].append(observationer["til"]))
     # Vi er færdige med mængdeoperationer nu, så gør punktmængderne immutable
     allePunkter = tuple(observeredePunkter.union(nyePunkter))
@@ -672,3 +647,4 @@ def go(ident: str, **kwargs) -> None:
             a[1].to_excel(writer, sheet_name=a[0], index=False)
     writer.save()
     print("Færdig - output kan ses i [netoversigt.xlsx]")
+
