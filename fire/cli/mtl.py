@@ -271,7 +271,7 @@ def find_inputfiler():
 
 
 # ------------------------------------------------------------------------------
-def import_observationer():
+def importer_observationer():
     """Opbyg dataframe med observationer importeret fra rådatafil"""
     print("Importerer observationer")
     observationer = pd.DataFrame(
@@ -307,13 +307,12 @@ def find_observationer():
             "projekt.xlsx", sheet_name="Observationer", usecols="A:P"
         )
     except:
-        sys.exit('Kan ikke finde fanebladet "Observationer" i projektfil')
-    # Opbyg liste over alle punkter (set(...) eliminerer dubletter)
+        observationer = importer_observationer()
     return observationer
 
 
 # ------------------------------------------------------------------------------
-def find_punktoversigt(udførPunktliste, nyetablerede, allePunkter, nyePunkter):
+def opbyg_punktoversigt(nyetablerede, allePunkter, nyePunkter):
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
         punktoversigt = pd.read_excel(
@@ -336,8 +335,7 @@ def find_punktoversigt(udførPunktliste, nyetablerede, allePunkter, nyePunkter):
             ]
         )
         assert punktoversigt.shape[0] == 0, "Forventede tom dataframe"
-    if not udførPunktliste:
-        return punktoversigt
+    print("Opbygger punktoversigt")
 
     # Find og tilføj de punkter, der mangler i punktoversigten.
     manglendePunkter = set(allePunkter) - set(punktoversigt["punkt"])
@@ -350,8 +348,6 @@ def find_punktoversigt(udførPunktliste, nyetablerede, allePunkter, nyePunkter):
 
     # Hent kote og placering fra databasen hvis vi ikke allerede har den
     print("Checker for manglende kote og placering")
-    print(allePunkter)
-    print(nyePunkter)
 
     koteid = np.nan
     for punkt in allePunkter:
@@ -416,6 +412,18 @@ def find_punktoversigt(udførPunktliste, nyetablerede, allePunkter, nyePunkter):
 
     # Reformater datarammen så den egner sig til output
     return punktoversigt.sort_values(by="punkt").reset_index()
+
+
+# ------------------------------------------------------------------------------
+def find_punktoversigt(nyetablerede, allePunkter, nyePunkter):
+    # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
+    try:
+        punktoversigt = pd.read_excel(
+            "projekt.xlsx", sheet_name="Punktoversigt", usecols="A:K"
+        )
+    except:
+        punktoversigt = opbyg_punktoversigt(nyetablerede, allePunkter, nyePunkter)
+    return punktoversigt
 
 
 # ------------------------------------------------------------------------------
@@ -485,13 +493,22 @@ def netanalyse(observationer, allePunkter, fastholdtePunkter):
     return netf, ensomme
 
 
+def find_forbundne_punkter(observationer, allePunkter, fastholdtePunkter):
+    """Læs net fra allerede foretaget netanalyse"""
+    try:
+        net = pd.read_excel("projekt.xlsx", sheet_name="Netgeometri", usecols="A")
+    except:
+        (net, ensomme) = netanalyse(observationer, allePunkter, fastholdtePunkter)
+    return tuple(sorted(net["Punkt"]))
+
+
 # ------------------------------------------------------------------------------
 def spredning(afstand_i_m, slope_i_mm_pr_sqrt_km=0.6, bias=0.0005):
     return 0.001 * (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias)
 
 
 # ------------------------------------------------------------------------------
-def designmatrix(observationer, punkter, estimerede, fastholdte):
+def designmatrix(observationer, punkter, estimerede, fastholdte, holdte):
     # Frasorter observationer mellem to fastholdte punkter, og
     # observationer som involverer punkt(er) som ikke indgår i
     # det sammenhængende net, udpeget af 'punkter'
@@ -502,7 +519,7 @@ def designmatrix(observationer, punkter, estimerede, fastholdte):
     ]
     observationer = observationer[relevante]
 
-    n = len(observationer)
+    n = len(observationer) + len(holdte)
     X = pd.DataFrame(0, columns=estimerede, index=range(n))
     P = np.zeros(n, dtype=np.float64)
     y = np.zeros(n, dtype=np.float64)
@@ -528,7 +545,24 @@ def designmatrix(observationer, punkter, estimerede, fastholdte):
         P[row] = 1.0 / spredning(obs[3], obs[4])
         row += 1
 
+    # Håndter "holdte" ("constrained") punkter
+    for pkt in holdte:
+        X.at[row, pkt] = 1
+        y[row] = holdte[pkt][0]
+        P[row] = 1.0 / holdte[pkt][1]
+
     return X, P, y
+
+
+# ------------------------------------------------------------------------------
+def find_workflow(projektfilnavn):
+    try:
+        workflow = pd.read_excel(projektfilnavn, sheet_name="Workflow", usecols="B:C")
+    except:
+        workflow = pd.DataFrame(columns=["Betegnelse", "Udføres"])
+        assert workflow.shape[0] == 0, "Forventede tom dataframe"
+    workflow = workflow[workflow["Udføres"] == "x"]
+    return list(workflow["Betegnelse"])
 
 
 # ------------------------------------------------------------------------------
@@ -540,6 +574,9 @@ def designmatrix(observationer, punkter, estimerede, fastholdte):
 def go(**kwargs) -> None:
     print("Så kører vi")
 
+    workflow = find_workflow("projekt.xlsx")
+    print(f"Dagsorden: {workflow}")
+
     # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
     # -----------------------------------------------------
@@ -549,77 +586,101 @@ def go(**kwargs) -> None:
     # -----------------------------------------------------
     # Opbyg oversigt over alle observationer
     # -----------------------------------------------------
-    # TODO: spring import over, når kontrolscriptet siger det
-    observationer = import_observationer()
-    # -> ... og gå så direkte til -> find_observationer()
+    if "Observationer" in workflow:
+        observationer = importer_observationer()
+    else:
+        observationer = find_observationer()
+
     observeredePunkter = set(observationer["fra"].append(observationer["til"]))
     # Vi er færdige med mængdeoperationer nu, så gør punktmængderne immutable
     allePunkter = tuple(sorted(observeredePunkter.union(nyePunkter)))
     nyePunkter = tuple(sorted(nyePunkter))
     observeredePunkter = tuple(sorted(observeredePunkter))
 
-    # -----------------------------------------------------
-    # Opbyg oversigt over alle punkter
-    # -----------------------------------------------------
-    udførPunktliste = True
-    punktoversigt = find_punktoversigt(
-        udførPunktliste, nyetablerede, allePunkter, nyePunkter
-    )
-    fastholdtePunkter = tuple(punktoversigt[punktoversigt["fix"] == "x"]["punkt"])
-    fastholdteKoter = tuple(punktoversigt[punktoversigt["fix"] == "x"]["kote"])
+    # ------------------------------------------------------
+    # Opbyg oversigt over alle punkter m. kote og placering
+    # ------------------------------------------------------
+    if "Punktoversigt" in workflow:
+        punktoversigt = opbyg_punktoversigt(nyetablerede, allePunkter, nyePunkter)
+    else:
+        punktoversigt = find_punktoversigt(nyetablerede, allePunkter, nyePunkter)
+
+    fastholdtePunkter = tuple(punktoversigt[punktoversigt["fix"] == 0]["punkt"])
+    fastholdteKoter = tuple(punktoversigt[punktoversigt["fix"] == 0]["kote"])
     if len(fastholdtePunkter) == 0:
         fastholdtePunkter = [observeredePunkter[0]]
-        fastholdteKoter = [observeredeKoter[0]]
+        fastholdteKoter = [0]
     fastholdte = dict(zip(fastholdtePunkter, fastholdteKoter))
+    print(f"Fastholdte: {fastholdtePunkter}")
+
+    holdtePunkter = tuple(punktoversigt[punktoversigt["fix"] > 0]["punkt"])
+    holdteKoter = tuple(punktoversigt[punktoversigt["fix"] > 0]["kote"])
+    holdteSpredning = tuple(punktoversigt[punktoversigt["fix"] > 0]["fix"])
+    holdte = dict(zip(holdtePunkter, zip(holdteKoter, holdteSpredning)))
+    if len(holdtePunkter) > 0:
+        print(f"Holdte: {holdtePunkter}")
 
     # -----------------------------------------------------
     # Udfør netanalyse
     # -----------------------------------------------------
-    (net, ensomme) = netanalyse(observationer, allePunkter, fastholdtePunkter)
-    forbundnePunkter = tuple(sorted(net["Punkt"]))
+    if "Net" in workflow:
+        (net, ensomme) = netanalyse(observationer, allePunkter, fastholdtePunkter)
+        forbundnePunkter = tuple(sorted(net["Punkt"]))
+    else:
+        forbundnePunkter = find_forbundne_punkter(
+            observationer, allePunkter, fastholdtePunkter
+        )
+        print(f"Forbundne punkter: {forbundnePunkter}")
     estimerede = tuple(sorted(set(forbundnePunkter) - set(fastholdtePunkter)))
 
-    # -----------------------------------------------------
-    # Opstil designmatrix, responsvektor og vægtvektor
-    # -----------------------------------------------------
-    (X, P, y) = designmatrix(observationer, forbundnePunkter, estimerede, fastholdte)
+    if "Regn" in workflow:
+        # -----------------------------------------------------
+        # Opstil designmatrix, responsvektor og vægtvektor
+        # -----------------------------------------------------
+        (X, P, y) = designmatrix(
+            observationer, forbundnePunkter, estimerede, fastholdte, holdte
+        )
 
-    # -----------------------------------------------------
-    # Udfør beregning og rapporter i kort form
-    # -----------------------------------------------------
-    # Først en ikke-vægtet udjævning som sammenligningsgrundlag
-    model = sm.OLS(y, X)
-    result = model.fit()
-    print("Ikke-vægtet")
-    print(result.params)
+        # -----------------------------------------------------
+        # Udfør beregning og rapporter i kort form
+        # -----------------------------------------------------
+        # Først en ikke-vægtet udjævning som sammenligningsgrundlag
+        model = sm.OLS(y, X)
+        result = model.fit()
+        print("Ikke-vægtet")
+        print(result.params)
 
-    # Se https://www.statsmodels.org/devel/examples/notebooks/generated/wls.html
-    model = sm.WLS(y, X, weights=P ** 2)
-    result = model.fit()
+        # Se https://www.statsmodels.org/devel/examples/notebooks/generated/wls.html
+        model = sm.WLS(y, X, weights=P ** 2)
+        result = model.fit()
 
-    print("Vægtet")
-    # Se https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.html
-    print(result.params)
-    print(result.HC0_se)
-    # print(result.summary())
-    print(result.summary2())
-    wlsparams = result.params
-    print(dir(result))
+        print("Vægtet")
+        # Se https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.html
+        print(result.params)
+        print(result.HC0_se)
+        # print(result.summary())
+        print(result.summary2())
+        wlsparams = result.params
+        print(dir(result))
 
-    # Geninstaller 'punkt'-søjlen som indexsøjle, så vi kan indicere fornuftigt
-    punktoversigt = punktoversigt.set_index("punkt")
-    for punkt, kote in zip(estimerede, wlsparams):
-        punktoversigt.at[punkt, "ny"] = kote
-    punktoversigt = punktoversigt.reset_index()
+        # Geninstaller 'punkt'-søjlen som indexsøjle, så vi kan indicere fornuftigt
+        punktoversigt = punktoversigt.set_index("punkt")
+        for punkt, kote in zip(estimerede, wlsparams):
+            punktoversigt.at[punkt, "ny"] = kote
+        punktoversigt = punktoversigt.reset_index()
 
-    # Ændring i millimeter
-    d = list(abs(punktoversigt["kote"] - punktoversigt["ny"]) * 1000)
-    print(d)
-    dd = [e if e > 0.001 else None for e in d]
-    print(dd)
+        # Ændring i millimeter
+        d = list(abs(punktoversigt["kote"] - punktoversigt["ny"]) * 1000)
+        print(d)
+        # Men vi ignorerer ændringer under mikrometerniveau
+        dd = [e if e > 0.001 else None for e in d]
+        print(dd)
 
-    print(dd)
-    punktoversigt["Δ"] = dd
+        print(dd)
+        punktoversigt["Δ"] = dd
+
+        X["P"] = np.floor(100 * P / max(P) + 0.5)
+        X["y"] = y
 
     # -----------------------------------------------------
     # Skriv resultatfil
@@ -630,18 +691,17 @@ def go(**kwargs) -> None:
     # -----------------------------------------------------
     print("Skriver netoversigt")
 
-    X["P"] = np.floor(100 * P / max(P) + 0.5)
-    X["y"] = y
-
-    ark = [
-        ("Observationer", observationer),
-        ("Punktoversigt", punktoversigt),
-        ("Netgeometri", net),
-        ("Ensomme", ensomme),
-        ("Designmatrix", X),
-    ]
+    ark = [("Punktoversigt", punktoversigt)]
+    if "Regn" in workflow:
+        ark += [("Designmatrix", X)]
+    if "Net" in workflow:
+        ark += [("Netgeometri", net), ("Ensomme", ensomme)]
+    if "Observationer" in workflow:
+        ark += [("Observationer", observationer)]
+    print(f"Alle ark: {[a[0] for a in ark]}")
     writer = pd.ExcelWriter("netoversigt.xlsx", engine="xlsxwriter")
     for a in ark:
+        print(f"Nu arker vi{a[0]}")
         if a[1] is not None:
             a[1].to_excel(writer, sheet_name=a[0], index=False)
     writer.save()
