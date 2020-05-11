@@ -1,4 +1,5 @@
 version: 2
+
 jobs:
   build:
     docker:
@@ -15,6 +16,8 @@ jobs:
             sed -i '/m2-zip/d' environment-dev.yml
             sed -i '/qgis/d' environment-dev.yml
             conda env create -f environment-dev.yml
+            conda activate fire-dev
+            conda install curl
       - run:
           name: Run 'black' code format check. If this fails you have not run 'black' on the failing files.
           command: |
@@ -37,4 +40,5 @@ jobs:
             source /opt/conda/bin/activate fire-dev
             cp .circleci/fire_settings.json ~/fire_settings.json
 
-            ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest --ignore=test/read/ --ignore=test/write/
+            ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest --cov=fire --cov-report=xml --ignore=test/read/ --ignore=test/write/
+            bash <(curl -s https://codecov.io/bash)
