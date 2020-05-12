@@ -110,7 +110,7 @@ def get_observation_strings(
                     ]
                     observationer.append(reordered)
         except FileNotFoundError:
-            print("Kunne ikke læse filen '"+filnavn+"'")
+            print("Kunne ikke læse filen '" + filnavn + "'")
     return observationer
 
 
@@ -663,10 +663,10 @@ def go(**kwargs) -> None:
         d = list(abs(punktoversigt["kote"] - punktoversigt["ny"]) * 1000)
         # Men vi ignorerer ændringer under mikrometerniveau
         dd = [e if e > 0.001 else None for e in d]
-        punktoversigt['Δ'] = dd
+        punktoversigt["Δ"] = dd
 
-        X['P'] = np.floor(100 * P / max(P) + 0.5)
-        X['y'] = y
+        X["P"] = np.floor(100 * P / max(P) + 0.5)
+        X["y"] = y
 
     # -----------------------------------------------------
     # Skriv resultatfil

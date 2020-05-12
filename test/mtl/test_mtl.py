@@ -15,4 +15,4 @@ def test_cli():
     click.echo(" Emulating: python mtl " + " ".join(args))
     result = runner.invoke(mtl, args)
 
-    assert result.exit_code==0
+    assert result.exit_code == 0
