@@ -1046,21 +1046,81 @@ CREATE OR REPLACE TRIGGER BID#KOORDINAT
 before insert ON KOORDINAT
 for each row
 declare
-cnt1 number;
+cnt number;
 begin
 IF :new.REGISTRERINGFRA = :new.REGISTRERINGTIL THEN
-
-  select count(*) into cnt1
+  select count(*) into cnt
   from KOORDINAT
   where REGISTRERINGTIL = :new.REGISTRERINGFRA;
 
-  if cnt1 = 0 THEN
+  if cnt = 0 THEN
     RAISE_APPLICATION_ERROR(-20000,'No parent record found (!) ');
   END IF;
+END IF;
 
+IF :new.REGISTRERINGTIL IS NULL THEN
+  select count(*) into cnt
+  from KOORDINAT
+  where punktid = :new.PUNKTID AND sridid = :new.sridid AND registreringtil IS NULL;
+
+  if cnt = 1 THEN
+    UPDATE koordinat
+    SET registreringtil = :new.registreringfra, sagseventtilid = :new.sagseventfraid
+    WHERE objectid = (SELECT objectid FROM koordinat WHERE punktid = :new.punktid AND sridid = :new.sridid AND registreringtil IS NULL);
+  END IF;
 END IF;
 
 end;
+/
+
+CREATE OR REPLACE TRIGGER BID#SAGSINFO
+BEFORE INSERT ON sagsinfo
+FOR EACH ROW
+DECLARE
+cnt number;
+BEGIN
+IF :new.REGISTRERINGTIL IS NULL THEN
+  SELECT count(*) INTO cnt
+  FROM SAGSINFO
+  WHERE sagid = :new.sagid AND registreringtil IS NULL;
+
+  IF cnt = 1 THEN
+    UPDATE sagsinfo
+    SET registreringtil = :new.registreringfra
+    WHERE objectid = (
+        SELECT objectid
+        FROM sagsinfo
+        WHERE sagid = :new.sagid AND registreringtil IS NULL
+    );
+  END IF;
+END IF;
+
+END;
+/
+
+CREATE OR REPLACE TRIGGER BID#SAGSEVENTINFO
+BEFORE INSERT ON sagseventinfo
+FOR EACH ROW
+DECLARE
+cnt number;
+BEGIN
+IF :new.REGISTRERINGTIL IS NULL THEN
+  SELECT count(*) INTO cnt
+  FROM sagseventinfo
+  WHERE sagseventid = :new.sagseventid AND registreringtil IS NULL;
+
+  IF cnt = 1 THEN
+    UPDATE sagseventinfo
+    SET registreringtil = :new.registreringfra
+    WHERE objectid = (
+        SELECT objectid
+        FROM sagseventinfo
+        WHERE sagseventid = :new.sagseventid AND registreringtil IS NULL
+    );
+  END IF;
+END IF;
+
+END;
 /
 
 
@@ -1125,3 +1185,4 @@ INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
 VALUES ('bruges til at tilføje fritekst kommentarer til sagen i tilfælde af at der er behov for at påhæfte sagen yderligere information som ikke passer i andre hændelser. Bruges fx også til påhæftning af materiale på sagen.', 'kommentar', 10);
 
 -- End
+

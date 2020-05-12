@@ -1,6 +1,9 @@
 import pytest
 import os
 import uuid
+
+from sqlalchemy.orm.exc import NoResultFound
+
 from fire.api import FireDb
 from fire.api.model import (
     func,
@@ -30,7 +33,7 @@ db = os.environ.get("ORA_db") or "xe"
 
 @pytest.fixture
 def firedb():
-    return FireDb(f"{user}:{password}@{host}:{port}/{db}", debug=True)
+    return FireDb(f"{user}:{password}@{host}:{port}/{db}", debug=False)
 
 
 @pytest.fixture()
@@ -66,14 +69,25 @@ def punkt(firedb, sagsevent, guid):
 @pytest.fixture()
 def koordinat(firedb, sagsevent, punkt, srid):
     sagsevent.eventtype = EventType.KOORDINAT_BEREGNET
-    k0 = Koordinat(sagsevent=sagsevent, punkt=punkt, transformeret="true", srid=srid)
+    k0 = Koordinat(
+        sagsevent=sagsevent,
+        punkt=punkt,
+        transformeret="false",
+        srid=srid,
+        x=0,
+        y=0,
+        z=0,
+        sx=0,
+        sy=0,
+        sz=0,
+    )
     firedb.session.add(k0)
     return k0
 
 
 @pytest.fixture()
 def observationstype(firedb):
-    ot0 = firedb.session.query(ObservationType).first()
+    ot0 = firedb.hent_observationtype("nulobservation")
     return ot0
 
 
@@ -82,26 +96,10 @@ def observation(firedb, sagsevent, observationstype, punkt):
     sagsevent.eventtype = EventType.OBSERVATION_INDSAT
     o0 = Observation(
         sagsevent=sagsevent,
-        value1=0,
-        value2=0,
-        value3=0,
-        value4=0,
-        value5=0,
-        value6=0,
-        value7=0,
-        value8=0,
-        value9=0,
-        value10=0,
-        value11=0,
-        value12=0,
-        value13=0,
-        value14=0,
-        value15=0,
-        antal=0,
         observationstidspunkt=func.sysdate(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
-        sigtepunkt=punkt,
+        antal=1,
     )
     firedb.session.add(o0)
     return o0
@@ -112,49 +110,15 @@ def observationer(firedb, sagsevent, observationstype, punkt):
     sagsevent.eventtype = EventType.OBSERVATION_INDSAT
     o0 = Observation(
         sagsevent=sagsevent,
-        value1=0,
-        value2=0,
-        value3=0,
-        value4=0,
-        value5=0,
-        value6=0,
-        value7=0,
-        value8=0,
-        value9=0,
-        value10=0,
-        value11=0,
-        value12=0,
-        value13=0,
-        value14=0,
-        value15=0,
-        antal=0,
         observationstidspunkt=func.sysdate(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
-        sigtepunkt=punkt,
     )
     o1 = Observation(
         sagsevent=sagsevent,
-        value1=0,
-        value2=0,
-        value3=0,
-        value4=0,
-        value5=0,
-        value6=0,
-        value7=0,
-        value8=0,
-        value9=0,
-        value10=0,
-        value11=0,
-        value12=0,
-        value13=0,
-        value14=0,
-        value15=0,
-        antal=0,
         observationstidspunkt=func.sysdate(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
-        sigtepunkt=punkt,
     )
     firedb.session.add(o0)
     firedb.session.add(o1)
@@ -172,12 +136,18 @@ def beregning(firedb, sagsevent, observationer):
 @pytest.fixture()
 def srid(firedb):
     try:
-        srid = firedb.hent_srider()[0]
-    except IndexError:
+        srid = firedb.hent_srid("DK:TEST")
+    except NoResultFound:
         firedb.indset_srid(
-            Srid(name="DK:TEST", beskrivelse="SRID til brug i test-suite")
+            Srid(
+                name="DK:TEST",
+                beskrivelse="SRID til brug i test-suite",
+                x="Easting",
+                y="Northing",
+                z="Højde",
+            )
         )
-        srid = firedb.hent_srider()[0]
+        srid = firedb.hent_srid("DK:TEST")
     return srid
 
 

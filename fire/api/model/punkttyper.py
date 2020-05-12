@@ -264,7 +264,7 @@ class Observation(FikspunktregisterObjekt):
         back_populates="observationer_slettede",
     )
     observationstidspunkt = Column(DateTime(timezone=True), nullable=False)
-    antal = Column(Integer, nullable=False)
+    antal = Column(Integer, nullable=False, default=1)
     gruppe = Column(Integer)
     observationstypeid = Column(
         Integer, ForeignKey("observationtype.observationstypeid")
