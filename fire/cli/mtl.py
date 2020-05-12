@@ -57,56 +57,60 @@ def get_observation_strings(
         spredning = fil[1]
         if verbose:
             print("Læser " + filnavn + " med spredning ", spredning)
-        with open(filnavn, "rt") as obsfil:
-            for line in obsfil:
-                if "#" != line[0]:
-                    continue
-                line = line.lstrip("#").strip()
+        try:
+            with open(filnavn, "rt") as obsfil:
+                tilgængelig = True
+                for line in obsfil:
+                    if "#" != line[0]:
+                        continue
+                    line = line.lstrip("#").strip()
 
-                # Check at observationen er i et af de kendte formater
-                tokens = line.split(" ", 12)
-                assert len(tokens) in (9, 13, 14), (
-                    "Malform input line: " + line + " i fil: " + filnavn
-                )
-
-                # Bring observationen på kanonisk 14-feltform.
-                for i in range(len(tokens), 13):
-                    tokens.append(0)
-                if len(tokens) < 14:
-                    tokens.append('""')
-                tokens[13] = tokens[13].lstrip('"').strip().rstrip('"')
-
-                # Korriger de rædsomme dato/tidsformater
-                tid = " ".join((tokens[kol.dato], tokens[kol.tid]))
-                try:
-                    isotid = datetime.strptime(tid, "%d.%m.%Y %H.%M")
-                except ValueError:
-                    sys.exit(
-                        "Argh - ikke-understøttet datoformat: '"
-                        + tid
-                        + "' i fil: "
-                        + filnavn
+                    # Check at observationen er i et af de kendte formater
+                    tokens = line.split(" ", 12)
+                    assert len(tokens) in (9, 13, 14), (
+                        "Malform input line: " + line + " i fil: " + filnavn
                     )
 
-                # Reorganiser søjler og omsæt numeriske data fra strengrepræsentation til tal
-                reordered = [
-                    tokens[kol.journal],
-                    tokens[kol.fra],
-                    tokens[kol.til],
-                    float(tokens[kol.dH]),
-                    float(tokens[kol.L]),
-                    int(tokens[kol.setups]),
-                    spredning,
-                    tokens[kol.kommentar],
-                    isotid,
-                    float(tokens[kol.T]),
-                    int(tokens[kol.sky]),
-                    int(tokens[kol.sol]),
-                    int(tokens[kol.vind]),
-                    int(tokens[kol.sigt]),
-                    filnavn,
-                ]
-                observationer.append(reordered)
+                    # Bring observationen på kanonisk 14-feltform.
+                    for i in range(len(tokens), 13):
+                        tokens.append(0)
+                    if len(tokens) < 14:
+                        tokens.append('""')
+                    tokens[13] = tokens[13].lstrip('"').strip().rstrip('"')
+
+                    # Korriger de rædsomme dato/tidsformater
+                    tid = " ".join((tokens[kol.dato], tokens[kol.tid]))
+                    try:
+                        isotid = datetime.strptime(tid, "%d.%m.%Y %H.%M")
+                    except ValueError:
+                        sys.exit(
+                            "Argh - ikke-understøttet datoformat: '"
+                            + tid
+                            + "' i fil: "
+                            + filnavn
+                        )
+
+                    # Reorganiser søjler og omsæt numeriske data fra strengrepræsentation til tal
+                    reordered = [
+                        tokens[kol.journal],
+                        tokens[kol.fra],
+                        tokens[kol.til],
+                        float(tokens[kol.dH]),
+                        float(tokens[kol.L]),
+                        int(tokens[kol.setups]),
+                        spredning,
+                        tokens[kol.kommentar],
+                        isotid,
+                        float(tokens[kol.T]),
+                        int(tokens[kol.sky]),
+                        int(tokens[kol.sol]),
+                        int(tokens[kol.vind]),
+                        int(tokens[kol.sigt]),
+                        filnavn,
+                    ]
+                    observationer.append(reordered)
+        except FileNotFoundError:
+            print("Kunne ikke læse filen '"+filnavn+"'")
     return observationer
 
 
@@ -615,25 +619,27 @@ def go(**kwargs) -> None:
         forbundne_punkter = find_forbundne_punkter(
             observationer, alle_punkter, fastholdte_punkter
         )
-        print(f"Forbundne punkter: {forbundne_punkter}")
-    estimerede = tuple(sorted(set(forbundne_punkter) - set(fastholdte_punkter)))
+    estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte_punkter)))
+    print(f"Forbundne punkter: {forbundne_punkter}")
+    print(f"Estimerede punkter: {estimerede_punkter}")
 
     if "Regn" in workflow:
         # -----------------------------------------------------
         # Opstil designmatrix, responsvektor og vægtvektor
         # -----------------------------------------------------
         (X, P, y) = designmatrix(
-            observationer, forbundne_punkter, estimerede, fastholdte, holdte
+            observationer, forbundne_punkter, estimerede_punkter, fastholdte, holdte
         )
 
         # -----------------------------------------------------
-        # Udfør beregning og rapporter i kort form
+        # Udfør beregning og rapportér i kort form
         # -----------------------------------------------------
+
         # Først en ikke-vægtet udjævning som sammenligningsgrundlag
-        model = sm.OLS(y, X)
-        result = model.fit()
-        print("Ikke-vægtet")
-        print(result.params)
+        # model = sm.OLS(y, X)
+        # result = model.fit()
+        # print("Ikke-vægtet")
+        # print(result.params)
 
         # Se https://www.statsmodels.org/devel/examples/notebooks/generated/wls.html
         model = sm.WLS(y, X, weights=P ** 2)
@@ -643,29 +649,24 @@ def go(**kwargs) -> None:
         # Se https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.html
         print(result.params)
         print(result.HC0_se)
-        # print(result.summary())
         print(result.summary2())
         wlsparams = result.params
-        print(dir(result))
+        # print(dir(result))
 
         # Geninstaller 'punkt'-søjlen som indexsøjle, så vi kan indicere fornuftigt
         punktoversigt = punktoversigt.set_index("punkt")
-        for punkt, kote in zip(estimerede, wlsparams):
+        for punkt, kote in zip(estimerede_punkter, wlsparams):
             punktoversigt.at[punkt, "ny"] = kote
         punktoversigt = punktoversigt.reset_index()
 
         # Ændring i millimeter
         d = list(abs(punktoversigt["kote"] - punktoversigt["ny"]) * 1000)
-        print(d)
         # Men vi ignorerer ændringer under mikrometerniveau
         dd = [e if e > 0.001 else None for e in d]
-        print(dd)
+        punktoversigt['Δ'] = dd
 
-        print(dd)
-        punktoversigt["Δ"] = dd
-
-        X["P"] = np.floor(100 * P / max(P) + 0.5)
-        X["y"] = y
+        X['P'] = np.floor(100 * P / max(P) + 0.5)
+        X['y'] = y
 
     # -----------------------------------------------------
     # Skriv resultatfil
@@ -674,7 +675,7 @@ def go(**kwargs) -> None:
     # https://www.marsja.se/pandas-excel-tutorial-how-to-read-and-write-excel-files
     # https://pypi.org/project/XlsxWriter/
     # -----------------------------------------------------
-    print("Skriver netoversigt")
+    print("Skriver resultater")
 
     ark = [("Punktoversigt", punktoversigt)]
     if "Regn" in workflow:
@@ -684,10 +685,10 @@ def go(**kwargs) -> None:
     if "Observationer" in workflow:
         ark += [("Observationer", observationer)]
     print(f"Alle ark: {[a[0] for a in ark]}")
-    writer = pd.ExcelWriter("netoversigt.xlsx", engine="xlsxwriter")
+    writer = pd.ExcelWriter("resultat.xlsx", engine="xlsxwriter")
     for a in ark:
-        print(f"Nu arker vi {a[0]}")
+        # print(f"Nu arker vi {a[0]}")
         if a[1] is not None:
             a[1].to_excel(writer, sheet_name=a[0], index=False)
     writer.save()
-    print("Færdig - output kan ses i [netoversigt.xlsx]")
+    print("Færdig - output kan ses i 'resultat.xlsx'")
