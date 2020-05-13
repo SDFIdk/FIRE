@@ -7,6 +7,8 @@ from click.testing import CliRunner
 from fire.cli.mtl import mtl
 
 
+@pytest.mark.filterwarnings("ignore:kurtosistest only valid for n>=20")
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_cli():
     runner = CliRunner()
 
