@@ -44,9 +44,7 @@ class Geometry(expression.Function):
     @property
     def __geo_interface__(self):
         """Dictionary representation of the geometry"""
-        if self._geom:
-            return self._geom
-        return from_wkt(self._wkt)
+        return self._geom
 
 
 class Point(Geometry):
