@@ -1,6 +1,8 @@
 # from_wkt and to_wkt are taken from geoalchemy
-# Otherwise based on https://github.com/zzzeek/sqlalchemy/blob/master/examples/postgis/postgis.py
+# Otherwise based on
+# https://github.com/zzzeek/sqlalchemy/blob/master/examples/postgis/postgis.py
 import re
+
 from sqlalchemy.sql import expression
 from fire.api.model import columntypes
 
@@ -19,7 +21,7 @@ class Geometry(expression.Function):
             self._wkt = None
         else:
             raise TypeError(
-                "p must me either a coordinate, a WKT string or a geojson like dictionary"
+                "must me either a coordinate, a WKT string or a geojson like dictionary"
             )
 
         self.srid = srid
@@ -55,7 +57,7 @@ class Point(Geometry):
             geom = p
         else:
             raise TypeError(
-                "p must me either a coordinate, a WKT string or a geojson like dictionary"
+                "must me either a coordinate, a WKT string or a geojson like dictionary"
             )
         super(Point, self).__init__(geom, srid)
 
@@ -167,6 +169,8 @@ def to_wkt(geom):
 
     else:
         raise Exception(
-            "Couldn't create WKT from geometry of type %s (%s). Only Point, Line, Polygon are supported."
-            % (geom["type"], geom)
+            (
+                f"Couldn't create WKT from geometry of type {geom['type']} ({geom}). "
+                "Only Point, Line, Polygon are supported."
+            )
         )
