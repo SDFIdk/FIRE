@@ -147,7 +147,7 @@ class Koordinat(FikspunktregisterObjekt):
     sy = Column(Float)
     sz = Column(Float)
     t = Column(DateTime(timezone=True))
-    transformeret = Column(String, nullable=False)
+    transformeret = Column(String, nullable=False, default="false")
     artskode = Column(IntEnum(Artskode), default=Artskode.NETVAERK_AF_LAV_KVALITET)
     x = Column(Float)
     y = Column(Float)
