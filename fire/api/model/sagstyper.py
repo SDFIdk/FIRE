@@ -2,7 +2,12 @@ import enum
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
-from fire.api.model import RegisteringTidObjekt, RegisteringFraObjekt, DeclarativeBase
+import fire
+from fire.api.model import (
+    RegisteringTidObjekt,
+    RegisteringFraObjekt,
+    DeclarativeBase,
+)
 from fire.api.model.columntypes import IntegerEnum
 
 # Model this as a hard coded enum for now. This makes it a lot easier for the user. It would be nice to sync this with
@@ -22,7 +27,7 @@ class EventType(enum.Enum):
 
 class Sag(RegisteringFraObjekt):
     __tablename__ = "sag"
-    id = Column(String(36), nullable=False)
+    id = Column(String(36), nullable=False, default=fire.uuid)
     sagsevents = relationship(
         "Sagsevent", order_by="Sagsevent.objectid", back_populates="sag"
     )
@@ -43,7 +48,7 @@ class Sagsinfo(RegisteringTidObjekt):
 
 class Sagsevent(RegisteringFraObjekt):
     __tablename__ = "sagsevent"
-    id = Column(String(36), nullable=False)
+    id = Column(String(36), nullable=False, default=fire.uuid)
     eventtype = Column("eventtypeid", IntegerEnum(EventType), nullable=False)
     # beskrivelse = Column(String)
     sagid = Column(String(36), ForeignKey("sag.id"), nullable=False)

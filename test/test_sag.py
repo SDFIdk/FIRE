@@ -12,20 +12,17 @@ def test_hent_alle_sager(firedb: FireDb):
     assert len(ss) > 1
 
 
-def test_indset_sag(firedb: FireDb, guid):
+def test_indset_sag(firedb: FireDb):
     sagsinfo = Sagsinfo(aktiv="true", behandler="test")
-    sag = Sag(id=guid, sagsinfos=[sagsinfo])
+    sag = Sag(sagsinfos=[sagsinfo])
     firedb.indset_sag(sag)
 
 
-def test_indset_sagsevent(firedb: FireDb, sag: Sag, guid):
+def test_indset_sagsevent(firedb: FireDb, sag: Sag):
     sagseventinfo = SagseventInfo(beskrivelse="Testing testing")
     firedb.indset_sagsevent(
         Sagsevent(
-            id=guid,
-            sag=sag,
-            eventtype=EventType.KOMMENTAR,
-            sagseventinfos=[sagseventinfo],
+            sag=sag, eventtype=EventType.KOMMENTAR, sagseventinfos=[sagseventinfo],
         )
     )
 

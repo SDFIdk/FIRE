@@ -6,12 +6,12 @@ import json
 import os
 import subprocess
 import sys
-import uuid
 
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
 import click
 
+import fire
 from fire.cli import firedb
 from fire.api.model import (
     Sag,
@@ -47,7 +47,7 @@ def nyt_projekt(beskrivelse: click.STRING, output: click.File, **kwargs) -> None
     banner("OBSERVATIONSFILER", file=output)
     banner("SETUP", file=output)
     print("sagsbehandler = " + getpass.getuser(), file=output)
-    print("sagsid = " + str(uuid.uuid4()), file=output)
+    print("sagsid = " + fire.uuid(), file=output)
 
 
 def banner(bannertekst: str, **kwargs):

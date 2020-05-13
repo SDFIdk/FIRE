@@ -1,5 +1,4 @@
 import pytest
-import uuid
 from fire.api import FireDb
 from fire.api.model import (
     Sagsevent,
@@ -16,7 +15,7 @@ def test_punkt(firedb: FireDb, punkt: Punkt):
 
 
 def test_indset_punkt(firedb: FireDb, sag: Sag):
-    p = Punkt(id=str(uuid.uuid4()))
+    p = Punkt()
     go = GeometriObjekt()
     go.geometri = Point([1, 1])
     p.geometriobjekter.append(go)
@@ -24,7 +23,7 @@ def test_indset_punkt(firedb: FireDb, sag: Sag):
 
 
 def test_indset_punkt_with_invalid_sagsevent_eventtype(firedb: FireDb, sag: Sag):
-    p = Punkt(id=str(uuid.uuid4()))
+    p = Punkt()
     go = GeometriObjekt()
     go.geometri = Point([1, 1])
     p.geometriobjekter.append(go)
@@ -33,8 +32,8 @@ def test_indset_punkt_with_invalid_sagsevent_eventtype(firedb: FireDb, sag: Sag)
 
 
 def test_hent_punkt(firedb: FireDb, punkt: Punkt):
-    punktid = punkt.id
     firedb.session.commit()  # sørg for at punkt indsættes i databasen
+    punktid = punkt.id
     print(punktid)
     print(punkt)
     p = firedb.hent_punkt(punktid)
