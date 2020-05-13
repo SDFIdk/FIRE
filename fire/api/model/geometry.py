@@ -1,6 +1,8 @@
 # from_wkt and to_wkt are taken from geoalchemy
-# Otherwise based on https://github.com/zzzeek/sqlalchemy/blob/master/examples/postgis/postgis.py
+# Otherwise based on
+# https://github.com/zzzeek/sqlalchemy/blob/master/examples/postgis/postgis.py
 import re
+
 from sqlalchemy.sql import expression
 from fire.api.model import columntypes
 
@@ -19,7 +21,7 @@ class Geometry(expression.Function):
             self._wkt = None
         else:
             raise TypeError(
-                "p must me either a coordinate, a WKT string or a geojson like dictionary"
+                "must be either a coordinate, a WKT string or a geojson like dictionary"
             )
 
         self.srid = srid
@@ -42,9 +44,7 @@ class Geometry(expression.Function):
     @property
     def __geo_interface__(self):
         """Dictionary representation of the geometry"""
-        if self._geom:
-            return self._geom
-        return from_wkt(self._wkt)
+        return self._geom
 
 
 class Point(Geometry):
@@ -55,13 +55,21 @@ class Point(Geometry):
             geom = p
         else:
             raise TypeError(
-                "p must me either a coordinate, a WKT string or a geojson like dictionary"
+                "must be either a coordinate, a WKT string or a geojson like dictionary"
             )
         super(Point, self).__init__(geom, srid)
 
 
 class Bbox(Geometry):
     def __init__(self, bounds, srid=4326):
+        """
+        Create a bounding box polygon.
+
+        Input:
+
+            bounds: list/tuple of corner coordinates (west, south, east, north)
+            srid:   number part of a CRS EPSG-code, e.g. the 4326 in EPSG:4326
+        """
         geom = dict(
             type="Polygon",
             coordinates=[
@@ -141,21 +149,21 @@ def to_wkt(geom):
 
     coords = geom["coordinates"]
     if geom["type"] == "Point":
-        return "POINT(%s)" % coords_to_wkt((coords,))
+        return "POINT (%s)" % coords_to_wkt((coords,))
     elif geom["type"] == "LineString":
         return "LINESTRING (%s)" % coords_to_wkt(coords)
     elif geom["type"] == "Polygon":
         rings = ["(" + coords_to_wkt(ring) + ")" for ring in coords]
         rings = ",".join(rings)
-        return "POLYGON(%s)" % rings
+        return "POLYGON (%s)" % rings
 
     elif geom["type"] == "MultiPoint":
         pts = ",".join(coords_to_wkt((ring,)) for ring in coords)
-        return "MULTIPOINT(%s)" % str(pts)
+        return "MULTIPOINT (%s)" % str(pts)
 
     elif geom["type"] == "MultiLineString":
         pts = ",".join("(" + coords_to_wkt(ring) + ")" for ring in coords)
-        return "MultiLineString(%s)" % str(pts)
+        return "MultiLineString (%s)" % str(pts)
 
     elif geom["type"] == "MultiPolygon":
         poly_str = []
@@ -163,10 +171,12 @@ def to_wkt(geom):
             poly_str.append(
                 "((" + ",".join(coords_to_wkt((ring,)) for ring in coord_list) + "))"
             )
-        return "MultiPolygon(%s)" % ", ".join(poly_str)
+        return "MultiPolygon (%s)" % ", ".join(poly_str)
 
     else:
         raise Exception(
-            "Couldn't create WKT from geometry of type %s (%s). Only Point, Line, Polygon are supported."
-            % (geom["type"], geom)
+            (
+                f"Couldn't create WKT from geometry of type {geom['type']} ({geom}). "
+                "Only Point, Line, Polygon are supported."
+            )
         )
