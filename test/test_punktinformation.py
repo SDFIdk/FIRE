@@ -1,4 +1,7 @@
-from fire.api.model import *
+from fire.api.model import (
+    PunktInformation,
+    Sagsevent,
+)
 
 
 def test_indset_punktinformation(firedb, sag, punkt, punktinformationtype):

@@ -1,4 +1,3 @@
-import pytest
 from fire.api import FireDb
 from fire.api.model import Sag, Sagsinfo, Sagsevent, SagseventInfo, EventType
 

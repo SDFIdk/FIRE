@@ -4,7 +4,6 @@ from fire.api import FireDb
 from fire.api.model import (
     Sagsevent,
     Punkt,
-    Koordinat,
     GeometriObjekt,
     Point,
     Sag,

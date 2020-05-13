@@ -1,5 +1,3 @@
-import pytest
-
 from fire.api.model import Srid
 
 
