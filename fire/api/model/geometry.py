@@ -21,7 +21,7 @@ class Geometry(expression.Function):
             self._wkt = None
         else:
             raise TypeError(
-                "must me either a coordinate, a WKT string or a geojson like dictionary"
+                "must be either a coordinate, a WKT string or a geojson like dictionary"
             )
 
         self.srid = srid
@@ -55,7 +55,7 @@ class Point(Geometry):
             geom = p
         else:
             raise TypeError(
-                "must me either a coordinate, a WKT string or a geojson like dictionary"
+                "must be either a coordinate, a WKT string or a geojson like dictionary"
             )
         super(Point, self).__init__(geom, srid)
 
