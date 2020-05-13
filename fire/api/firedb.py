@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 from typing import List, Optional
 
@@ -367,8 +366,6 @@ class FireDb(object):
             sagsevent.eventtype = eventtype
         elif sagsevent.eventtype != eventtype:
             raise Exception(f"'{sagsevent.eventtype}' sagsevent. Should be {eventtype}")
-        if sagsevent.id is None:
-            sagsevent.id = str(uuid.uuid4())
 
     def _filter_observationer(
         self,

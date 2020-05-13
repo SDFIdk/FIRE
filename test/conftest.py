@@ -1,6 +1,5 @@
 import pytest
 import os
-import uuid
 
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -37,13 +36,8 @@ def firedb():
 
 
 @pytest.fixture()
-def guid():
-    return str(uuid.uuid4())
-
-
-@pytest.fixture()
-def sag(firedb, guid):
-    s0 = Sag(id=guid)
+def sag(firedb):
+    s0 = Sag()
     si0 = Sagsinfo(sag=s0, aktiv="true", behandler="yyy")
     firedb.session.add(si0)
     firedb.session.add(s0)
@@ -52,16 +46,16 @@ def sag(firedb, guid):
 
 
 @pytest.fixture()
-def sagsevent(firedb, sag, guid):
-    e0 = Sagsevent(id=guid, sag=sag, eventtype=EventType.KOMMENTAR)
+def sagsevent(firedb, sag):
+    e0 = Sagsevent(sag=sag, eventtype=EventType.KOMMENTAR)
     firedb.session.add(e0)
     return e0
 
 
 @pytest.fixture()
-def punkt(firedb, sagsevent, guid):
+def punkt(firedb, sagsevent):
     sagsevent.eventtype = EventType.PUNKT_OPRETTET
-    p0 = Punkt(id=guid, sagsevent=sagsevent)
+    p0 = Punkt(sagsevent=sagsevent)
     firedb.session.add(p0)
     return p0
 

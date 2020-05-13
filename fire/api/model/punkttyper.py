@@ -4,7 +4,13 @@ from sqlalchemy.orm import relationship
 
 # DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
 
-from fire.api.model import IntEnum, RegisteringTidObjekt, DeclarativeBase, columntypes
+import fire
+from fire.api.model import (
+    IntEnum,
+    RegisteringTidObjekt,
+    DeclarativeBase,
+    columntypes,
+)
 
 # Eksports
 __all__ = [
@@ -78,7 +84,7 @@ class FikspunktregisterObjekt(RegisteringTidObjekt):
 
 class Punkt(FikspunktregisterObjekt):
     __tablename__ = "punkt"
-    id = Column(String, nullable=False, unique=True)
+    id = Column(String, nullable=False, unique=True, default=fire.uuid)
     sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
     sagsevent = relationship(
         "Sagsevent", foreign_keys=[sagseventfraid], back_populates="punkter"
