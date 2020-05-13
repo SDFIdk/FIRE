@@ -62,6 +62,14 @@ class Point(Geometry):
 
 class Bbox(Geometry):
     def __init__(self, bounds, srid=4326):
+        """
+        Create a bounding box polygon.
+
+        Input:
+
+            bounds: list/tuple of corner coordinates (west, south, east, north)
+            srid:   number part of a CRS EPSG-code, e.g. the 4326 in EPSG:4326
+        """
         geom = dict(
             type="Polygon",
             coordinates=[
