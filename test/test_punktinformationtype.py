@@ -1,4 +1,7 @@
-from fire.api.model import *
+from fire.api.model import (
+    PunktInformationType,
+    PunktInformationTypeAnvendelse,
+)
 
 
 def test_indset_punktinformationtype(firedb):
