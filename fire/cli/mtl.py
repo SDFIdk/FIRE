@@ -58,15 +58,14 @@ def get_observation_strings(
         if verbose:
             print("Læser " + filnavn + " med spredning ", spredning)
         try:
-            with open(filnavn, "rt") as obsfil:
-                tilgængelig = True
+            with open(filnavn, "rt", encoding="utf-8") as obsfil:
                 for line in obsfil:
                     if "#" != line[0]:
                         continue
                     line = line.lstrip("#").strip()
 
                     # Check at observationen er i et af de kendte formater
-                    tokens = line.split(" ", 12)
+                    tokens = line.split(" ", 13)
                     assert len(tokens) in (9, 13, 14), (
                         "Malform input line: " + line + " i fil: " + filnavn
                     )
@@ -636,13 +635,15 @@ def go(**kwargs) -> None:
         # -----------------------------------------------------
 
         # Først en ikke-vægtet udjævning som sammenligningsgrundlag
-        # model = sm.OLS(y, X)
-        # result = model.fit()
-        # print("Ikke-vægtet")
-        # print(result.params)
+        model = sm.OLS(y, X)
+        result = model.fit()
+        print("Ikke-vægtet")
+        print(result.params)
+        print(result.HC0_se)
+        print(result.summary2())
 
         # Se https://www.statsmodels.org/devel/examples/notebooks/generated/wls.html
-        model = sm.WLS(y, X, weights=P ** 2)
+        model = sm.WLS(y, X, weights=(P ** 2))
         result = model.fit()
 
         print("Vægtet")
@@ -668,15 +669,18 @@ def go(**kwargs) -> None:
         X["P"] = np.floor(100 * P / max(P) + 0.5)
         X["y"] = y
 
-    # -----------------------------------------------------
+    # -----------------------------------------------------------------------------
     # Skriv resultatfil
-    # -----------------------------------------------------
+    # -----------------------------------------------------------------------------
     # Så kan vi skrive. Med lidt hjælp fra:
     # https://www.marsja.se/pandas-excel-tutorial-how-to-read-and-write-excel-files
     # https://pypi.org/project/XlsxWriter/
-    # -----------------------------------------------------
-    print("Skriver resultater")
-
+    # -----------------------------------------------------------------------------
+    # NB: et sted undervejs i eksporten af instrument-rådata bliver utf-8 tegn
+    # tilsyneladende erstattet af sekvensen "EF BF BD (character place keeper)".
+    # Så det er ikke en fejl i mtl.py, når kommentaren "tæt trafik"
+    # bliver repræsenteret som "t�t trafik". Fejlen må rettes opstrøms.
+    # -----------------------------------------------------------------------------
     ark = [("Punktoversigt", punktoversigt)]
     if "Regn" in workflow:
         ark += [("Designmatrix", X)]
@@ -684,11 +688,11 @@ def go(**kwargs) -> None:
         ark += [("Netgeometri", net), ("Ensomme", ensomme)]
     if "Observationer" in workflow:
         ark += [("Observationer", observationer)]
-    print(f"Alle ark: {[a[0] for a in ark]}")
+
+    print(f"Skriver resultat-ark: {[a[0] for a in ark]}")
     writer = pd.ExcelWriter("resultat.xlsx", engine="xlsxwriter")
     for a in ark:
-        # print(f"Nu arker vi {a[0]}")
         if a[1] is not None:
-            a[1].to_excel(writer, sheet_name=a[0], index=False)
+            a[1].to_excel(writer, sheet_name=a[0], encoding="utf-8", index=False)
     writer.save()
     print("Færdig - output kan ses i 'resultat.xlsx'")
