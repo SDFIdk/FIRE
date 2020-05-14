@@ -35,6 +35,10 @@ class Sag(RegisteringFraObjekt):
         "Sagsinfo", order_by="Sagsinfo.objectid", back_populates="sag"
     )
 
+    @property
+    def aktiv(self) -> bool:
+        return self.sagsinfos[-1].aktiv != "false"
+
 
 class Sagsinfo(RegisteringTidObjekt):
     __tablename__ = "sagsinfo"
@@ -50,7 +54,6 @@ class Sagsevent(RegisteringFraObjekt):
     __tablename__ = "sagsevent"
     id = Column(String(36), nullable=False, default=fire.uuid)
     eventtype = Column("eventtypeid", IntegerEnum(EventType), nullable=False)
-    # beskrivelse = Column(String)
     sagid = Column(String(36), ForeignKey("sag.id"), nullable=False)
     sag = relationship("Sag", back_populates="sagsevents")
     sagseventinfos = relationship(

@@ -1,3 +1,5 @@
+import pytest
+
 from fire.api import FireDb
 from fire.api.model import Sag, Sagsinfo, Sagsevent, SagseventInfo, EventType
 
@@ -28,3 +30,13 @@ def test_indset_sagsevent(firedb: FireDb, sag: Sag):
 
     s = firedb.hent_sag(sag.id)
     assert s.sagsevents[0].sagseventinfos[0].beskrivelse == "Testing testing"
+
+
+def test_luk_sag(firedb: FireDb, sag: Sag):
+    assert sag.aktiv is True
+    firedb.luk_sag(sag)
+    s = firedb.hent_sag(sag.id)
+    assert s.aktiv is False
+
+    with pytest.raises(TypeError):
+        firedb.luk_sag(4242)
