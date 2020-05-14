@@ -635,12 +635,12 @@ def go(**kwargs) -> None:
         # -----------------------------------------------------
 
         # Først en ikke-vægtet udjævning som sammenligningsgrundlag
-        model = sm.OLS(y, X)
-        result = model.fit()
-        print("Ikke-vægtet")
-        print(result.params)
-        print(result.HC0_se)
-        print(result.summary2())
+        # model = sm.OLS(y, X)
+        # result = model.fit()
+        # print("Ikke-vægtet")
+        # print(result.params)
+        # print(result.HC0_se)
+        # print(result.summary2())
 
         # Se https://www.statsmodels.org/devel/examples/notebooks/generated/wls.html
         model = sm.WLS(y, X, weights=(P ** 2))
