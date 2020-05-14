@@ -539,6 +539,7 @@ def designmatrix(observationer, punkter, estimerede, fastholdte, holdte):
         X.at[row, pkt] = 1
         y[row] = holdte[pkt][0]
         P[row] = 1.0 / holdte[pkt][1]
+        row += 1
 
     return X, P, y
 
