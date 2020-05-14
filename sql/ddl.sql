@@ -368,7 +368,8 @@ COMMENT ON COLUMN SRIDTYPE.Y IS 'Beskrivelse af y-koordinatens indhold.';
 COMMENT ON COLUMN SRIDTYPE.Z IS 'Beskrivelse af z-koordinatens indhold.';
 
 -- Constraints og triggers ikke defineret i modellen
--- Constraint der tjekker at PUNKTID eksisterer i PUNKT tabellen inden en række sættes ind i KOORDINAT-, OBESARVATION- og PUNKTINFO-tabellen
+-- Constraint der tjekker at PUNKTID eksisterer i PUNKT tabellen inden en række
+-- sættes ind i KOORDINAT-, OBESARVATION- og PUNKTINFO-tabellen
 CREATE UNIQUE INDEX ID_IDX_0001 ON PUNKT (ID);
 
 ALTER TABLE PUNKT ADD (
@@ -394,7 +395,8 @@ UNIQUE (EVENTTYPEID)
 USING INDEX EVENTTYPE_U01
 ENABLE VALIDATE;
 
--- Index der skal sikre at der til samme punkt ikke tilføjes en koordinat med samme SRIDID, hvis denne ikke er afregistreret
+-- Index der skal sikre at der til samme punkt ikke tilføjes en koordinat
+-- med samme SRIDID, hvis denne ikke er afregistreret
 CREATE UNIQUE INDEX KOOR_UNIQ_001 ON KOORDINAT (SRIDID, PUNKTID, REGISTRERINGTIL);
 
 
@@ -509,7 +511,7 @@ CONSTRAINT SAGSINFO_CON_0001
 CHECK (nvl(registreringtil,to_timestamp_tz('31/12/2099 00:00:00.000000 +1:00','dd/mm/yyyy hh24:mi:ss.ff tzh:tzm')) >= registreringfra)
 ENABLE VALIDATE;
 
--- Constraint der sikre at en sag eksisterer som en sagsevent referere til
+-- Constraint der sikrer at et sagsevent henviser til en eksisterende sag
 ALTER TABLE SAGSEVENT ADD
 CONSTRAINT SAGSEVENT_R01
 FOREIGN KEY (SAGID)
@@ -539,10 +541,7 @@ REFERENCES SAGSEVENT (ID)
 ENABLE VALIDATE);
 
 
-
-
-
--- Triggere der sikre at kun registreringtil kan opdateres i en tabel
+-- Triggere der sikrer at kun registreringtil kan opdateres i en tabel
 CREATE OR REPLACE TRIGGER AUD#BEREGNING
 after update ON BEREGNING
 for each row
@@ -550,9 +549,6 @@ begin
 IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
-
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
-
 
 IF :new.SAGSEVENTFRAID != :old.SAGSEVENTFRAID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -564,14 +560,10 @@ CREATE OR REPLACE TRIGGER AUD#GEOMETRIOBJEKT
 after update ON GEOMETRIOBJEKT
 for each row
 begin
---IF :new.GEOMETRI != :old.GEOMETRI THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
-
-
--- IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.SAGSEVENTFRAID != :old.SAGSEVENTFRAID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -587,8 +579,6 @@ begin
 IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
-
--- IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.SRIDID != :old.SRIDID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -617,7 +607,7 @@ IF :new.PUNKTID != :old.PUNKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot 
 end;
 /
 
--- Trigger der sikre at indeholdet i tabellen OBSERVATION matcher hvad der er specificeret omkring observationstypen i OBSERVATIONTYPE tabellen
+
 CREATE OR REPLACE TRIGGER AUD#OBSERVATION
 after update ON OBSERVATION
 for each row
@@ -625,8 +615,6 @@ begin
 IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
-
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.ANTAL != :old.ANTAL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -675,7 +663,7 @@ IF :new.SIGTEPUNKTID != :old.SIGTEPUNKTID THEN RAISE_APPLICATION_ERROR(-20000,'Y
 end;
 /
 
--- Trigger der sikre at indeholdet i tabellen KOORDINAT matcher hvad der er specificeret omkring SRID i SRIDTYPE tabellen
+-- Trigger der sikrer at indeholdet i tabellen KOORDINAT matcher hvad der er specificeret omkring SRID i SRIDTYPE tabellen
 CREATE OR REPLACE TRIGGER AIU#KOORDINAT
 after insert Or UPDATE ON KOORDINAT
 for each row
@@ -719,8 +707,6 @@ IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You canno
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
-
 IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.SAGSEVENTFRAID != :old.SAGSEVENTFRAID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
@@ -740,8 +726,6 @@ IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update thi
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
-
 end;
 /
 
@@ -755,8 +739,6 @@ IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You canno
 IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(b) '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(c) '); END IF;
-
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.SAGID != :old.SAGID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(d) '); END IF;
 
@@ -775,8 +757,6 @@ IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(-20000,'You
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
-
 IF :new.BESKRIVELSE != :old.BESKRIVELSE THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 end;
@@ -793,8 +773,6 @@ IF :new.SAGID != :old.SAGID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot upda
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
---IF :new.REGISTRERINGTIL != :old.REGISTRERINGTIL THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
-
 IF :new.AKTIV != :old.AKTIV THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.JOURNALNUMMER != :old.JOURNALNUMMER THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
@@ -807,7 +785,7 @@ end;
 /
 
 
--- Trigger der sikre at sageevents kun knyttes til en aktiv sag
+-- Trigger der sikrer at sageevents kun knyttes til en aktiv sag
 CREATE OR REPLACE TRIGGER AID#SAGSEVENT
 after insert ON SAGSEVENT
 for each row
@@ -830,8 +808,6 @@ begin
 
 end;
 /
-
-
 
 
 -- Trigger der skal sikre at inholdet i Observation-tabellen matcher hvad der er defineret observationtype-tabellen
@@ -940,8 +916,7 @@ end;
 /
 
 
-
--- Constraints der sikre at namespacedelen er korrekt i PUNKTINFOTYPE, OBSERVATIONTYPE og SRIDTYPE
+-- Constraints der sikrer at namespacedelen er korrekt i PUNKTINFOTYPE, OBSERVATIONTYPE og SRIDTYPE
 ALTER TABLE PUNKTINFOTYPE ADD
 CONSTRAINT PUNKTINFOTYPE_CON_0001
 CHECK (substr(infotype,1,instr(infotype,':')-1) in ('AFM','ATTR','IDENT','NET','PS','REGION','SKITSE'))
@@ -953,7 +928,7 @@ CONSTRAINT OT_SRID_0001
 CHECK (substr(SRID,1,instr(SRID,':')-1) in ('DK','EPSG','FO','GL','LOC','NKG','TS'))
 ENABLE VALIDATE;
 
--- Sikre at infotype i PUNKTINFO eksisterer i PUNKTINFOTYPE, og at data i PUNKTINFO matcher definition i PUNKTINFOTYPE
+-- Sikrer at infotype i PUNKTINFO eksisterer i PUNKTINFOTYPE, og at data i PUNKTINFO matcher definition i PUNKTINFOTYPE
 CREATE OR REPLACE TRIGGER PUNKTINFO_TYPE_VALID_TRG
 BEFORE INSERT OR UPDATE
 ON PUNKTINFO
@@ -1089,7 +1064,7 @@ END;
 /
 
 
--- Indehold til observationtype
+-- Indhold til observationtype
 INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk ', 1, 'geometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Variabel vedr. eta_1 (refraktion) [m^3]', 'Afstandsafhængig varians koteforskel pr. målt koteforskel [m^2/m]', 'Afstandsuafhængig varians koteforskel pr. målt koteforskel [m^2]', 'Præcisionsnivellement [0,1,2,3]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
