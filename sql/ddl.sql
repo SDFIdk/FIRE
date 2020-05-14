@@ -114,13 +114,6 @@ CREATE TABLE OBSERVATIONTYPE (
    VALUE15 VARCHAR2(4000)
 );
 
-CREATE TABLE OBSERVATIONTYPENAMESPACE (
-
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
-   BESKRIVELSE VARCHAR2(4000) NOT NULL,
-   NAMESPACE VARCHAR2(4000) NOT NULL
-);
-
 CREATE TABLE PUNKT (
 
    OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
@@ -153,12 +146,6 @@ CREATE TABLE PUNKTINFOTYPE (
    BESKRIVELSE VARCHAR2(4000) NOT NULL
 );
 
-CREATE TABLE PUNKTINFOTYPENAMESPACE (
-
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
-   BESKRIVELSE VARCHAR2(4000) NOT NULL,
-   NAMESPACE VARCHAR2(4000) NOT NULL
-);
 
 CREATE TABLE SAG (
 
@@ -212,12 +199,6 @@ CREATE TABLE SAGSINFO (
    SAGID VARCHAR2(36) NOT NULL
 );
 
-CREATE TABLE SRIDNAMESPACE (
-
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
-   NAMESPACE VARCHAR2(4000) NOT NULL,
-   BESKRIVELSE VARCHAR2(4000) NOT NULL
-);
 
 CREATE TABLE SRIDTYPE (
 
@@ -333,9 +314,6 @@ COMMENT ON COLUMN OBSERVATIONTYPE.VALUE6 IS 'Beskrivelse af en observations vær
 COMMENT ON COLUMN OBSERVATIONTYPE.VALUE7 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
 COMMENT ON COLUMN OBSERVATIONTYPE.VALUE8 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
 COMMENT ON COLUMN OBSERVATIONTYPE.VALUE9 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON TABLE OBSERVATIONTYPENAMESPACE IS 'Type der afgrænser de lovlige namspaces der kan anvendes i observationstype, samt en beskrivese af denne.';
-COMMENT ON COLUMN OBSERVATIONTYPENAMESPACE.BESKRIVELSE IS 'Kort beskrivelse af hvad der dækkes af et observationsnamespace.';
-COMMENT ON COLUMN OBSERVATIONTYPENAMESPACE.NAMESPACE IS 'Navn på et lovlige namspace for en observation.';
 COMMENT ON TABLE PUNKT IS 'Abstrakt repræsentation af et fysisk punkt. Knytter alle punktinformationer sammen.';
 COMMENT ON COLUMN PUNKT.ID IS 'Persistent unik nøgle.';
 COMMENT ON COLUMN PUNKT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
@@ -356,9 +334,6 @@ COMMENT ON COLUMN PUNKTINFOTYPE.ANVENDELSE IS 'Er det reelTal, tekst, eller inge
 COMMENT ON COLUMN PUNKTINFOTYPE.BESKRIVELSE IS 'Beskrivelse af denne informationstypes art.';
 COMMENT ON COLUMN PUNKTINFOTYPE.INFOTYPE IS 'Arten af dette informationselement';
 COMMENT ON COLUMN PUNKTINFOTYPE.INFOTYPEID IS 'Unik ID for typen af Punktinfo.';
-COMMENT ON TABLE PUNKTINFOTYPENAMESPACE IS 'Type der afgrænser de lovlige namspaces der kan anvendes i infotype, samt en beskrivese af denne.';
-COMMENT ON COLUMN PUNKTINFOTYPENAMESPACE.BESKRIVELSE IS 'Kort beskrivelse af hvad der dækkes af et punktinfonamespace.';
-COMMENT ON COLUMN PUNKTINFOTYPENAMESPACE.NAMESPACE IS 'Navn på et lovlige namspace for en punktinformation.';
 COMMENT ON TABLE SAG IS 'Samling af administrativt relaterede sagshændelser.';
 COMMENT ON COLUMN SAG.ID IS 'Persistent unik nøgle.';
 COMMENT ON COLUMN SAG.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
@@ -384,9 +359,6 @@ COMMENT ON COLUMN SAGSINFO.JOURNALNUMMER IS 'Sagsmappeidentifikation i opmåling
 COMMENT ON COLUMN SAGSINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
 COMMENT ON COLUMN SAGSINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
 COMMENT ON COLUMN SAGSINFO.SAGID IS 'Den sag som sagsinfo holder information for.';
-COMMENT ON TABLE SRIDNAMESPACE IS 'Type der afgrænser de lovlige namspaces der kan anvendes i SRIDtype, samt en beskrivese af denne.';
-COMMENT ON COLUMN SRIDNAMESPACE.BESKRIVELSE IS 'Kort beskrivelse af hvad der dækkes af et SRIDnamespace.';
-COMMENT ON COLUMN SRIDNAMESPACE.NAMESPACE IS 'Navn på et lovlige namspace for en SRID.';
 COMMENT ON TABLE SRIDTYPE IS 'Udfaldsrum for SRID-koordinatbeskrivelser.';
 COMMENT ON COLUMN SRIDTYPE.BESKRIVELSE IS 'Generel beskrivelse af systemet.';
 COMMENT ON COLUMN SRIDTYPE.SRID IS 'Den egentlige referencesystemindikator.';
@@ -969,17 +941,10 @@ end;
 
 
 
-
 -- Constraints der sikre at namespacedelen er korrekt i PUNKTINFOTYPE, OBSERVATIONTYPE og SRIDTYPE
 ALTER TABLE PUNKTINFOTYPE ADD
 CONSTRAINT PUNKTINFOTYPE_CON_0001
 CHECK (substr(infotype,1,instr(infotype,':')-1) in ('AFM','ATTR','IDENT','NET','PS','REGION','SKITSE'))
-ENABLE
-VALIDATE;
-
-ALTER TABLE OBSERVATIONTYPE ADD
-CONSTRAINT OBSERVATIONTYPE_CON_0001
-CHECK (substr(observationstype,1,instr(observationstype,':')-1) in ('OBS'))
 ENABLE
 VALIDATE;
 
