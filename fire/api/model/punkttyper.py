@@ -46,8 +46,10 @@ class Artskode(enum.Enum):
     artskode = 4 control point in network of lower or unknown quality.
     artskode = 5 coordinate computed on just a few measurements.
     artskode = 6 coordinate transformed from local or an not valid coordinate system.
-    artskode = 7 coordinate computed on an not valid coordinate system, or system of unknown origin.
-    artskode = 8 coordinate computed on few measurements, and on an not valid coordinate system.
+    artskode = 7 coordinate computed on an not valid coordinate system, or system of
+                 unknown origin.
+    artskode = 8 coordinate computed on few measurements, and on an not valid
+                 coordinate system.
     artskode = 9 location coordinate or location height.
     """
 
@@ -60,6 +62,7 @@ class Artskode(enum.Enum):
     UKENDT_KOORDINATSYSTEM = 7
     FAA_OBS_OG_UKENDT_KOORDINATSYSTEM = 8
     LOKATIONSKOORDINAT = 9
+    NULL = None
 
 
 beregning_koordinat = Table(
@@ -154,7 +157,7 @@ class Koordinat(FikspunktregisterObjekt):
     sz = Column(Float)
     t = Column(DateTime(timezone=True))
     transformeret = Column(String, nullable=False, default="false")
-    artskode = Column(IntEnum(Artskode), default=Artskode.NETVAERK_AF_LAV_KVALITET)
+    artskode = Column(IntEnum(Artskode), nullable=True, default=Artskode.NULL)
     x = Column(Float)
     y = Column(Float)
     z = Column(Float)
