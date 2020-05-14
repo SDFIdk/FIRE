@@ -10,6 +10,7 @@ from fire.api.model import (
 )
 from fire.api.model.columntypes import IntegerEnum
 
+
 # Model this as a hard coded enum for now. This makes it a lot easier for the user. It would be nice to sync this with
 # the db table eventtype
 class EventType(enum.Enum):
@@ -21,8 +22,7 @@ class EventType(enum.Enum):
     PUNKTINFO_FJERNET = 6
     PUNKT_OPRETTET = 7
     PUNKT_NEDLAGT = 8
-    BEREGNING = 9
-    KOMMENTAR = 10
+    KOMMENTAR = 9
 
 
 class Sag(RegisteringFraObjekt):
