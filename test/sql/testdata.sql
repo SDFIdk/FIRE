@@ -1217,7 +1217,7 @@ INSERT INTO sagsevent (
 ) VALUES (
     'sagevent-aaaa-bbbb-0005-000000000005',
     sysdate,
-    10, -- punkt+geometri nedlagt
+    9, -- kommentar
     'sag00005-aaaa-bbbb-cccc-000000000001'
 );
 

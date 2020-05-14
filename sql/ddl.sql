@@ -1124,8 +1124,6 @@ END;
 /
 
 
-
-
 -- Indehold til observationtype
 INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk ', 1, 'geometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Variabel vedr. eta_1 (refraktion) [m^3]', 'Afstandsafhængig varians koteforskel pr. målt koteforskel [m^2/m]', 'Afstandsuafhængig varians koteforskel pr. målt koteforskel [m^2]', 'Præcisionsnivellement [0,1,2,3]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -1179,10 +1177,7 @@ INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
 VALUES ('bruges når et punkt og tilhørende geometri nedlægges', 'punkt_nedlagt', 8);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges når nye koordinater skabes. Knytter observationer til koordinater', 'beregning', 9);
-
-INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges til at tilføje fritekst kommentarer til sagen i tilfælde af at der er behov for at påhæfte sagen yderligere information som ikke passer i andre hændelser. Bruges fx også til påhæftning af materiale på sagen.', 'kommentar', 10);
+VALUES ('bruges til at tilføje fritekst kommentarer til sagen i tilfælde af at der er behov for at påhæfte sagen yderligere information som ikke passer i andre hændelser. Bruges fx også til påhæftning af materiale på sagen.', 'kommentar', 9);
 
 -- End
 
