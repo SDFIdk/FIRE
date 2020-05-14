@@ -929,12 +929,14 @@ CHECK (substr(SRID,1,instr(SRID,':')-1) in ('DK','EPSG','FO','GL','LOC','NKG','T
 ENABLE VALIDATE;
 
 -- Sikrer at infotype i PUNKTINFO eksisterer i PUNKTINFOTYPE, og at data i PUNKTINFO matcher definition i PUNKTINFOTYPE
+-- og at tidligere version af punktinfo afregistreres korrekt ved indsættelse af ny
 CREATE OR REPLACE TRIGGER PUNKTINFO_TYPE_VALID_TRG
 BEFORE INSERT OR UPDATE
 ON PUNKTINFO
 FOR EACH ROW
 DECLARE
-this_andv varchar2(10);
+  this_andv varchar2(10);
+  cnt NUMBER;
 begin
   begin
     select anvendelse into this_andv
@@ -956,6 +958,22 @@ end if;
 if this_andv = 'TAL' and:new.TEKST is not null THEN
    RAISE_APPLICATION_ERROR(-20000,'Incorrect data (C)(!)');
 end if;
+
+-- afregistrer forrige version af punktinfo når nyt indsættes
+IF :new.registreringtil IS NULL THEN
+  SELECT count(*) INTO cnt
+  FROM punktinfo
+  WHERE punktid = :new.PUNKTID AND infotypeid = :new.infotypeid AND registreringtil IS NULL;
+
+  IF cnt = 1 THEN
+    UPDATE punktinfo
+    SET registreringtil = :new.registreringfra, sagseventtilid = :new.sagseventfraid
+    WHERE objectid = (SELECT objectid FROM punktinfo WHERE punktid = :new.punktid AND infotypeid = :new.infotypeid AND registreringtil IS NULL);
+  END IF;
+END IF;
+
+END;
+/
 
 end;
 /
