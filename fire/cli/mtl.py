@@ -18,7 +18,9 @@ from fire.api.model import (
     Sagsevent,
     Sagsinfo,
     Srid,
+    
 )
+from fire.api import FireDb
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -169,7 +171,7 @@ def punkt_geometri(punktinfo: PunktInformation, ident: str) -> Tuple[float, floa
 # ------------------------------------------------------------------------------
 # TODO: Bør nok være en del af API
 # ------------------------------------------------------------------------------
-def hent_sridid(db, srid: str) -> int:
+def hent_sridid(db: FireDb, srid: str) -> int:
     srider = db.hent_srider()
     for s in srider:
         if s.name == srid:
