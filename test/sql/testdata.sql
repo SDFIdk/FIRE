@@ -32,6 +32,15 @@
 
 -- SRID, punktinfotype osv
 -------------------------------------------------------------------------------
+-- Grundlæggende FIRE konfiguration
+INSERT INTO konfiguration (
+    dir_skitser,
+    dir_materiale
+) VALUES (
+    'F:\GDB\FIRE\skitser',
+    'F:\GDB\FIRE\materiale'
+)
+
 -- SELECT
 --   infotypeid, infotype, anvendelse, beskrivelse FROM punktinfotype
 -- WHERE infotype IN (

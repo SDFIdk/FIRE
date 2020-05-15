@@ -12,6 +12,7 @@ from fire.api.model import (
     PunktInformation,
     PunktInformationType,
     GeometriObjekt,
+    Konfiguration,
     Koordinat,
     Observation,
     ObservationType,
@@ -457,6 +458,25 @@ class FireDb(object):
             self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
         self._luk_fikspunkregisterobjekt(beregning, sagsevent, commit=False)
         self.session.commit()
+
+    @property
+    def basedir_skitser(self):
+        """Returner absolut del af sti til skitser."""
+        konf = self._hent_konfiguration()
+        return konf.dir_skitser
+
+    @property
+    def basedir_materiale(self):
+        """Returner absolut del af sti til sagsmateriale."""
+        konf = self._hent_konfiguration()
+        return konf.dir_materiale
+
+    def _hent_konfiguration(self):
+        return (
+            self.session.query(Konfiguration)
+            .filter(Konfiguration.objectid == 1)
+            .first()
+        )
 
     # region Private methods
 
