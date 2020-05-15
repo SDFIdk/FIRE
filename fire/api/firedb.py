@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from sqlalchemy import create_engine, func, event, and_, inspect
@@ -6,15 +6,19 @@ from sqlalchemy.orm import sessionmaker, aliased
 
 from fire.api.model import (
     RegisteringTidObjekt,
+    FikspunktregisterObjekt,
     Sag,
     Punkt,
     PunktInformation,
     PunktInformationType,
     GeometriObjekt,
+    Koordinat,
     Observation,
     ObservationType,
     Bbox,
     Sagsevent,
+    SagseventInfo,
+    Sagsinfo,
     Beregning,
     Geometry,
     EventType,
@@ -351,7 +355,120 @@ class FireDb(object):
 
     # endregion
 
+    # region "luk" methods
+
+    def luk_sag(self, sag: Sag):
+        """Sætter en sags status til inaktiv"""
+        if not isinstance(sag, Sag):
+            raise TypeError("'sag' is not an instance of Sag")
+
+        current = sag.sagsinfos[-1]
+        new = Sagsinfo(
+            aktiv="false",
+            journalnummer=current.journalnummer,
+            behandler=current.behandler,
+            beskrivelse=current.beskrivelse,
+            sag=sag,
+        )
+        self.session.add(new)
+        self.session.commit()
+
+    def luk_punkt(self, punkt: Punkt, sagsevent: Sagsevent):
+        """
+        Luk et punkt.
+
+        Lukker udover selve punktet også tilhørende geometriobjekt,
+        koordinater og punktinformationer. Alle lukkede objekter tilknyttes
+        samme sagsevent af typen EventType.PUNKT_NEDLAGT.
+
+        Dette er den ultimative udrensning. BRUG MED OMTANKE!
+        """
+        if not isinstance(punkt, Punkt):
+            raise TypeError("'punkt' is not an instance of Punkt")
+
+        sagsevent.eventtype = EventType.PUNKT_NEDLAGT
+        self._luk_fikspunkregisterobjekt(punkt, sagsevent, commit=False)
+        self._luk_fikspunkregisterobjekt(
+            punkt.geometriobjekter[-1], sagsevent, commit=False
+        )
+
+        for koordinat in punkt.koordinater:
+            self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
+
+        for punktinfo in punkt.punktinformationer:
+            self._luk_fikspunkregisterobjekt(punktinfo, sagsevent, commit=False)
+
+        for observation in punkt.observationer_fra:
+            self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=False)
+
+        for observation in punkt.observationer_til:
+            self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=False)
+
+        self.session.commit()
+
+    def luk_koordinat(self, koordinat: Koordinat, sagsevent: Sagsevent):
+        """
+        Luk en koordinat.
+
+        Hvis ikke allerede sat, ændres sagseventtypen til EventType.KOORDINAT_NEDLAGT.
+        """
+        if not isinstance(koordinat, Koordinat):
+            raise TypeError("'koordinat' is not an instance of Koordinat")
+
+        sagsevent.eventtype = EventType.KOORDINAT_NEDLAGT
+        self._luk_fikspunkregisterobjekt(koordinat, sagsevent)
+
+    def luk_observation(self, observation: Observation, sagsevent: Sagsevent):
+        """
+        Luk en observation.
+
+        Hvis ikke allerede sat, ændres sagseventtypen til EventType.OBSERVATION_NEDLAGT.
+        """
+        if not isinstance(observation, Observation):
+            raise TypeError("'observation' is not an instance of Observation")
+
+        sagsevent.eventtype = EventType.OBSERVATION_NEDLAGT
+        self._luk_fikspunkregisterobjekt(observation, sagsevent)
+
+    def luk_punktinfo(self, punktinfo: PunktInformation, sagsevent: Sagsevent):
+        """
+        Luk en punktinformation.
+
+        Hvis ikke allerede sat, ændres sagseventtypen til EventType.PUNKTINFO_FJERNET.
+        """
+        if not isinstance(punktinfo, PunktInformation):
+            raise TypeError("'punktinfo' is not an instance of PunktInformation")
+
+        sagsevent.eventtype = EventType.PUNKTINFO_FJERNET
+        self._luk_fikspunkregisterobjekt(punktinfo, sagsevent)
+
+    def luk_beregning(self, beregning: Beregning, sagsevent: Sagsevent):
+        """
+        Luk en beregning.
+
+        Lukker alle koordinater der er tilknyttet beregningen.
+        Hvis ikke allerede sat, ændres sagseventtypen til EventType.KOORDINAT_NEDLAGT.
+        """
+        if not isinstance(beregning, Beregning):
+            raise TypeError("'beregning' is not an instance of Beregning")
+
+        sagsevent.eventtype = EventType.KOORDINAT_NEDLAGT
+        for koordinat in beregning.koordinater:
+            self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
+        self._luk_fikspunkregisterobjekt(beregning, sagsevent, commit=False)
+        self.session.commit()
+
     # region Private methods
+
+    def _luk_fikspunkregisterobjekt(
+        self, objekt: FikspunktregisterObjekt, sagsevent: Sagsevent, commit: bool = True
+    ):
+        objekt._registreringtil = datetime.now(tz=timezone.utc)
+        objekt.sagseventtilid = sagsevent.id
+
+        self.session.add(objekt)
+        if commit:
+            self.session.commit()
 
     def _check_and_prepare_sagsevent(self, sagsevent: Sagsevent, eventtype: EventType):
         """Checks that the given Sagsevent is valid in the context given by eventtype.

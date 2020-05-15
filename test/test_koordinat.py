@@ -1,6 +1,8 @@
 import uuid
 import datetime as dt
 
+import pytest
+
 from fire.api import FireDb
 from fire.api.model import (
     Koordinat,
@@ -77,3 +79,16 @@ def test_afregistrering_af_koordinat(
 
     assert p.koordinater[0].registreringtil == p.koordinater[1].registreringfra
     assert p.koordinater[0].sagseventtilid == p.koordinater[1].sagseventfraid
+
+
+def test_luk_koordinat(firedb: FireDb, koordinat: Koordinat, sagsevent: Sagsevent):
+    firedb.session.commit()
+    assert koordinat.registreringtil is None
+    assert koordinat.sagsevent.eventtype == EventType.KOORDINAT_BEREGNET
+
+    firedb.luk_koordinat(koordinat, sagsevent)
+    assert koordinat.registreringtil is not None
+    assert koordinat.sagsevent.eventtype == EventType.KOORDINAT_NEDLAGT
+
+    with pytest.raises(TypeError):
+        firedb.luk_koordinat(firedb)
