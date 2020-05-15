@@ -218,7 +218,7 @@ def path_to_origin(graph, start, origin, path=[]):
 
 
 # ------------------------------------------------------------------------------
-def find_nyetablerede(projektnavn):
+def find_nyetablerede(projektnavn: str) -> pd.DataFrame: 
     """Opbyg oversigt over nyetablerede punkter"""
     print("Finder nyetablerede punkter")
     try:
@@ -262,7 +262,7 @@ def find_inputfiler(navn):
 
 
 # ------------------------------------------------------------------------------
-def importer_observationer():
+def importer_observationer()-> pd.DataFrame:
     """Opbyg dataframe med observationer importeret fra rådatafil"""
     print("Importerer observationer")
     observationer = pd.DataFrame(
@@ -289,7 +289,7 @@ def importer_observationer():
 
 
 # ------------------------------------------------------------------------------
-def find_observationer(navn):
+def find_observationer(navn: str) -> pd.DataFrame:
     """Opbyg dataframe med allerede importerede observationer"""
     print("Læser observationer")
     try:
@@ -302,7 +302,7 @@ def find_observationer(navn):
 
 
 # ------------------------------------------------------------------------------
-def opbyg_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
+def opbyg_punktoversigt(navn: str, nyetablerede: pd.DataFrame, alle_punkter: Tuple[set], nye_punkter: Tuple[set]) -> pd.DataFrame:
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
         punktoversigt = pd.read_excel(
@@ -406,7 +406,7 @@ def opbyg_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
 
 
 # ------------------------------------------------------------------------------
-def find_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
+def find_punktoversigt(navn: str, nyetablerede: pd.DataFrame, alle_punkter: Tuple[set], nye_punkter: Tuple[set]) -> pd.DataFrame:
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
         punktoversigt = pd.read_excel(
@@ -420,7 +420,7 @@ def find_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
 
 
 # ------------------------------------------------------------------------------
-def netanalyse(observationer, alle_punkter, fastholdte_punkter):
+def netanalyse(observationer: pd.DataFrame, alle_punkter: Tuple[set], fastholdte_punkter: Tuple[set]) -> Tuple[pd.DataFrame, pd.DataFrame]:
     print("Analyserer net")
     assert len(fastholdte_punkter) > 0, "Netanalyse kræver mindst et fastholdt punkt"
     # Initialiser
@@ -486,7 +486,7 @@ def netanalyse(observationer, alle_punkter, fastholdte_punkter):
     return netf, ensomme
 
 
-def find_forbundne_punkter(navn, observationer, alle_punkter, fastholdte_punkter):
+def find_forbundne_punkter(navn: str, observationer: pd.date_range, alle_punkter: Tuple[set], fastholdte_punkter: Tuple[set]) -> Tuple[pd.DataFrame]:
     """Læs net fra allerede foretaget netanalyse"""
     try:
         net = pd.read_excel(navn + ".xlsx", sheet_name="Netgeometri", usecols="A")
