@@ -5,11 +5,10 @@ comment: false
 
 coverage:
   status:
-    project:
-      default:
-        threshold: 1%
-        if_not_found: success  # no commit found? still set a success
     patch:
       default:
-        threshold: 1%
-        if_not_found: success
+        enabled: no
+    project:
+      default:
+        threshold: 1
+        if_not_found: success  # no commit found? still set a success
