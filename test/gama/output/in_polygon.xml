@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<gama-local xmlns="http://www.gnu.org/software/gama/gama-local">
+    <network >
+        <parameters />
+        <description>
+            Network doc created by fire-gama (https://github.com/Septima/fire-gama)
+            Initiated by Created by fire-gama
+            GamaWriter.take_observations() Antal observationer: 68
+            GamaNetworkDoc.set_fixed_points: Antal punkter: 1
+            GamaNetworkDoc.set_observations: Antal observationer: 68
+        </description>
+        <points-observations >
+            <point id="67e3987a-dc6b-49ee-8857-417ef35777af" z="5.57" fix="z" />
+            <point id="bfe1d698-09fb-450a-81e7-4e2832b6bea7" z="3.99248" adj="z" />
+            <point id="87d09ddc-42f3-41cf-a9b1-73f6ece692e6" z="5.00852" adj="z" />
+            <point id="61c61847-ed54-4969-b94e-df74fd63f108" z="2.8318" adj="z" />
+            <point id="fd2627db-144d-4591-8bc7-d4c3afcdb92d" z="5.78825" adj="z" />
+            <point id="00380e23-ccf7-4655-9e55-8c299c8a0d6f" z="26.01279" adj="z" />
+            <point id="4871c57b-d325-45fa-a03a-fdcff49273c0" z="38.77039" adj="z" />
+            <point id="7a45fb99-0772-4be5-9182-d651d429b3b7" z="47.68654" adj="z" />
+            <point id="8608b23d-479f-43b9-9e17-2d07041db842" z="68.99467" adj="z" />
+            <point id="8718db7f-ae22-4cd9-aa56-fc8cea3b8c46" z="55.79699" adj="z" />
+            <point id="301b8578-8cc8-48a8-8446-541f31482f86" z="85.181" adj="z" />
+            <point id="47285c0d-791d-4ca4-8d4a-e5a0db9f0746" z="82.52137" adj="z" />
+            <point id="b54a5515-d050-4049-bcb8-93a5e1039cc3" z="85.93462" adj="z" />
+            <point id="4b4c5c17-32e8-495d-a598-cdf42e0892de" z="86.17772" adj="z" />
+            <point id="7ae0fe55-075a-4d21-8de1-4daee63d0de5" z="68.07583" adj="z" />
+            <point id="fca43e51-5166-44b3-b941-c46915cd791b" z="68.23683" adj="z" />
+            <point id="8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c" z="72.0283" adj="z" />
+            <height-differences>
+                <dh from="bfe1d698-09fb-450a-81e7-4e2832b6bea7" to="87d09ddc-42f3-41cf-a9b1-73f6ece692e6" val="1.01596" dist="0.23" stdev="0.00047968739820845825" extern="1"/>
+                <dh from="61c61847-ed54-4969-b94e-df74fd63f108" to="87d09ddc-42f3-41cf-a9b1-73f6ece692e6" val="2.18702" dist="0.182" stdev="0.00042673176586703734" extern="2"/>
+                <dh from="bfe1d698-09fb-450a-81e7-4e2832b6bea7" to="fd2627db-144d-4591-8bc7-d4c3afcdb92d" val="1.79568" dist="0.205" stdev="0.0004528796749689701" extern="3"/>
+                <dh from="00380e23-ccf7-4655-9e55-8c299c8a0d6f" to="fd2627db-144d-4591-8bc7-d4c3afcdb92d" val="-20.22457" dist="0.54" stdev="0.0007349149610669251" extern="4"/>
+                <dh from="00380e23-ccf7-4655-9e55-8c299c8a0d6f" to="4871c57b-d325-45fa-a03a-fdcff49273c0" val="12.75784" dist="0.281" stdev="0.0005301886456724626" extern="5"/>
+                <dh from="7a45fb99-0772-4be5-9182-d651d429b3b7" to="4871c57b-d325-45fa-a03a-fdcff49273c0" val="-8.91615" dist="0.579" stdev="0.0007609862022402246" extern="6"/>
+                <dh from="8608b23d-479f-43b9-9e17-2d07041db842" to="8718db7f-ae22-4cd9-aa56-fc8cea3b8c46" val="-13.1971" dist="0.522" stdev="0.000722564875980005" extern="7"/>
+                <dh from="7a45fb99-0772-4be5-9182-d651d429b3b7" to="8718db7f-ae22-4cd9-aa56-fc8cea3b8c46" val="8.11043" dist="0.441" stdev="0.0006641535966928132" extern="8"/>
+                <dh from="87d09ddc-42f3-41cf-a9b1-73f6ece692e6" to="bfe1d698-09fb-450a-81e7-4e2832b6bea7" val="-1.01612" dist="0.229" stdev="0.00047864391775097277" extern="9"/>
+                <dh from="fd2627db-144d-4591-8bc7-d4c3afcdb92d" to="bfe1d698-09fb-450a-81e7-4e2832b6bea7" val="-1.79588" dist="0.243" stdev="0.000493051721424842" extern="10"/>
+                <dh from="67e3987a-dc6b-49ee-8857-417ef35777af" to="61c61847-ed54-4969-b94e-df74fd63f108" val="-2.73684" dist="0.027" stdev="0.00016462077633154327" extern="11"/>
+                <dh from="87d09ddc-42f3-41cf-a9b1-73f6ece692e6" to="61c61847-ed54-4969-b94e-df74fd63f108" val="-2.18711" dist="0.182" stdev="0.00042673176586703734" extern="12"/>
+                <dh from="61c61847-ed54-4969-b94e-df74fd63f108" to="67e3987a-dc6b-49ee-8857-417ef35777af" val="2.73689" dist="0.027" stdev="0.00016462077633154327" extern="13"/>
+                <dh from="d9cb77ab-2825-4f32-bb65-239aab7bfa67" to="8608b23d-479f-43b9-9e17-2d07041db842" val="-5.62311" dist="0.325" stdev="0.0005701754116059373" extern="14"/>
+                <dh from="8718db7f-ae22-4cd9-aa56-fc8cea3b8c46" to="8608b23d-479f-43b9-9e17-2d07041db842" val="13.19823" dist="0.481" stdev="0.0006936137253543936" extern="15"/>
+                <dh from="d9cb77ab-2825-4f32-bb65-239aab7bfa67" to="47285c0d-791d-4ca4-8d4a-e5a0db9f0746" val="7.90343" dist="0.68" stdev="0.0008246817568007673" extern="16"/>
+                <dh from="301b8578-8cc8-48a8-8446-541f31482f86" to="47285c0d-791d-4ca4-8d4a-e5a0db9f0746" val="-2.65984" dist="0.839" stdev="0.0009160240171523889" extern="17"/>
+                <dh from="4871c57b-d325-45fa-a03a-fdcff49273c0" to="7a45fb99-0772-4be5-9182-d651d429b3b7" val="8.91614" dist="0.5" stdev="0.0007071774883294858" extern="18"/>
+                <dh from="8718db7f-ae22-4cd9-aa56-fc8cea3b8c46" to="7a45fb99-0772-4be5-9182-d651d429b3b7" val="-8.11047" dist="0.435" stdev="0.0006596211033616193" extern="19"/>
+                <dh from="8608b23d-479f-43b9-9e17-2d07041db842" to="d9cb77ab-2825-4f32-bb65-239aab7bfa67" val="5.62317" dist="0.293" stdev="0.0005413871073455665" extern="20"/>
+                <dh from="47285c0d-791d-4ca4-8d4a-e5a0db9f0746" to="d9cb77ab-2825-4f32-bb65-239aab7bfa67" val="-7.90367" dist="0.587" stdev="0.0007662245101796209" extern="21"/>
+                <dh from="4871c57b-d325-45fa-a03a-fdcff49273c0" to="00380e23-ccf7-4655-9e55-8c299c8a0d6f" val="-12.75732" dist="0.335" stdev="0.0005788782255362521" extern="22"/>
+                <dh from="fd2627db-144d-4591-8bc7-d4c3afcdb92d" to="00380e23-ccf7-4655-9e55-8c299c8a0d6f" val="20.22451" dist="0.505" stdev="0.0007107038764492565" extern="23"/>
+                <dh from="47285c0d-791d-4ca4-8d4a-e5a0db9f0746" to="301b8578-8cc8-48a8-8446-541f31482f86" val="2.66051" dist="0.899" stdev="0.0009482088377567465" extern="24"/>
+                <dh from="b54a5515-d050-4049-bcb8-93a5e1039cc3" to="301b8578-8cc8-48a8-8446-541f31482f86" val="-0.75308" dist="0.069" stdev="0.00026286878856189827" extern="25"/>
+                <dh from="b54a5515-d050-4049-bcb8-93a5e1039cc3" to="301b8578-8cc8-48a8-8446-541f31482f86" val="-0.75308" dist="0.068" stdev="0.0002609597670139978" extern="26"/>
+                <dh from="b54a5515-d050-4049-bcb8-93a5e1039cc3" to="4b4c5c17-32e8-495d-a598-cdf42e0892de" val="0.2431" dist="0.031" stdev="0.000176351920885484" extern="27"/>
+                <dh from="b54a5515-d050-4049-bcb8-93a5e1039cc3" to="4b4c5c17-32e8-495d-a598-cdf42e0892de" val="0.24311" dist="0.03" stdev="0.00017349351572897473" extern="28"/>
+                <dh from="301b8578-8cc8-48a8-8446-541f31482f86" to="b54a5515-d050-4049-bcb8-93a5e1039cc3" val="0.75314" dist="0.069" stdev="0.00026286878856189827" extern="29"/>
+                <dh from="301b8578-8cc8-48a8-8446-541f31482f86" to="b54a5515-d050-4049-bcb8-93a5e1039cc3" val="0.753" dist="0.068" stdev="0.0002609597670139978" extern="30"/>
+                <dh from="4b4c5c17-32e8-495d-a598-cdf42e0892de" to="b54a5515-d050-4049-bcb8-93a5e1039cc3" val="-0.24307" dist="0.031" stdev="0.000176351920885484" extern="31"/>
+                <dh from="4b4c5c17-32e8-495d-a598-cdf42e0892de" to="b54a5515-d050-4049-bcb8-93a5e1039cc3" val="-0.24308" dist="0.03" stdev="0.00017349351572897473" extern="32"/>
+                <dh from="bfe1d698-09fb-450a-81e7-4e2832b6bea7" to="87d09ddc-42f3-41cf-a9b1-73f6ece692e6" val="1.01643" dist="0.255" stdev="0.000500573421188141" extern="33"/>
+                <dh from="bfe1d698-09fb-450a-81e7-4e2832b6bea7" to="fd2627db-144d-4591-8bc7-d4c3afcdb92d" val="1.79599" dist="0.25" stdev="0.0005005621839492073" extern="34"/>
+                <dh from="61c61847-ed54-4969-b94e-df74fd63f108" to="87d09ddc-42f3-41cf-a9b1-73f6ece692e6" val="2.18838" dist="0.195" stdev="0.0005004385576671725" extern="35"/>
+                <dh from="7a45fb99-0772-4be5-9182-d651d429b3b7" to="4871c57b-d325-45fa-a03a-fdcff49273c0" val="-8.915" dist="0.603" stdev="0.0005013549142074904" extern="36"/>
+                <dh from="7a45fb99-0772-4be5-9182-d651d429b3b7" to="8718db7f-ae22-4cd9-aa56-fc8cea3b8c46" val="8.1094" dist="0.431" stdev="0.0005009688114044626" extern="37"/>
+                <dh from="00380e23-ccf7-4655-9e55-8c299c8a0d6f" to="fd2627db-144d-4591-8bc7-d4c3afcdb92d" val="-20.22509" dist="0.535" stdev="0.0005012023044639759" extern="38"/>
+                <dh from="00380e23-ccf7-4655-9e55-8c299c8a0d6f" to="4871c57b-d325-45fa-a03a-fdcff49273c0" val="12.7601" dist="0.293" stdev="0.0005006588159615288" extern="39"/>
+                <dh from="8608b23d-479f-43b9-9e17-2d07041db842" to="8718db7f-ae22-4cd9-aa56-fc8cea3b8c46" val="-13.19936" dist="0.446" stdev="0.0005010024950037674" extern="40"/>
+                <dh from="87d09ddc-42f3-41cf-a9b1-73f6ece692e6" to="bfe1d698-09fb-450a-81e7-4e2832b6bea7" val="-1.0162" dist="0.302" stdev="0.000500679038906164" extern="41"/>
+                <dh from="fd2627db-144d-4591-8bc7-d4c3afcdb92d" to="bfe1d698-09fb-450a-81e7-4e2832b6bea7" val="-1.79608" dist="0.248" stdev="0.0005005576889829983" extern="42"/>
+                <dh from="67e3987a-dc6b-49ee-8857-417ef35777af" to="61c61847-ed54-4969-b94e-df74fd63f108" val="-2.73713" dist="0.028" stdev="0.0001008959860450355" extern="43"/>
+                <dh from="87d09ddc-42f3-41cf-a9b1-73f6ece692e6" to="61c61847-ed54-4969-b94e-df74fd63f108" val="-2.18808" dist="0.195" stdev="0.0005004385576671725" extern="44"/>
+                <dh from="61c61847-ed54-4969-b94e-df74fd63f108" to="67e3987a-dc6b-49ee-8857-417ef35777af" val="2.73707" dist="0.028" stdev="0.0001008959860450355" extern="45"/>
+                <dh from="8718db7f-ae22-4cd9-aa56-fc8cea3b8c46" to="8608b23d-479f-43b9-9e17-2d07041db842" val="13.19944" dist="0.504" stdev="0.000501132716952306" extern="46"/>
+                <dh from="b54a5515-d050-4049-bcb8-93a5e1039cc3" to="47285c0d-791d-4ca4-8d4a-e5a0db9f0746" val="-3.41304" dist="1.015" stdev="0.0005022785581726538" extern="47"/>
+                <dh from="8718db7f-ae22-4cd9-aa56-fc8cea3b8c46" to="7a45fb99-0772-4be5-9182-d651d429b3b7" val="-8.10913" dist="0.43" stdev="0.0005009665657506497" extern="48"/>
+                <dh from="fd2627db-144d-4591-8bc7-d4c3afcdb92d" to="00380e23-ccf7-4655-9e55-8c299c8a0d6f" val="20.22464" dist="0.536" stdev="0.0005012045490615583" extern="49"/>
+                <dh from="4871c57b-d325-45fa-a03a-fdcff49273c0" to="7a45fb99-0772-4be5-9182-d651d429b3b7" val="8.91522" dist="0.551" stdev="0.0005012382168191089" extern="50"/>
+                <dh from="4871c57b-d325-45fa-a03a-fdcff49273c0" to="00380e23-ccf7-4655-9e55-8c299c8a0d6f" val="-12.75941" dist="0.345" stdev="0.0005007756483696067" extern="51"/>
+                <dh from="b54a5515-d050-4049-bcb8-93a5e1039cc3" to="301b8578-8cc8-48a8-8446-541f31482f86" val="-0.75299" dist="0.065" stdev="0.00015329709716755893" extern="52"/>
+                <dh from="4b4c5c17-32e8-495d-a598-cdf42e0892de" to="7ae0fe55-075a-4d21-8de1-4daee63d0de5" val="-18.10154" dist="0.86" stdev="0.0005019312701954323" extern="53"/>
+                <dh from="4b4c5c17-32e8-495d-a598-cdf42e0892de" to="301b8578-8cc8-48a8-8446-541f31482f86" val="-0.99594" dist="0.107" stdev="0.00019651971911235778" extern="54"/>
+                <dh from="4b4c5c17-32e8-495d-a598-cdf42e0892de" to="7ae0fe55-075a-4d21-8de1-4daee63d0de5" val="-18.1019" dist="0.802" stdev="0.0005018012554787004" extern="55"/>
+                <dh from="b54a5515-d050-4049-bcb8-93a5e1039cc3" to="4b4c5c17-32e8-495d-a598-cdf42e0892de" val="0.24352" dist="0.042" stdev="0.0001233693641063291" extern="56"/>
+                <dh from="b54a5515-d050-4049-bcb8-93a5e1039cc3" to="4b4c5c17-32e8-495d-a598-cdf42e0892de" val="0.24304" dist="0.042" stdev="0.0001233693641063291" extern="57"/>
+                <dh from="7ae0fe55-075a-4d21-8de1-4daee63d0de5" to="4b4c5c17-32e8-495d-a598-cdf42e0892de" val="18.10244" dist="0.861" stdev="0.0005019335115331512" extern="58"/>
+                <dh from="7ae0fe55-075a-4d21-8de1-4daee63d0de5" to="4b4c5c17-32e8-495d-a598-cdf42e0892de" val="18.10169" dist="0.789" stdev="0.0005017721096274682" extern="59"/>
+                <dh from="fca43e51-5166-44b3-b941-c46915cd791b" to="7ae0fe55-075a-4d21-8de1-4daee63d0de5" val="-0.16099" dist="0.048" stdev="0.00013183322798141598" extern="60"/>
+                <dh from="301b8578-8cc8-48a8-8446-541f31482f86" to="4b4c5c17-32e8-495d-a598-cdf42e0892de" val="0.99616" dist="0.107" stdev="0.00019651971911235778" extern="61"/>
+                <dh from="301b8578-8cc8-48a8-8446-541f31482f86" to="b54a5515-d050-4049-bcb8-93a5e1039cc3" val="0.75304" dist="0.065" stdev="0.00015329709716755893" extern="62"/>
+                <dh from="4b4c5c17-32e8-495d-a598-cdf42e0892de" to="b54a5515-d050-4049-bcb8-93a5e1039cc3" val="-0.24303" dist="0.042" stdev="0.0001233693641063291" extern="63"/>
+                <dh from="47285c0d-791d-4ca4-8d4a-e5a0db9f0746" to="b54a5515-d050-4049-bcb8-93a5e1039cc3" val="3.41236" dist="1.027" stdev="0.0005023054349696009" extern="64"/>
+                <dh from="4b4c5c17-32e8-495d-a598-cdf42e0892de" to="b54a5515-d050-4049-bcb8-93a5e1039cc3" val="-0.24356" dist="0.042" stdev="0.0001233693641063291" extern="65"/>
+                <dh from="fca43e51-5166-44b3-b941-c46915cd791b" to="8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c" val="3.79152" dist="0.016" stdev="0.0001268857754044952" extern="66"/>
+                <dh from="7ae0fe55-075a-4d21-8de1-4daee63d0de5" to="fca43e51-5166-44b3-b941-c46915cd791b" val="0.16114" dist="0.048" stdev="0.00013183322798141598" extern="67"/>
+                <dh from="8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c" to="fca43e51-5166-44b3-b941-c46915cd791b" val="-3.79149" dist="0.016" stdev="0.0001268857754044952" extern="68"/>
+            </height-differences>
+        </points-observations>
+    </network>
+</gama-local>

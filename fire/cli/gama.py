@@ -122,7 +122,7 @@ def write(
         else:
             fixpunkter_literal = fixpunkterfil.read()
 
-        fixpunkter_list = fixpunkter_literal.split(",")
+        fixpunkter_list = [pkt.strip() for pkt in fixpunkter_literal.split(",")]
         writer.set_fixed_point_ids(fixpunkter_list)
 
     parameters = configparser.ConfigParser()

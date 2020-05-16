@@ -1,12 +1,11 @@
 import click
-import pytest
-
 from click.testing import CliRunner
+
 from fire.cli.gama import gama
+from fire.api.model import Sag
 
 
-@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
-def test_cli():
+def test_cli(sag: Sag):
     runner = CliRunner()
 
     title = "Read all points"
@@ -15,7 +14,7 @@ def test_cli():
         "-i",
         "input/near_geometry.xml",
         "-c",
-        "4f8f29c8-c38f-4c69-ae28-c7737178de1f",
+        sag.id,
     ]
 
     click.echo("\nTest: " + title)
