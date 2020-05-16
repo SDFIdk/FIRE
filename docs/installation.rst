@@ -55,7 +55,7 @@ Initialiser et "conda environment" til FIRE::
     > cd FIRE
     > conda env create --file environment.yml -y
 
-Gør som ``conda`` siger og aktiverer dit nye "fire environment"::
+Gør som ``conda`` siger og aktiver dit nye "fire environment"::
 
     > conda activate fire
 
@@ -69,21 +69,17 @@ Konfigurationsfil
 
 For at FIRE kan forbinde til databasen er det nødvendigt at tilføje en
 konfigurationsfil til systemet hvori adgangsinformation til databasen er
-registreret. Konfigurationsfilen er en JSON fil, der er struktureret på følgende
+registreret. Konfigurationsfilen er en INI fil, der er struktureret på følgende
 måde
 
-.. code-block:: json
+.. code-block:: ini
 
-    {
-        "connection":
-        {
-            "password": "<adgangskode>",
-            "username": "<brugernavn>",
-            "hostname": "<netværksadresse>",
-            "database": "<databasenavn>",
-            "service": "<servicenavn>"
-        }
-    }
+    [connection]
+    password = <adgangskode>
+    username = <brugernavn>
+    hostname = <netværksadresse>
+    database = <databasenavn>
+    service = <servicenavn>
 
 .. note::
 
@@ -91,14 +87,14 @@ måde
 
 Under Windows placeres konfigurationsfilen i en af følgende stier::
 
-    C:\Users\<brugernavn>\fire_settings.json
-    C:\Users\Default\AppData\Local\fire\fire_settings.json
+    C:\Users\<brugernavn>\fire.ini
+    C:\Users\Default\AppData\Local\fire\fire.ini
 
 og på et UNIX-baseret system placeres filen et af følgende steder::
 
-    home/<brugernavn>/fire_settings.json
-    home/<brugernavn>/.fire_settings.json
-    /etc/fire_settings.json
+    home/<brugernavn>/fire.ini
+    home/<brugernavn>/.fire.ini
+    /etc/fire.ini
 
 
 Flame - QGIS plugin

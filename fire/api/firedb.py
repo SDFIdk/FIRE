@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import List, Optional
 from pathlib import Path
 import os
-import json
+import configparser
 import getpass
 
 from sqlalchemy import create_engine, func, event, and_, inspect
@@ -45,6 +45,7 @@ class FireDb(object):
             engines logger, which defaults to sys.stdout
         """
         self.dialect = "oracle+cx_oracle"
+        self.config = self._read_config()
         if connectionstring:
             self.connectionstring = connectionstring
         else:
@@ -553,9 +554,9 @@ class FireDb(object):
         insp = inspect(obj)
         return not (insp.persistent or insp.detached)
 
-    def _find_config(self):
+    def _read_config(self):
         # Used for controlling the database setup when running the test suite
-        RC_NAME = "fire_settings.json"
+        RC_NAME = "fire.ini"
 
         # Find settings file and read database credentials
         if os.environ.get("HOME"):
@@ -577,36 +578,18 @@ class FireDb(object):
         else:
             raise EnvironmentError("Konfigurationsfil ikke fundet!")
 
-        with open(conf_file) as conf:
-            settings = json.load(conf)
-            if "connection" in settings:
-                conf_db = settings["connection"]
-                if not (
-                    "username" in conf_db
-                    and "password" in conf_db
-                    and "hostname" in conf_db
-                    and "database" in conf_db
-                    and "service" in conf_db
-                ):
-                    raise ValueError(
-                        "Fejl i konfigurationsfil. Konsulter dokumentationen!"
-                    )
-        return conf_db
+        parser = configparser.ConfigParser()
+        parser.read(conf_file)
+        return parser
 
     def _build_connection_string(self):
-        conf_db = self._find_config()
-
         # Establish connection to database
-        _username = conf_db["username"]
-        _password = conf_db["password"]
-        _hostname = conf_db["hostname"]
-        _database = conf_db["database"]
-        _service = conf_db["service"]
-        if "port" in conf_db:
-            _port = conf_db["port"]
-        else:
-            _port = 1521
+        username = self.config.get('connection', 'username')
+        password = self.config.get('connection', 'password')
+        hostname = self.config.get('connection', 'hostname')
+        database = self.config.get('connection', 'database')
+        port = self.config.get('connection', 'port', fallback=1521)
 
-        return f"{_username}:{_password}@{_hostname}:{_port}/{_database}"
+        return f"{username}:{password}@{hostname}:{port}/{database}"
 
     # endregion
