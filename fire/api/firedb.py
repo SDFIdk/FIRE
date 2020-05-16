@@ -1,5 +1,9 @@
 from datetime import datetime, timezone
 from typing import List, Optional
+from pathlib import Path
+import os
+import json
+import getpass
 
 from sqlalchemy import create_engine, func, event, and_, inspect
 from sqlalchemy.orm import sessionmaker, aliased
@@ -28,7 +32,7 @@ from fire.api.model import (
 
 
 class FireDb(object):
-    def __init__(self, connectionstring, debug=False):
+    def __init__(self, connectionstring=None, debug=False):
         """
 
         Parameters
@@ -41,7 +45,11 @@ class FireDb(object):
             engines logger, which defaults to sys.stdout
         """
         self.dialect = "oracle+cx_oracle"
-        self.connectionstring = connectionstring
+        if connectionstring:
+            self.connectionstring = connectionstring
+        else:
+            self.connectionstring = self._build_connection_string()
+
         self.engine = create_engine(
             f"{self.dialect}://{self.connectionstring}",
             connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
@@ -544,5 +552,61 @@ class FireDb(object):
         # state.deleted     # session & identity_key, flushed but not committed. Commit moves it to detached state
         insp = inspect(obj)
         return not (insp.persistent or insp.detached)
+
+    def _find_config(self):
+        # Used for controlling the database setup when running the test suite
+        RC_NAME = "fire_settings.json"
+
+        # Find settings file and read database credentials
+        if os.environ.get("HOME"):
+            home = Path(os.environ["HOME"])
+        else:
+            home = Path("")
+
+        search_files = [
+            home / Path(RC_NAME),
+            home / Path("." + RC_NAME),
+            Path("/etc") / Path(RC_NAME),
+            Path("C:\\Users") / Path(getpass.getuser()) / Path(RC_NAME),
+            Path("C:\\Users\\Default\\AppData\\Local\\fire") / Path(RC_NAME),
+        ]
+
+        for conf_file in search_files:
+            if Path(conf_file).is_file():
+                break
+        else:
+            raise EnvironmentError("Konfigurationsfil ikke fundet!")
+
+        with open(conf_file) as conf:
+            settings = json.load(conf)
+            if "connection" in settings:
+                conf_db = settings["connection"]
+                if not (
+                    "username" in conf_db
+                    and "password" in conf_db
+                    and "hostname" in conf_db
+                    and "database" in conf_db
+                    and "service" in conf_db
+                ):
+                    raise ValueError(
+                        "Fejl i konfigurationsfil. Konsulter dokumentationen!"
+                    )
+        return conf_db
+
+    def _build_connection_string(self):
+        conf_db = self._find_config()
+
+        # Establish connection to database
+        _username = conf_db["username"]
+        _password = conf_db["password"]
+        _hostname = conf_db["hostname"]
+        _database = conf_db["database"]
+        _service = conf_db["service"]
+        if "port" in conf_db:
+            _port = conf_db["port"]
+        else:
+            _port = 1521
+
+        return f"{_username}:{_password}@{_hostname}:{_port}/{_database}"
 
     # endregion
