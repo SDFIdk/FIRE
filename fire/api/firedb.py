@@ -584,11 +584,11 @@ class FireDb(object):
 
     def _build_connection_string(self):
         # Establish connection to database
-        username = self.config.get('connection', 'username')
-        password = self.config.get('connection', 'password')
-        hostname = self.config.get('connection', 'hostname')
-        database = self.config.get('connection', 'database')
-        port = self.config.get('connection', 'port', fallback=1521)
+        username = self.config.get("connection", "username")
+        password = self.config.get("connection", "password")
+        hostname = self.config.get("connection", "hostname")
+        database = self.config.get("connection", "database")
+        port = self.config.get("connection", "port", fallback=1521)
 
         return f"{username}:{password}@{hostname}:{port}/{database}"
 

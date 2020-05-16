@@ -23,16 +23,27 @@ from fire.api.model import (
     PunktInformationTypeAnvendelse,
 )
 
-user = os.environ.get("ORA_USER") or "fire"
-password = os.environ.get("ORA_PASSWORD") or "fire"
-host = os.environ.get("ORA_HOST") or "localhost"
-port = os.environ.get("ORA_PORT") or "1521"
-db = os.environ.get("ORA_db") or "xe"
+
+class TestFireDb(FireDb):
+    """
+    FireDb that connects to DB with login data from
+    'test_connection' section of config file
+    """
+
+    def _build_connection_string(self):
+        # Establish connection to database
+        username = self.config.get("test_connection", "username")
+        password = self.config.get("test_connection", "password")
+        hostname = self.config.get("test_connection", "hostname")
+        database = self.config.get("test_connection", "database")
+        port = self.config.get("test_connection", "port", fallback=1521)
+
+        return f"{username}:{password}@{hostname}:{port}/{database}"
 
 
 @pytest.fixture
 def firedb():
-    return FireDb(f"{user}:{password}@{host}:{port}/{db}", debug=False)
+    return TestFireDb(debug=False)
 
 
 @pytest.fixture()
