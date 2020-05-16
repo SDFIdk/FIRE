@@ -1,5 +1,8 @@
 from typing import List, Dict
 import math
+
+from sqlalchemy.orm.exc import NoResultFound
+
 from fire.api.model import Observation, Punkt
 from fire.api import FireDb
 
@@ -191,13 +194,19 @@ class GamaNetworkDoc:
             op_id = o.opstillingspunktid
             if op_id not in point_ids_list:  # Point not already found
                 if op_id not in self.fixed_point_ids:  # Not given as a fixed point
-                    op = self.fireDb.hent_punkt(op_id)
+                    try:
+                        op = self.fireDb.hent_punkt(op_id)
+                    except NoResultFound:
+                        continue
                     points_list.append(op)
                     point_ids_list.append(op_id)
             sp_id = o.sigtepunktid
             if sp_id not in point_ids_list:  # Point not already found
                 if sp_id not in self.fixed_point_ids:  # Not given as a fixed point
-                    sp = self.fireDb.hent_punkt(sp_id)
+                    try:
+                        sp = self.fireDb.hent_punkt(sp_id)
+                    except NoResultFound:
+                        continue
                     points_list.append(sp)
                     point_ids_list.append(sp_id)
         return points_list
@@ -247,7 +256,7 @@ class GamaNetworkDoc:
         point_id = fixed_point.id
         ks: List[koordinat] = fixed_point.koordinater
         for k in ks:
-            if k.srid == "EPSG:5799":
+            if k.srid.name == "EPSG:5799":
                 z = k.z
                 return '<point id="{id}" z="{z}" fix="z" />'.format(id=point_id, z=z)
         self.add_warning("Fixed point with no z value. Punktid:" + point_id)
@@ -257,7 +266,7 @@ class GamaNetworkDoc:
         point_id = adjustable_point.id
         ks: List[koordinat] = adjustable_point.koordinater
         for k in ks:
-            if k.srid == "EPSG:5799":
+            if k.srid.name == "EPSG:5799":
                 z = k.z
                 return '<point id="{id}" z="{z}" adj="z" />'.format(id=point_id, z=z)
         return '<point id="{id}" adj="z" />'.format(id=point_id)

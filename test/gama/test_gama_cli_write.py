@@ -1,91 +1,118 @@
+from pathlib import Path
+
 import click
-import pytest
 
 from click.testing import CliRunner
 from fire.cli.gama import gama
 
 
-def _run_cli(runner, title, args):
+def _run_cli(runner, title, args, used_files=[]):
     click.echo("\nTest: " + title)
     click.echo(" Emulating: python gama " + " ".join(args))
-    result = runner.invoke(gama, args)
+
+    # kopier ini-fil til isoleret filsystem
+    files = []
+    for filename in used_files:
+        with open(Path(__file__).resolve().parent / filename) as f:
+            files.append((filename, f.readlines()))
+    with runner.isolated_filesystem():
+        for (filename, data) in files:
+            with open(filename, "w") as f:
+                f.writelines(data)
+
+        result = runner.invoke(gama, args)
+
     if result.exit_code != 0:
         click.echo(" Failed: " + str(args))
         click.echo(" Exception: " + str(result.exception))
+        click.echo(" Output: " + str(result.output))
         return False
     else:
         click.echo(" Success: " + str(args))
         return True
 
 
-@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
-def test_within_distance_of_point1():
+def test_within_distance_of_point1(tmp_path):
     runner = CliRunner()
 
     title = "Within distance of point (wkt)"
     args = [
         "write",
         "-o",
-        "output/cli_output_near_geometry.xml",
+        "cli_output_near_geometry.xml",
         "-g",
-        "POINT (12.5983815323665 55.7039994123763)",
+        "POINT (10.200000 56.100000)",
         "-b",
         "10000",
         "-f",
-        "814E9044-1AAB-5A4E-E053-1A041EACF9E4",
+        "67e3987a-dc6b-49ee-8857-417ef35777af",
+        "-pf",
+        "fire-gama.ini",
     ]
-    assert _run_cli(runner, title, args)
+
+    assert _run_cli(runner, title, args, ["fire-gama.ini"])
 
 
-@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
 def test_within_distance_of_point2():
+    runner = CliRunner()
+
     title = "Within distance of point (wkt) - time interval"
     args = [
         "write",
         "-o",
-        "output/cli_output_near_geometry_fra_til.xml",
+        "cli_output_near_geometry_fra_til.xml",
         "-g",
-        "POINT (12.5983815323665 55.7039994123763)",
+        "POINT (10.200000 56.100000)",
         "-b",
         "10000",
         "-f",
-        "814E9044-1AAB-5A4E-E053-1A041EACF9E4",
+        "67e3987a-dc6b-49ee-8857-417ef35777af",
         "-df",
         "08-10-2015",
         "-dt",
         "09-10-2018",
+        "-pf",
+        "fire-gama.ini",
     ]
-    assert _run_cli(runner, title, args)
+
+    assert _run_cli(runner, title, args, ["fire-gama.ini"])
 
 
-@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
 def test_within_distance_of_point3():
+    runner = CliRunner()
+
     title = "Within distance of point (wkt from file) - time interval"
     args = [
         "write",
         "-o",
-        "output/cli_output_near_geometry_file_fra_til.xml",
+        "cli_output_near_geometry_file_fra_til.xml",
         "-gf",
         "geometry.wkt",
         "-b",
         "10000",
         "-f",
-        "814E9044-1AAB-5A4E-E053-1A041EACF9E4",
+        "67e3987a-dc6b-49ee-8857-417ef35777af",
         "-df",
         "08-10-2015",
         "-dt",
         "09-10-2018",
+        "-pf",
+        "fire-gama.ini",
     ]
-    assert _run_cli(runner, title, args)
+    assert _run_cli(runner, title, args, ["geometry.wkt", "fire-gama.ini"])
 
 
-@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
 def test_within_distance_of_point4():
-    title = "Within distance of point (wkt from file) - fixed points from file - time interval"
+    runner = CliRunner()
+
+    title = (
+        "Within distance of point (wkt from file) - "
+        "fixed points from file - time interval"
+    )
     args = [
         "write",
         "-o",
-        "output/cli_output_near_geometry_file_fixed_from_file_fra_til.xml",
+        "cli_output_near_geometry_file_fixed_from_file_fra_til.xml",
         "-gf",
         "geometry.wkt",
         "-b",
@@ -96,6 +123,10 @@ def test_within_distance_of_point4():
         "08-10-2015",
         "-dt",
         "09-10-2018",
+        "-pf",
+        "fire-gama.ini",
     ]
 
-    assert _run_cli(runner, title, args)
+    assert _run_cli(
+        runner, title, args, ["geometry.wkt", "fixed_points.csv", "fire-gama.ini"]
+    )
