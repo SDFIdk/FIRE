@@ -250,7 +250,7 @@ def find_inputfiler(navn):
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning"""
     try:
         inputfiler = pd.read_excel(
-            navn +".xlsx", sheet_name="Filoversigt", usecols="C:E"
+            navn + ".xlsx", sheet_name="Filoversigt", usecols="C:E"
         )
     except:
         sys.exit("Kan ikke finde filoversigt i projektfil")
@@ -294,7 +294,7 @@ def find_observationer(navn):
     print("Læser observationer")
     try:
         observationer = pd.read_excel(
-            navn +".xlsx", sheet_name="Observationer", usecols="A:P"
+            navn + ".xlsx", sheet_name="Observationer", usecols="A:P"
         )
     except:
         observationer = importer_observationer()
@@ -306,7 +306,7 @@ def opbyg_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
         punktoversigt = pd.read_excel(
-            navn +".xlsx", sheet_name="Punktoversigt", usecols="A:L"
+            navn + ".xlsx", sheet_name="Punktoversigt", usecols="A:L"
         )
     except:
         punktoversigt = pd.DataFrame(
@@ -410,10 +410,12 @@ def find_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
         punktoversigt = pd.read_excel(
-            navn +".xlsx", sheet_name="Punktoversigt", usecols="A:K"
+            navn + ".xlsx", sheet_name="Punktoversigt", usecols="A:K"
         )
     except:
-        punktoversigt = opbyg_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter)
+        punktoversigt = opbyg_punktoversigt(
+            navn, nyetablerede, alle_punkter, nye_punkter
+        )
     return punktoversigt
 
 
@@ -487,7 +489,7 @@ def netanalyse(observationer, alle_punkter, fastholdte_punkter):
 def find_forbundne_punkter(navn, observationer, alle_punkter, fastholdte_punkter):
     """Læs net fra allerede foretaget netanalyse"""
     try:
-        net = pd.read_excel(navn +".xlsx", sheet_name="Netgeometri", usecols="A")
+        net = pd.read_excel(navn + ".xlsx", sheet_name="Netgeometri", usecols="A")
     except:
         (net, ensomme) = netanalyse(observationer, alle_punkter, fastholdte_punkter)
     return tuple(sorted(net["Punkt"]))
@@ -501,7 +503,7 @@ def spredning(afstand_i_m, slope_i_mm_pr_sqrt_km=0.6, bias=0.0005):
 # ------------------------------------------------------------------------------
 def find_workflow(navn):
     try:
-        workflow = pd.read_excel(navn+".xlsx", sheet_name="Workflow", usecols="B:C")
+        workflow = pd.read_excel(navn + ".xlsx", sheet_name="Workflow", usecols="B:C")
     except:
         workflow = pd.DataFrame(columns=["Betegnelse", "Udføres"])
         assert workflow.shape[0] == 0, "Forventede tom dataframe"
@@ -547,9 +549,13 @@ def go(projektnavn: str, **kwargs) -> None:
     # Opbyg oversigt over alle punkter m. kote og placering
     # ------------------------------------------------------
     if "Punktoversigt" in workflow:
-        punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter, nye_punkter)
+        punktoversigt = opbyg_punktoversigt(
+            projektnavn, nyetablerede, alle_punkter, nye_punkter
+        )
     else:
-        punktoversigt = find_punktoversigt(projektnavn, nyetablerede, alle_punkter, nye_punkter)
+        punktoversigt = find_punktoversigt(
+            projektnavn, nyetablerede, alle_punkter, nye_punkter
+        )
 
     fastholdte_punkter = tuple(punktoversigt[punktoversigt["fix"] == 0]["punkt"])
     fastholdteKoter = tuple(punktoversigt[punktoversigt["fix"] == 0]["kote"])
