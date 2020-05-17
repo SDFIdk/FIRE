@@ -21,7 +21,10 @@ def test_cli():
     # As os.chdir(os.path.dirname(__file__)), but using the absolute path
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     result = runner.invoke(mtl, args)
-    os.remove("resultat.xlsx")
+    os.remove("bananas.xml")
+    os.remove("bananas-resultat.xlsx")
+    os.remove("bananas-resultat.xml")
+    os.remove("bananas-resultat.html")
     os.chdir(cwd)
 
     assert result.exit_code == 0
