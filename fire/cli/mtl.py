@@ -642,12 +642,15 @@ def go(projektnavn: str, **kwargs) -> None:
         # ----------------------------------------------
         # Lad GNU Gama om at køre udjævningen
         # ----------------------------------------------
+        ret = subprocess.run(f"gama-local --help")
         ret = subprocess.run(
-            f"gama-local {projektnavn}.xml "
-            f" --xml {projektnavn}-resultat.xml "
-            f"--html {projektnavn}-resultat.html"
+            [
+                "gama-local",
+                f"{projektnavn}.xml",
+                f"--xml {projektnavn}-resultat.xml"
+                f"--html {projektnavn}-resultat.html",
+            ]
         )
-        ret = subprocess.run(f"gama-local {projektnavn}.xml --help")
         if 0 != ret:
             fire.cli.print(
                 f"ADVARSEL! GNU Gama fandt mistænkelige observationer - check {projektnavn}.html for detaljer",
