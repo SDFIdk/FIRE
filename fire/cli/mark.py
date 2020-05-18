@@ -313,8 +313,8 @@ def get_observation_strings(filnavn: str, verbose: bool = False) -> List[str]:
             line = line.lstrip("#").strip()
             if verbose:
                 print(line)
-            tokens = line.split()
-            assert len(tokens) in (9, 13), (
+            tokens = line.split(" ", 13)
+            assert len(tokens) in (9, 13, 14), (
                 "Malformed input line: " + line + " in file: " + fil
             )
             observationer.append(line)
@@ -487,8 +487,8 @@ def skip_until_section(section: str, line: str, level: int) -> int:
 def obs_feature(punkter: Dict, observationer: List[str]) -> Dict:
     """Omsæt observationsinformationer til JSON-egnet dict"""
     for obs in observationer:
-        dele = obs.split()
-        assert len(dele) in (9, 13), "Malformet observation: " + obs
+        dele = obs.split(" ", 13)
+        assert len(dele) in (9, 13, 14), "Malformet observation: " + obs
 
         fra = punkter[dele[0]]
         til = punkter[dele[1]]
