@@ -22,9 +22,9 @@ def test_cli():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     result = runner.invoke(mtl, args)
     os.remove("bananas.xml")
-    os.remove("bananas-resultat.xlsx")
     os.remove("bananas-resultat.xml")
     os.remove("bananas-resultat.html")
+    os.remove("bananas-resultat.xlsx")
     os.chdir(cwd)
 
     assert result.exit_code == 0
