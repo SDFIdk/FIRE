@@ -12,6 +12,7 @@ dependencies:
   - statsmodels
   - xlsxwriter
   - xlrd
+  - xmltodict
   - gama
   - pytest
   - pytest-cov

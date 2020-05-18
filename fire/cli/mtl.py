@@ -1,4 +1,5 @@
 # Python infrastrukturelementer
+import subprocess
 import sys
 from typing import Dict, List, Set, Tuple, IO
 from enum import IntEnum
@@ -31,6 +32,7 @@ from scipy import stats
 # Datahåndtering
 import pandas as pd
 import xlsxwriter
+import xmltodict
 from datetime import datetime
 
 
@@ -216,12 +218,12 @@ def path_to_origin(graph, start, origin, path=[]):
 
 
 # ------------------------------------------------------------------------------
-def find_nyetablerede():
+def find_nyetablerede(projektnavn):
     """Opbyg oversigt over nyetablerede punkter"""
     print("Finder nyetablerede punkter")
     try:
         nyetablerede = pd.read_excel(
-            "projekt.xlsx",
+            projektnavn + ".xlsx",
             sheet_name="Nyetablerede punkter",
             usecols="A:E",
             dtype={
@@ -244,11 +246,11 @@ def find_nyetablerede():
 
 
 # ------------------------------------------------------------------------------
-def find_inputfiler():
+def find_inputfiler(navn):
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning"""
     try:
         inputfiler = pd.read_excel(
-            "projekt.xlsx", sheet_name="Filoversigt", usecols="C:D"
+            navn + ".xlsx", sheet_name="Filoversigt", usecols="C:E"
         )
     except:
         sys.exit("Kan ikke finde filoversigt i projektfil")
@@ -287,12 +289,12 @@ def importer_observationer():
 
 
 # ------------------------------------------------------------------------------
-def find_observationer():
+def find_observationer(navn):
     """Opbyg dataframe med allerede importerede observationer"""
     print("Læser observationer")
     try:
         observationer = pd.read_excel(
-            "projekt.xlsx", sheet_name="Observationer", usecols="A:P"
+            navn + ".xlsx", sheet_name="Observationer", usecols="A:P"
         )
     except:
         observationer = importer_observationer()
@@ -300,11 +302,11 @@ def find_observationer():
 
 
 # ------------------------------------------------------------------------------
-def opbyg_punktoversigt(nyetablerede, alle_punkter, nye_punkter):
+def opbyg_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
         punktoversigt = pd.read_excel(
-            "projekt.xlsx", sheet_name="Punktoversigt", usecols="A:K"
+            navn + ".xlsx", sheet_name="Punktoversigt", usecols="A:L"
         )
     except:
         punktoversigt = pd.DataFrame(
@@ -316,6 +318,7 @@ def opbyg_punktoversigt(nyetablerede, alle_punkter, nye_punkter):
                 "kote",
                 "σ",
                 "ny",
+                "ny σ",
                 "Δ",
                 "kommentar",
                 "φ",
@@ -403,14 +406,16 @@ def opbyg_punktoversigt(nyetablerede, alle_punkter, nye_punkter):
 
 
 # ------------------------------------------------------------------------------
-def find_punktoversigt(nyetablerede, alle_punkter, nye_punkter):
+def find_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
         punktoversigt = pd.read_excel(
-            "projekt.xlsx", sheet_name="Punktoversigt", usecols="A:K"
+            navn + ".xlsx", sheet_name="Punktoversigt", usecols="A:K"
         )
     except:
-        punktoversigt = opbyg_punktoversigt(nyetablerede, alle_punkter, nye_punkter)
+        punktoversigt = opbyg_punktoversigt(
+            navn, nyetablerede, alle_punkter, nye_punkter
+        )
     return punktoversigt
 
 
@@ -481,10 +486,10 @@ def netanalyse(observationer, alle_punkter, fastholdte_punkter):
     return netf, ensomme
 
 
-def find_forbundne_punkter(observationer, alle_punkter, fastholdte_punkter):
+def find_forbundne_punkter(navn, observationer, alle_punkter, fastholdte_punkter):
     """Læs net fra allerede foretaget netanalyse"""
     try:
-        net = pd.read_excel("projekt.xlsx", sheet_name="Netgeometri", usecols="A")
+        net = pd.read_excel(navn + ".xlsx", sheet_name="Netgeometri", usecols="A")
     except:
         (net, ensomme) = netanalyse(observationer, alle_punkter, fastholdte_punkter)
     return tuple(sorted(net["Punkt"]))
@@ -496,57 +501,9 @@ def spredning(afstand_i_m, slope_i_mm_pr_sqrt_km=0.6, bias=0.0005):
 
 
 # ------------------------------------------------------------------------------
-def designmatrix(observationer, punkter, estimerede, fastholdte, holdte):
-    # Frasorter observationer mellem to fastholdte punkter, og
-    # observationer som involverer punkt(er) som ikke indgår i
-    # det sammenhængende net, udpeget af 'punkter'
-    relevante = [
-        not (e[0] in fastholdte and e[1] in fastholdte)
-        and (e[0] in punkter and e[1] in punkter)
-        for e in zip(observationer["fra"], observationer["til"])
-    ]
-    observationer = observationer[relevante]
-
-    n = len(observationer) + len(holdte)
-    X = pd.DataFrame(0, columns=estimerede, index=range(n))
-    P = np.zeros(n, dtype=np.float64)
-    y = np.zeros(n, dtype=np.float64)
-
-    # Opstil designmatrix, responsvektor og vægtvektor
-    row = 0
-    for obs in observationer[["fra", "til", "dH", "L", "σ"]].values:
-        # Eliminer fastholdte ved at trække dem fra både
-        # i designmatricen, X og i responsvektoren, y.
-        # I designmatricen er de i forvejen trukket ud ved
-        # overhovedet ikke at figurere blandt søjlerne.
-        # Derfor udestår kun at trække dem fra i y
-        y[row] = obs[2]
-        if obs[0] in fastholdte:
-            y[row] += fastholdte[obs[0]]
-        else:
-            X.at[row, obs[0]] = -1
-
-        if obs[1] in fastholdte:
-            y[row] -= fastholdte[obs[1]]
-        else:
-            X.at[row, obs[1]] = 1
-        P[row] = 1.0 / spredning(obs[3], obs[4])
-        row += 1
-
-    # Håndter "holdte" ("constrained") punkter
-    for pkt in holdte:
-        X.at[row, pkt] = 1
-        y[row] = holdte[pkt][0]
-        P[row] = 1.0 / holdte[pkt][1]
-        row += 1
-
-    return X, P, y
-
-
-# ------------------------------------------------------------------------------
-def find_workflow(projektfilnavn):
+def find_workflow(navn):
     try:
-        workflow = pd.read_excel(projektfilnavn, sheet_name="Workflow", usecols="B:C")
+        workflow = pd.read_excel(navn + ".xlsx", sheet_name="Workflow", usecols="B:C")
     except:
         workflow = pd.DataFrame(columns=["Betegnelse", "Udføres"])
         assert workflow.shape[0] == 0, "Forventede tom dataframe"
@@ -559,17 +516,19 @@ def find_workflow(projektfilnavn):
 # ------------------------------------------------------------------------------
 @mtl.command()
 @fire.cli.default_options()
-@click.argument("projektnavn")
-def go(**kwargs) -> None:
+@click.argument(
+    "projektnavn", nargs=1, type=str,
+)
+def go(projektnavn: str, **kwargs) -> None:
     print("Så kører vi")
 
-    workflow = find_workflow("projekt.xlsx")
+    workflow = find_workflow(projektnavn)
     print(f"Dagsorden: {workflow}")
 
     # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
     # -----------------------------------------------------
-    nyetablerede = find_nyetablerede()
+    nyetablerede = find_nyetablerede(projektnavn)
     nye_punkter = set(nyetablerede.index)
 
     # -----------------------------------------------------
@@ -578,7 +537,7 @@ def go(**kwargs) -> None:
     if "Observationer" in workflow:
         observationer = importer_observationer()
     else:
-        observationer = find_observationer()
+        observationer = find_observationer(projektnavn)
 
     observerede_punkter = set(observationer["fra"].append(observationer["til"]))
     # Vi er færdige med mængdeoperationer nu, så gør punktmængderne immutable
@@ -590,9 +549,13 @@ def go(**kwargs) -> None:
     # Opbyg oversigt over alle punkter m. kote og placering
     # ------------------------------------------------------
     if "Punktoversigt" in workflow:
-        punktoversigt = opbyg_punktoversigt(nyetablerede, alle_punkter, nye_punkter)
+        punktoversigt = opbyg_punktoversigt(
+            projektnavn, nyetablerede, alle_punkter, nye_punkter
+        )
     else:
-        punktoversigt = find_punktoversigt(nyetablerede, alle_punkter, nye_punkter)
+        punktoversigt = find_punktoversigt(
+            projektnavn, nyetablerede, alle_punkter, nye_punkter
+        )
 
     fastholdte_punkter = tuple(punktoversigt[punktoversigt["fix"] == 0]["punkt"])
     fastholdteKoter = tuple(punktoversigt[punktoversigt["fix"] == 0]["kote"])
@@ -617,7 +580,7 @@ def go(**kwargs) -> None:
         forbundne_punkter = tuple(sorted(net["Punkt"]))
     else:
         forbundne_punkter = find_forbundne_punkter(
-            observationer, alle_punkter, fastholdte_punkter
+            projektnavn, observationer, alle_punkter, fastholdte_punkter
         )
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte_punkter)))
     print(f"Forbundne punkter: {forbundne_punkter}")
@@ -625,40 +588,98 @@ def go(**kwargs) -> None:
 
     if "Regn" in workflow:
         # -----------------------------------------------------
-        # Opstil designmatrix, responsvektor og vægtvektor
+        # Skriv Gama-inputfil i XML-format
         # -----------------------------------------------------
-        (X, P, y) = designmatrix(
-            observationer, forbundne_punkter, estimerede_punkter, fastholdte, holdte
+        with open(projektnavn + ".xml", "wt") as gamafil:
+            # Preambel
+            gamafil.writelines(
+                [
+                    '<?xml version="1.0" ?><gama-local>\n',
+                    '<network angles="left-handed" axes-xy="en" epoch="0.0">\n',
+                    "<parameters\n",
+                    '    algorithm="gso" angles="400" conf-pr="0.95"\n',
+                    '    cov-band="0" ellipsoid="grs80" latitude="55.7" sigma-act="apriori"\n',
+                    '    sigma-apr="1.0" tol-abs="1000.0"\n',
+                    '    update-constrained-coordinates="no"\n',
+                    "/>\n\n",
+                ]
+            )
+
+            gamafil.write(
+                f"<description>\n"
+                f'    {"Nivellementsprojekt " + projektnavn}\n'
+                f"</description>\n"
+                f"<points-observations>\n\n"
+            )
+
+            # Fastholdte punkter
+            gamafil.write("\n\n<!-- Fixed -->\n\n")
+            for key, val in fastholdte.items():
+                gamafil.write(f'<point fix="Z" id="{key}" z="{val}"/>\n')
+
+            # Punkter til udjævning
+            gamafil.write("\n\n<!-- Adjusted -->\n\n")
+            for punkt in estimerede_punkter:
+                gamafil.write(f'<point adj="z" id="{punkt}"/>\n')
+
+            # Observationer
+            gamafil.write("\n\n<height-differences>\n\n")
+            for obs in observationer[["fra", "til", "dH", "L", "σ"]].values:
+                gamafil.write(
+                    f'<dh from="{obs[0]}" to="{obs[1]}" '
+                    f'val="{obs[2]:+.6f}" '
+                    f'dist="{obs[3]/1000:.5f}" stdev="{1000*spredning(obs[3], obs[4]):.5f}"/>\n'
+                )
+
+            # Postambel
+            gamafil.write(
+                "</height-differences>\n"
+                "</points-observations>\n"
+                "</network>\n"
+                "</gama-local>\n"
+            )
+
+        # ----------------------------------------------
+        # Lad GNU Gama om at køre udjævningen
+        # ----------------------------------------------
+        ret = subprocess.run(
+            [
+                "gama-local",
+                f"{projektnavn}.xml",
+                "--xml",
+                f"{projektnavn}-resultat.xml",
+                "--html",
+                f"{projektnavn}-resultat.html",
+            ]
         )
 
-        # -----------------------------------------------------
-        # Udfør beregning og rapportér i kort form
-        # -----------------------------------------------------
+        if 0 != ret:
+            fire.cli.print(
+                f"ADVARSEL! GNU Gama fandt mistænkelige observationer - check {projektnavn}.html for detaljer",
+                bg="red",
+                fg="white",
+                err=False,
+            )
 
-        # Først en ikke-vægtet udjævning som sammenligningsgrundlag
-        # model = sm.OLS(y, X)
-        # result = model.fit()
-        # print("Ikke-vægtet")
-        # print(result.params)
-        # print(result.HC0_se)
-        # print(result.summary2())
+        # ----------------------------------------------
+        # Grav resultater frem fra GNU Gamas outputfil
+        # ----------------------------------------------
+        with open(projektnavn + "-resultat.xml") as resultat:
+            doc = xmltodict.parse(resultat.read())
+        koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
+        punkter = [punkt["id"] for punkt in koteliste]
+        koter = [float(punkt["z"]) for punkt in koteliste]
+        varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
+        varianser = [float(var) for var in varliste]
+        assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
 
-        # Se https://www.statsmodels.org/devel/examples/notebooks/generated/wls.html
-        model = sm.WLS(y, X, weights=(P ** 2))
-        result = model.fit()
-
-        print("Vægtet")
-        # Se https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.html
-        print(result.params)
-        print(result.HC0_se)
-        print(result.summary2())
-        wlsparams = result.params
-        # print(dir(result))
-
-        # Geninstaller 'punkt'-søjlen som indexsøjle, så vi kan indicere fornuftigt
+        # ----------------------------------------------
+        # Skriv resultaterne til punktoversigten
+        # ----------------------------------------------
         punktoversigt = punktoversigt.set_index("punkt")
-        for punkt, kote in zip(estimerede_punkter, wlsparams):
-            punktoversigt.at[punkt, "ny"] = kote
+        for index in range(len(punkter)):
+            punktoversigt.at[punkter[index], "ny"] = koter[index]
+            punktoversigt.at[punkter[index], "ny σ"] = sqrt(varianser[index])
         punktoversigt = punktoversigt.reset_index()
 
         # Ændring i millimeter
@@ -666,9 +687,6 @@ def go(**kwargs) -> None:
         # Men vi ignorerer ændringer under mikrometerniveau
         dd = [e if e > 0.001 else None for e in d]
         punktoversigt["Δ"] = dd
-
-        X["P"] = np.floor(100 * P / max(P) + 0.5)
-        X["y"] = y
 
     # -----------------------------------------------------------------------------
     # Skriv resultatfil
@@ -683,17 +701,15 @@ def go(**kwargs) -> None:
     # bliver repræsenteret som "t�t trafik". Fejlen må rettes opstrøms.
     # -----------------------------------------------------------------------------
     ark = [("Punktoversigt", punktoversigt)]
-    if "Regn" in workflow:
-        ark += [("Designmatrix", X)]
     if "Net" in workflow:
         ark += [("Netgeometri", net), ("Ensomme", ensomme)]
     if "Observationer" in workflow:
         ark += [("Observationer", observationer)]
 
     print(f"Skriver resultat-ark: {[a[0] for a in ark]}")
-    writer = pd.ExcelWriter("resultat.xlsx", engine="xlsxwriter")
+    writer = pd.ExcelWriter(f"{projektnavn}-resultat.xlsx", engine="xlsxwriter")
     for a in ark:
         if a[1] is not None:
             a[1].to_excel(writer, sheet_name=a[0], encoding="utf-8", index=False)
     writer.save()
-    print("Færdig - output kan ses i 'resultat.xlsx'")
+    print(f"Færdig - output kan ses i '{projektnavn}-resultat.xlsx'")
