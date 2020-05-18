@@ -32,6 +32,15 @@
 
 -- SRID, punktinfotype osv
 -------------------------------------------------------------------------------
+-- Grundlæggende FIRE konfiguration
+INSERT INTO konfiguration (
+    dir_skitser,
+    dir_materiale
+) VALUES (
+    'F:\GDB\FIRE\skitser',
+    'F:\GDB\FIRE\materiale'
+)
+
 -- SELECT
 --   infotypeid, infotype, anvendelse, beskrivelse FROM punktinfotype
 -- WHERE infotype IN (
@@ -322,6 +331,60 @@ Insert into PUNKTINFO (REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID,INFOTYPEID
 Insert into PUNKTINFO (REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID,INFOTYPEID,TAL,TEKST,PUNKTID) values (sysdate, null,'sagevent-aaaa-bbbb-0001-000000000002',1,null,null,'d9cb77ab-2825-4f32-bb65-239aab7bfa67');
 
 COMMIT;
+
+-------------------------------------------------------------------------------
+-- INDSÆT EKSISTERENDE KOORDINATER
+--
+-- Der indsættes koordinater på få af de ældre punkter i datasættet. Disse
+-- opdateres ikke senere i forløbet, og kan fx bruges som fastholdte koter i
+-- testudjævninger.
+-------------------------------------------------------------------------------
+
+INSERT INTO sagsevent (
+    id,
+    registreringfra,
+    eventtypeid,
+    sagid
+) VALUES (
+    'sagevent-aaaa-bbbb-0001-000000000003',
+    sysdate,
+    1, -- koordinat beregnet
+    'sag00001-aaaa-bbbb-cccc-000000000001'
+);
+
+INSERT INTO sagseventinfo (
+    REGISTRERINGFRA,
+    REGISTRERINGTIL,
+    BESKRIVELSE,
+    SAGSEVENTID
+) VALUES (
+    sysdate,
+    null,
+    'Indsættelse af koordinater',
+    'sagevent-aaaa-bbbb-0001-000000000003'
+);
+
+SELECT
+  k.registreringfra, 'sagevent-aaaa-bbbb-0001-000000000003' as sagseventfraid,
+  k.sridid, k.x, k.y, k.z, k.sx, k.sy, k.sz, k.t, k.transformeret,
+  k.artskode,  k.punktid
+FROM
+  koordinat k
+JOIN punktinfo pi ON k.punktid = pi.punktid
+WHERE
+  k.sridid IN (SELECT sridid FROM sridtype WHERE srid = 'EPSG:5799')
+    AND
+  pi.infotypeid = (SELECT infotypeid FROM punktinfotype WHERE infotype = 'IDENT:landsnr')
+    AND
+  pi.tekst IN (
+    'K-63-09946', -- G.M.902, Domkirken i Aarhus
+    'K-63-09944',
+    'K-63-00909' -- RDIO, 5D-punkt ved Radiohuset, Aarhus
+) AND k.registreringtil IS NULL;
+
+Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,ARTSKODE,PUNKTID) values (to_timestamp_tz('2009-10-20 12:11:07','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0001-000000000003',8,null,null,2.8318,null,null,0,to_timestamp_tz('2000-02-11 13:30:00','YYYY-MM-DD HH24:MI:SS'),'false',1,'61c61847-ed54-4969-b94e-df74fd63f108');
+Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,ARTSKODE,PUNKTID) values (to_timestamp_tz('2001-07-31 12:32:02','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0001-000000000003',8,null,null,5.5700000000000003,null,null,0,to_timestamp_tz('2001-07-31 08:54:00','YYYY-MM-DD HH24:MI:SS'),'false',1,'67e3987a-dc6b-49ee-8857-417ef35777af');
+Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,ARTSKODE,PUNKTID) values (to_timestamp_tz('2003-11-07 10:53:02','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0001-000000000003',8,null,null,85.181,null,null,0,to_timestamp_tz('2001-02-28 12:45:00','YYYY-MM-DD HH24:MI:SS'),'false',2,'301b8578-8cc8-48a8-8446-541f31482f86');
 
 INSERT INTO sagsinfo (
     aktiv,

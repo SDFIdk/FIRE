@@ -1,8 +1,16 @@
+from typing import List
+from itertools import chain
+
 import pytest
+
 from fire.api import FireDb
 from fire.api.model import (
     Sagsevent,
     Punkt,
+    Observation,
+    Koordinat,
+    PunktInformation,
+    PunktInformationType,
     GeometriObjekt,
     Point,
     Sag,
@@ -45,3 +53,47 @@ def test_hent_punkt(firedb: FireDb, punkt: Punkt):
 def test_hent_alle_punkter(firedb: FireDb):
     p = firedb.hent_alle_punkter()
     assert isinstance(p, list)
+
+
+def test_luk_punkt(
+    firedb: FireDb,
+    punkt: Punkt,
+    sagsevent: Sagsevent,
+    observationer: List[Observation],
+    koordinat: Koordinat,
+    punktinformationtype: PunktInformationType,
+):
+    # byg et punkt der har tilknyttet geometri, koordinat,
+    # punktinfo og observationer
+    geometri = GeometriObjekt(
+        punkt=punkt, geometri=Point([10, 55]), sagsevent=sagsevent
+    )
+    firedb.session.add(geometri)
+    observationer[0].opstillingspunkt = punkt
+    observationer[1].sigtepunkt = punkt
+    koordinat.punkt = punkt
+    punkt.punktinformationer = [
+        PunktInformation(infotype=punktinformationtype, sagsevent=sagsevent)
+    ]
+    firedb.session.commit()
+
+    firedb.luk_punkt(punkt, sagsevent)
+    assert punkt.registreringtil is not None
+    assert punkt.sagsevent.eventtype == EventType.PUNKT_NEDLAGT
+    assert geometri.registreringtil is not None
+    assert geometri.sagsevent.eventtype == EventType.PUNKT_NEDLAGT
+
+    for koordinat in punkt.koordinater:
+        assert koordinat.registreringtil is not None
+        assert koordinat.sagsevent.eventtype == EventType.PUNKT_NEDLAGT
+
+    for punktinfo in punkt.punktinformationer:
+        assert punktinfo.registreringtil is not None
+        assert punktinfo.sagsevent.eventtype == EventType.PUNKT_NEDLAGT
+
+    for observation in chain(punkt.observationer_fra, punkt.observationer_til):
+        assert observation.registreringtil is not None
+        assert observation.sagsevent.eventtype == EventType.PUNKT_NEDLAGT
+
+    with pytest.raises(TypeError):
+        firedb.luk_punkt(999)

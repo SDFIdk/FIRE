@@ -42,7 +42,7 @@ jobs:
           name: Run tests
           command: |
             source /opt/conda/bin/activate fire-dev
-            cp .circleci/fire_settings.json ~/fire_settings.json
+            cp .circleci/fire.ini ~/fire.ini
 
             ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest --cov=fire --cov-report=xml --ignore=test/read/ --ignore=test/write/
             bash <(curl -s https://codecov.io/bash)

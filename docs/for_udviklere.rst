@@ -43,6 +43,19 @@ Test-suiten køres med::
 
     Se :ref:`testlokalt` for mere om hvordan et testmiljø kan sættes op lokalt.
 
+For at test-suiten kører korrekt skal der i `fire.ini` indsættes en `[test_connection]`
+sektion::
+
+    [test_connection]
+    password = <adgangskode>
+    username = <brugernavn>
+    hostname = <netværksadresse>
+    database = <databasenavn>
+    service = <servicenavn>
+
+På maskiner der både arbejder op mod produktions- og testdatabase er det vigtigt at
+`[test_connection]` er forskellig fra `[connection]`, da det ellers risikeres at der
+indsættes ugyldigt data i produktionsdatabasen.
 
 Kodestil
 --------

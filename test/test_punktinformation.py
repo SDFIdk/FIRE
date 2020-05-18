@@ -1,6 +1,10 @@
+from fire.api import FireDb
 from fire.api.model import (
+    Punkt,
     PunktInformation,
+    PunktInformationType,
     Sagsevent,
+    EventType,
 )
 
 
@@ -32,3 +36,21 @@ def test_opdatering_punktinformation(firedb, sag, punkt):
     assert len(infotyper) == 2
     assert infotyper[0].registreringtil == infotyper[1].registreringfra
     assert infotyper[0].sagseventtilid == infotyper[1].sagseventfraid
+
+
+def test_luk_punktinfo(
+    firedb: FireDb,
+    punktinformationtype: PunktInformationType,
+    punkt: Punkt,
+    sagsevent: Sagsevent,
+):
+    punktinfo = PunktInformation(
+        infotype=punktinformationtype, punkt=punkt, sagsevent=sagsevent
+    )
+    firedb.session.add(punktinfo)
+    firedb.session.commit()
+    assert punktinfo.registreringtil is None
+
+    firedb.luk_punktinfo(punktinfo, sagsevent)
+    assert punktinfo.registreringtil is not None
+    assert punktinfo.sagsevent.eventtype == EventType.PUNKTINFO_FJERNET

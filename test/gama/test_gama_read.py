@@ -1,17 +1,12 @@
-import os
-
-import pytest
+from pathlib import Path
 
 from fire.api import FireDb
+from fire.api.model import Sag
 from fire.api.gama import GamaReader
 
 
-@pytest.mark.skip("Undlades indtil et bedre test datasæt er indlæst i databasen")
-def test_read():
-    db = os.environ.get("fire-db")
-    fireDb = FireDb(db)
-    input_stream = open("input/all_points.xml", "r")
-    reader = GamaReader(fireDb, input_stream)
+def test_read(firedb: FireDb, sag: Sag):
+    input_stream = open(Path(__file__).resolve().parent / "input/all_points.xml", "r")
+    reader = GamaReader(firedb, input_stream)
 
-    sags_id = "3639726e-4dbd-44b5-9928-8ff1e8c970c2"
-    reader.read(sags_id)
+    reader.read(sag.id)

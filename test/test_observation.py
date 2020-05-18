@@ -1,5 +1,7 @@
 import datetime as dt
 
+import pytest
+
 from fire.api import FireDb
 from fire.api.model import (
     Sag,
@@ -8,6 +10,7 @@ from fire.api.model import (
     Observation,
     Geometry,
     ObservationType,
+    EventType,
 )
 
 
@@ -88,3 +91,18 @@ def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
         value8=0,
     )
     firedb.indset_observation(Sagsevent(sag=sag), observation)
+
+
+def test_luk_observation(
+    firedb: FireDb, observation: Observation, sagsevent: Sagsevent
+):
+    firedb.session.commit()
+    assert observation.registreringtil is None
+    assert observation.sagsevent.eventtype == EventType.OBSERVATION_INDSAT
+
+    firedb.luk_observation(observation, sagsevent)
+    assert observation.registreringtil is not None
+    assert observation.sagsevent.eventtype == EventType.OBSERVATION_NEDLAGT
+
+    with pytest.raises(TypeError):
+        firedb.luk_observation(9999)
