@@ -1,5 +1,9 @@
 from datetime import datetime, timezone
 from typing import List, Optional
+from pathlib import Path
+import os
+import configparser
+import getpass
 
 from sqlalchemy import create_engine, func, event, and_, inspect
 from sqlalchemy.orm import sessionmaker, aliased
@@ -28,7 +32,7 @@ from fire.api.model import (
 
 
 class FireDb(object):
-    def __init__(self, connectionstring, debug=False):
+    def __init__(self, connectionstring=None, debug=False):
         """
 
         Parameters
@@ -41,7 +45,12 @@ class FireDb(object):
             engines logger, which defaults to sys.stdout
         """
         self.dialect = "oracle+cx_oracle"
-        self.connectionstring = connectionstring
+        self.config = self._read_config()
+        if connectionstring:
+            self.connectionstring = connectionstring
+        else:
+            self.connectionstring = self._build_connection_string()
+
         self.engine = create_engine(
             f"{self.dialect}://{self.connectionstring}",
             connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
@@ -544,5 +553,43 @@ class FireDb(object):
         # state.deleted     # session & identity_key, flushed but not committed. Commit moves it to detached state
         insp = inspect(obj)
         return not (insp.persistent or insp.detached)
+
+    def _read_config(self):
+        # Used for controlling the database setup when running the test suite
+        RC_NAME = "fire.ini"
+
+        # Find settings file and read database credentials
+        if os.environ.get("HOME"):
+            home = Path(os.environ["HOME"])
+        else:
+            home = Path("")
+
+        search_files = [
+            home / Path(RC_NAME),
+            home / Path("." + RC_NAME),
+            Path("/etc") / Path(RC_NAME),
+            Path("C:\\Users") / Path(getpass.getuser()) / Path(RC_NAME),
+            Path("C:\\Users\\Default\\AppData\\Local\\fire") / Path(RC_NAME),
+        ]
+
+        for conf_file in search_files:
+            if Path(conf_file).is_file():
+                break
+        else:
+            raise EnvironmentError("Konfigurationsfil ikke fundet!")
+
+        parser = configparser.ConfigParser()
+        parser.read(conf_file)
+        return parser
+
+    def _build_connection_string(self):
+        # Establish connection to database
+        username = self.config.get("connection", "username")
+        password = self.config.get("connection", "password")
+        hostname = self.config.get("connection", "hostname")
+        database = self.config.get("connection", "database")
+        port = self.config.get("connection", "port", fallback=1521)
+
+        return f"{username}:{password}@{hostname}:{port}/{database}"
 
     # endregion
