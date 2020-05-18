@@ -7,7 +7,6 @@ from click.testing import CliRunner
 from fire.cli.mtl import mtl
 
 
-@pytest.mark.filterwarnings("ignore:kurtosistest only valid for n>=20")
 def test_cli():
     runner = CliRunner()
 
@@ -22,9 +21,9 @@ def test_cli():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     result = runner.invoke(mtl, args)
     os.remove("bananas.xml")
-    os.remove("bananas-resultat.xml")
-    os.remove("bananas-resultat.html")
-    os.remove("bananas-resultat.xlsx")
+    # os.remove("bananas-resultat.xml")
+    # os.remove("bananas-resultat.html")
+    # os.remove("bananas-resultat.xlsx")
     os.chdir(cwd)
 
     assert result.exit_code == 0
