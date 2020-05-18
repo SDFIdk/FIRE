@@ -306,8 +306,8 @@ def find_observationer(navn: str) -> pd.DataFrame:
 def opbyg_punktoversigt(
     navn: str,
     nyetablerede: pd.DataFrame,
-    alle_punkter: Tuple[set],
-    nye_punkter: Tuple[set],
+    alle_punkter: Tuple[str, ...],
+    nye_punkter: Tuple[str, ...],
 ) -> pd.DataFrame:
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
@@ -415,8 +415,8 @@ def opbyg_punktoversigt(
 def find_punktoversigt(
     navn: str,
     nyetablerede: pd.DataFrame,
-    alle_punkter: Tuple[set],
-    nye_punkter: Tuple[set],
+    alle_punkter: Tuple[str, ...],
+    nye_punkter: Tuple[str, ...],
 ) -> pd.DataFrame:
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
@@ -433,8 +433,8 @@ def find_punktoversigt(
 # ------------------------------------------------------------------------------
 def netanalyse(
     observationer: pd.DataFrame,
-    alle_punkter: Tuple[set],
-    fastholdte_punkter: Tuple[set],
+    alle_punkter: Tuple[str, ...],
+    fastholdte_punkter: Tuple[str, ...],
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     print("Analyserer net")
     assert len(fastholdte_punkter) > 0, "Netanalyse kræver mindst et fastholdt punkt"
@@ -504,9 +504,9 @@ def netanalyse(
 def find_forbundne_punkter(
     navn: str,
     observationer: pd.date_range,
-    alle_punkter: Tuple[set],
-    fastholdte_punkter: Tuple[set],
-) -> Tuple[pd.DataFrame]:
+    alle_punkter: Tuple[str, ...],
+    fastholdte_punkter: Tuple[str, ...],
+) -> Tuple[str, ...]:
     """Læs net fra allerede foretaget netanalyse"""
     try:
         net = pd.read_excel(navn + ".xlsx", sheet_name="Netgeometri", usecols="A")
@@ -516,7 +516,9 @@ def find_forbundne_punkter(
 
 
 # ------------------------------------------------------------------------------
-def spredning(afstand_i_m, slope_i_mm_pr_sqrt_km=0.6, bias=0.0005):
+def spredning(
+    afstand_i_m: float, slope_i_mm_pr_sqrt_km: float = 0.6, bias: float = 0.0005
+) -> float:
     return 0.001 * (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias)
 
 
