@@ -180,7 +180,9 @@ def hent_sridid(db: FireDb, srid: str) -> int:
 
 
 # ------------------------------------------------------------------------------
-def path_to_origin(graph: Dict[str, Set[str]], start: str, origin: str, path: List[str] = []):
+def path_to_origin(
+    graph: Dict[str, Set[str]], start: str, origin: str, path: List[str] = []
+):
     """
     Mikroskopisk backtracking netkonnektivitetstest. Baseret på et
     essay af GvR fra https://www.python.org/doc/essays/graphs/, men
