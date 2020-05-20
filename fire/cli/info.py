@@ -11,7 +11,13 @@ from pyproj import CRS
 
 import fire.cli
 from fire.cli import firedb
-from fire.api.model import Punkt, PunktInformation, PunktInformationType, Srid
+from fire.api.model import (
+    Punkt,
+    PunktInformation,
+    PunktInformationType,
+    Srid,
+    Koordinat,
+)
 
 
 @click.group()
@@ -22,7 +28,7 @@ def info():
     pass
 
 
-def koordinat_linje(koord):
+def koordinat_linje(koord: Koordinat) -> str:
     """
     Konstruer koordinatoutput i overensstemmelse med koordinatens dimensionalitet,
     enhed og proveniens.
