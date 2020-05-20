@@ -247,7 +247,7 @@ def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
 
 
 # ------------------------------------------------------------------------------
-def find_inputfiler(navn) -> List[Tuple[str, float]]:
+def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning"""
     try:
         inputfiler = pd.read_excel(
