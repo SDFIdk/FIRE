@@ -2,6 +2,7 @@ import datetime
 import itertools
 import math
 import sys
+from typing import Dict, List, Set, Tuple, IO
 
 import click
 from sqlalchemy.orm import aliased
@@ -14,7 +15,7 @@ from pyproj import CRS
 
 import fire.cli
 from fire.cli import firedb
-from fire.api.model import Punkt, PunktInformation, PunktInformationType, Srid
+from fire.api.model import Punkt, PunktInformation, PunktInformationType, Srid, Koordinat, Observation
 
 
 @click.group()
@@ -113,17 +114,56 @@ def info():
 # )
 
 
-def kanonisk_ident(uuid):
+# Observation(
+#     antal=1, gruppe=71327, objectid=10331, observationstidspunkt=datetime.datetime(1997, 5, 23, 18, 2),
+#     observationstypeid=1, opstillingspunktid='61c61847-ed54-4969-b94e-df74fd63f108',
+#     sagseventfraid='A3B4DD6C-8CE5-054B-E053-D380220A57E2', sagseventtilid=None,
+#     sigtepunktid='807c78a4-17e4-4f82-93f2-2e0a7b891fb3',
+#     value1=2.2897, value2=29.1, value3=-31072.0, value4=0.0,
+#     value5=2.9100000000000002e-08, value6=1e-10, value7=0.0
+# )
+#
+# Observation(
+#     antal=1, gruppe=71327, objectid=11129, observationstidspunkt=datetime.datetime(1997, 5, 23, 18, 4),
+#     observationstypeid=1, opstillingspunktid='807c78a4-17e4-4f82-93f2-2e0a7b891fb3',
+#     sagseventfraid='A3B4DD6C-8CE5-054B-E053-D380220A57E2', sagseventtilid=None,
+#     sigtepunktid='61c61847-ed54-4969-b94e-df74fd63f108',
+#     value1=-2.2898, value2=28.0, value3=-31072.0, value4=0.0,
+#     value5=2.8000000000000003e-08, value6=1e-10, value7=0.0
+# )
+
+
+#  fire info punkt -O K-63-09007
+
+# --- OBSERVATIONER ---
+#   Antal observationer til:  4
+#     G 0 1997-07-15 12:00:00    +1.125000 100.0 10    K-63-09004   K-63-09007      1.581139 0.001000 +000.00
+#     G 0 1997-05-23 18:02:00    +2.289700 029.1 -31072    G.M.901      K-63-09007      0.170587 0.000000 +000.00
+#     G 0 1997-02-19 12:00:00    +0.441000 100.0 10    K-63-09010   K-63-09007      1.581139 0.001000 +000.00
+#     G 3 1988-04-15 11:18:00    +2.288820 029.9 1    G.M.901      K-63-09007      0.103750 0.000000 +511.00
+#
+#   Antal observationer fra:  3
+#     G 0 1997-05-23 18:04:00    -2.289800 028.0 -31072    K-63-09007   G.M.901         0.167332 0.000000 +000.00
+#     G 0 1997-02-19 12:00:00    -0.421000 030.0 10    K-63-09007   K-63-09271      0.866025 0.001000 +000.00
+#     G 3 1988-04-15 11:23:00    -2.289070 030.0 1    K-63-09007   G.M.901         0.103923 0.000000 -515.00
+#
+#   Ældste observation:  1988-04-15 11:18:00
+#   Nyeste observation:  1997-07-15 12:00:00
+
+def kanonisk_ident(uuid) -> str:
     try:
         # TODO: Bør cache både pil, pid og resultater pr UUID, så vi kan reducere opslag
         pil = firedb.hent_punktinformationtype("IDENT:landsnr")
-        pid = firedb.hent_punktinformationtype("IDENT:diverse")
+        pig = firedb.hent_punktinformationtype("IDENT:GNSS")
+        pid = firedb.hent_punktinformationtype("IDENT:diverse")  # G.I. og G.M.
+
 
         identer = (
             firedb.session.query(PunktInformation)
             .filter(
                 PunktInformation.punktid == uuid,
                 or_(
+                    PunktInformation.infotypeid == pig.infotypeid,
                     PunktInformation.infotypeid == pil.infotypeid,
                     PunktInformation.infotypeid == pid.infotypeid,
                 ),
@@ -138,6 +178,8 @@ def kanonisk_ident(uuid):
                 return ident.tekst
             if ident.tekst.startswith("G.I."):
                 return ident.tekst
+            if ident.infotypeid == "IDENT:GNSS":
+                return ident.tekst
         return identer[0].tekst
 
     except NoResultFound:
@@ -148,12 +190,15 @@ def observation_linje(obs) -> str:
     if obs.observationstypeid > 2:
         return ""
 
+    if obs.slettet:
+        return ""
+
     fra = kanonisk_ident(obs.opstillingspunktid)
     til = kanonisk_ident(obs.sigtepunktid)
     dH = obs.value1
     L = obs.value2
     N = int(obs.value3)
-    tid = obs.observationstidspunkt.strftime("%Y-%m-%d %H:%M:%S")
+    tid = obs.observationstidspunkt.strftime("%Y-%m-%d %H:%M")
     oid = obs.objectid
 
     # Geometrisk nivellement
@@ -162,15 +207,15 @@ def observation_linje(obs) -> str:
         eta_1 = obs.value4
         fejlfaktor = math.sqrt(obs.value5) * 1000
         centrering = obs.value6 * 1000
-        return f"G {præs} {tid}    {dH:+09.6f} {L:05.1f} {N}    {fra:12} {til:12}    {fejlfaktor:.6f} {centrering:.6f} {eta_1:+07.2f} {oid}"
+        return f"G {præs} {tid}    {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:.6f} {centrering:.6f} {eta_1:+07.2f} {oid}"
 
     # Trigonometrisk nivellement
-    if obs.observationstypeid == 1:
+    if obs.observationstypeid == 2:
         fejlfaktor = obs.value4
         centrering = obs.value5
-        return f"T 0 {år} {dH:+09.6f} {L:05.1f} {N}    {fra:12} {til:12}    {fejlfaktor:.6f} {centrering:.6f} {oid}"
+        return f"T 0 {tid} {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:.6f} {centrering:.6f} {oid}"
 
-
+# TODO: Nogle af målene ser sære ud. I FIRE er de beskrevet sådan:
 #     'Variabel vedr. eta_1 (refraktion) [m^3]',
 #     'Afstandsafhængig varians koteforskel pr. målt koteforskel [m^2/m]',
 #     'Afstandsuafhængig varians koteforskel pr. målt koteforskel [m^2]',
@@ -228,108 +273,151 @@ def koordinat_linje(koord):
 
     return linje
 
-
-def punkt_rapport(
-    punkt: Punkt, ident: str, i: int, n: int, udskriv_observationer: bool = False
-) -> None:
+def punktinforapport(punktinformationer: List[PunktInformation]) -> None:
     """
-    Rapportgenerator for funktionen 'punkt' nedenfor.
+    Hjælpefunktion for 'punkt_fuld_rapport'.
     """
-    fire.cli.print("")
-    fire.cli.print("-" * 80)
-    fire.cli.print(f" PUNKT {ident} ({i}/{n})", bold=True)
-    fire.cli.print("-" * 80)
-    fire.cli.print(f"  FIRE ID             :  {punkt.id}")
-    fire.cli.print(f"  Oprettelsesdato     :  {punkt.registreringfra}")
-    fire.cli.print("")
-
-    fire.cli.print("--- PUNKTINFO ---", bold=True)
-    for info in punkt.punktinformationer:
+    for info in punktinformationer:
         if info.registreringtil is not None:
             continue
         tekst = info.tekst or ""
         # efter mellemrum rykkes teksten ind på linje med resten af
         # attributteksten
-        tekst = tekst.replace("\n", "\n" + " " * 25).replace("\r", "")
+        tekst = tekst.replace("\n", "\n" + " " * 30).replace("\r", "").rstrip(" \n")
         tal = info.tal or ""
-        fire.cli.print(f"  {info.infotype.name:20}:  {tekst}{tal}")
-    fire.cli.print("")
+        fire.cli.print(f"  {info.infotype.name:27} {tekst}{tal}")
 
-    fire.cli.print("--- GEOMETRI ---", bold=True)
-    for geometriobjekt in punkt.geometriobjekter:
-        fire.cli.print(f"  {geometriobjekt.geometri}")
-        fire.cli.print("")
 
-    fire.cli.print("--- KOORDINATER ---", bold=True)
-    punkt.koordinater.sort(
+def koordinatrapport(koordinater: List[Koordinat], options: str) -> None:
+    """
+    Hjælpefunktion for 'punkt_fuld_rapport': Udskriv formateret koordinatliste
+    """
+    koordinater.sort(
         key=lambda x: (x.srid.name, x.t.strftime("%Y-%m-%dT%H:%M")), reverse=True
     )
-    for koord in punkt.koordinater:
+    ts = True if 'ts' in options.split(',') else False
+    alle = True if 'alle' in options.split(',') else False
+    for koord in koordinater:
+        if koord.srid.name.startswith("TS:") and options != "ts":
+            continue
         if koord.registreringtil is not None:
-            fire.cli.print(". " + koordinat_linje(koord), fg="red")
+            if alle:
+                fire.cli.print(". " + koordinat_linje(koord), fg="red")
         else:
             fire.cli.print("* " + koordinat_linje(koord), fg="green")
     fire.cli.print("")
 
-    fire.cli.print("--- OBSERVATIONER ---", bold=True)
-    n_obs_til = len(punkt.observationer_til)
-    n_obs_fra = len(punkt.observationer_fra)
 
-    fire.cli.print(f"  Antal observationer til:  {n_obs_til}")
-    if udskriv_observationer:
-        punkt.observationer_til.sort(
-            key=lambda x: x.observationstidspunkt, reverse=True
-        )
-        for obs in punkt.observationer_til:
+def observationsrapport(observationer_til: List[Observation], observationer_fra: List[Observation], options: str) -> None:
+    """
+    Hjælpefunktion for 'punkt_fuld_rapport': Udskriv formateret observationsliste
+    """
+    # p.t. er kun nivellementsobservationer understøttet
+    if options not in ["niv", "alle"]:
+        return
+
+    n_obs_til = len(observationer_til)
+    n_obs_fra = len(observationer_fra)
+    if n_obs_til + n_obs_fra == 0:
+        return
+
+    if n_obs_til > 0:
+        punktid = observationer_til[0].sigtepunktid
+    else:
+        punktid = observationer_fra[0].opstillingspunktid
+
+    observationer = [obs for obs in observationer_fra + observationer_til  if obs.observationstypeid in [1,2]]
+    # Behjertet forsøg på at sortere de udvalgte observationer,
+    # så de giver bedst mulig mening for brugeren: Først præs,
+    # så andre, og indenfor hver gruppe baglæns kronologisk og med
+    # frem/tilbage par så vidt muligt grupperet. Det er ikke nemt!
+    observationer.sort(
+        key = lambda x: (
+            (x.value7 if x.observationstypeid==1 else 0),
+            (x.observationstidspunkt.year), (x.gruppe),
+            (x.sigtepunktid if x.sigtepunktid != punktid else x.opstillingspunktid),
+            (x.observationstidspunkt)
+        ),
+        reverse = True
+    )
+
+    n_vist = len(observationer)
+    if n_vist==0:
+        return
+
+    fire.cli.print('    [Trig/Geom][Præs][T]     dH        L      N    Fra          Til             sigma    centrer  eta     id')
+    fire.cli.print('  '+112*'-')
+    for obs in observationer:
             linje = observation_linje(obs)
-            if linje != "" and linje is not None:
-                fire.cli.print("    " + observation_linje(obs))
-        fire.cli.print("")
+            if linje != '' and linje is not None:
+                fire.cli.print('    ' + observation_linje(obs))
+    fire.cli.print('  '+112*'-')
+    fire.cli.print(f"  Observationer ialt:  {n_obs_til + n_obs_fra}")
+    fire.cli.print(f"  Observationer vist:  {n_vist}")
 
-    fire.cli.print(f"  Antal observationer fra:  {n_obs_fra}")
-    if udskriv_observationer:
-        punkt.observationer_fra.sort(
-            key=lambda x: x.observationstidspunkt, reverse=True
-        )
-        for obs in punkt.observationer_fra:
-            linje = observation_linje(obs)
-            if linje != "" and linje is not None:
-                fire.cli.print("    " + observation_linje(obs))
-        fire.cli.print("")
+    min_obs = datetime.datetime(9999, 12, 31, 0, 0, 0)
+    max_obs = datetime.datetime(1, 1, 1, 0, 0, 0)
+    for obs in itertools.chain(observationer_fra, observationer_til):
+        if obs.observationstidspunkt < min_obs:
+            min_obs = obs.observationstidspunkt
+        if obs.observationstidspunkt > max_obs:
+            max_obs = obs.observationstidspunkt
 
-    if n_obs_fra + n_obs_til > 0:
-        min_obs = datetime.datetime(9999, 12, 31, 0, 0, 0)
-        max_obs = datetime.datetime(1, 1, 1, 0, 0, 0)
-        for obs in itertools.chain(punkt.observationer_fra, punkt.observationer_til):
-            if obs.observationstidspunkt < min_obs:
-                min_obs = obs.observationstidspunkt
-            if obs.observationstidspunkt > max_obs:
-                max_obs = obs.observationstidspunkt
+    fire.cli.print(f'  Ældste observation:  {min_obs}')
+    fire.cli.print(f'  Nyeste observation:  {max_obs}')
+    fire.cli.print('  '+112*'-')
 
-        fire.cli.print(f"  Ældste observation:  {min_obs}")
-        fire.cli.print(f"  Nyeste observation:  {max_obs}")
-    #        print("FRA:")
-    #        pprint.pprint(dir(punkt.observationer_fra[0]))
-    #        pprint.pprint(punkt.observationer_fra[0])
-    #        print("TIL:")
-    #        pprint.pprint(dir(punkt.observationer_til[0]))
-    #        pprint.pprint(punkt.observationer_til[0])
 
+def punkt_fuld_rapport(
+    punkt: Punkt, ident: str, i: int, n: int, opt_obs: str, opt_koord: str
+) -> None:
+    """
+    Rapportgenerator for funktionen 'punkt' nedenfor.
+    """
+
+    # Header
     fire.cli.print("")
+    fire.cli.print("-" * 80)
+    fire.cli.print(f" PUNKT {ident} ({i}/{n})", bold=True)
+    fire.cli.print("-" * 80)
+
+    # Geometri, fire-id, oprettelsesdato og PunktInformation håndteres
+    # under et, da det giver et bedre indledende overblik
+    for geometriobjekt in punkt.geometriobjekter:
+        fire.cli.print(f"  Lokation                    {geometriobjekt.geometri}")
+    fire.cli.print(f"  Oprettelsesdato             {punkt.registreringfra}")
+
+    punktinforapport(punkt.punktinformationer)
+
+    fire.cli.print(f"  FIRE-id                     {punkt.id}")
+    fire.cli.print("")
+
+    # Koordinater og observationer klares af specialiserede hjælpefunktioner
+    fire.cli.print("--- KOORDINATER ---", bold=True)
+    koordinatrapport(punkt.koordinater, opt_koord)
+    fire.cli.print("")
+
+    if opt_obs != "":
+        fire.cli.print("--- OBSERVATIONER ---", bold=True)
+        observationsrapport(punkt.observationer_til, punkt.observationer_fra, opt_obs)
+        fire.cli.print("")
 
 
 @info.command()
 @click.option(
-    "-O", "--obs", is_flag=True, default=False, help="Udskriv observationer",
+    "-K", "--koord", default="", help="ts: Udskriv også tidsserier",
+)
+@click.option(
+    "-O", "--obs", is_flag=False, default="", help="niv/alle: Udskriv observationer",
 )
 @fire.cli.default_options()
 @click.argument("ident")
-def punkt(ident: str, obs: bool, **kwargs) -> None:
+def punkt(ident: str, obs: str, koord: str, **kwargs) -> None:
     """
     Vis al tilgængelig information om et fikspunkt
 
     IDENT kan være enhver form for navn et punkt er kendt som, blandt andet
-    GNSS stationsnummer, G.I.-nummer, refnr, landsnummer osv.
+    GNSS stationsnummer, G.I./G.M.-nummer, refnr, landsnummer osv.
 
     Søgningen er versalfølsom.
     """
@@ -340,6 +428,8 @@ def punkt(ident: str, obs: bool, **kwargs) -> None:
         punktinfo = (
             firedb.session.query(pi)
             .filter(
+                # Af ukendt grund ligger der en ekstra aflyst G.M.902 i databasen
+                pi._registreringtil == None,
                 pit.name.startswith("IDENT:"),
                 or_(
                     pi.tekst == ident,
@@ -354,7 +444,7 @@ def punkt(ident: str, obs: bool, **kwargs) -> None:
             raise NoResultFound
 
         for i in range(n):
-            punkt_rapport(punktinfo[i].punkt, ident, i + 1, n, obs)
+            punkt_fuld_rapport(punktinfo[i].punkt, ident, i + 1, n, obs, koord)
 
     except NoResultFound:
         try:
@@ -362,7 +452,7 @@ def punkt(ident: str, obs: bool, **kwargs) -> None:
         except NoResultFound:
             fire.cli.print(f"Error! {ident} not found!", fg="red", err=True)
             sys.exit(1)
-        punkt_rapport(punkt, ident, 1, 1, obs)
+        punkt_fuld_rapport(punkt, ident, 1, 1, obs, koord)
 
 
 @info.command()
