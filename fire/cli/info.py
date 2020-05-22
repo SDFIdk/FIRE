@@ -15,7 +15,14 @@ from pyproj import CRS
 
 import fire.cli
 from fire.cli import firedb
-from fire.api.model import Punkt, PunktInformation, PunktInformationType, Srid, Koordinat, Observation
+from fire.api.model import (
+    Punkt,
+    PunktInformation,
+    PunktInformationType,
+    Srid,
+    Koordinat,
+    Observation,
+)
 
 
 @click.group()
@@ -150,13 +157,13 @@ def info():
 #   Ældste observation:  1988-04-15 11:18:00
 #   Nyeste observation:  1997-07-15 12:00:00
 
+
 def kanonisk_ident(uuid) -> str:
     try:
         # TODO: Bør cache både pil, pid og resultater pr UUID, så vi kan reducere opslag
         pil = firedb.hent_punktinformationtype("IDENT:landsnr")
         pig = firedb.hent_punktinformationtype("IDENT:GNSS")
         pid = firedb.hent_punktinformationtype("IDENT:diverse")  # G.I. og G.M.
-
 
         identer = (
             firedb.session.query(PunktInformation)
@@ -214,6 +221,7 @@ def observation_linje(obs) -> str:
         fejlfaktor = obs.value4
         centrering = obs.value5
         return f"T 0 {tid} {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:.6f} {centrering:.6f} {oid}"
+
 
 # TODO: Nogle af målene ser sære ud. I FIRE er de beskrevet sådan:
 #     'Variabel vedr. eta_1 (refraktion) [m^3]',
@@ -273,6 +281,7 @@ def koordinat_linje(koord):
 
     return linje
 
+
 def punktinforapport(punktinformationer: List[PunktInformation]) -> None:
     """
     Hjælpefunktion for 'punkt_fuld_rapport'.
@@ -295,8 +304,8 @@ def koordinatrapport(koordinater: List[Koordinat], options: str) -> None:
     koordinater.sort(
         key=lambda x: (x.srid.name, x.t.strftime("%Y-%m-%dT%H:%M")), reverse=True
     )
-    ts = True if 'ts' in options.split(',') else False
-    alle = True if 'alle' in options.split(',') else False
+    ts = True if "ts" in options.split(",") else False
+    alle = True if "alle" in options.split(",") else False
     for koord in koordinater:
         if koord.srid.name.startswith("TS:") and options != "ts":
             continue
@@ -308,7 +317,11 @@ def koordinatrapport(koordinater: List[Koordinat], options: str) -> None:
     fire.cli.print("")
 
 
-def observationsrapport(observationer_til: List[Observation], observationer_fra: List[Observation], options: str) -> None:
+def observationsrapport(
+    observationer_til: List[Observation],
+    observationer_fra: List[Observation],
+    options: str,
+) -> None:
     """
     Hjælpefunktion for 'punkt_fuld_rapport': Udskriv formateret observationsliste
     """
@@ -326,32 +339,39 @@ def observationsrapport(observationer_til: List[Observation], observationer_fra:
     else:
         punktid = observationer_fra[0].opstillingspunktid
 
-    observationer = [obs for obs in observationer_fra + observationer_til  if obs.observationstypeid in [1,2]]
+    observationer = [
+        obs
+        for obs in observationer_fra + observationer_til
+        if obs.observationstypeid in [1, 2]
+    ]
     # Behjertet forsøg på at sortere de udvalgte observationer,
     # så de giver bedst mulig mening for brugeren: Først præs,
     # så andre, og indenfor hver gruppe baglæns kronologisk og med
     # frem/tilbage par så vidt muligt grupperet. Det er ikke nemt!
     observationer.sort(
-        key = lambda x: (
-            (x.value7 if x.observationstypeid==1 else 0),
-            (x.observationstidspunkt.year), (x.gruppe),
+        key=lambda x: (
+            (x.value7 if x.observationstypeid == 1 else 0),
+            (x.observationstidspunkt.year),
+            (x.gruppe),
             (x.sigtepunktid if x.sigtepunktid != punktid else x.opstillingspunktid),
-            (x.observationstidspunkt)
+            (x.observationstidspunkt),
         ),
-        reverse = True
+        reverse=True,
     )
 
     n_vist = len(observationer)
-    if n_vist==0:
+    if n_vist == 0:
         return
 
-    fire.cli.print('    [Trig/Geom][Præs][T]     dH        L      N    Fra          Til             sigma    centrer  eta     id')
-    fire.cli.print('  '+112*'-')
+    fire.cli.print(
+        "    [Trig/Geom][Præs][T]     dH        L      N    Fra          Til             sigma    centrer  eta     id"
+    )
+    fire.cli.print("  " + 112 * "-")
     for obs in observationer:
-            linje = observation_linje(obs)
-            if linje != '' and linje is not None:
-                fire.cli.print('    ' + observation_linje(obs))
-    fire.cli.print('  '+112*'-')
+        linje = observation_linje(obs)
+        if linje != "" and linje is not None:
+            fire.cli.print("    " + observation_linje(obs))
+    fire.cli.print("  " + 112 * "-")
     fire.cli.print(f"  Observationer ialt:  {n_obs_til + n_obs_fra}")
     fire.cli.print(f"  Observationer vist:  {n_vist}")
 
@@ -363,9 +383,9 @@ def observationsrapport(observationer_til: List[Observation], observationer_fra:
         if obs.observationstidspunkt > max_obs:
             max_obs = obs.observationstidspunkt
 
-    fire.cli.print(f'  Ældste observation:  {min_obs}')
-    fire.cli.print(f'  Nyeste observation:  {max_obs}')
-    fire.cli.print('  '+112*'-')
+    fire.cli.print(f"  Ældste observation:  {min_obs}")
+    fire.cli.print(f"  Nyeste observation:  {max_obs}")
+    fire.cli.print("  " + 112 * "-")
 
 
 def punkt_fuld_rapport(
