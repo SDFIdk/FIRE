@@ -159,21 +159,32 @@ def info():
 #   Nyeste observation:  1997-07-15 12:00:00
 
 
-def kanonisk_ident(uuid) -> str:
-    try:
-        # TODO: Bør cache både pil, pid og resultater pr UUID, så vi kan reducere opslag
-        pil = firedb.hent_punktinformationtype("IDENT:landsnr")
-        pig = firedb.hent_punktinformationtype("IDENT:GNSS")
-        pid = firedb.hent_punktinformationtype("IDENT:diverse")  # G.I. og G.M.
+# Cache de relevante punktinformationstyper for kanonisk_ident,
+# så de ikke skal slås op ved hvert kald af funktionen
+pit_landsnr = firedb.hent_punktinformationtype("IDENT:landsnr")
+pit_gnssnavn = firedb.hent_punktinformationtype("IDENT:GNSS")
+pit_gi_gs_gm = firedb.hent_punktinformationtype("IDENT:diverse")
 
+
+def kanonisk_ident(uuid: str) -> str:
+    """
+    Omsæt et punkt.id (uuid) til det geodætisk mest læsbare:
+    I nævnte rækkefølge: Klassisk GM-, GI- eller GS-nummer,
+    GNSS-navn, eller landsnummer.
+
+    Hvis et punkt hverken har et klassisk nummer eller et GNSS-navn,
+    så returneres landsnummeret. Hvis det end ikke har et landsnummer
+    så returneres uuiden uforandret.
+    """
+    try:
         identer = (
             firedb.session.query(PunktInformation)
             .filter(
                 PunktInformation.punktid == uuid,
                 or_(
-                    PunktInformation.infotypeid == pig.infotypeid,
-                    PunktInformation.infotypeid == pil.infotypeid,
-                    PunktInformation.infotypeid == pid.infotypeid,
+                    PunktInformation.infotypeid == pit_landsnr.infotypeid,
+                    PunktInformation.infotypeid == pit_gnssnavn.infotypeid,
+                    PunktInformation.infotypeid == pit_gi_gs_gm.infotypeid,
                 ),
             )
             .all()
@@ -184,17 +195,39 @@ def kanonisk_ident(uuid) -> str:
         for ident in identer:
             if ident.tekst.startswith("G.M."):
                 return ident.tekst
+        for ident in identer:
             if ident.tekst.startswith("G.I."):
                 return ident.tekst
-            if ident.infotypeid == "IDENT:GNSS":
+        for ident in identer:
+            if ident.tekst.startswith("G.S."):
                 return ident.tekst
-        return identer[0].tekst
+        for ident in identer:
+            if ident.infotypeid == pit_gnssnavn.infotypeid:
+                return ident.tekst
+        for ident in identer:
+            if ident.infotypeid == pit_landsnr.infotypeid:
+                return ident.tekst
 
     except NoResultFound:
         return uuid
 
 
-def observation_linje(obs) -> str:
+def punktinforapport(punktinformationer: List[PunktInformation]) -> None:
+    """
+    Hjælpefunktion for 'punkt_fuld_rapport'.
+    """
+    for info in punktinformationer:
+        if info.registreringtil is not None:
+            continue
+        tekst = info.tekst or ""
+        # efter mellemrum rykkes teksten ind på linje med resten af
+        # attributteksten
+        tekst = tekst.replace("\n", "\n" + " " * 30).replace("\r", "").rstrip(" \n")
+        tal = info.tal or ""
+        fire.cli.print(f"  {info.infotype.name:27} {tekst}{tal}")
+
+
+def observation_linje(obs: Observation) -> str:
     if obs.observationstypeid > 2:
         return ""
 
@@ -204,9 +237,10 @@ def observation_linje(obs) -> str:
     fra = kanonisk_ident(obs.opstillingspunktid)
     til = kanonisk_ident(obs.sigtepunktid)
     dH = obs.value1
-    L = obs.value2 if obs.value2 > 0.001 else 0.001
+    L = max(obs.value2, 0.001)  # undgå division med 0 nedenfor
     N = int(obs.value3)
     tid = obs.observationstidspunkt.strftime("%Y-%m-%d %H:%M")
+    grp = obs.gruppe
     oid = obs.objectid
 
     # Geometrisk nivellement
@@ -216,17 +250,17 @@ def observation_linje(obs) -> str:
         fejlfaktor = math.sqrt(obs.value5) * 1000 / math.sqrt(L / 1000.0)
         fejlfaktor = math.sqrt(obs.value5 * 1000 / L) * 1000
         centrering = math.sqrt(obs.value6) * 1000
-        return f"G {præs} {tid}    {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:3.1f} {centrering:4.2f} {eta_1:+07.2f} {oid}"
+        return f"G {præs} {tid}    {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:3.1f} {centrering:4.2f} {eta_1:+07.2f} {grp:6} {oid:6}"
 
     # Trigonometrisk nivellement
     if obs.observationstypeid == 2:
         fejlfaktor = obs.value4
         fejlfaktor = math.sqrt(obs.value4 * 1000 / L) * 1000
         centrering = math.sqrt(obs.value5) * 1000
-        return f"T 0 {tid}    {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:3.1f} {centrering:4.2f}    0.00 {oid}"
+        return f"T 0 {tid}    {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:3.1f} {centrering:4.2f}    0.00 {grp:6} {oid:6}"
 
 
-def koordinat_linje(koord):
+def koordinat_linje(koord: Koordinat) -> str:
     """
     Konstruer koordinatoutput i overensstemmelse med koordinatens dimensionalitet,
     enhed og proveniens.
@@ -318,6 +352,7 @@ def observationsrapport(
     observationer_til: List[Observation],
     observationer_fra: List[Observation],
     options: str,
+    opt_detaljeret: bool,
 ) -> None:
     """
     Hjælpefunktion for 'punkt_fuld_rapport': Udskriv formateret observationsliste
@@ -361,14 +396,18 @@ def observationsrapport(
         return
 
     fire.cli.print(
-        "    [Trig/Geom][Præs][T]     dH        L      N    Fra          Til             ne  d     eta    id"
+        "    [Trig/Geom][Præs][T]     dH        L      N    Fra          Til             ne  d     eta    grp    id"
     )
-    fire.cli.print("  " + 103 * "-")
+    fire.cli.print("  " + 110 * "-")
     for obs in observationer:
         linje = observation_linje(obs)
         if linje != "" and linje is not None:
             fire.cli.print("    " + observation_linje(obs))
-    fire.cli.print("  " + 103 * "-")
+    fire.cli.print("  " + 110 * "-")
+
+    if not opt_detaljeret:
+        return
+
     fire.cli.print(f"  Observationer ialt:  {n_obs_til + n_obs_fra}")
     fire.cli.print(f"  Observationer vist:  {n_vist}")
 
@@ -383,11 +422,17 @@ def observationsrapport(
 
     fire.cli.print(f"  Ældste observation:  {min_obs}")
     fire.cli.print(f"  Nyeste observation:  {max_obs}")
-    fire.cli.print("  " + 103 * "-")
+    fire.cli.print("  " + 110 * "-")
 
 
 def punkt_fuld_rapport(
-    punkt: Punkt, ident: str, i: int, n: int, opt_obs: str, opt_koord: str
+    punkt: Punkt,
+    ident: str,
+    i: int,
+    n: int,
+    opt_obs: str,
+    opt_koord: str,
+    opt_detaljeret: bool,
 ) -> None:
     """
     Rapportgenerator for funktionen 'punkt' nedenfor.
@@ -412,40 +457,54 @@ def punkt_fuld_rapport(
 
     punktinforapport(punkt.punktinformationer)
 
-    fire.cli.print(f"  uuid                        {punkt.id}")
-    fire.cli.print(f"  objekt-id                   {punkt.objectid}")
-    fire.cli.print(f"  sagsid                      {punkt.sagsevent.sagid}")
-    fire.cli.print(f"  sagsevent-fra               {punkt.sagseventfraid}")
-    if punkt.sagseventtilid is not None:
-        fire.cli.print(f"  sagsevent-til               {punkt.sagseventtilid}")
-    fire.cli.print("")
+    if opt_detaljeret:
+        fire.cli.print(f"  uuid                        {punkt.id}")
+        fire.cli.print(f"  objekt-id                   {punkt.objectid}")
+        fire.cli.print(f"  sagsid                      {punkt.sagsevent.sagid}")
+        fire.cli.print(f"  sagsevent-fra               {punkt.sagseventfraid}")
+        if punkt.sagseventtilid is not None:
+            fire.cli.print(f"  sagsevent-til               {punkt.sagseventtilid}")
 
     # Koordinater og observationer klares af specialiserede hjælpefunktioner
-    fire.cli.print("--- KOORDINATER ---", bold=True)
-    koordinatrapport(punkt.koordinater, opt_koord)
-    fire.cli.print("")
+    if "ingen" not in opt_koord.split(","):
+        fire.cli.print("")
+        fire.cli.print("--- KOORDINATER ---", bold=True)
+        koordinatrapport(punkt.koordinater, opt_koord)
 
     if opt_obs != "":
+        fire.cli.print("")
         fire.cli.print("--- OBSERVATIONER ---", bold=True)
-        observationsrapport(punkt.observationer_til, punkt.observationer_fra, opt_obs)
+        observationsrapport(
+            punkt.observationer_til, punkt.observationer_fra, opt_obs, opt_detaljeret
+        )
         fire.cli.print("")
 
 
 @info.command()
 @click.option(
-    "-K", "--koord", default="", help="ts: Udskriv også tidsserier",
+    "-K",
+    "--koord",
+    default="",
+    help="ts: Udskriv også tidsserier; alle: Udskriv også historiske koordinater; ingen: Udelad alle",
 )
 @click.option(
     "-O", "--obs", is_flag=False, default="", help="niv/alle: Udskriv observationer",
 )
+@click.option(
+    "-D",
+    "--detaljeret",
+    is_flag=True,
+    default=False,
+    help="Udskriv også sjældent anvendte elementer",
+)
 @fire.cli.default_options()
 @click.argument("ident")
-def punkt(ident: str, obs: str, koord: str, **kwargs) -> None:
+def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
     """
     Vis al tilgængelig information om et fikspunkt
 
     IDENT kan være enhver form for navn et punkt er kendt som, blandt andet
-    GNSS stationsnummer, G.I./G.M.-nummer, refnr, landsnummer osv.
+    GNSS stationsnummer, G.I./G.M.-nummer, refnr, landsnummer, uuid osv.
 
     Søgningen er versalfølsom.
 
@@ -467,13 +526,35 @@ def punkt(ident: str, obs: str, koord: str, **kwargs) -> None:
         'sagseventtilid',     -- sagsevent for punktinvalideringen\n
         'slettet'             -- øh\n
     )
+
+    Anfører man ikke specifikke tilvalg vises kun basale dele: Attributter og
+    punktbeskrivelser + gældende koordinater.
+
+    Tilvalg `--detaljer/-D` udvider med sjældnere brugte informationer
+
+    Tilvalg `--koord/-K` kan sættes til ts, alle, ingen - eller kombinationer:
+    fx ts,alle. `alle` tilvælger historiske koordinater, `ts` tilvælger
+    tidsseriekoordinater, `ingen`fravælger alle koordinatoplysninger.
+
+    Tilvalg `--obs/-O` kan sættes til alle eller niv. Begge tilvælger visning
+    af observationer til/fra det søgte punkt. P.t. understøttes kun visning af
+    nivellementsobservationer.
     """
     pi = aliased(PunktInformation)
     pit = aliased(PunktInformationType)
 
+    # Vær mindre pedantisk mht. foranstillede nuller hvis identen er et landsnummer
+    landsnummermønster = re.compile("[0-9]*-[0-9]*-[0-9]*$")
+    if landsnummermønster.match(ident):
+        dele = ident.split("-")
+        herred = int(dele[0])
+        sogn = int(dele[1])
+        lbnr = int(dele[2])
+        ident = f"{herred}-{sogn:02}-{lbnr:05}"
+
     # Forsøg at finde et bedre bud hvis identen er en UUID
-    uuidpattern = re.compile("[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*")
-    if uuidpattern.match(ident):
+    uuidmønster = re.compile("[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*$")
+    if uuidmønster.match(ident):
         ident = kanonisk_ident(ident)
 
     try:
@@ -512,7 +593,7 @@ def punkt(ident: str, obs: str, koord: str, **kwargs) -> None:
             sys.exit(1)
     n = len(punktinfo)
     for i in range(n):
-        punkt_fuld_rapport(punktinfo[i].punkt, ident, i + 1, n, obs, koord)
+        punkt_fuld_rapport(punktinfo[i].punkt, ident, i + 1, n, obs, koord, detaljeret)
 
 
 @info.command()
