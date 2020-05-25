@@ -338,10 +338,11 @@ def koordinatrapport(koordinater: List[Koordinat], options: str) -> None:
     ts = True if "ts" in options.split(",") else False
     alle = True if "alle" in options.split(",") else False
     for koord in koordinater:
-        if koord.srid.name.startswith("TS:") and options != "ts":
+        tskoord = koord.srid.name.startswith("TS:")
+        if tskoord and not ts:
             continue
         if koord.registreringtil is not None:
-            if alle:
+            if alle or (ts and tskoord):
                 fire.cli.print(". " + koordinat_linje(koord), fg="red")
         else:
             fire.cli.print("* " + koordinat_linje(koord), fg="green")
@@ -553,9 +554,9 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
         ident = f"{herred}-{sogn:02}-{lbnr:05}"
 
     # Forsøg at finde et bedre bud hvis identen er en UUID
-    uuidmønster = re.compile("[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*$")
-    if uuidmønster.match(ident):
-        ident = kanonisk_ident(ident)
+    # uuidmønster = re.compile("[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*$")
+    # if uuidmønster.match(ident):
+    #     ident = kanonisk_ident(ident)
 
     try:
         pinfo = (
@@ -586,7 +587,7 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
                 pkt = firedb.hent_punkt(ident)
                 if pkt is None:
                     raise NoResultFound
-                punkt_fuld_rapport(pkt, ident, 1, 1, obs, koord)
+                punkt_fuld_rapport(pkt, ident, 1, 1, obs, koord, detaljeret)
                 sys.exit(0)
         except NoResultFound:
             fire.cli.print(f"Error! {ident} not found!", fg="red", err=True)
