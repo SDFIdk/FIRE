@@ -553,24 +553,29 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
         lbnr = int(dele[2])
         ident = f"{herred}-{sogn:02}-{lbnr:05}"
 
-    # Forsøg at finde et bedre bud hvis identen er en UUID
-    # uuidmønster = re.compile("[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*$")
-    # if uuidmønster.match(ident):
-    #     ident = kanonisk_ident(ident)
-
     try:
+        # Hvis ident er en uuid kan vi gå direkte på hegnspælen med "hent_punkt"...
+        uuidmønster = re.compile("[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*$")
+        if uuidmønster.match(ident):
+            pkt = firedb.hent_punkt(ident)
+            # TODO: Undersøg hvorfor det er nødvendigt at hejse flaget manuelt
+            if pkt is None:
+                raise NoResultFound
+            punkt_fuld_rapport(pkt, ident, 1, 1, obs, koord, detaljeret)
+            sys.exit(0)
+
+        # Ellers skal vi gennem en større søgesejlads...
         pinfo = (
             firedb.session.query(pi)
             .filter(pit.name.startswith("IDENT:"), pi.tekst == ident,)
             .first()
         )
-        # TODO: Undersøg hvorfor det er nødvendigt at hejse flaget manuelt
-        if pinfo is None:
-            raise NoResultFound
-        punktinfo = [pinfo]
-    except NoResultFound:
-        # Søg grundigere, med mønstergenkendelse og FO/GL
-        try:
+
+        if pinfo is not None:
+            punktinfo = [pinfo]
+
+        # ...og måske endda til at bruge mønstersøgning
+        else:
             punktinfo = (
                 firedb.session.query(pi)
                 .filter(
@@ -584,14 +589,12 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
                 .all()
             )
             if 0 == len(punktinfo):
-                pkt = firedb.hent_punkt(ident)
-                if pkt is None:
-                    raise NoResultFound
-                punkt_fuld_rapport(pkt, ident, 1, 1, obs, koord, detaljeret)
-                sys.exit(0)
-        except NoResultFound:
-            fire.cli.print(f"Error! {ident} not found!", fg="red", err=True)
-            sys.exit(1)
+                raise NoResultFound
+    except NoResultFound:
+        fire.cli.print(f"Error! {ident} not found!", fg="red", err=True)
+        sys.exit(1)
+
+    # Succesfuld søgning - vis hvad der blev fundet
     n = len(punktinfo)
     for i in range(n):
         punkt_fuld_rapport(punktinfo[i].punkt, ident, i + 1, n, obs, koord, detaljeret)
