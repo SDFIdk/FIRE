@@ -44,6 +44,11 @@ class FireDb(object):
             if True, the SQLALchemy Engine will log all statements as well as a repr() of their parameter lists to the
             engines logger, which defaults to sys.stdout
         """
+
+        self._cache = {
+            "punktinfotype": {},
+        }
+
         self.dialect = "oracle+cx_oracle"
         self.config = self._read_config()
         if connectionstring:
@@ -232,12 +237,16 @@ class FireDb(object):
         return self.session.query(Srid).filter(Srid.name.ilike(like_filter)).all()
 
     def hent_punktinformationtype(self, infotype: str):
-        typefilter = infotype
-        return (
-            self.session.query(PunktInformationType)
-            .filter(PunktInformationType.name == typefilter)
-            .first()
-        )
+        if infotype not in self._cache["punktinfotype"]:
+            typefilter = infotype
+            pit = (
+                self.session.query(PunktInformationType)
+                .filter(PunktInformationType.name == typefilter)
+                .first()
+            )
+            self._cache["punktinfotype"][infotype] = pit
+
+        return self._cache["punktinfotype"][infotype]
 
     def hent_punktinformationtyper(self, namespace: Optional[str] = None):
         if not namespace:
