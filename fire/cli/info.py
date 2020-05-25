@@ -34,13 +34,6 @@ def info():
     pass
 
 
-# Cache de relevante punktinformationstyper for kanonisk_ident,
-# så de ikke skal slås op ved hvert kald af funktionen
-pit_landsnr = firedb.hent_punktinformationtype("IDENT:landsnr")
-pit_gnssnavn = firedb.hent_punktinformationtype("IDENT:GNSS")
-pit_gi_gs_gm = firedb.hent_punktinformationtype("IDENT:diverse")
-
-
 def kanonisk_ident(uuid: str) -> str:
     """
     Omsæt et punkt.id (uuid) til det geodætisk mest læsbare:
@@ -52,6 +45,11 @@ def kanonisk_ident(uuid: str) -> str:
     så returneres uuiden uforandret.
     """
     try:
+
+        pit_landsnr = firedb.hent_punktinformationtype("IDENT:landsnr")
+        pit_gnssnavn = firedb.hent_punktinformationtype("IDENT:GNSS")
+        pit_gi_gs_gm = firedb.hent_punktinformationtype("IDENT:diverse")
+
         identer = (
             firedb.session.query(PunktInformation)
             .filter(
@@ -64,6 +62,7 @@ def kanonisk_ident(uuid: str) -> str:
             )
             .all()
         )
+
         if len(identer) == 0:
             return uuid
 
