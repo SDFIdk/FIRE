@@ -160,6 +160,7 @@ def punkt(ident: str, **kwargs) -> None:
     try:
         punktinfo = (
             firedb.session.query(pi)
+            .join(pit)
             .filter(
                 pit.name.startswith("IDENT:"),
                 or_(
