@@ -3,14 +3,12 @@ import itertools
 import math
 import re
 import sys
-from typing import Dict, List, Set, Tuple, IO
+from typing import List
 
 import click
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import or_
-
-import pprint
 
 from pyproj import CRS
 
@@ -20,7 +18,6 @@ from fire.api.model import (
     Punkt,
     PunktInformation,
     PunktInformationType,
-    Srid,
     Koordinat,
     Observation,
 )
