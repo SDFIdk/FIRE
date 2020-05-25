@@ -118,6 +118,45 @@ class Punkt(FikspunktregisterObjekt):
         foreign_keys="Observation.sigtepunktid",
     )
 
+    @property
+    def ident(self) -> str:
+        """
+        Udtræk det geodætisk mest læsbare ident.
+
+        I nævnte rækkefølge: Klassisk GM-, GI- eller GS-nummer,
+        GNSS-navn, eller landsnummer.
+
+        Hvis et punkt hverken har et klassisk nummer eller et GNSS-navn,
+        så returneres landsnummeret. Hvis det end ikke har et landsnummer
+        så returneres uuiden uforandret.
+        """
+
+        identer = []
+        for punktinfo in self.punktinformationer:
+            if punktinfo.infotype.name.startswith("IDENT:"):
+                identer.append(punktinfo)
+
+        for ident in identer:
+            if ident.tekst.startswith("G.M."):
+                return ident.tekst
+        for ident in identer:
+            if ident.tekst.startswith("G.I."):
+                return ident.tekst
+        for ident in identer:
+            if ident.tekst.startswith("G.S."):
+                return ident.tekst
+        for ident in identer:
+            if ident.infotype.name == "IDENT:GNSS":
+                return ident.tekst
+        for ident in identer:
+            if ident.infotype.name == "IDENT:landsnr":
+                return ident.tekst
+        for ident in identer:
+            if ident.infotype.name == "IDENT:diverse":
+                return ident.tekst
+
+        return self.id
+
 
 class PunktInformation(FikspunktregisterObjekt):
     __tablename__ = "punktinfo"

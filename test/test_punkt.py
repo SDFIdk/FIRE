@@ -97,3 +97,17 @@ def test_luk_punkt(
 
     with pytest.raises(TypeError):
         firedb.luk_punkt(999)
+
+
+def test_ident(firedb: FireDb):
+    """
+    Test at Punkt.ident returnerer det forventede ident.
+
+    I testdatasættet forekommer to identer til GNSS stationen i Skejby:
+    IDENT:GNSS == SKEJ og IDENT:landsnr == 102-08-00802. Førstnænvte
+    skal returneres.
+    """
+
+    punkt = firedb.hent_punkt("8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c")
+
+    assert punkt.ident == "SKEJ"
