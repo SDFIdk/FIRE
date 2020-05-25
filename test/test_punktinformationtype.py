@@ -39,3 +39,10 @@ def test_hent_punktinformationtyper_for_namespace(firedb):
     all = list(firedb.hent_punktinformationtyper())
     filter = list(firedb.hent_punktinformationtyper(namespace="ATTR"))
     assert len(all) > len(filter)
+
+
+def test_punktinfotype_cache(firedb):
+    pit1 = firedb.hent_punktinformationtype("NET:TEST")
+    pit2 = firedb.hent_punktinformationtype("NET:TEST")
+
+    assert pit1 is pit2

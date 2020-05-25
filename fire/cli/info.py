@@ -34,131 +34,6 @@ def info():
     pass
 
 
-# INSERT INTO observationtype (
-#     beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt,
-#     value1, value2, value3, value4, value5, value6, value7
-# )
-# VALUES (
-#     'Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk ',
-#      1,
-#     'geometrisk_koteforskel',
-#     'true',
-#
-#     'Koteforskel [m]',
-#     'Nivellementslængde [m]',
-#     'Antal opstillinger',
-#     'Variabel vedr. eta_1 (refraktion) [m^3]',
-#     'Afstandsafhængig varians koteforskel pr. målt koteforskel [m^2/m]',
-#     'Afstandsuafhængig varians koteforskel pr. målt koteforskel [m^2]',
-#     'Præcisionsnivellement [0,1,2,3]',
-# );
-#
-# INSERT INTO observationtype (
-#     beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt,
-#     value1, value2, value3, value4, value5
-# )
-# VALUES (
-#     'Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt trigonometrisk',
-#      2,
-#     'trigonometrisk_koteforskel',
-#     'true',
-#
-#     'Koteforskel [m]',
-#     'Nivellementslængde [m]',
-#     'Antal opstillinger',
-#     'Afstandsafhængig varians pr. målt koteforskel [m^2/m^2]',
-#     'Afstandsuafhængig varians pr. målt koteforskel [m^2]',
-# );
-
-# TIL:
-# [
-#  '_decl_class_registry',
-#  '_registreringfra',
-#  '_registreringtil',
-#  '_sa_class_manager',
-#  '_sa_instance_state',
-#  'antal',
-#  'beregninger',
-#  'gruppe',
-#  'metadata',
-#  'objectid',
-#  'observationstidspunkt',
-#  'observationstype',
-#  'observationstypeid',
-#  'opstillingspunkt',
-#  'opstillingspunktid',
-#  'registreringfra',
-#  'registreringtil',
-#  'sagsevent',
-#  'sagseventfraid',
-#  'sagseventtilid',
-#  'sigtepunkt',
-#  'sigtepunktid',
-#  'slettet',
-#  'value1',
-#  'value10',
-#  'value11',
-#  'value12',
-#  'value13',
-#  'value14',
-#  'value15',
-#  'value2',
-#  'value3',
-#  'value4',
-#  'value5',
-#  'value6',
-#  'value7',
-#  'value8',
-#  'value9']
-#
-# Observation(
-#     antal=1, gruppe=71441, objectid=10342, observationstidspunkt=datetime.datetime(2003, 6, 25, 16, 7),
-#     observationstypeid=1,
-#     opstillingspunktid='61c61847-ed54-4969-b94e-df74fd63f108',
-#     sagseventfraid='A3B4DD6C-9D06-054B-E053-D380220A57E2', sagseventtilid=None,
-#     sigtepunktid='67e3987a-dc6b-49ee-8857-417ef35777af',
-#     value1=2.73728, value10=None, value11=None, value12=None, value13=None, value14=None, value15=None,
-#     value2=27.0, value3=2.0, value4=0.0, value5=6.075e-08, value6=1e-10, value7=0.0, value8=None, value9=None
-# )
-
-
-# Observation(
-#     antal=1, gruppe=71327, objectid=10331, observationstidspunkt=datetime.datetime(1997, 5, 23, 18, 2),
-#     observationstypeid=1, opstillingspunktid='61c61847-ed54-4969-b94e-df74fd63f108',
-#     sagseventfraid='A3B4DD6C-8CE5-054B-E053-D380220A57E2', sagseventtilid=None,
-#     sigtepunktid='807c78a4-17e4-4f82-93f2-2e0a7b891fb3',
-#     value1=2.2897, value2=29.1, value3=-31072.0, value4=0.0,
-#     value5=2.9100000000000002e-08, value6=1e-10, value7=0.0
-# )
-#
-# Observation(
-#     antal=1, gruppe=71327, objectid=11129, observationstidspunkt=datetime.datetime(1997, 5, 23, 18, 4),
-#     observationstypeid=1, opstillingspunktid='807c78a4-17e4-4f82-93f2-2e0a7b891fb3',
-#     sagseventfraid='A3B4DD6C-8CE5-054B-E053-D380220A57E2', sagseventtilid=None,
-#     sigtepunktid='61c61847-ed54-4969-b94e-df74fd63f108',
-#     value1=-2.2898, value2=28.0, value3=-31072.0, value4=0.0,
-#     value5=2.8000000000000003e-08, value6=1e-10, value7=0.0
-# )
-
-
-#  fire info punkt -O K-63-09007
-
-# --- OBSERVATIONER ---
-#   Antal observationer til:  4
-#     G 0 1997-07-15 12:00:00    +1.125000 100.0 10    K-63-09004   K-63-09007      1.581139 0.001000 +000.00
-#     G 0 1997-05-23 18:02:00    +2.289700 029.1 -31072    G.M.901      K-63-09007      0.170587 0.000000 +000.00
-#     G 0 1997-02-19 12:00:00    +0.441000 100.0 10    K-63-09010   K-63-09007      1.581139 0.001000 +000.00
-#     G 3 1988-04-15 11:18:00    +2.288820 029.9 1    G.M.901      K-63-09007      0.103750 0.000000 +511.00
-#
-#   Antal observationer fra:  3
-#     G 0 1997-05-23 18:04:00    -2.289800 028.0 -31072    K-63-09007   G.M.901         0.167332 0.000000 +000.00
-#     G 0 1997-02-19 12:00:00    -0.421000 030.0 10    K-63-09007   K-63-09271      0.866025 0.001000 +000.00
-#     G 3 1988-04-15 11:23:00    -2.289070 030.0 1    K-63-09007   G.M.901         0.103923 0.000000 -515.00
-#
-#   Ældste observation:  1988-04-15 11:18:00
-#   Nyeste observation:  1997-07-15 12:00:00
-
-
 # Cache de relevante punktinformationstyper for kanonisk_ident,
 # så de ikke skal slås op ved hvert kald af funktionen
 pit_landsnr = firedb.hent_punktinformationtype("IDENT:landsnr")
@@ -565,31 +440,21 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
             sys.exit(0)
 
         # Ellers skal vi gennem en større søgesejlads...
-        pinfo = (
+        punktinfo = (
             firedb.session.query(pi)
-            .filter(pit.name.startswith("IDENT:"), pi.tekst == ident,)
-            .first()
-        )
-
-        if pinfo is not None:
-            punktinfo = [pinfo]
-
-        # ...og måske endda til at bruge mønstersøgning
-        else:
-            punktinfo = (
-                firedb.session.query(pi)
-                .filter(
-                    pit.name.startswith("IDENT:"),
-                    or_(
-                        pi.tekst.like(f"{ident}%"),  # Herred/sognesøgning
-                        pi.tekst.like(f"FO  %{ident}"),  # Færøerne
-                        pi.tekst.like(f"GL  %{ident}"),  # Grønland
-                    ),
-                )
-                .all()
+            .join(pit)
+            .filter(
+                pit.name.startswith("IDENT:"),
+                or_(
+                    pi.tekst == ident,
+                    pi.tekst.like(f"FO  %{ident}"),
+                    pi.tekst.like(f"GL  %{ident}"),
+                ),
             )
-            if 0 == len(punktinfo):
-                raise NoResultFound
+            .all()
+        )
+        if 0 == len(punktinfo):
+            raise NoResultFound
     except NoResultFound:
         fire.cli.print(f"Error! {ident} not found!", fg="red", err=True)
         sys.exit(1)

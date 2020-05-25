@@ -19,6 +19,7 @@ from fire.api.model import (
     Sagsinfo,
     Srid,
 )
+from fire.api import FireDb
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -169,7 +170,7 @@ def punkt_geometri(punktinfo: PunktInformation, ident: str) -> Tuple[float, floa
 # ------------------------------------------------------------------------------
 # TODO: Bør nok være en del af API
 # ------------------------------------------------------------------------------
-def hent_sridid(db, srid: str) -> int:
+def hent_sridid(db: FireDb, srid: str) -> int:
     srider = db.hent_srider()
     for s in srider:
         if s.name == srid:
@@ -179,7 +180,9 @@ def hent_sridid(db, srid: str) -> int:
 
 
 # ------------------------------------------------------------------------------
-def path_to_origin(graph, start, origin, path=[]):
+def path_to_origin(
+    graph: Dict[str, Set[str]], start: str, origin: str, path: List[str] = []
+):
     """
     Mikroskopisk backtracking netkonnektivitetstest. Baseret på et
     essay af GvR fra https://www.python.org/doc/essays/graphs/, men
@@ -218,7 +221,7 @@ def path_to_origin(graph, start, origin, path=[]):
 
 
 # ------------------------------------------------------------------------------
-def find_nyetablerede(projektnavn):
+def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
     """Opbyg oversigt over nyetablerede punkter"""
     print("Finder nyetablerede punkter")
     try:
@@ -246,7 +249,7 @@ def find_nyetablerede(projektnavn):
 
 
 # ------------------------------------------------------------------------------
-def find_inputfiler(navn):
+def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning"""
     try:
         inputfiler = pd.read_excel(
@@ -262,7 +265,7 @@ def find_inputfiler(navn):
 
 
 # ------------------------------------------------------------------------------
-def importer_observationer():
+def importer_observationer() -> pd.DataFrame:
     """Opbyg dataframe med observationer importeret fra rådatafil"""
     print("Importerer observationer")
     observationer = pd.DataFrame(
@@ -289,7 +292,7 @@ def importer_observationer():
 
 
 # ------------------------------------------------------------------------------
-def find_observationer(navn):
+def find_observationer(navn: str) -> pd.DataFrame:
     """Opbyg dataframe med allerede importerede observationer"""
     print("Læser observationer")
     try:
@@ -302,7 +305,12 @@ def find_observationer(navn):
 
 
 # ------------------------------------------------------------------------------
-def opbyg_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
+def opbyg_punktoversigt(
+    navn: str,
+    nyetablerede: pd.DataFrame,
+    alle_punkter: Tuple[str, ...],
+    nye_punkter: Tuple[str, ...],
+) -> pd.DataFrame:
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
         punktoversigt = pd.read_excel(
@@ -406,7 +414,12 @@ def opbyg_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
 
 
 # ------------------------------------------------------------------------------
-def find_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
+def find_punktoversigt(
+    navn: str,
+    nyetablerede: pd.DataFrame,
+    alle_punkter: Tuple[str, ...],
+    nye_punkter: Tuple[str, ...],
+) -> pd.DataFrame:
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
         punktoversigt = pd.read_excel(
@@ -420,7 +433,11 @@ def find_punktoversigt(navn, nyetablerede, alle_punkter, nye_punkter):
 
 
 # ------------------------------------------------------------------------------
-def netanalyse(observationer, alle_punkter, fastholdte_punkter):
+def netanalyse(
+    observationer: pd.DataFrame,
+    alle_punkter: Tuple[str, ...],
+    fastholdte_punkter: Tuple[str, ...],
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     print("Analyserer net")
     assert len(fastholdte_punkter) > 0, "Netanalyse kræver mindst et fastholdt punkt"
     # Initialiser
@@ -486,7 +503,12 @@ def netanalyse(observationer, alle_punkter, fastholdte_punkter):
     return netf, ensomme
 
 
-def find_forbundne_punkter(navn, observationer, alle_punkter, fastholdte_punkter):
+def find_forbundne_punkter(
+    navn: str,
+    observationer: pd.date_range,
+    alle_punkter: Tuple[str, ...],
+    fastholdte_punkter: Tuple[str, ...],
+) -> Tuple[str, ...]:
     """Læs net fra allerede foretaget netanalyse"""
     try:
         net = pd.read_excel(navn + ".xlsx", sheet_name="Netgeometri", usecols="A")
@@ -496,7 +518,9 @@ def find_forbundne_punkter(navn, observationer, alle_punkter, fastholdte_punkter
 
 
 # ------------------------------------------------------------------------------
-def spredning(afstand_i_m, slope_i_mm_pr_sqrt_km=0.6, bias=0.0005):
+def spredning(
+    afstand_i_m: float, slope_i_mm_pr_sqrt_km: float = 0.6, bias: float = 0.0005
+) -> float:
     return 0.001 * (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias)
 
 
