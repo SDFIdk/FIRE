@@ -4,10 +4,13 @@ import sqlalchemy.ext.declarative
 from sqlalchemy import Column, Integer, DateTime, String, func
 
 
-class IntEnum(sqlalchemy.types.TypeDecorator):
-    """Add an integer enum class"""
+class BetterBehavedEnum(sqlalchemy.types.TypeDecorator):
+    """
+    SQLAlchemy ignorer som standard værdierne i tilknyttet labels i en Enum.
+    Denne klasse sørger for at de korrekte værdier indsættes, sådan at
 
-    impl = sqlalchemy.Integer
+    Boolean.FALSE oversættes til 'false' og ikke 'FALSE'.
+    """
 
     def __init__(self, enumtype, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -18,6 +21,18 @@ class IntEnum(sqlalchemy.types.TypeDecorator):
 
     def process_result_value(self, value, dialect):
         return self._enumtype(value)
+
+
+class IntEnum(BetterBehavedEnum):
+    """Add an integer enum class"""
+
+    impl = sqlalchemy.Integer
+
+
+class StringEnum(BetterBehavedEnum):
+    """Add an integer enum class"""
+
+    impl = sqlalchemy.String
 
 
 class ReprBase(object):

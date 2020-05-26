@@ -68,7 +68,6 @@ class GamaReader(object):
             koordinat.srid = srid
             koordinat.z = z
             koordinat.sz = std_dev
-            koordinat.transformeret = "false"
             koordinat.punkt = self.fireDb.hent_punkt(point_id)
             beregning.koordinater.append(koordinat)
 

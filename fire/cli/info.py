@@ -20,6 +20,7 @@ from fire.api.model import (
     PunktInformationType,
     Koordinat,
     Observation,
+    Boolean,
 )
 
 
@@ -85,7 +86,7 @@ def koordinat_linje(koord: Koordinat) -> str:
     enhed og proveniens.
     """
     native_or_transformed = "t"
-    if koord.transformeret == "false":
+    if koord.transformeret == Boolean.FALSE:
         native_or_transformed = "n"
 
     meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}  {koord.srid.name:<15.15} {native_or_transformed} "
