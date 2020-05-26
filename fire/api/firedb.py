@@ -2,11 +2,13 @@ from datetime import datetime, timezone
 from typing import List, Optional
 from pathlib import Path
 import os
+import re
 import configparser
 import getpass
 
-from sqlalchemy import create_engine, func, event, and_, inspect
+from sqlalchemy import create_engine, func, event, and_, or_, inspect
 from sqlalchemy.orm import sessionmaker, aliased
+from sqlalchemy.orm.exc import NoResultFound
 
 from fire.api.model import (
     RegisteringTidObjekt,
@@ -73,13 +75,50 @@ class FireDb(object):
 
     # region "Hent" methods
 
-    def hent_punkt(self, punktid: str) -> Punkt:
-        p = aliased(Punkt)
-        return (
-            self.session.query(p)
-            .filter(p.id == punktid, p._registreringtil == None)
-            .one()
+    def hent_punkt(self, ident: str) -> Punkt:
+        """
+        Returnerer det første punkt der matcher 'ident'
+
+        Hvis intet punkt findes udsendes en NoResultFound exception.
+        """
+        return self.hent_punkter(ident)[0]
+
+    def hent_punkter(self, ident: str) -> List[Punkt]:
+        """
+        Returnerer alle punkter der matcher 'ident'
+
+        Hvis intet punkt findes udsendes en NoResultFound exception.
+        """
+        uuidmønster = re.compile(
+            r"^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
         )
+        if uuidmønster.match(ident):
+            result = (
+                self.session.query(Punkt)
+                .filter(Punkt.id == ident, Punkt._registreringtil == None)  # NOQA
+                .all()
+            )
+        else:
+            result = (
+                self.session.query(Punkt)
+                .join(PunktInformation)
+                .join(PunktInformationType)
+                .filter(
+                    PunktInformationType.name.startswith("IDENT:"),
+                    or_(
+                        PunktInformation.tekst == ident,
+                        PunktInformation.tekst.like(f"FO  %{ident}"),
+                        PunktInformation.tekst.like(f"GL  %{ident}"),
+                    ),
+                    Punkt._registreringtil == None,  # NOQA
+                )
+                .all()
+            )
+
+        if not result:
+            raise NoResultFound
+
+        return result
 
     def hent_geometri_objekt(self, punktid: str) -> GeometriObjekt:
         go = aliased(GeometriObjekt)

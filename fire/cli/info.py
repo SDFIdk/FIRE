@@ -359,8 +359,6 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
     af observationer til/fra det søgte punkt. P.t. understøttes kun visning af
     nivellementsobservationer.
     """
-    pi = aliased(PunktInformation)
-    pit = aliased(PunktInformationType)
 
     # Vær mindre pedantisk mht. foranstillede nuller hvis identen er et landsnummer
     landsnummermønster = re.compile("[0-9]*-[0-9]*-[0-9]*$")
@@ -372,40 +370,15 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
         ident = f"{herred}-{sogn:02}-{lbnr:05}"
 
     try:
-        # Hvis ident er en uuid kan vi gå direkte på hegnspælen med "hent_punkt"...
-        uuidmønster = re.compile("[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*-[a-f0-9]*$")
-        if uuidmønster.match(ident):
-            pkt = firedb.hent_punkt(ident)
-            # TODO: Undersøg hvorfor det er nødvendigt at hejse flaget manuelt
-            if pkt is None:
-                raise NoResultFound
-            punkt_fuld_rapport(pkt, ident, 1, 1, obs, koord, detaljeret)
-            sys.exit(0)
-
-        # Ellers skal vi gennem en større søgesejlads...
-        punktinfo = (
-            firedb.session.query(pi)
-            .join(pit)
-            .filter(
-                pit.name.startswith("IDENT:"),
-                or_(
-                    pi.tekst == ident,
-                    pi.tekst.like(f"FO  %{ident}"),
-                    pi.tekst.like(f"GL  %{ident}"),
-                ),
-            )
-            .all()
-        )
-        if 0 == len(punktinfo):
-            raise NoResultFound
+        punkter = firedb.hent_punkter(ident)
     except NoResultFound:
         fire.cli.print(f"Error! {ident} not found!", fg="red", err=True)
         sys.exit(1)
 
     # Succesfuld søgning - vis hvad der blev fundet
-    n = len(punktinfo)
-    for i in range(n):
-        punkt_fuld_rapport(punktinfo[i].punkt, ident, i + 1, n, obs, koord, detaljeret)
+    n = len(punkter)
+    for i, punkt in enumerate(punkter):
+        punkt_fuld_rapport(punkt, punkt.ident, i + 1, n, obs, koord, detaljeret)
 
 
 @info.command()
