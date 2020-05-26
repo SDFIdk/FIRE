@@ -1,5 +1,5 @@
 from fire.api import FireDb
-from fire.api.model import ObservationType
+from fire.api.model import ObservationType, Boolean
 
 
 def test_hent_observationtype(firedb: FireDb):
@@ -18,7 +18,7 @@ def test_indset_observationtype(firedb: FireDb):
         name="absolut_tyngde",
         beskrivelse="Absolut gravimetrisk observation",
         value1="tyngdeacceleration",
-        sigtepunkt="false",
+        sigtepunkt=Boolean.FALSE,
     )
     firedb.indset_observationtype(ot)
     typ = firedb.hent_observationtype("absolut_tyngde")

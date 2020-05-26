@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 import fire
 from fire.api.model import (
     IntEnum,
+    StringEnum,
     RegisteringTidObjekt,
     DeclarativeBase,
     columntypes,
@@ -26,6 +27,7 @@ __all__ = [
     "PunktInformationType",
     "PunktInformationTypeAnvendelse",
     "Srid",
+    "Boolean",
 ]
 
 
@@ -33,6 +35,11 @@ class PunktInformationTypeAnvendelse(enum.Enum):
     FLAG = "FLAG"
     TAL = "TAL"
     TEKST = "TEKST"
+
+
+class Boolean(enum.Enum):
+    TRUE = "true"
+    FALSE = "false"
 
 
 class Artskode(enum.Enum):
@@ -195,7 +202,7 @@ class Koordinat(FikspunktregisterObjekt):
     sy = Column(Float)
     sz = Column(Float)
     t = Column(DateTime(timezone=True))
-    transformeret = Column(String, nullable=False, default="false")
+    transformeret = Column(StringEnum(Boolean), nullable=False, default=Boolean.FALSE)
     artskode = Column(IntEnum(Artskode), nullable=True, default=Artskode.NULL)
     x = Column(Float)
     y = Column(Float)
@@ -276,7 +283,7 @@ class ObservationType(DeclarativeBase):
     value13 = Column(String)
     value14 = Column(String)
     value15 = Column(String)
-    sigtepunkt = Column(String(5), nullable=False)
+    sigtepunkt = Column(StringEnum(Boolean), nullable=False, default=Boolean.FALSE)
     observationer = relationship(
         "Observation",
         order_by="Observation.objectid",
