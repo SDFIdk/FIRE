@@ -3,14 +3,12 @@ import itertools
 import math
 import re
 import sys
-from typing import Dict, List, Set, Tuple, IO
+from typing import List
 
 import click
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import or_
-
-import pprint
 
 from pyproj import CRS
 
@@ -20,7 +18,6 @@ from fire.api.model import (
     Punkt,
     PunktInformation,
     PunktInformationType,
-    Srid,
     Koordinat,
     Observation,
 )
@@ -34,64 +31,12 @@ def info():
     pass
 
 
-def kanonisk_ident(uuid: str) -> str:
-    """
-    Omsæt et punkt.id (uuid) til det geodætisk mest læsbare:
-    I nævnte rækkefølge: Klassisk GM-, GI- eller GS-nummer,
-    GNSS-navn, eller landsnummer.
-
-    Hvis et punkt hverken har et klassisk nummer eller et GNSS-navn,
-    så returneres landsnummeret. Hvis det end ikke har et landsnummer
-    så returneres uuiden uforandret.
-    """
-    try:
-
-        pit_landsnr = firedb.hent_punktinformationtype("IDENT:landsnr")
-        pit_gnssnavn = firedb.hent_punktinformationtype("IDENT:GNSS")
-        pit_gi_gs_gm = firedb.hent_punktinformationtype("IDENT:diverse")
-
-        identer = (
-            firedb.session.query(PunktInformation)
-            .filter(
-                PunktInformation.punktid == uuid,
-                or_(
-                    PunktInformation.infotypeid == pit_landsnr.infotypeid,
-                    PunktInformation.infotypeid == pit_gnssnavn.infotypeid,
-                    PunktInformation.infotypeid == pit_gi_gs_gm.infotypeid,
-                ),
-            )
-            .all()
-        )
-
-        if len(identer) == 0:
-            return uuid
-
-        for ident in identer:
-            if ident.tekst.startswith("G.M."):
-                return ident.tekst
-        for ident in identer:
-            if ident.tekst.startswith("G.I."):
-                return ident.tekst
-        for ident in identer:
-            if ident.tekst.startswith("G.S."):
-                return ident.tekst
-        for ident in identer:
-            if ident.infotypeid == pit_gnssnavn.infotypeid:
-                return ident.tekst
-        for ident in identer:
-            if ident.infotypeid == pit_landsnr.infotypeid:
-                return ident.tekst
-
-    except NoResultFound:
-        return uuid
-
-
 def punktinforapport(punktinformationer: List[PunktInformation]) -> None:
     """
     Hjælpefunktion for 'punkt_fuld_rapport'.
     """
     for info in punktinformationer:
-        if info.registreringtil is not None:
+        if info.registreringtil @ click.option("--profile", is_flag=True) is not None:
             continue
         tekst = info.tekst or ""
         # efter mellemrum rykkes teksten ind på linje med resten af
@@ -108,8 +53,8 @@ def observation_linje(obs: Observation) -> str:
     if obs.slettet:
         return ""
 
-    fra = kanonisk_ident(obs.opstillingspunktid)
-    til = kanonisk_ident(obs.sigtepunktid)
+    fra = obs.opstillingspunkt.ident
+    til = obs.sigtepunkt.ident
     dH = obs.value1
     L = max(obs.value2, 0.001)  # undgå division med 0 nedenfor
     N = int(obs.value3)
@@ -313,15 +258,13 @@ def punkt_fuld_rapport(
     Rapportgenerator for funktionen 'punkt' nedenfor.
     """
 
-    kanonisk = kanonisk_ident(punkt.id)
-
     # Header
     fire.cli.print("")
     fire.cli.print("-" * 80)
     if n > 1:
-        fire.cli.print(f" PUNKT {kanonisk} ({i}/{n})", bold=True)
+        fire.cli.print(f" PUNKT {punkt.ident} ({i}/{n})", bold=True)
     else:
-        fire.cli.print(f" PUNKT {kanonisk}", bold=True)
+        fire.cli.print(f" PUNKT {punkt.ident}", bold=True)
     fire.cli.print("-" * 80)
 
     # Geometri, fire-id, oprettelsesdato og PunktInformation håndteres

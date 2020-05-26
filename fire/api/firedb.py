@@ -236,7 +236,7 @@ class FireDb(object):
         like_filter = f"{namespace}:%"
         return self.session.query(Srid).filter(Srid.name.ilike(like_filter)).all()
 
-    def hent_punktinformationtype(self, infotype: str):
+    def hent_punktinformationtype(self, infotype: str) -> PunktInformationType:
         if infotype not in self._cache["punktinfotype"]:
             typefilter = infotype
             pit = (
