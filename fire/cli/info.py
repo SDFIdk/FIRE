@@ -3,6 +3,7 @@ import itertools
 import math
 import re
 import sys
+import textwrap
 from typing import List
 
 import click
@@ -402,7 +403,7 @@ def srid(srid: str, ts: bool, **kwargs):
     Anføres SRID ikke gives liste af mulige SRID. Som standard uden lokale
     tidsseriekoordinatsystemer.
 
-    Tilvalg ``-T/--ts` kan kun vælges uden angiven SRID. Udvider listen med 
+    Tilvalg ``-T/--ts` kan kun vælges uden angiven SRID. Udvider listen med
     lokale tidsseriekoordinatsystemer.
     """
     if not srid:
@@ -454,3 +455,38 @@ def infotype(infotype: str, **kwargs):
     fire.cli.print(f"  Name        :  {pit.name}")
     fire.cli.print(f"  Description :  {pit.beskrivelse}")
     fire.cli.print(f"  Type        :  {pit.anvendelse}")
+
+
+@info.command()
+@fire.cli.default_options()
+@click.argument("obstype", required=False)
+def obstype(obstype: str, **kwargs):
+    """
+    Information om en given observationstype
+
+    Anføres `obstype` ikke gives liste af mulige obstyper.
+    """
+    if not obstype:
+        obstyper = firedb.hent_observationtyper()
+        for obstype in obstyper:
+            beskrivelse = textwrap.shorten(
+                obstype.beskrivelse, width=70, placeholder="..."
+            )
+            fire.cli.print(f"{obstype.name:30}{beskrivelse}")
+
+        return 0
+
+    ot = firedb.hent_observationtype(obstype)
+    if ot is None:
+        fire.cli.print(f"Error! {obstype} not found!", fg="red", err=True)
+        sys.exit(1)
+
+    fire.cli.print("--- OBSERVATIONSTYPE ---", bold=True)
+    fire.cli.print(f"  Navn        :  {ot.name}")
+    fire.cli.print(f"  Beskrivelse :  {ot.beskrivelse}")
+
+    for navn, værdi in sorted(vars(ot).items()):
+        if navn.startswith("value") and værdi is not None:
+            fire.cli.print(f"  {navn.replace('value','Værdi')}      :  {værdi}")
+
+    fire.cli.print(f"  Sigtepunkt? :  {ot.sigtepunkt.value.title()}")
