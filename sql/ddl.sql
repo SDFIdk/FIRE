@@ -924,16 +924,16 @@ end;
 /
 
 
--- Constraints der sikrer at namespacedelen er korrekt i PUNKTINFOTYPE, OBSERVATIONTYPE og SRIDTYPE
+-- Constraints der sikrer at namespacedelen er korrekt i PUNKTINFOTYPE og SRIDTYPE
 ALTER TABLE PUNKTINFOTYPE ADD
 CONSTRAINT PUNKTINFOTYPE_CON_0001
-CHECK (substr(infotype,1,instr(infotype,':')-1) in ('AFM','ATTR','IDENT','NET','PS','REGION','SKITSE'))
+CHECK (substr(infotype,1,instr(infotype,':')-1) in ('AFM','ATTR','IDENT','NET','REGION','SKITSE'))
 ENABLE
 VALIDATE;
 
 ALTER TABLE SRIDTYPE ADD
 CONSTRAINT OT_SRID_0001
-CHECK (substr(SRID,1,instr(SRID,':')-1) in ('DK','EPSG','FO','GL','LOC','NKG','TS'))
+CHECK (substr(SRID,1,instr(SRID,':')-1) in ('DK','EPSG','GL','TS'))
 ENABLE VALIDATE;
 
 -- Sikrer at infotype i PUNKTINFO eksisterer i PUNKTINFOTYPE, og at data i PUNKTINFO matcher definition i PUNKTINFOTYPE
@@ -981,9 +981,6 @@ IF :new.registreringtil IS NULL THEN
 END IF;
 
 END;
-/
-
-end;
 /
 
 
