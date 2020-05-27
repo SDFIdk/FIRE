@@ -11,8 +11,10 @@ Opsætning
 
 .. note::
 
-    Alt herunder forudsætter at det foretages i en Conda terminal. Se
-    :ref:`installationsvejledningen <installation>` for mere om Conda.
+    Alt herunder forudsætter at det foretages i en Conda terminal og at
+    Oracle Instantclient er installeret. Se
+    :ref:`installationsvejledningen <installation>` for mere om Conda og
+    Oracle Instantclient.
 
 Start med at clone git repositoriet::
 
