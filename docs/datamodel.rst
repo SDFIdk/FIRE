@@ -13,7 +13,7 @@ som har indbyrdes relationer. Et objekt i denne sammenhæng kan løseligt forst�
 som en række i en relationel database.
 
 Datamodellen er udviklet efter princippet om at det skal være muligt at genskabe
-indholdet i databasen som det så ud på en tilfældig dag tilbage i tiden. Dette
+indholdet i databasen som det så ud på en vilkårlig dag tilbage i tiden. Dette
 følger god forvaltningsskik i staten, samt understøtter inkrementelle opdateringer
 af en tilknyttet udstillingsmodel.
 
@@ -337,7 +337,7 @@ De tilgængelige Observationstyper vises i tabellen herunder.
                                  ellipsoiden)
 ``skråafstand``	                 Skråafstand mellem opstilling og sigtepunkt
 ``zenitvinkel``	                 Zenitvinkel mellem opstilling og sigtepunkt
-``vektor``                       Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 1 (v2-v1)
+``vektor``                       Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 2 (v2-v1)
 ``absolut_tyngde``               Absolut gravimetrisk observation
 ``nulobservation``               Observation nummer nul, indlagt fra start i observationstabellen,
                                  så der kan refereres til den i de mange beregningsevents der fører til
@@ -345,7 +345,7 @@ De tilgængelige Observationstyper vises i tabellen herunder.
 ===============================  ========================================================================
 
 Observationer foretages i de fleste tilfælde mellem to punkter: Et opstillingspunkt og et
-sigtepunkt. Observationstypen afgør om der både er behov for et opstillingspunkt og et
+sigtepunkt. Observationstypen afgør om der er behov for både et opstillingspunkt og et
 sigtepunkt eller om der kun er brug for et opstillingspunkt. Der kan knyttes mange Observationer
 til et Punkt eller et sæt af Punkter.
 
@@ -574,7 +574,7 @@ Der findes en række sagsevents i FIRE. I tabellen herunder er de alle kort besk
 ``koordinat_nedlagt``      Bruges når en koordinat nedlægges.
 ``observation_indsat``     Indsættelse af en eller flere observationer.
 ``observation_nedlagt``    Bruges når en observation aflyses fordi den er fejlbehæftet
-``punktinfo_tilføjet``     Bruges når der tilføjes Punkinfo til et eller flere punkter
+``punktinfo_tilføjet``     Bruges når der tilføjes Punktinfo til et eller flere punkter
 ``punktinfo_fjernet``      Bruges når Punktinfo fjernes fra et eller flere punkter
 ``punkt_oprettet``         Bruges når et punkt og tilhørende geometri oprettes
 ``punkt_nedlagt``          Bruges når et punkt og tilhørende geometri nedlægges. Bemærk at når et punkt
