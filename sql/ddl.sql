@@ -1095,13 +1095,95 @@ END IF;
 END;
 /
 
+-------------------------------------------------------------------------------
+-- Indhold til observationtype
+-------------------------------------------------------------------------------
 
--- Indhold til observationstype
-INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
-VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk', 1, 'geometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Variabel vedr. eta_1 (refraktion) [m^3]', 'Afstandsafhængig varians koteforskel pr. målt koteforskel [m^2/m]', 'Afstandsuafhængig varians koteforskel pr. målt koteforskel [m^2]', 'Præcisionsnivellement [0,1,2,3]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+--
+-- Geometrisk nivellement
+--
 
-INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
-VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt trigonometrisk', 2 , 'trigonometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Afstandsafhængig varians pr. målt koteforskel [m^2/m^2]', 'Afstandsuafhængig varians pr. målt koteforskel [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO observationstype (
+    -- Overordnet beskrivelse
+    beskrivelse,
+    OBSERVATIONSTYPEID,
+    observationstype,
+    sigtepunkt,
+
+    -- Observationen
+    value1,
+    value2,
+    value3,
+
+    -- Nøjagtighedsestimat og korrektion
+    value4,
+    value5,
+    value6,
+
+    -- Historisk administrative grupperinger
+    value7
+)
+VALUES (
+    -- Overordnet beskrivelse
+    'Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk ',
+     1,
+    'geometrisk_koteforskel',
+    'true',
+
+    -- Observationen 1-3
+    'Koteforskel [m]',
+    'Nivellementslængde [m]',
+    'Antal opstillinger',
+
+    -- Nøjagtighedsestimat og korrektion 4-6
+    'Variabel vedr. eta_1 (refraktion) [m^3]',
+    'Empirisk spredning pr. afstandsenhed [mm/sqrt(km)]',
+    'Empirisk centreringsfejl pr. opstilling [mm]',
+
+    -- Historisk administrative grupperinger 7
+    'Præcisionsnivellement [0,1,2,3]'
+
+    -- Ikke anvendt value8-value15
+);
+
+--
+-- Trigonometrisk nivellement
+--
+
+INSERT INTO observationstype (
+    -- Overordnet beskrivelse
+    beskrivelse,
+    OBSERVATIONSTYPEID,
+    observationstype,
+    sigtepunkt,
+
+    -- Observationen
+    value1,
+    value2,
+    value3,
+
+    -- Nøjagtighedsestimat
+    value4,
+    value5
+)
+VALUES (
+    -- Overordnet beskrivelse
+    'Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt trigonometrisk',
+     2 ,
+    'trigonometrisk_koteforskel',
+    'true',
+
+    -- Observationen 1-3
+    'Koteforskel [m]',
+    'Nivellementslængde [m]',
+    'Antal opstillinger',
+
+    -- Nøjagtighedsestimat 4-5
+    'Empirisk spredning pr. afstandsenhed [mm/sqrt(km)]',
+    'Empirisk centreringsfejl pr. opstilling [mm]'
+
+    -- Ikke anvendt value6-value15
+);
 
 INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Horisontal retning med uret fra opstilling til sigtepunkt (reduceret til ellipsoiden)', 3 , 'retning', 'true','Retning [m]', 'Varians  retning hidrørende instrument, pr. sats  [rad^2]', 'Samlet centreringsvarians for instrument prisme [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
