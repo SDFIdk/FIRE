@@ -58,8 +58,8 @@ en nyere angives det på det tidligere objekt hvornår det er blevet erstattet
 ikke længere er i brug. Den slags ændringer i objekter kaldes hændelser. En
 gruppe af logisk sammenhængende hændelser udgør en Sag.
 
-I databasen er hændelserne navngivet "Sagsevents" (danske tegn ikke fungerer
-dårligt i databasen). Ved hver hændelse indsættes der et Sagsevent i databasen.
+I databasen er hændelserne navngivet "Sagsevents" (danske tegn fungerer dårligt i
+databasen). Ved hver hændelse indsættes der et Sagsevent i databasen.
 Disse kan identificeres ved ID'er. Det er disse ID'er Fikspunktsregisterobjekter
 benytter i attributterne ``sagseventidfra`` og ``sagseventidtil``. Det vil sige,
 at hver gang et objekt registeres eller ændres i databasen er der tilknyttet
@@ -71,10 +71,10 @@ Grundliggende objekter
 
 Alt i FIRE er bygget op omkring Punkter. Punktet er det mest simple objekt
 i FIRE, da dets primære funktion er at være bindeled til andre objekter og derfor
-i praksis kun består af en nøgle andre objekter kan henvise til. Der findes tre objekter
-der direkte kan knyttes til et punkt: Koordinat, Observation og Punktinformation.
-Derudover kan der også tilknyttes et Geometriobjekt til et punkt. De indbyrdes forhold
-ses på figuren herunder og omtales yderligere i seperate afsnit længere nede i teksten.
+i praksis kun består af en nøgle andre objekter kan henvise til. Der findes fire objekter
+der direkte kan knyttes til et punkt: Koordinat, Observation, Punktinformation og
+Geometriobjekt. De indbyrdes forhold ses på figuren herunder og omtales yderligere
+i seperate afsnit længere nede i teksten.
 
 .. graphviz::
     :name: Grundobjekter
@@ -352,6 +352,20 @@ til et Punkt eller et sæt af Punkter.
 Mere information om en bestemt observationstype kan fås ved hjælp af kommandoen::
 
     fire info obstype <type>
+
+Geometriobjekt
+++++++++++++++
+
+Et Geometriobjekt indeholder et Punkts omtrentlige placering i form af en GIS-læsbar
+punktgeometri. Et Punkt kan kun have ét aktivt Geometriobjekt knyttet til sig ad
+gangen. Geometriobjekter bruges fx i forbindelse med udstilling af fikspunkter i
+Valdemar. Koordinater i Geometriobjekter er angivet som WGS84-koordinater, da det
+er det mest gængse koordinatsystem i diverse GIS-applikationer, især webapplikationer
+som Valdemar.
+
+Et Punkts Geometriobjekt kan ses i form af en WKT-geometri ved at kalde::
+
+    fire info punkt <ident>
 
 Beregninger
 ++++++++++++
