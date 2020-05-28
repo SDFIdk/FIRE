@@ -1107,7 +1107,7 @@ INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, 
 VALUES ('Zenitvinkel mellem opstilling og sigtepunkt', 6 , 'zenitvinkel', 'true','Zenitvinkel [rad]', 'Instrumenthøjde [m]', 'Højde sigtepunkt [m]', 'Varians zenitvinkel hidrørende instrument, pr. sats  [rad^2]', 'Samlet varians instrumenthøjde/højde sigtepunkt [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
-VALUES ('Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 1 (v2-v1)', 7 , 'vektor', 'true','dx [m]', 'dy [m]', 'dz [m]', 'Afstandsafhængig varians [m^2/m^2]', 'Samlet varians for centrering af antenner [m^2]', 'Varians dx [m^2]', 'Varians dy [m^2]', 'Varians dz [m^2]', 'Covarians dx, dy [m^2]', 'Covarians dx, dz [m^2]', 'Covarians dy, dz [m^2]', NULL, NULL, NULL, NULL);
+VALUES ('Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 2 (v2-v1)', 7 , 'vektor', 'true','dx [m]', 'dy [m]', 'dz [m]', 'Afstandsafhængig varians [m^2/m^2]', 'Samlet varians for centrering af antenner [m^2]', 'Varians dx [m^2]', 'Varians dy [m^2]', 'Varians dz [m^2]', 'Covarians dx, dy [m^2]', 'Covarians dx, dz [m^2]', 'Covarians dy, dz [m^2]', NULL, NULL, NULL, NULL);
 
 INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('observation nummer nul, indlagt fra start i observationstabellen, så der kan refereres til den i de mange beregningsevents der fører til population af koordinattabellen', 8 , 'nulobservation', 'false', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -1128,7 +1128,7 @@ INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
 VALUES ('bruges når en observation aflyses fordi den er fejlbehæftet', 'observation_nedlagt', 4);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges når der tilføjes Punkinfo til et eller flere punkter', 'punktinfo_tilføjet', 5);
+VALUES ('bruges når der tilføjes Punktinfo til et eller flere punkter', 'punktinfo_tilføjet', 5);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
 VALUES ('bruges når Punktinfo fjernes fra et eller flere punkter', 'punktinfo_fjernet', 6);
