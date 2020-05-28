@@ -547,7 +547,7 @@ er nedlagt.
             Eventtype [
                 fillcolor = palegreen
                 style = filled
-                label = "{Eventype|\l
+                label = "{Eventtype|\l
                         + objectid : Integer\l
                         + beskrivelse : String\l
                         + event : String\l
