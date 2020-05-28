@@ -580,10 +580,35 @@ Der findes en række sagsevents i FIRE. I tabellen herunder er de alle kort besk
 ``punkt_nedlagt``          Bruges når et punkt og tilhørende geometri nedlægges. Bemærk at når et punkt
                            nedlægges, afregistreres desuden alle tilknyttede koordinater, observationer
                            og punktinformationer, da disse ikke længere har et tilhørsforhold.
-``kommentar``              Bruges til at tilføje fritekst kommentarer til sagen i tilfælde af at der er                                  behov for at påhæfte sagen yderligere information som ikke passer i andre                                     hændelser. Bruges fx også til påhæftning af materiale på sagen.
+``kommentar``              Bruges til at tilføje fritekst kommentarer til sagen i tilfælde af at der er
+                           behov for at påhæfte sagen yderligere information som ikke passer i andre
+                           hændelser. Bruges fx også til påhæftning af materiale på sagen.
 =========================  ============================================================================
 
+Eksempel på en sag
+++++++++++++++++++
 
+Hvis man ser på en hel sag for fx en simpel kommunal vedligeholdsopgave, så vil det gå nogenlunde sådan
+her i databasen:
+
+* Opret Sag (+ Sagsinfo)
+* Opret Sagsevent af typen ``punkt_oprettet`` (+ Sagseventinfo)
+* Indsæt Punkter og Geometriobjekter, henvis til Sagsevent fra linjen ovenfor
+* Opret Sagsevent af typen ``punktinfo_tilføjet`` (+Sagseventinfo)
+* Indsæt Punktinformationer (fx ``ATTR:tabtgået``), henvis til Sagsevent fra linjen ovenfor
+* Opret Sagsevent af typen ``observation_indsat`` (+ Sagseventinfo)
+* Indsæt Observationer, henvis til Sagsevent på linjen ovenfor
+* Opret Sagsevent af typen ``koordinat_beregnet`` (+ Sagseventinfo, beregningsrapport vedlægges).
+* Indsæt Koordinater og Beregning, henvis til Sagsevent på linjen ovenfor
+* Opdater aktiv til "false" på Sagens Sagsinfo.
+
+Der tilføjes beskrivelser af Sag og Sagsevent i forbindelse med at de oprettes, sagen vil fx
+have noget i stil med "Kommunal vedligehold Vejle 2020" og de Sagsevents fx "Indsættelse af observationer"
+og "Indsættelse af koordinater". Til sammen gør det det muligt at få et hurtigt overblik over hvad der er
+sket på en Sag.
+
+Ovenstående eksempel er meget databasenært. Brugere af FIRE skal ikke forholde sig aktivt til Sagsevent
+i samme grad som beskrevet ovenfor.
 
 .. rubric:: Footnotes
 
