@@ -285,7 +285,7 @@ Koordinater og koordinatsystemer
 ++++++++++++++++++++++++++++++++
 
 Koordinater og koordinatsystemer går hånd i hånd. Derfor har enhver koordinat
-i FIRE og et koordinatsystem, eller en SRID [#f1]_, tilknyttet sig. Det er SRID'en
+i FIRE et koordinatsystem, eller en SRID [#f1]_, tilknyttet sig. Det er SRID'en
 der definerer hvilke dimensioner en given koordinat har. Fx en DVR90-kote der kun
 består af et enkelt koordinatelement vinkelret på geoiden. En SRID kan være både
 et-, to- eller tre-dimensionel. Dertil kommer at *alle* Koordinater i FIRE også har
@@ -293,7 +293,7 @@ en tidslig dimension. Tidspunktet for Koordinatens skabelses registreres altid
 sammen med koordinaten i feltet ``t``. Afhængig af formålet vil ``t`` være angivet
 enten til beregningstidspunktet eller opmålingstidspunktet.
 
-Der kan knyttes mange Koordinater til et Punkt, men for hvert hvertkoordinatsytem
+Der kan knyttes mange Koordinater til et Punkt, men for hvert koordinatsytem
 kan der kun være en gældende koordinat per punkt. Når en ny Koordinat tilføjes et
 Punkt afregistreres dens forgænger automatisk.
 
