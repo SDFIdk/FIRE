@@ -306,10 +306,7 @@ def find_observationer(navn: str) -> pd.DataFrame:
 
 # ------------------------------------------------------------------------------
 def opbyg_punktoversigt(
-    navn: str,
-    nyetablerede: pd.DataFrame,
-    alle_punkter: Tuple[str, ...],
-    nye_punkter: Tuple[str, ...],
+    navn: str, nyetablerede: pd.DataFrame, alle_punkter: Tuple[str, ...]
 ) -> pd.DataFrame:
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
@@ -349,6 +346,8 @@ def opbyg_punktoversigt(
     print("Checker for manglende kote og placering")
 
     koteid = np.nan
+    nye_punkter = tuple(sorted(set(nyetablerede.index)))
+
     for punkt in alle_punkter:
         if not pd.isna(punktoversigt.at[punkt, "kote"]):
             continue
@@ -415,20 +414,15 @@ def opbyg_punktoversigt(
 
 # ------------------------------------------------------------------------------
 def find_punktoversigt(
-    navn: str,
-    nyetablerede: pd.DataFrame,
-    alle_punkter: Tuple[str, ...],
-    nye_punkter: Tuple[str, ...],
+    navn: str, nyetablerede: pd.DataFrame, alle_punkter: Tuple[str, ...]
 ) -> pd.DataFrame:
     # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
     try:
         punktoversigt = pd.read_excel(
-            navn + ".xlsx", sheet_name="Punktoversigt", usecols="A:K"
+            navn + ".xlsx", sheet_name="Punktoversigt", usecols="A:L"
         )
     except:
-        punktoversigt = opbyg_punktoversigt(
-            navn, nyetablerede, alle_punkter, nye_punkter
-        )
+        punktoversigt = opbyg_punktoversigt(navn, nyetablerede, alle_punkter)
     return punktoversigt
 
 
@@ -536,6 +530,123 @@ def find_workflow(navn):
 
 
 # ------------------------------------------------------------------------------
+def find_fastholdte(punktoversigt: pd.DataFrame) -> Dict[str, float]:
+    fastholdte_punkter = tuple(punktoversigt[punktoversigt["fix"] == 0]["punkt"])
+    fastholdteKoter = tuple(punktoversigt[punktoversigt["fix"] == 0]["kote"])
+    return dict(zip(fastholdte_punkter, fastholdteKoter))
+
+
+# ------------------------------------------------------------------------------
+def find_holdte(punktoversigt: pd.DataFrame) -> Dict[str, Tuple[float, float]]:
+    holdte_punkter = tuple(punktoversigt[punktoversigt["fix"] > 0]["punkt"])
+    holdteKoter = tuple(punktoversigt[punktoversigt["fix"] > 0]["kote"])
+    holdteSpredning = tuple(punktoversigt[punktoversigt["fix"] > 0]["fix"])
+    return dict(zip(holdte_punkter, zip(holdteKoter, holdteSpredning)))
+
+
+# ------------------------------------------------------------------------------
+def regn(
+    projektnavn: str,
+    observationer: pd.DataFrame,
+    punktoversigt: pd.DataFrame,
+    estimerede_punkter: Tuple[str, ...],
+) -> pd.DataFrame:
+    fastholdte = find_fastholdte(punktoversigt)
+
+    # -----------------------------------------------------
+    # Skriv Gama-inputfil i XML-format
+    # -----------------------------------------------------
+    with open(projektnavn + ".xml", "wt") as gamafil:
+        # Preambel
+        gamafil.writelines(
+            [
+                '<?xml version="1.0" ?><gama-local>\n',
+                '<network angles="left-handed" axes-xy="en" epoch="0.0">\n',
+                "<parameters\n",
+                '    algorithm="gso" angles="400" conf-pr="0.95"\n',
+                '    cov-band="0" ellipsoid="grs80" latitude="55.7" sigma-act="apriori"\n',
+                '    sigma-apr="1.0" tol-abs="1000.0"\n',
+                '    update-constrained-coordinates="no"\n',
+                "/>\n\n",
+            ]
+        )
+        gamafil.write(
+            f"<description>\n"
+            f'    {"Nivellementsprojekt " + projektnavn}\n'
+            f"</description>\n"
+            f"<points-observations>\n\n"
+        )
+        # Fastholdte punkter
+        gamafil.write("\n\n<!-- Fixed -->\n\n")
+        for key, val in fastholdte.items():
+            gamafil.write(f'<point fix="Z" id="{key}" z="{val}"/>\n')
+        # Punkter til udjævning
+        gamafil.write("\n\n<!-- Adjusted -->\n\n")
+        for punkt in estimerede_punkter:
+            gamafil.write(f'<point adj="z" id="{punkt}"/>\n')
+        # Observationer
+        gamafil.write("\n\n<height-differences>\n\n")
+        for obs in observationer[["fra", "til", "dH", "L", "σ"]].values:
+            gamafil.write(
+                f'<dh from="{obs[0]}" to="{obs[1]}" '
+                f'val="{obs[2]:+.6f}" '
+                f'dist="{obs[3]/1000:.5f}" stdev="{1000*spredning(obs[3], obs[4]):.5f}"/>\n'
+            )
+        # Postambel
+        gamafil.write(
+            "</height-differences>\n"
+            "</points-observations>\n"
+            "</network>\n"
+            "</gama-local>\n"
+        )
+    # ----------------------------------------------
+    # Lad GNU Gama om at køre udjævningen
+    # ----------------------------------------------
+    ret = subprocess.run(
+        [
+            "gama-local",
+            f"{projektnavn}.xml",
+            "--xml",
+            f"{projektnavn}-resultat.xml",
+            "--html",
+            f"{projektnavn}-resultat.html",
+        ]
+    )
+    if 0 != ret:
+        fire.cli.print(
+            f"ADVARSEL! GNU Gama fandt mistænkelige observationer - check {projektnavn}.html for detaljer",
+            bg="red",
+            fg="white",
+            err=False,
+        )
+    # ----------------------------------------------
+    # Grav resultater frem fra GNU Gamas outputfil
+    # ----------------------------------------------
+    with open(projektnavn + "-resultat.xml") as resultat:
+        doc = xmltodict.parse(resultat.read())
+    koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
+    punkter = [punkt["id"] for punkt in koteliste]
+    koter = [float(punkt["z"]) for punkt in koteliste]
+    varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
+    varianser = [float(var) for var in varliste]
+    assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
+    # ----------------------------------------------
+    # Skriv resultaterne til punktoversigten
+    # ----------------------------------------------
+    punktoversigt = punktoversigt.set_index("punkt")
+    for index in range(len(punkter)):
+        punktoversigt.at[punkter[index], "ny"] = koter[index]
+        punktoversigt.at[punkter[index], "ny σ"] = sqrt(varianser[index])
+    punktoversigt = punktoversigt.reset_index()
+    # Ændring i millimeter
+    d = list(abs(punktoversigt["kote"] - punktoversigt["ny"]) * 1000)
+    # Men vi ignorerer ændringer under mikrometerniveau
+    dd = [e if e > 0.001 else None for e in d]
+    punktoversigt["Δ"] = dd
+    return punktoversigt
+
+
+# ------------------------------------------------------------------------------
 # Her starter hovedprogrammet...
 # ------------------------------------------------------------------------------
 @mtl.command()
@@ -564,8 +675,9 @@ def go(projektnavn: str, **kwargs) -> None:
         observationer = find_observationer(projektnavn)
 
     observerede_punkter = set(observationer["fra"].append(observationer["til"]))
+    alle_punkter = observerede_punkter.union(nye_punkter)
     # Vi er færdige med mængdeoperationer nu, så gør punktmængderne immutable
-    alle_punkter = tuple(sorted(observerede_punkter.union(nye_punkter)))
+    alle_punkter = tuple(sorted(alle_punkter))
     nye_punkter = tuple(sorted(nye_punkter))
     observerede_punkter = tuple(sorted(observerede_punkter))
 
@@ -573,144 +685,41 @@ def go(projektnavn: str, **kwargs) -> None:
     # Opbyg oversigt over alle punkter m. kote og placering
     # ------------------------------------------------------
     if "Punktoversigt" in workflow:
-        punktoversigt = opbyg_punktoversigt(
-            projektnavn, nyetablerede, alle_punkter, nye_punkter
-        )
+        punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
     else:
-        punktoversigt = find_punktoversigt(
-            projektnavn, nyetablerede, alle_punkter, nye_punkter
-        )
+        punktoversigt = find_punktoversigt(projektnavn, nyetablerede, alle_punkter)
 
-    fastholdte_punkter = tuple(punktoversigt[punktoversigt["fix"] == 0]["punkt"])
-    fastholdteKoter = tuple(punktoversigt[punktoversigt["fix"] == 0]["kote"])
-    if len(fastholdte_punkter) == 0:
-        fastholdte_punkter = [observerede_punkter[0]]
-        fastholdteKoter = [0]
-    fastholdte = dict(zip(fastholdte_punkter, fastholdteKoter))
-    print(f"Fastholdte: {fastholdte_punkter}")
+    fastholdte = find_fastholdte(punktoversigt)
+    if len(fastholdte) == 0:
+        print("Vælger arbitrært punkt til fastholdelse")
+        fastholdte = {observerede_punkter[0], 0}
+    print(f"Fastholdte: {tuple(fastholdte)}")
 
-    holdte_punkter = tuple(punktoversigt[punktoversigt["fix"] > 0]["punkt"])
-    holdteKoter = tuple(punktoversigt[punktoversigt["fix"] > 0]["kote"])
-    holdteSpredning = tuple(punktoversigt[punktoversigt["fix"] > 0]["fix"])
-    holdte = dict(zip(holdte_punkter, zip(holdteKoter, holdteSpredning)))
-    if len(holdte_punkter) > 0:
-        print(f"Holdte: {holdte_punkter}")
+    holdte = find_holdte(punktoversigt)
+    if len(holdte) > 0:
+        print(f"Holdte: {tuple(holdte)}")
 
     # -----------------------------------------------------
     # Udfør netanalyse
     # -----------------------------------------------------
     if "Net" in workflow:
-        (net, ensomme) = netanalyse(observationer, alle_punkter, fastholdte_punkter)
+        (net, ensomme) = netanalyse(observationer, alle_punkter, tuple(fastholdte))
         forbundne_punkter = tuple(sorted(net["Punkt"]))
     else:
         forbundne_punkter = find_forbundne_punkter(
-            projektnavn, observationer, alle_punkter, fastholdte_punkter
+            projektnavn, observationer, alle_punkter, tuple(fastholdte)
         )
-    estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte_punkter)))
+    estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
     print(f"Forbundne punkter: {forbundne_punkter}")
     print(f"Estimerede punkter: {estimerede_punkter}")
 
+    # -----------------------------------------------------
+    # Udfør beregning
+    # -----------------------------------------------------
     if "Regn" in workflow:
-        # -----------------------------------------------------
-        # Skriv Gama-inputfil i XML-format
-        # -----------------------------------------------------
-        with open(projektnavn + ".xml", "wt") as gamafil:
-            # Preambel
-            gamafil.writelines(
-                [
-                    '<?xml version="1.0" ?><gama-local>\n',
-                    '<network angles="left-handed" axes-xy="en" epoch="0.0">\n',
-                    "<parameters\n",
-                    '    algorithm="gso" angles="400" conf-pr="0.95"\n',
-                    '    cov-band="0" ellipsoid="grs80" latitude="55.7" sigma-act="apriori"\n',
-                    '    sigma-apr="1.0" tol-abs="1000.0"\n',
-                    '    update-constrained-coordinates="no"\n',
-                    "/>\n\n",
-                ]
-            )
-
-            gamafil.write(
-                f"<description>\n"
-                f'    {"Nivellementsprojekt " + projektnavn}\n'
-                f"</description>\n"
-                f"<points-observations>\n\n"
-            )
-
-            # Fastholdte punkter
-            gamafil.write("\n\n<!-- Fixed -->\n\n")
-            for key, val in fastholdte.items():
-                gamafil.write(f'<point fix="Z" id="{key}" z="{val}"/>\n')
-
-            # Punkter til udjævning
-            gamafil.write("\n\n<!-- Adjusted -->\n\n")
-            for punkt in estimerede_punkter:
-                gamafil.write(f'<point adj="z" id="{punkt}"/>\n')
-
-            # Observationer
-            gamafil.write("\n\n<height-differences>\n\n")
-            for obs in observationer[["fra", "til", "dH", "L", "σ"]].values:
-                gamafil.write(
-                    f'<dh from="{obs[0]}" to="{obs[1]}" '
-                    f'val="{obs[2]:+.6f}" '
-                    f'dist="{obs[3]/1000:.5f}" stdev="{1000*spredning(obs[3], obs[4]):.5f}"/>\n'
-                )
-
-            # Postambel
-            gamafil.write(
-                "</height-differences>\n"
-                "</points-observations>\n"
-                "</network>\n"
-                "</gama-local>\n"
-            )
-
-        # ----------------------------------------------
-        # Lad GNU Gama om at køre udjævningen
-        # ----------------------------------------------
-        ret = subprocess.run(
-            [
-                "gama-local",
-                f"{projektnavn}.xml",
-                "--xml",
-                f"{projektnavn}-resultat.xml",
-                "--html",
-                f"{projektnavn}-resultat.html",
-            ]
+        punktoversigt = regn(
+            projektnavn, observationer, punktoversigt, estimerede_punkter
         )
-
-        if 0 != ret:
-            fire.cli.print(
-                f"ADVARSEL! GNU Gama fandt mistænkelige observationer - check {projektnavn}.html for detaljer",
-                bg="red",
-                fg="white",
-                err=False,
-            )
-
-        # ----------------------------------------------
-        # Grav resultater frem fra GNU Gamas outputfil
-        # ----------------------------------------------
-        with open(projektnavn + "-resultat.xml") as resultat:
-            doc = xmltodict.parse(resultat.read())
-        koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
-        punkter = [punkt["id"] for punkt in koteliste]
-        koter = [float(punkt["z"]) for punkt in koteliste]
-        varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
-        varianser = [float(var) for var in varliste]
-        assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
-
-        # ----------------------------------------------
-        # Skriv resultaterne til punktoversigten
-        # ----------------------------------------------
-        punktoversigt = punktoversigt.set_index("punkt")
-        for index in range(len(punkter)):
-            punktoversigt.at[punkter[index], "ny"] = koter[index]
-            punktoversigt.at[punkter[index], "ny σ"] = sqrt(varianser[index])
-        punktoversigt = punktoversigt.reset_index()
-
-        # Ændring i millimeter
-        d = list(abs(punktoversigt["kote"] - punktoversigt["ny"]) * 1000)
-        # Men vi ignorerer ændringer under mikrometerniveau
-        dd = [e if e > 0.001 else None for e in d]
-        punktoversigt["Δ"] = dd
 
     # -----------------------------------------------------------------------------
     # Skriv resultatfil
