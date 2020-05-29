@@ -8,7 +8,8 @@ from typing import List
 import click
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import or_
+from sqlalchemy import or_, not_
+
 
 from pyproj import CRS
 
@@ -21,6 +22,7 @@ from fire.api.model import (
     Koordinat,
     Observation,
     Boolean,
+    Srid,
 )
 
 
@@ -382,25 +384,53 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
 
 
 @info.command()
+@click.option(
+    "-T",
+    "--ts",
+    is_flag=True,
+    default=False,
+    help="Udskriv også tidsrækkedefinitioner",
+)
 @fire.cli.default_options()
-@click.argument("srid")
-def srid(srid: str, **kwargs):
+@click.argument("srid", required=False)
+def srid(srid: str, ts: bool, **kwargs):
     """
     Information om et givent SRID (Spatial Reference ID)
 
     Eksempler på SRID'er: EPSG:25832, DK:SYS34, TS:81013
+
+    Anføres SRID ikke gives liste af mulige SRID. Som standard uden lokale
+    tidsseriekoordinatsystemer.
+
+    Tilvalg ``-T/--ts` kan kun vælges uden angiven SRID. Udvider listen med 
+    lokale tidsseriekoordinatsystemer.
     """
-    srid_name = srid
+    if not srid:
+        if ts:
+            srid_db = firedb.session.query(Srid).order_by(Srid.name).all()
+        else:
+            srid_db = (
+                firedb.session.query(Srid)
+                .filter(not_(Srid.name.like("TS:%")))
+                .order_by(Srid.name)
+                .all()
+            )
 
-    try:
-        srid = firedb.hent_srid(srid_name)
-    except NoResultFound:
-        fire.cli.print(f"Error! {srid_name} not found!", fg="red", err=True)
-        sys.exit(1)
+        for srid_item in srid_db:
+            fire.cli.print(f"{srid_item.name:20}" + srid_item.beskrivelse)
 
-    fire.cli.print("--- SRID ---", bold=True)
-    fire.cli.print(f" Name:       :  {srid.name}")
-    fire.cli.print(f" Description :  {srid.beskrivelse}")
+    else:
+        srid_name = srid
+
+        try:
+            srid = firedb.hent_srid(srid_name)
+        except NoResultFound:
+            fire.cli.print(f"Error! {srid_name} not found!", fg="red", err=True)
+            sys.exit(1)
+
+        fire.cli.print("--- SRID ---", bold=True)
+        fire.cli.print(f" Name:       :  {srid.name}")
+        fire.cli.print(f" Description :  {srid.beskrivelse}")
 
 
 @info.command()
