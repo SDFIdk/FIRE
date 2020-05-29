@@ -14,7 +14,7 @@ def test_all_points(firedb: FireDb, tmp_path: Path):
     writer = GamaWriter(firedb, output)
 
     writer.take_all_points()
-    writer.set_fixed_point_ids(["67e3987a-dc6b-49ee-8857-417ef35777af"])
+    writer.set_fixed_point_ids(["K-63-09946"])
 
     parameters = configparser.ConfigParser()
     parameters.read("fire-gama.ini")
@@ -39,7 +39,7 @@ def test_in_polygon(firedb: FireDb, tmp_path: Path):
     observations = firedb.hent_observationer_naer_geometri(geometry, 5000)
     writer.take_observations(observations)
 
-    writer.set_fixed_point_ids(["67e3987a-dc6b-49ee-8857-417ef35777af"])
+    writer.set_fixed_point_ids(["K-63-09946"])
 
     parameters = configparser.ConfigParser()
     parameters.read("fire-gama.ini")

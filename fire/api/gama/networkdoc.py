@@ -253,7 +253,7 @@ class GamaNetworkDoc:
         )
 
     def get_fixed_height_point_element(self, fixed_point: Punkt):
-        point_id = fixed_point.id
+        point_id = fixed_point.ident
         ks: List[koordinat] = fixed_point.koordinater
         for k in ks:
             if k.srid.name == "EPSG:5799":
@@ -263,7 +263,7 @@ class GamaNetworkDoc:
         return '<point id="{id}" fix="z" />'.format(id=point_id)
 
     def get_adjustable_height_point_element(self, adjustable_point: Punkt):
-        point_id = adjustable_point.id
+        point_id = adjustable_point.ident
         ks: List[koordinat] = adjustable_point.koordinater
         for k in ks:
             if k.srid.name == "EPSG:5799":
@@ -272,8 +272,8 @@ class GamaNetworkDoc:
         return '<point id="{id}" adj="z" />'.format(id=point_id)
 
     def get_dh_element(self, observation: Observation):
-        fromId = observation.opstillingspunktid
-        toId = observation.sigtepunktid
+        fromId = observation.opstillingspunkt.ident
+        toId = observation.sigtepunkt.ident
         oId = observation.objectid
         gamavalues = getattr(observation, "gama_values")
         val = gamavalues["val"]
