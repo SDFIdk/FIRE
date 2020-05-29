@@ -24,3 +24,6 @@ def test_indset_observationtype(firedb: FireDb):
     typ = firedb.hent_observationtype("absolut_tyngde")
 
     assert typ.value1 == ot.value1
+
+    firedb.session.delete(typ)
+    firedb.session.commit()
