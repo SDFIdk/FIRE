@@ -1,6 +1,4 @@
 import math
-
-import ast
 import xml.etree.ElementTree as ET
 
 from fire.api import FireDb
@@ -20,18 +18,6 @@ class GamaReader(object):
         namespace = "{http://www.gnu.org/software/gama/gama-local-adjustment}"
         tree = ET.parse(self.input_stream)
         root = tree.getroot()
-
-        # In the description
-        description_element = root.find(namespace + "description")
-        description = description_element.text
-
-        # .. find all obervation ids
-        # observation_ids_start = description.find("{observation_ids}") + len("{observation_ids} :")
-        # bservation_ids_end = description.find("{/observation_ids}")
-        # observation_ids = description[observation_ids_start:observation_ids_end]
-        # observation_id_list= ast.literal_eval(observation_ids)
-
-        # ... and fetch those observations
 
         beregning = Beregning()
 

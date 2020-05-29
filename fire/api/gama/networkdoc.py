@@ -137,22 +137,22 @@ class GamaNetworkDoc:
     ):
         filtered_observations = []
         for o in observations:
-            # Filter for None in udgang or sigte (o.opstillingspunktid, o.sigtepunktid not none)
+            # Filter for None in udgang or sigte
             if (o.opstillingspunktid is not None) and (o.sigtepunktid is not None):
-                # Filter for suitability to establish height (o.observationstypeid in ['trigonometrisk_koteforskel', geometrisk_koteforskel])
-                # if o.observationstypeid in ['trigonometrisk_koteforskel', 'geometrisk_koteforskel']:
-                if o.observationstypeid in [1, 2]:
+                # Filter for suitability to establish height
+                if o.observationstype.name in [
+                    "trigonometrisk_koteforskel",
+                    "geometrisk_koteforskel",
+                ]:
                     values = self.get_values(o, heights, positions)
                     if values is not None:
                         setattr(o, "gama_values", values)
-                        # o['gama_values'] = values
                         filtered_observations.append(o)
-        # Filter for epsg? 'trigonometrisk_koteforskel': dev=math.sqrt((o.value4 + o.value5)/o.antal) / 'geometrisk_koteforskel': dev=math.sqrt((o.value4 + o.value5)/o.antal) // val=o.value1
+
         return filtered_observations
 
     def get_values(self, observation: Observation, heights: bool, positions: bool):
-        # if observation.observationstypeid == 'trigonometrisk_koteforskel':
-        if observation.observationstypeid == 2:
+        if observation.observationstype.name == "trigonometrisk_koteforskel":
             if (
                 (observation.value4 is not None)
                 and (observation.value5 is not None)
@@ -168,8 +168,8 @@ class GamaNetworkDoc:
                 else:
                     dist = "?"
                 return {"dev": dev, "val": val, "dist": dist}
-        # if observation.observationstypeid == 'geometrisk_koteforskel':
-        if observation.observationstypeid == 1:
+
+        if observation.observationstype.name == "geometrisk_koteforskel":
             if (
                 (observation.value5 is not None)
                 and (observation.value6 is not None)
@@ -243,18 +243,16 @@ class GamaNetworkDoc:
         self, observations: List[Observation], heights: bool, positions: bool, doc
     ):
         observation_elements = []
-        observation_ids = []
         for o in observations:
             observation_elements.append(self.get_dh_element(o))
-            # observation_ids.append(str(o.objectid))
-        # self.add_description("{observation_ids} :[" + ",".join(observation_ids) + "]{/observation_ids}")
+
         return str.replace(
             doc, "{obs}", "\n                ".join(observation_elements)
         )
 
     def get_fixed_height_point_element(self, fixed_point: Punkt):
         point_id = fixed_point.ident
-        ks: List[koordinat] = fixed_point.koordinater
+        ks = fixed_point.koordinater
         for k in ks:
             if k.srid.name == "EPSG:5799":
                 z = k.z
@@ -264,7 +262,7 @@ class GamaNetworkDoc:
 
     def get_adjustable_height_point_element(self, adjustable_point: Punkt):
         point_id = adjustable_point.ident
-        ks: List[koordinat] = adjustable_point.koordinater
+        ks = adjustable_point.koordinater
         for k in ks:
             if k.srid.name == "EPSG:5799":
                 z = k.z

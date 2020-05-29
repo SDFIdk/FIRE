@@ -1,6 +1,6 @@
 from typing import List, Dict
 from fire.api import FireDb
-from fire.api.model import Punkt, Observation
+from fire.api.model import Observation
 from .networkdoc import GamaNetworkDoc
 
 
@@ -19,7 +19,6 @@ class GamaWriter(object):
 
     def take_all_points(self):
         points = self.fireDb.hent_alle_punkter()
-        # id='3840df67-94aa-49ca-84fb-ea9e808b44d1', objectid=2, sagseventid='3840df67-94aa-49ca-84fb-ea9e808b44d1'
         obsDict = {}
         for point in points:
             of = point.observationer_fra
