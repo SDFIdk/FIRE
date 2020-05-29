@@ -29,15 +29,15 @@ jobs:
       - run:
           name: Execute init.sql
           command: |
-            ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S system/oracle@//localhost:1521/xe @.circleci/init.sql
+            NLS_LANG=.AL32UTF8 ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S system/oracle@//localhost:1521/xe @.circleci/init.sql
       - run:
           name: Execute ddl.sql
           command: |
-            ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @sql/ddl.sql
+            NLS_LANG=.AL32UTF8 ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @sql/ddl.sql
       - run:
           name: Insert test data
           command: |
-            ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @test/sql/testdata.sql
+            NLS_LANG=.AL32UTF8 ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @test/sql/testdata.sql
       - run:
           name: Run tests
           command: |
