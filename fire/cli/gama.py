@@ -78,23 +78,8 @@ def gama():
     required=False,
     type=click.File(mode="r"),
 )
-@click.option(
-    "-pf",
-    "--parameterfil",
-    help="Fil, som indeholder netværks-parametre og -attributter",
-    required=True,
-    type=click.File(mode="r"),
-)
 def write(
-    output,
-    geometri,
-    geometrifil,
-    buffer,
-    fra,
-    til,
-    fixpunkter,
-    fixpunkterfil,
-    parameterfil,
+    output, geometri, geometrifil, buffer, fra, til, fixpunkter, fixpunkterfil,
 ):
     """Create a gama input file"""
     writer = GamaWriter(firedb, output)
@@ -125,9 +110,7 @@ def write(
         fixpunkter_list = [pkt.strip() for pkt in fixpunkter_literal.split(",")]
         writer.set_fixed_point_ids(fixpunkter_list)
 
-    parameters = configparser.ConfigParser()
-    parameters.read(parameterfil)
-    writer.write(True, False, "Created by fire-gama", parameters)
+    writer.write(True, False, "Created by fire-gama", firedb.config)
 
 
 @gama.command()
