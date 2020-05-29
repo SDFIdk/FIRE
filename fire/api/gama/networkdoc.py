@@ -20,7 +20,7 @@ class GamaNetworkDoc:
         self.adjustable_points = []
         self.fixed_points = []
         self.description_header = (
-            "Network doc created by fire-gama (https://github.com/Septima/fire-gama)"
+            "Network doc created by FIRE (https://github.com/Kortforsyningen/FIRE)"
         )
         self.description_items = [self.description_header]
         self.warning_items = ["Warnings:"]
