@@ -64,7 +64,7 @@ def get_observation_strings(
                     # Check at observationen er i et af de kendte formater
                     tokens = line.split(" ", 13)
                     assert len(tokens) in (9, 13, 14), (
-                        "Malform input line: " + line + " i fil: " + filnavn
+                        "Deform input linje: " + line + " i fil: " + filnavn
                     )
 
                     # Bring observationen på kanonisk 14-feltform.
@@ -302,19 +302,6 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     return observationer
 
 # ------------------------------------------------------------------------------
-def find_observationer(navn: str) -> pd.DataFrame:
-    """Opbyg dataframe med allerede importerede observationer"""
-    print("Læser observationer")
-    try:
-        observationer = pd.read_excel(
-            navn + ".xlsx", sheet_name="Observationer", usecols="A:P"
-        )
-    except:
-        observationer = importer_observationer(navn)
-    return observationer
-
-
-# ------------------------------------------------------------------------------
 def opbyg_punktoversigt(
     navn: str, nyetablerede: pd.DataFrame, alle_punkter: Tuple[str, ...]
 ) -> pd.DataFrame:
@@ -405,20 +392,6 @@ def opbyg_punktoversigt(
 
     # Reformater datarammen så den egner sig til output
     return punktoversigt.reset_index()
-
-
-# ------------------------------------------------------------------------------
-def find_punktoversigt(
-    navn: str, nyetablerede: pd.DataFrame, alle_punkter: Tuple[str, ...]
-) -> pd.DataFrame:
-    # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
-    try:
-        punktoversigt = pd.read_excel(
-            navn + ".xlsx", sheet_name="Punktoversigt", usecols="A:L"
-        )
-    except:
-        punktoversigt = opbyg_punktoversigt(navn, nyetablerede, alle_punkter)
-    return punktoversigt
 
 
 # ------------------------------------------------------------------------------
@@ -667,7 +640,15 @@ def go(projektnavn: str, **kwargs) -> None:
     if "Observationer" in workflow:
         observationer = importer_observationer(projektnavn)
     else:
-        observationer = find_observationer(projektnavn)
+        try:
+            observationer = pd.read_excel(
+                navn + ".xlsx", sheet_name="Observationer", usecols="A:P"
+            )
+        except:
+            fire.cli.print(f'Der er ingen observationsoversigt i "{projektnavn}.xlsx"')
+            fire.cli.print(f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?')
+            sys.exit(1)
+
     observerede_punkter = set(observationer["fra"].append(observationer["til"]))
     alle_gamle_punkter = observerede_punkter - nye_punkter
 
@@ -684,12 +665,24 @@ def go(projektnavn: str, **kwargs) -> None:
     if "Punktoversigt" in workflow:
         punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
     else:
-        punktoversigt = find_punktoversigt(projektnavn, nyetablerede, alle_punkter)
+        try:
+            punktoversigt = pd.read_excel(
+                projektnavn + ".xlsx", sheet_name="Punktoversigt", usecols="A:L"
+            )
+        except:
+            fire.cli.print(f'Der er ingen punktoversigt i "{projektnavn}.xlsx"')
+            fire.cli.print(f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?')
+            sys.exit(1)
 
+
+    # -----------------------------------------------------
+    # Find fastholdte og holdte ('constrainede')
+    # -----------------------------------------------------
     fastholdte = find_fastholdte(punktoversigt)
     if len(fastholdte) == 0:
         print("Vælger arbitrært punkt til fastholdelse")
-        fastholdte = {observerede_punkter[0], 0}
+        fastholdte = {observerede_punkter[0]: 0}
+    # Nem oversigt fordi tuple(fastholdte) er tuple(fastholdte.keys())
     print(f"Fastholdte: {tuple(fastholdte)}")
 
     holdte = find_holdte(punktoversigt)
@@ -701,12 +694,16 @@ def go(projektnavn: str, **kwargs) -> None:
     # -----------------------------------------------------
     if "Net" in workflow:
         (net, ensomme) = netanalyse(observationer, alle_punkter, tuple(fastholdte))
-        forbundne_punkter = tuple(sorted(net["Punkt"]))
     else:
-        forbundne_punkter = alle_punkter
-#        forbundne_punkter = find_forbundne_punkter(
-#            projektnavn, observationer, alle_punkter, tuple(fastholdte)
-#        )
+        try:
+            net = pd.read_excel(navn + ".xlsx", sheet_name="Netgeometri", usecols="A")
+        except:
+            fire.cli.print(f'Der er ingen netoversigt i "{projektnavn}.xlsx"')
+            fire.cli.print(f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?')
+            sys.exit(1)
+    forbundne_punkter = tuple(sorted(net["Punkt"]))
+
+
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
     print(f"Forbundne punkter: {forbundne_punkter}")
     print(f"Estimerede punkter: {estimerede_punkter}")
