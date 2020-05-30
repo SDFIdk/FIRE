@@ -1,40 +1,34 @@
 # Python infrastrukturelementer
 import subprocess
 import sys
-from typing import Dict, List, Set, Tuple, IO
-from enum import IntEnum
 
-# Kommandolinje- og databasehåndtering
+from datetime import datetime
+from enum import IntEnum
+from math import sqrt
+from typing import Dict, List, Set, Tuple, IO
+
+# Tredjepartsafhængigheder
 import click
+import numpy as np
+import pandas as pd
+import xlsxwriter
+import xmltodict
+
+from pyproj import Proj
+from sqlalchemy.orm import aliased
+from sqlalchemy.orm.exc import NoResultFound
+
+# FIRE herself
 import fire.cli
-from fire.cli import firedb
+# Typingelementer fra databaseAPIet.
 from fire.api.model import (
-    # Typingelementer fra databaseAPIet:
     Koordinat,
-    Punkt,
     PunktInformation,
     PunktInformationType,
     Sag,
     Sagsevent,
-    Sagsinfo,
-    Srid,
+    Sagsinfo
 )
-from fire.api import FireDb
-from sqlalchemy.orm import aliased
-from sqlalchemy.orm.exc import NoResultFound
-
-# Beregning
-import numpy as np
-import statsmodels.api as sm
-from math import sqrt
-from pyproj import Proj
-from scipy import stats
-
-# Datahåndtering
-import pandas as pd
-import xlsxwriter
-import xmltodict
-from datetime import datetime
 
 
 # ------------------------------------------------------------------------------
@@ -123,7 +117,7 @@ def punkt_information(ident: str) -> PunktInformation:
     pit = aliased(PunktInformationType)
     try:
         punktinfo = (
-            firedb.session.query(pi)
+            fire.cli.firedb.session.query(pi)
             .filter(pit.name.startswith("IDENT:"), pi.tekst == ident)
             .first()
         )
@@ -156,7 +150,7 @@ def punkt_geometri(punktinfo: PunktInformation, ident: str) -> Tuple[float, floa
     if punktinfo is None:
         return (11, 56)
     try:
-        geom = firedb.hent_geometri_objekt(punktinfo.punktid)
+        geom = fire.cli.firedb.hent_geometri_objekt(punktinfo.punktid)
         # Turn the string "POINT (lon lat)" into the tuple "(lon, lat)"
         geo = eval(str(geom.geometri).lstrip("POINT").strip().replace(" ", ","))
         # TODO: Perhaps just return (56,11) Kattegat pain instead
@@ -165,18 +159,6 @@ def punkt_geometri(punktinfo: PunktInformation, ident: str) -> Tuple[float, floa
         fire.cli.print(f"Error! Geometry for {ident} not found!", fg="red", err=True)
         sys.exit(1)
     return geo
-
-
-# ------------------------------------------------------------------------------
-# TODO: Bør nok være en del af API
-# ------------------------------------------------------------------------------
-def hent_sridid(db: FireDb, srid: str) -> int:
-    srider = db.hent_srider()
-    for s in srider:
-        if s.name == srid:
-            return s.sridid
-    # TODO: kast en undtagelse (throw an exception)
-    return 0
 
 
 # ------------------------------------------------------------------------------
@@ -265,11 +247,11 @@ def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
 
 
 # ------------------------------------------------------------------------------
-def importer_observationer() -> pd.DataFrame:
+def importer_observationer(projektnavn: str) -> pd.DataFrame:
     """Opbyg dataframe med observationer importeret fra rådatafil"""
     print("Importerer observationer")
     observationer = pd.DataFrame(
-        get_observation_strings(find_inputfiler()),
+        get_observation_strings(find_inputfiler(projektnavn)),
         columns=[
             "journal",
             "fra",
@@ -288,8 +270,36 @@ def importer_observationer() -> pd.DataFrame:
             "kilde",
         ],
     )
-    return observationer.sort_values(by="journal").set_index("journal").reset_index()
 
+    # Sorter efter journalside, så frem- og tilbageobservationer følges ad
+    observationer = observationer.sort_values(by="journal").set_index("journal").reset_index()
+
+    #-------------------------------------------------
+    # Oversæt alle anvendte identer til kanonisk form
+    #-------------------------------------------------
+    fra = list(observationer['fra'])
+    til = list(observationer['til'])
+    observerede_punkter = set(fra + til)
+
+    kanonisk_ident = {}
+
+    for punkt in observerede_punkter:
+        info = punkt_information(punkt)
+        ident = info.punkt.ident
+        if ident != punkt:
+            kanonisk_ident[punkt] = ident
+
+    for ident, kanon in kanonisk_ident.items():
+        hvor = [idx for idx, val in enumerate(fra) if val == ident]
+        for i in hvor:
+            fra[i] = kanon
+        hvor = [idx for idx, val in enumerate(til) if val == ident]
+        for i in hvor:
+            til[i] = kanon
+
+    observationer['fra'] = fra
+    observationer['til'] = til
+    return observationer
 
 # ------------------------------------------------------------------------------
 def find_observationer(navn: str) -> pd.DataFrame:
@@ -300,7 +310,7 @@ def find_observationer(navn: str) -> pd.DataFrame:
             navn + ".xlsx", sheet_name="Observationer", usecols="A:P"
         )
     except:
-        observationer = importer_observationer()
+        observationer = importer_observationer(navn)
     return observationer
 
 
@@ -308,60 +318,45 @@ def find_observationer(navn: str) -> pd.DataFrame:
 def opbyg_punktoversigt(
     navn: str, nyetablerede: pd.DataFrame, alle_punkter: Tuple[str, ...]
 ) -> pd.DataFrame:
-    # Læs den foreløbige punktoversigt, for at kunne se om der skal gås i databasen
-    try:
-        punktoversigt = pd.read_excel(
-            navn + ".xlsx", sheet_name="Punktoversigt", usecols="A:L"
-        )
-    except:
-        punktoversigt = pd.DataFrame(
-            columns=[
-                "punkt",
-                "fix",
-                "upub",
-                "år",
-                "kote",
-                "σ",
-                "ny",
-                "ny σ",
-                "Δ",
-                "kommentar",
-                "φ",
-                "λ",
-            ]
-        )
-        assert punktoversigt.shape[0] == 0, "Forventede tom dataframe"
+    punktoversigt = pd.DataFrame(
+        columns=[
+            "punkt",
+            "fix",
+            "upub",
+            "år",
+            "kote",
+            "σ",
+            "ny",
+            "ny σ",
+            "Δ",
+            "kommentar",
+            "φ",
+            "λ",
+        ]
+    )
     print("Opbygger punktoversigt")
 
-    # Find og tilføj de punkter, der mangler i punktoversigten.
-    manglende_punkter = set(alle_punkter) - set(punktoversigt["punkt"])
-    pkt = list(punktoversigt["punkt"]) + list(manglende_punkter)
     # Forlæng punktoversigt, så der er plads til alle punkter
-    punktoversigt = punktoversigt.reindex(range(len(pkt)))
-    punktoversigt["punkt"] = pkt
+    punktoversigt = punktoversigt.reindex(range(len(alle_punkter)))
+    punktoversigt["punkt"] = alle_punkter
     # Geninstaller 'punkt'-søjlen som indexsøjle
     punktoversigt = punktoversigt.set_index("punkt")
 
-    # Hent kote og placering fra databasen hvis vi ikke allerede har den
-    print("Checker for manglende kote og placering")
-
-    koteid = np.nan
     nye_punkter = tuple(sorted(set(nyetablerede.index)))
+
+    try:
+        koteid = {x.name: x.sridid for x in fire.cli.firedb.hent_srider()}['EPSG:5799']
+    except KeyError:
+        fire.cli.print("DVR90 (EPSG:5799) ikke fundet i srid-tabel", bg="red", fg="white", err=True)
+        sys.exit(1)
 
     for punkt in alle_punkter:
         if not pd.isna(punktoversigt.at[punkt, "kote"]):
             continue
         if punkt in nye_punkter:
             continue
-        # Vi undgår tilgang til databasen hvis vi allerede har alle koter
-        # ved først at hente koteid når vi ved vi har brug for den
-        if np.isnan(koteid):
-            koteid = hent_sridid(firedb, "EPSG:5799")
-            # TODO: Klar det med try:..except i stedet
-            assert koteid != 0, "DVR90 (EPSG:5799) ikke fundet i srid-tabel"
 
         info = punkt_information(punkt)
-
         kote = punkt_kote(info, koteid)
         if kote is not None:
             punktoversigt.at[punkt, "kote"] = kote.z
@@ -409,7 +404,7 @@ def opbyg_punktoversigt(
         punktoversigt.at[punkt, "λ"] = lam
 
     # Reformater datarammen så den egner sig til output
-    return punktoversigt.sort_values(by="punkt").reset_index()
+    return punktoversigt.reset_index()
 
 
 # ------------------------------------------------------------------------------
@@ -670,15 +665,17 @@ def go(projektnavn: str, **kwargs) -> None:
     # Opbyg oversigt over alle observationer
     # -----------------------------------------------------
     if "Observationer" in workflow:
-        observationer = importer_observationer()
+        observationer = importer_observationer(projektnavn)
     else:
         observationer = find_observationer(projektnavn)
-
     observerede_punkter = set(observationer["fra"].append(observationer["til"]))
-    alle_punkter = observerede_punkter.union(nye_punkter)
-    # Vi er færdige med mængdeoperationer nu, så gør punktmængderne immutable
-    alle_punkter = tuple(sorted(alle_punkter))
+    alle_gamle_punkter = observerede_punkter - nye_punkter
+
+    # Vi er færdige med mængdeoperationer nu, så vi gør punktmængderne immutable,
+    # men vi vil gerne have de nye punkter først i listen, så vi sorterer gamle
+    # og nye hver for sig
     nye_punkter = tuple(sorted(nye_punkter))
+    alle_punkter = nye_punkter + tuple(sorted(alle_gamle_punkter))
     observerede_punkter = tuple(sorted(observerede_punkter))
 
     # ------------------------------------------------------
@@ -706,9 +703,10 @@ def go(projektnavn: str, **kwargs) -> None:
         (net, ensomme) = netanalyse(observationer, alle_punkter, tuple(fastholdte))
         forbundne_punkter = tuple(sorted(net["Punkt"]))
     else:
-        forbundne_punkter = find_forbundne_punkter(
-            projektnavn, observationer, alle_punkter, tuple(fastholdte)
-        )
+        forbundne_punkter = alle_punkter
+#        forbundne_punkter = find_forbundne_punkter(
+#            projektnavn, observationer, alle_punkter, tuple(fastholdte)
+#        )
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
     print(f"Forbundne punkter: {forbundne_punkter}")
     print(f"Estimerede punkter: {estimerede_punkter}")
