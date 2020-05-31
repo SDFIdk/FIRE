@@ -20,6 +20,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 # FIRE herself
 import fire.cli
+
 # Typingelementer fra databaseAPIet.
 from fire.api.model import (
     Koordinat,
@@ -27,7 +28,7 @@ from fire.api.model import (
     PunktInformationType,
     Sag,
     Sagsevent,
-    Sagsinfo
+    Sagsinfo,
 )
 
 
@@ -272,13 +273,15 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     )
 
     # Sorter efter journalside, så frem- og tilbageobservationer følges ad
-    observationer = observationer.sort_values(by="journal").set_index("journal").reset_index()
+    observationer = (
+        observationer.sort_values(by="journal").set_index("journal").reset_index()
+    )
 
-    #-------------------------------------------------
+    # -------------------------------------------------
     # Oversæt alle anvendte identer til kanonisk form
-    #-------------------------------------------------
-    fra = list(observationer['fra'])
-    til = list(observationer['til'])
+    # -------------------------------------------------
+    fra = list(observationer["fra"])
+    til = list(observationer["til"])
     observerede_punkter = set(fra + til)
 
     kanonisk_ident = {}
@@ -297,9 +300,10 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
         for i in hvor:
             til[i] = kanon
 
-    observationer['fra'] = fra
-    observationer['til'] = til
+    observationer["fra"] = fra
+    observationer["til"] = til
     return observationer
+
 
 # ------------------------------------------------------------------------------
 def opbyg_punktoversigt(
@@ -332,9 +336,11 @@ def opbyg_punktoversigt(
     nye_punkter = tuple(sorted(set(nyetablerede.index)))
 
     try:
-        koteid = {x.name: x.sridid for x in fire.cli.firedb.hent_srider()}['EPSG:5799']
+        koteid = {x.name: x.sridid for x in fire.cli.firedb.hent_srider()}["EPSG:5799"]
     except KeyError:
-        fire.cli.print("DVR90 (EPSG:5799) ikke fundet i srid-tabel", bg="red", fg="white", err=True)
+        fire.cli.print(
+            "DVR90 (EPSG:5799) ikke fundet i srid-tabel", bg="red", fg="white", err=True
+        )
         sys.exit(1)
 
     for punkt in alle_punkter:
@@ -487,17 +493,6 @@ def spredning(
 
 
 # ------------------------------------------------------------------------------
-def find_workflow(navn):
-    try:
-        workflow = pd.read_excel(navn + ".xlsx", sheet_name="Workflow", usecols="B:C")
-    except:
-        workflow = pd.DataFrame(columns=["Betegnelse", "Udføres"])
-        assert workflow.shape[0] == 0, "Forventede tom dataframe"
-    workflow = workflow[workflow["Udføres"] == "x"]
-    return list(workflow["Betegnelse"])
-
-
-# ------------------------------------------------------------------------------
 def find_fastholdte(punktoversigt: pd.DataFrame) -> Dict[str, float]:
     fastholdte_punkter = tuple(punktoversigt[punktoversigt["fix"] == 0]["punkt"])
     fastholdteKoter = tuple(punktoversigt[punktoversigt["fix"] == 0]["kote"])
@@ -614,18 +609,67 @@ def regn(
     return punktoversigt
 
 
+# -----------------------------------------------------------------------------
+# Skriv resultatfil
+# -----------------------------------------------------------------------------
+# Så kan vi skrive. Med lidt hjælp fra:
+# https://www.marsja.se/pandas-excel-tutorial-how-to-read-and-write-excel-files
+# https://pypi.org/project/XlsxWriter/
+# -----------------------------------------------------------------------------
+# NB: et sted undervejs i eksporten af instrument-rådata bliver utf-8 tegn
+# tilsyneladende erstattet af sekvensen "EF BF BD (character place keeper)".
+# Så det er ikke en fejl i mtl.py, når kommentaren "tæt trafik"
+# bliver repræsenteret som "t�t trafik". Fejlen må rettes opstrøms.
+# -----------------------------------------------------------------------------
+def skriv_resultater(
+    projektnavn: str, resultater: List[Tuple[str, pd.DataFrame]]
+) -> None:
+    """Skriv resultater til excel-fil"""
+    print(f"Skriver resultat-ark: {[r[0] for r in resultater]}")
+    writer = pd.ExcelWriter(f"{projektnavn}-resultat.xlsx", engine="xlsxwriter")
+    for r in resultater:
+        r[1].to_excel(writer, sheet_name=r[0], encoding="utf-8", index=False)
+    writer.save()
+    print(f"Færdig - output kan ses i '{projektnavn}-resultat.xlsx'")
+
+
 # ------------------------------------------------------------------------------
 # Her starter hovedprogrammet...
 # ------------------------------------------------------------------------------
 @mtl.command()
 @fire.cli.default_options()
+@click.option(
+    "-I",
+    "--indlæs",
+    is_flag=True,
+    default=False,
+    help="Importer data fra observationsfiler og opbyg punktoversigt",
+)
+@click.option(
+    "-R", "--regn", is_flag=True, default=False, help="Udfør netanalyse og beregning",
+)
 @click.argument(
     "projektnavn", nargs=1, type=str,
 )
-def go(projektnavn: str, **kwargs) -> None:
+def go(projektnavn: str, indlæs: bool, regn: bool, **kwargs) -> None:
     print("Så kører vi")
 
-    workflow = find_workflow(projektnavn)
+    resultater = []
+
+    if regn and indlæs:
+        fire.cli.print("Kan ikke både regne og indlæse i samme arbejdsgang.")
+        fire.cli.print('"fire mtl --help" kan måske hjælpe.')
+        sys.exit(1)
+
+    if not (regn or indlæs):
+        fire.cli.print("Vælg enten --regn eller --indlæs.")
+        fire.cli.print('"fire mtl --help" kan måske hjælpe.')
+        sys.exit(1)
+
+    if indlæs:
+        workflow = ("Observationer", "Punktoversigt")
+    if regn:
+        workflow = ("Net", "Regn")
     print(f"Dagsorden: {workflow}")
 
     # -----------------------------------------------------
@@ -639,14 +683,17 @@ def go(projektnavn: str, **kwargs) -> None:
     # -----------------------------------------------------
     if "Observationer" in workflow:
         observationer = importer_observationer(projektnavn)
+        resultater.append(("Observationer", observationer))
     else:
         try:
             observationer = pd.read_excel(
-                navn + ".xlsx", sheet_name="Observationer", usecols="A:P"
+                projektnavn + ".xlsx", sheet_name="Observationer", usecols="A:P"
             )
         except:
             fire.cli.print(f'Der er ingen observationsoversigt i "{projektnavn}.xlsx"')
-            fire.cli.print(f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?')
+            fire.cli.print(
+                f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?'
+            )
             sys.exit(1)
 
     observerede_punkter = set(observationer["fra"].append(observationer["til"]))
@@ -664,6 +711,7 @@ def go(projektnavn: str, **kwargs) -> None:
     # ------------------------------------------------------
     if "Punktoversigt" in workflow:
         punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
+        resultater.append(("Punktoversigt", punktoversigt))
     else:
         try:
             punktoversigt = pd.read_excel(
@@ -671,9 +719,20 @@ def go(projektnavn: str, **kwargs) -> None:
             )
         except:
             fire.cli.print(f'Der er ingen punktoversigt i "{projektnavn}.xlsx"')
-            fire.cli.print(f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?')
+            fire.cli.print(
+                f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?'
+            )
             sys.exit(1)
 
+    if indlæs:
+        skriv_resultater(projektnavn, resultater)
+        fire.cli.print(
+            f'Dataindlæsning afsluttet. Kopiér nu faneblade fra "{projektnavn}-resultat.xlsx"'
+        )
+        fire.cli.print(
+            f'til "{projektnavn}.xlsx", og vælg fastholdte punkter i punktoversigten.'
+        )
+        sys.exit(0)
 
     # -----------------------------------------------------
     # Find fastholdte og holdte ('constrainede')
@@ -694,15 +753,17 @@ def go(projektnavn: str, **kwargs) -> None:
     # -----------------------------------------------------
     if "Net" in workflow:
         (net, ensomme) = netanalyse(observationer, alle_punkter, tuple(fastholdte))
+        resultater += [("Netgeometri", net), ("Ensomme", ensomme)]
     else:
         try:
             net = pd.read_excel(navn + ".xlsx", sheet_name="Netgeometri", usecols="A")
         except:
             fire.cli.print(f'Der er ingen netoversigt i "{projektnavn}.xlsx"')
-            fire.cli.print(f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?')
+            fire.cli.print(
+                f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?'
+            )
             sys.exit(1)
     forbundne_punkter = tuple(sorted(net["Punkt"]))
-
 
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
     print(f"Forbundne punkter: {forbundne_punkter}")
@@ -715,29 +776,6 @@ def go(projektnavn: str, **kwargs) -> None:
         punktoversigt = regn(
             projektnavn, observationer, punktoversigt, estimerede_punkter
         )
+        resultater.append(("Punktoversigt", punktoversigt))
 
-    # -----------------------------------------------------------------------------
-    # Skriv resultatfil
-    # -----------------------------------------------------------------------------
-    # Så kan vi skrive. Med lidt hjælp fra:
-    # https://www.marsja.se/pandas-excel-tutorial-how-to-read-and-write-excel-files
-    # https://pypi.org/project/XlsxWriter/
-    # -----------------------------------------------------------------------------
-    # NB: et sted undervejs i eksporten af instrument-rådata bliver utf-8 tegn
-    # tilsyneladende erstattet af sekvensen "EF BF BD (character place keeper)".
-    # Så det er ikke en fejl i mtl.py, når kommentaren "tæt trafik"
-    # bliver repræsenteret som "t�t trafik". Fejlen må rettes opstrøms.
-    # -----------------------------------------------------------------------------
-    ark = [("Punktoversigt", punktoversigt)]
-    if "Net" in workflow:
-        ark += [("Netgeometri", net), ("Ensomme", ensomme)]
-    if "Observationer" in workflow:
-        ark += [("Observationer", observationer)]
-
-    print(f"Skriver resultat-ark: {[a[0] for a in ark]}")
-    writer = pd.ExcelWriter(f"{projektnavn}-resultat.xlsx", engine="xlsxwriter")
-    for a in ark:
-        if a[1] is not None:
-            a[1].to_excel(writer, sheet_name=a[0], encoding="utf-8", index=False)
-    writer.save()
-    print(f"Færdig - output kan ses i '{projektnavn}-resultat.xlsx'")
+    skriv_resultater(projektnavn, resultater)
