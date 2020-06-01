@@ -12,7 +12,7 @@ def test_cli():
     runner = CliRunner()
 
     title = "go"
-    args = ["go", "bananas"]
+    args = ["indlæs", "bananas"]
 
     # Lidt bannerlarm
     click.echo("\nTest: " + title)

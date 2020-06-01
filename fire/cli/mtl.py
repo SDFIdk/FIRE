@@ -409,7 +409,7 @@ def netanalyse(
     print("Analyserer net")
     assert len(fastholdte_punkter) > 0, "Netanalyse kræver mindst et fastholdt punkt"
     # Initialiser
-    net = dict()
+    net = {}
     for punkt in alle_punkter:
         net[punkt] = set()
 
@@ -434,15 +434,9 @@ def netanalyse(
         else:
             forbundne_punkter.add(punkt)
 
-    if len(ensomme_punkter) != 0:
-        print(
-            "ADVARSEL: Følgende punkter er ikke observationsforbundne med fastholdt punkt. De medtages derfor ikke i udjævning"
-        )
-        print("Ensomme: ", ensomme_punkter)
-
     # Vi vil ikke have de kunstige forbindelser mellem fastholdte punkter med
     # i output, så nu genopbygger vi nettet uden dem
-    net = dict()
+    net = {}
     for punkt in alle_punkter:
         net[punkt] = set()
     for fra, til in zip(observationer["fra"], observationer["til"]):
@@ -456,7 +450,7 @@ def netanalyse(
     # Nu kommer der noget grimt...
     # Tving alle rækker til at være lige lange, så vi kan lave en dataframe af dem
     maxAntalNaboer = max([len(net[e]) for e in net])
-    nyt = dict()
+    nyt = {}
     for punkt in net:
         naboer = list(sorted(net[punkt])) + maxAntalNaboer * [""]
         nyt[punkt] = tuple(naboer[0:maxAntalNaboer])
@@ -508,7 +502,7 @@ def find_holdte(punktoversigt: pd.DataFrame) -> Dict[str, Tuple[float, float]]:
 
 
 # ------------------------------------------------------------------------------
-def regn(
+def gama_beregning(
     projektnavn: str,
     observationer: pd.DataFrame,
     punktoversigt: pd.DataFrame,
@@ -526,7 +520,7 @@ def regn(
                 '<?xml version="1.0" ?><gama-local>\n',
                 '<network angles="left-handed" axes-xy="en" epoch="0.0">\n',
                 "<parameters\n",
-                '    algorithm="gso" angles="400" conf-pr="0.95"\n',
+                '    algorithm="svd" angles="400" conf-pr="0.95"\n',
                 '    cov-band="0" ellipsoid="grs80" latitude="55.7" sigma-act="apriori"\n',
                 '    sigma-apr="1.0" tol-abs="1000.0"\n',
                 '    update-constrained-coordinates="no"\n',
@@ -621,56 +615,28 @@ def regn(
 # Så det er ikke en fejl i mtl.py, når kommentaren "tæt trafik"
 # bliver repræsenteret som "t�t trafik". Fejlen må rettes opstrøms.
 # -----------------------------------------------------------------------------
-def skriv_resultater(
-    projektnavn: str, resultater: List[Tuple[str, pd.DataFrame]]
-) -> None:
+def skriv_resultater(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> None:
     """Skriv resultater til excel-fil"""
-    print(f"Skriver resultat-ark: {[r[0] for r in resultater]}")
+    print(f"Skriver resultat-ark: {tuple(resultater)}")
     writer = pd.ExcelWriter(f"{projektnavn}-resultat.xlsx", engine="xlsxwriter")
     for r in resultater:
-        r[1].to_excel(writer, sheet_name=r[0], encoding="utf-8", index=False)
+        resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
     writer.save()
     print(f"Færdig - output kan ses i '{projektnavn}-resultat.xlsx'")
 
 
 # ------------------------------------------------------------------------------
-# Her starter hovedprogrammet...
+# Her starter indlæsningsprogrammet...
 # ------------------------------------------------------------------------------
 @mtl.command()
 @fire.cli.default_options()
-@click.option(
-    "-I",
-    "--indlæs",
-    is_flag=True,
-    default=False,
-    help="Importer data fra observationsfiler og opbyg punktoversigt",
-)
-@click.option(
-    "-R", "--regn", is_flag=True, default=False, help="Udfør netanalyse og beregning",
-)
 @click.argument(
     "projektnavn", nargs=1, type=str,
 )
-def go(projektnavn: str, indlæs: bool, regn: bool, **kwargs) -> None:
+def indlæs(projektnavn: str, **kwargs) -> None:
+    """Importer data fra observationsfiler og opbyg punktoversigt"""
     print("Så kører vi")
-
-    resultater = []
-
-    if regn and indlæs:
-        fire.cli.print("Kan ikke både regne og indlæse i samme arbejdsgang.")
-        fire.cli.print('"fire mtl --help" kan måske hjælpe.')
-        sys.exit(1)
-
-    if not (regn or indlæs):
-        fire.cli.print("Vælg enten --regn eller --indlæs.")
-        fire.cli.print('"fire mtl --help" kan måske hjælpe.')
-        sys.exit(1)
-
-    if indlæs:
-        workflow = ("Observationer", "Punktoversigt")
-    if regn:
-        workflow = ("Net", "Regn")
-    print(f"Dagsorden: {workflow}")
+    resultater = {}
 
     # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
@@ -681,26 +647,67 @@ def go(projektnavn: str, indlæs: bool, regn: bool, **kwargs) -> None:
     # -----------------------------------------------------
     # Opbyg oversigt over alle observationer
     # -----------------------------------------------------
-    if "Observationer" in workflow:
-        observationer = importer_observationer(projektnavn)
-        resultater.append(("Observationer", observationer))
-    else:
-        try:
-            observationer = pd.read_excel(
-                projektnavn + ".xlsx", sheet_name="Observationer", usecols="A:P"
-            )
-        except:
-            fire.cli.print(f'Der er ingen observationsoversigt i "{projektnavn}.xlsx"')
-            fire.cli.print(
-                f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?'
-            )
-            sys.exit(1)
-
-    observerede_punkter = set(observationer["fra"].append(observationer["til"]))
+    observationer = importer_observationer(projektnavn)
+    resultater["Observationer"] = observationer
+    observerede_punkter = set(list(observationer["fra"]) + list(observationer["til"]))
     alle_gamle_punkter = observerede_punkter - nye_punkter
 
-    # Vi er færdige med mængdeoperationer nu, så vi gør punktmængderne immutable,
-    # men vi vil gerne have de nye punkter først i listen, så vi sorterer gamle
+    # Vi vil gerne have de nye punkter først i punktoversigten,
+    # så vi sorterer gamle og nye hver for sig
+    nye_punkter = tuple(sorted(nye_punkter))
+    alle_punkter = nye_punkter + tuple(sorted(alle_gamle_punkter))
+
+    # ------------------------------------------------------
+    # Opbyg oversigt over alle punkter m. kote og placering
+    # ------------------------------------------------------
+    punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
+    resultater["Punktoversigt"] =  punktoversigt
+    skriv_resultater(projektnavn, resultater)
+    fire.cli.print(
+        f'Dataindlæsning afsluttet. Kopiér nu faneblade fra "{projektnavn}-resultat.xlsx"'
+    )
+    fire.cli.print(
+        f'til "{projektnavn}.xlsx", og vælg fastholdte punkter i punktoversigten.'
+    )
+
+# ------------------------------------------------------------------------------
+# Her starter regneprogrammet...
+# ------------------------------------------------------------------------------
+@mtl.command()
+@fire.cli.default_options()
+@click.argument(
+    "projektnavn", nargs=1, type=str,
+)
+def regn(projektnavn: str, **kwargs) -> None:
+    """Udfør netanalyse og beregn nye koter"""
+    print("Så regner vi")
+
+    resultater = {}
+
+    # -----------------------------------------------------
+    # Opbyg oversigt over nyetablerede punkter
+    # -----------------------------------------------------
+    nyetablerede = find_nyetablerede(projektnavn)
+    nye_punkter = set(nyetablerede.index)
+
+    # -----------------------------------------------------
+    # Opbyg oversigt over alle observationer
+    # -----------------------------------------------------
+    try:
+        observationer = pd.read_excel(
+            projektnavn + ".xlsx", sheet_name="Observationer", usecols="A:P"
+        )
+    except:
+        fire.cli.print(f'Der er ingen observationsoversigt i "{projektnavn}.xlsx"')
+        fire.cli.print(
+            f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?'
+        )
+        sys.exit(1)
+
+    observerede_punkter = set(list(observationer["fra"]) + list(observationer["til"]))
+    alle_gamle_punkter = observerede_punkter - nye_punkter
+
+    # Vi vil gerne have de nye punkter først i listen, så vi sorterer gamle
     # og nye hver for sig
     nye_punkter = tuple(sorted(nye_punkter))
     alle_punkter = nye_punkter + tuple(sorted(alle_gamle_punkter))
@@ -709,30 +716,28 @@ def go(projektnavn: str, indlæs: bool, regn: bool, **kwargs) -> None:
     # ------------------------------------------------------
     # Opbyg oversigt over alle punkter m. kote og placering
     # ------------------------------------------------------
-    if "Punktoversigt" in workflow:
-        punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
-        resultater.append(("Punktoversigt", punktoversigt))
-    else:
-        try:
-            punktoversigt = pd.read_excel(
-                projektnavn + ".xlsx", sheet_name="Punktoversigt", usecols="A:L"
-            )
-        except:
-            fire.cli.print(f'Der er ingen punktoversigt i "{projektnavn}.xlsx"')
-            fire.cli.print(
-                f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?'
-            )
-            sys.exit(1)
+    try:
+        punktoversigt = pd.read_excel(
+            projektnavn + ".xlsx", sheet_name="Punktoversigt", usecols="A:L"
+        )
+    except:
+        fire.cli.print(f'Der er ingen punktoversigt i "{projektnavn}.xlsx"')
+        fire.cli.print(
+            f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?'
+        )
+        sys.exit(1)
 
-    if indlæs:
-        skriv_resultater(projektnavn, resultater)
+    # Har vi alle punkter med i punktoversigten?
+    punkter_i_oversigt = set(punktoversigt["punkt"])
+    manglende_punkter_i_oversigt = set(alle_punkter) - punkter_i_oversigt
+    if (len(manglende_punkter_i_oversigt) > 0):
+        fire.cli.print(f'Punktoversigten i "{projektnavn}.xlsx" mangler punkterne:')
+        fire.cli.print(f'{manglende_punkter_i_oversigt}')
         fire.cli.print(
-            f'Dataindlæsning afsluttet. Kopiér nu faneblade fra "{projektnavn}-resultat.xlsx"'
+            f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?'
         )
-        fire.cli.print(
-            f'til "{projektnavn}.xlsx", og vælg fastholdte punkter i punktoversigten.'
-        )
-        sys.exit(0)
+        sys.exit(1)
+
 
     # -----------------------------------------------------
     # Find fastholdte og holdte ('constrainede')
@@ -751,31 +756,21 @@ def go(projektnavn: str, indlæs: bool, regn: bool, **kwargs) -> None:
     # -----------------------------------------------------
     # Udfør netanalyse
     # -----------------------------------------------------
-    if "Net" in workflow:
-        (net, ensomme) = netanalyse(observationer, alle_punkter, tuple(fastholdte))
-        resultater += [("Netgeometri", net), ("Ensomme", ensomme)]
-    else:
-        try:
-            net = pd.read_excel(navn + ".xlsx", sheet_name="Netgeometri", usecols="A")
-        except:
-            fire.cli.print(f'Der er ingen netoversigt i "{projektnavn}.xlsx"')
-            fire.cli.print(
-                f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?'
-            )
-            sys.exit(1)
-    forbundne_punkter = tuple(sorted(net["Punkt"]))
+    (net, ensomme) = netanalyse(observationer, alle_punkter, tuple(fastholdte))
+    resultater["Netgeometri"] = net
+    resultater["Ensomme"] = ensomme
 
+    forbundne_punkter = tuple(sorted(net["Punkt"]))
+    ensomme_punkter = tuple(sorted(ensomme["Punkt"]))
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
-    print(f"Forbundne punkter: {forbundne_punkter}")
-    print(f"Estimerede punkter: {estimerede_punkter}")
+    print(f"Fandt {len(ensomme_punkter)} ensomme punkter: {ensomme_punkter}")
+    print(f"Beregner nye koter for {len(estimerede_punkter)} punkter")
 
     # -----------------------------------------------------
     # Udfør beregning
     # -----------------------------------------------------
-    if "Regn" in workflow:
-        punktoversigt = regn(
-            projektnavn, observationer, punktoversigt, estimerede_punkter
-        )
-        resultater.append(("Punktoversigt", punktoversigt))
+    resultater["Punktoversigt"] = gama_beregning(
+        projektnavn, observationer, punktoversigt, estimerede_punkter
+    )
 
     skriv_resultater(projektnavn, resultater)
