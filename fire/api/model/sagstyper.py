@@ -39,6 +39,18 @@ class Sag(RegisteringFraObjekt):
     def aktiv(self) -> bool:
         return self.sagsinfos[-1].aktiv != "false"
 
+    @property
+    def journalnummer(self) -> str:
+        return self.sagsinfos[-1].journalnummer
+
+    @property
+    def behandler(self) -> str:
+        return self.sagsinfos[-1].behandler
+
+    @property
+    def beskrivelse(self) -> str:
+        return self.sagsinfos[-1].beskrivelse
+
 
 class Sagsinfo(RegisteringTidObjekt):
     __tablename__ = "sagsinfo"
@@ -132,6 +144,10 @@ class Sagsevent(RegisteringFraObjekt):
         back_populates="slettet",
         foreign_keys="Beregning.sagseventtilid",
     )
+
+    @property
+    def beskrivelse(self) -> str:
+        return self.sagseventinfos[-1].beskrivelse
 
 
 class SagseventInfo(RegisteringTidObjekt):
