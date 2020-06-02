@@ -1,6 +1,6 @@
 .. _datamodel:
 
-FIRE's Datamodel
+FIREs Datamodel
 ==================
 
 Introduktion
@@ -8,7 +8,7 @@ Introduktion
 
 Datamodellen i FIRE består af to lag: Et datalag og et metadatalag. Datalaget
 indeholder de egentlige geodætisk relevante data, og metadatalaget indeholder
-historikken af disse data. Til sammen består de to lag af en række objekter
+historikken af disse data. Tilsammen består de to lag af en række objekter
 som har indbyrdes relationer. Et objekt i denne sammenhæng kan løseligt forstås
 som en række i en relationel database.
 
@@ -18,7 +18,7 @@ følger god forvaltningsskik i staten, samt understøtter inkrementelle opdateri
 af en tilknyttet udstillingsmodel.
 
 For at kunne bestemme indholdet af databasen på et givent tidspunkt er det
-en forudsætning at intet data slettes. Hvis data først er landet i databasen
+en forudsætning at intet data slettes. Hvis data først er landet i databasen,
 må det altså ikke forsvinde igen. Dette gælder også for fejlbehæftede data.
 Det forhindrer dog ikke at fejl rettes, det betyder bare at istedet for at
 fjerne data, erstattes det af nyt så man kan følge udviklingen over tid.
@@ -26,7 +26,7 @@ Til dette bruges "Fikspunktregisterobjekter". Alle de geodætiske data i FIRE
 er Fikspunktsregisterobjekter, fx Punkter, Koordinater og Observationer (markeret
 med blåt i figurerne herunder). At et objekt er et Fikspunktsregisterobjekt
 betyder at det har fire attributter tilknyttet sig: ``registreringfra``,
-``registreringtil``, ``sagseventidfra`` og ``sagseventidtil``. Til sammen giver
+``registreringtil``, ``sagseventidfra`` og ``sagseventidtil``. Tilsammen giver
 disse fire attributter muligheden for at holde styr på historikken i databasen.
 
 .. graphviz::
@@ -52,17 +52,17 @@ disse fire attributter muligheden for at holde styr på historikken i databasen.
 
 I praksis holdes der styr på data ved at registrere hvornår det er indsat i
 databasen (``registreringfra``). Når et objekt, fx en koordinat, erstattes af
-en nyere angives det på det tidligere objekt hvornår det er blevet erstattet
+en nyere, angives det på det tidligere objekt hvornår det er blevet erstattet
 (``registreringtil``). Tilsvarende, hvis et objekt skal "slettes" sættes
-``registreringtil`` til det tidspunktet hvor det er besluttet at objektet
+``registreringtil`` til det tidspunkt hvor det er besluttet, at objektet
 ikke længere er i brug. Den slags ændringer i objekter kaldes hændelser. En
 gruppe af logisk sammenhængende hændelser udgør en Sag.
 
-I databasen er hændelserne navngivet "Sagsevents" (danske tegn fungerer dårligt i
+I databasen er hændelserne navngivet "Sagsevents" (og ikke "Sagshændelser", da danske tegn fungerer dårligt i
 databasen). Ved hver hændelse indsættes der et Sagsevent i databasen.
 Disse kan identificeres ved ID'er. Det er disse ID'er Fikspunktsregisterobjekter
-benytter i attributterne ``sagseventidfra`` og ``sagseventidtil``. Det vil sige,
-at hver gang et objekt registeres eller ændres i databasen er der tilknyttet
+benytter i attributterne ``sagseventidfra`` og ``sagseventidtil``. Det vil sige
+at hver gang et objekt registeres eller ændres i databasen, er der tilknyttet
 metadata til hændelsen. Håndtering af Sager og Sagsevents beskrives yderligere i
 afsnittet :ref:`sager_og_historik`.
 
@@ -74,7 +74,7 @@ i FIRE, da dets primære funktion er at være bindeled til andre objekter og der
 i praksis kun består af en nøgle andre objekter kan henvise til. Der findes fire objekter
 der direkte kan knyttes til et punkt: Koordinat, Observation, Punktinformation og
 Geometriobjekt. De indbyrdes forhold ses på figuren herunder og omtales yderligere
-i seperate afsnit længere nede i teksten.
+i separate afsnit længere nede i teksten.
 
 .. graphviz::
     :name: Grundobjekter
@@ -126,7 +126,7 @@ i seperate afsnit længere nede i teksten.
                     + y : Float\l
                     + z : Float\l
                     + sx : Float\l
-                    + ssy : Float\l
+                    + sy : Float\l
                     + sz : Float\l
                     + transformeret : Boolean\l
                     + artskode : Integer\l
@@ -162,7 +162,7 @@ i seperate afsnit længere nede i teksten.
      }
 
 Da der kan være mange forskellige typer Koordinater, Observationer
-og Punktinformationer findes der for hver af de tre objekter typer
+og Punktinformationer, findes der for hver af de tre objekter typer
 som bruges til at bestemme hvilke egenskaber et givent objekt har.
 På figuren herunder ses skematisk hvordan typerne for hver af de
 tre objekter er bygget op.
@@ -247,15 +247,15 @@ tre objekter er bygget op.
                 Observation -> Punkt;
         }
 
-Punktinformationer og Punktinformationtyper
+Punktinformationer og Punktinformationstyper
 +++++++++++++++++++++++++++++++++++++++++++
 
 Punktinformationer er, som navnet antyder, information om et punkt. Punktinformation
 dækker over mange aspekter af et punkter: Identer, afmærkningstyper, attributter,
 skitser, geografisk område og så videre. Hver af disse aspekter er registreret som
-en separat Punktinformationtype, der identificeres ud fra en nøgle på formen:
-<kategori>:<attribut>. Eksempler på dette er *IDENT:landsnr*, *NET:10km* og
-*ATTR:højde_over_terræn*.
+en separat Punktinformationstype, der identificeres ud fra en nøgle på formen:
+<kategori>:<attribut>. Eksempler på Punktinformationstyper er *IDENT:landsnr*, *NET:10KM* og
+*AFM:højde_over_terræn*.
 
 Tabellen herunder viser hvilke punktinformationskategorier der findes.
 
@@ -273,10 +273,10 @@ SKITSE        Information vedr. punktskitser
 Overordnet set kan Punktinformationer bruges på tre måder: Tekst, tal og markering.
 Eksempler på tekst er *IDENT:GNSS*, *ATTR:bemærkning* og *SKITSE:sti*. Punktinformationer
 der indeholder tal er *AFM:højde_over_dæksel* og *AFM:højde_over_jordoverfladen*.
-Markeringer er enten/eller attributter. Hvis en markering er angivet er attributten aktuel
+Markeringer er "enten/eller"-attributter. Hvis en markering er angivet, er attributten aktuel
 for det givne punkt. Eksempler herpå er *ATTR:tabtgået*, *NET:5D* og *REGION:DK*.
 
-Mere information om en bestemt Punktinformationtype kan fås ved hjælp af kommandoen::
+Mere information om en bestemt Punktinformationstype kan fås ved hjælp af kommandoen::
 
     fire info infotype <punktinfotype>
 
@@ -321,7 +321,7 @@ Observationer og observationstyper
 ++++++++++++++++++++++++++++++++++
 
 Ligesom for Punktinformation og Koordinater defineres forskellige typer af Observationer.
-Der kan knyttes op til 15 værdier til en Observation, præcist hvor mange og deres betydning
+Der kan knyttes op til 15 værdier til en Observation; præcist hvor mange og deres betydning
 defineres i Observationstypen. Der findes væsentligt færre observationstyper end der findes
 SRID'er og Punktinformationstyper hvorfor de ikke organiseres under forskellige kategorier.
 De tilgængelige Observationstyper vises i tabellen herunder.
@@ -570,19 +570,19 @@ Der findes en række sagsevents i FIRE. I tabellen herunder er de alle kort besk
 **Type**                   **Beskrivelse**
 -------------------------  ----------------------------------------------------------------------------
 ``koordinat_beregnet``     Bruges når koordinater indsættes efter en beregning. Vil typisk resulterere
-                           i indsættelse af *n* koordinater og 1 beregning.
-``koordinat_nedlagt``      Bruges når en koordinat nedlægges.
-``observation_indsat``     Indsættelse af en eller flere observationer.
-``observation_nedlagt``    Bruges når en observation aflyses fordi den er fejlbehæftet
+                           i indsættelse af *n* koordinater og 1 beregning
+``koordinat_nedlagt``      Bruges når en koordinat nedlægges
+``observation_indsat``     Indsættelse af en eller flere observationer
+``observation_nedlagt``    Bruges når en observation aflyses, fordi den er fejlbehæftet
 ``punktinfo_tilføjet``     Bruges når der tilføjes Punktinfo til et eller flere punkter
 ``punktinfo_fjernet``      Bruges når Punktinfo fjernes fra et eller flere punkter
 ``punkt_oprettet``         Bruges når et punkt og tilhørende geometri oprettes
 ``punkt_nedlagt``          Bruges når et punkt og tilhørende geometri nedlægges. Bemærk at når et punkt
                            nedlægges, afregistreres desuden alle tilknyttede koordinater, observationer
-                           og punktinformationer, da disse ikke længere har et tilhørsforhold.
-``kommentar``              Bruges til at tilføje fritekst kommentarer til sagen i tilfælde af at der er
-                           behov for at påhæfte sagen yderligere information som ikke passer i andre
-                           hændelser. Bruges fx også til påhæftning af materiale på sagen.
+                           og punktinformationer, da disse ikke længere har et tilhørsforhold
+``kommentar``              Bruges til at tilføje fritekst-kommentarer til sagen i tilfælde af at der er
+                           behov for at påhæfte sagen yderligere information, som ikke passer i andre
+                           hændelser. Bruges fx også til påhæftning af materiale på sagen
 =========================  ============================================================================
 
 Eksempel på en sag
@@ -602,9 +602,7 @@ her i databasen:
 * Indsæt Koordinater og Beregning, henvis til Sagsevent på linjen ovenfor
 * Opdater aktiv til "false" på Sagens Sagsinfo.
 
-Der tilføjes beskrivelser af Sag og Sagsevent i forbindelse med at de oprettes, sagen vil fx
-have noget i stil med "Kommunal vedligehold Vejle 2020" og de Sagsevents fx "Indsættelse af observationer"
-og "Indsættelse af koordinater". Til sammen gør det det muligt at få et hurtigt overblik over hvad der er
+Der tilføjes beskrivelser af Sag og Sagsevent i forbindelse med at de oprettes. Beskrivelse for Sag kan fx lyde noget i stil med "Kommunal vedligehold Vejle 2020" og for Sagsevents fx "Indsættelse af observationer" og "Indsættelse af koordinater". Tilsammen gør det det muligt at få et hurtigt overblik over hvad der er
 sket på en Sag.
 
 Ovenstående eksempel er meget databasenært. Brugere af FIRE skal ikke forholde sig aktivt til Sagsevent
