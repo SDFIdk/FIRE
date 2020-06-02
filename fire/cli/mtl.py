@@ -1,4 +1,6 @@
 # Python infrastrukturelementer
+import json
+import pprint
 import subprocess
 import sys
 
@@ -303,6 +305,104 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     observationer["fra"] = fra
     observationer["til"] = til
     return observationer
+
+
+# ------------------------------------------------------------------------------
+def obs_feature(punkter: pd.DataFrame, observationer: pd.DataFrame) -> Dict[str, str]:
+    """Omsæt observationsinformationer til JSON-egnet dict"""
+    for i in range(observationer.shape[0]):
+        fra = observationer.at[i, "fra"]
+        til = observationer.at[i, "til"]
+        feature = {
+            "type": "Feature",
+            "properties": {
+                "fra": fra,
+                "til": til,
+                "afstand": observationer.at[i, "L"],
+                "dH": observationer.at[i, "dH"],
+                # konvertering, da json.dump ikke uderstøtter int64
+                "opstillinger": int(observationer.at[i, "opst"]),
+                "journal": observationer.at[i, "journal"],
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [punkter.at[fra, "λ"], punkter.at[fra, "φ"]],
+                    [punkter.at[til, "λ"], punkter.at[til, "φ"]],
+                ],
+            },
+        }
+        yield feature
+
+
+# ------------------------------------------------------------------------------
+def observationer_geojson(
+    projektnavn: str, punkter: pd.DataFrame, observationer: pd.DataFrame,
+) -> None:
+    """Skriv observationer til geojson-fil"""
+
+    with open(projektnavn + "-observationer.geojson", "wt") as obsfil:
+        til_json = {
+            "type": "FeatureCollection",
+            "Features": list(obs_feature(punkter, observationer)),
+        }
+        json.dump(til_json, obsfil, indent=4)
+
+
+def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
+    """Omsæt punktinformationer til JSON-egnet dict"""
+    for i in range(punkter.shape[0]):
+        punkt = punkter.at[i, "punkt"]
+
+        # Fastholdte punkter har ingen ny kote, så vi viser den gamle
+        if punkter.at[i, "fix"] == 0:
+            fastholdt = True
+            delta = 0.0
+            kote = punkter.at[i, "kote"]
+            sigma = punkter.at[i, "σ"]
+        else:
+            fastholdt = False
+            delta = punkter.at[i, "Δ"]
+            kote = punkter.at[i, "ny"]
+            sigma = punkter.at[i, "ny σ"]
+        print(f"{punkt} {delta} {kote} {sigma} {fastholdt}")
+
+        # Endnu uberegnede punkter
+        if kote is None:
+            kote = 0
+            delta = 0
+            sigma = 0
+
+        # Ignorerede ændringer (under 1 um)
+        if delta is None:
+            delta = 0
+
+        feature = {
+            "type": "Feature",
+            "properties": {
+                "id": punkt,
+                "H": kote,
+                "sH": sigma,
+                "delta": delta,
+                "fastholdt": fastholdt,
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [punkter.at[i, "λ"], punkter.at[i, "φ"]],
+            },
+        }
+        yield feature
+
+
+# ------------------------------------------------------------------------------
+def punkter_geojson(projektnavn: str, punkter: pd.DataFrame,) -> None:
+    """Skriv punkter/koordinater i geojson-format"""
+    with open(projektnavn + "-punkter.geojson", "wt") as punktfil:
+        til_json = {
+            "type": "FeatureCollection",
+            "Features": list(punkt_feature(punkter)),
+        }
+        json.dump(til_json, punktfil, indent=4)
 
 
 # ------------------------------------------------------------------------------
@@ -670,6 +770,9 @@ def indlæs(projektnavn: str, **kwargs) -> None:
         f'til "{projektnavn}.xlsx", og vælg fastholdte punkter i punktoversigten.'
     )
 
+    punkter_geojson(projektnavn, punktoversigt)
+    observationer_geojson(projektnavn, punktoversigt.set_index("punkt"), observationer)
+
 
 # ------------------------------------------------------------------------------
 # Her starter regneprogrammet...
@@ -773,4 +876,5 @@ def regn(projektnavn: str, **kwargs) -> None:
         projektnavn, observationer, punktoversigt, estimerede_punkter
     )
 
+    punkter_geojson(projektnavn, resultater["Punktoversigt"])
     skriv_resultater(projektnavn, resultater)
