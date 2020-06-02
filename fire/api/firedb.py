@@ -132,9 +132,20 @@ class FireDb(object):
         return self.session.query(Punkt).all()
 
     def hent_sag(self, sagid: str) -> Sag:
-        return self.session.query(Sag).filter(Sag.id == sagid).one()
+        """
+        Hent en sag ud fra dens sagsid.
 
-    def hent_alle_sager(self) -> List[Sag]:
+        Sagsid'er behøver ikke være fuldstændige, funktionen forsøger at matche
+        partielle sagsider i samme stil som git håndterer commit hashes. I
+        tilfælde af at søgningen med et partielt sagsid resulterer i flere
+        matches udsendes en sqlalchemy.orm.exc.MultipleResultsFound exception.
+        """
+        return self.session.query(Sag).filter(Sag.id.ilike(f"{sagid}%")).one()
+
+    def hent_alle_sager(self, aktive=True) -> List[Sag]:
+        """
+        Henter alle sager fra databasen.
+        """
         return self.session.query(Sag).all()
 
     def soeg_geometriobjekt(self, bbox) -> List[GeometriObjekt]:
