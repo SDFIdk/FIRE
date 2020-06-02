@@ -661,7 +661,7 @@ def indlæs(projektnavn: str, **kwargs) -> None:
     # Opbyg oversigt over alle punkter m. kote og placering
     # ------------------------------------------------------
     punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
-    resultater["Punktoversigt"] =  punktoversigt
+    resultater["Punktoversigt"] = punktoversigt
     skriv_resultater(projektnavn, resultater)
     fire.cli.print(
         f'Dataindlæsning afsluttet. Kopiér nu faneblade fra "{projektnavn}-resultat.xlsx"'
@@ -669,6 +669,7 @@ def indlæs(projektnavn: str, **kwargs) -> None:
     fire.cli.print(
         f'til "{projektnavn}.xlsx", og vælg fastholdte punkter i punktoversigten.'
     )
+
 
 # ------------------------------------------------------------------------------
 # Her starter regneprogrammet...
@@ -730,14 +731,13 @@ def regn(projektnavn: str, **kwargs) -> None:
     # Har vi alle punkter med i punktoversigten?
     punkter_i_oversigt = set(punktoversigt["punkt"])
     manglende_punkter_i_oversigt = set(alle_punkter) - punkter_i_oversigt
-    if (len(manglende_punkter_i_oversigt) > 0):
+    if len(manglende_punkter_i_oversigt) > 0:
         fire.cli.print(f'Punktoversigten i "{projektnavn}.xlsx" mangler punkterne:')
-        fire.cli.print(f'{manglende_punkter_i_oversigt}')
+        fire.cli.print(f"{manglende_punkter_i_oversigt}")
         fire.cli.print(
             f'- har du glemt at kopiere den fra "{projektnavn}-resultat.xlsx"?'
         )
         sys.exit(1)
-
 
     # -----------------------------------------------------
     # Find fastholdte og holdte ('constrainede')
