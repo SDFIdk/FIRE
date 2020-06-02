@@ -45,12 +45,10 @@ def test_within_distance_of_point1(tmp_path):
         "-b",
         "10000",
         "-f",
-        "67e3987a-dc6b-49ee-8857-417ef35777af",
-        "-pf",
-        "fire-gama.ini",
+        "K-63-09946",
     ]
 
-    assert _run_cli(runner, title, args, ["fire-gama.ini"])
+    assert _run_cli(runner, title, args)
 
 
 def test_within_distance_of_point2():
@@ -66,16 +64,14 @@ def test_within_distance_of_point2():
         "-b",
         "10000",
         "-f",
-        "67e3987a-dc6b-49ee-8857-417ef35777af",
+        "K-63-09946",
         "-df",
         "08-10-2015",
         "-dt",
         "09-10-2018",
-        "-pf",
-        "fire-gama.ini",
     ]
 
-    assert _run_cli(runner, title, args, ["fire-gama.ini"])
+    assert _run_cli(runner, title, args)
 
 
 def test_within_distance_of_point3():
@@ -91,15 +87,13 @@ def test_within_distance_of_point3():
         "-b",
         "10000",
         "-f",
-        "67e3987a-dc6b-49ee-8857-417ef35777af",
+        "K-63-09946",
         "-df",
         "08-10-2015",
         "-dt",
         "09-10-2018",
-        "-pf",
-        "fire-gama.ini",
     ]
-    assert _run_cli(runner, title, args, ["geometry.wkt", "fire-gama.ini"])
+    assert _run_cli(runner, title, args, ["geometry.wkt"])
 
 
 def test_within_distance_of_point4():
@@ -123,10 +117,6 @@ def test_within_distance_of_point4():
         "08-10-2015",
         "-dt",
         "09-10-2018",
-        "-pf",
-        "fire-gama.ini",
     ]
 
-    assert _run_cli(
-        runner, title, args, ["geometry.wkt", "fixed_points.csv", "fire-gama.ini"]
-    )
+    assert _run_cli(runner, title, args, ["geometry.wkt", "fixed_points.csv"])
