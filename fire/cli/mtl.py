@@ -1,6 +1,5 @@
 # Python infrastrukturelementer
 import json
-import pprint
 import subprocess
 import sys
 
@@ -365,7 +364,6 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
             delta = punkter.at[i, "Δ"]
             kote = punkter.at[i, "ny"]
             sigma = punkter.at[i, "ny σ"]
-        print(f"{punkt} {delta} {kote} {sigma} {fastholdt}")
 
         # Endnu uberegnede punkter
         if kote is None:
