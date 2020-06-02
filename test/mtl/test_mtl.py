@@ -11,7 +11,7 @@ from fire.cli.mtl import mtl
 def test_cli():
     runner = CliRunner()
 
-    title = "go"
+    title = "MTL-indlæsning"
     args = ["indlæs", "bananas"]
 
     # Lidt bannerlarm
