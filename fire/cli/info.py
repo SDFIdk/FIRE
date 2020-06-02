@@ -1,5 +1,6 @@
 import datetime
 import itertools
+import textwrap
 import math
 import re
 import sys
@@ -517,3 +518,64 @@ def obstype(obstype: str, **kwargs):
             fire.cli.print(f"  {navn.replace('value','Værdi')}      :  {værdi}")
 
     fire.cli.print(f"  Sigtepunkt? :  {ot.sigtepunkt.value.title()}")
+
+
+@info.command()
+@fire.cli.default_options()
+@click.argument("sagsid", required=False)
+def sag(sagsid: str, **kwargs):
+    """
+    Information om en sag.
+
+    Kaldes `fire info sag` uden sagsid listes alle aktive sager
+    """
+
+    if sagsid:
+        sag = firedb.hent_sag(sagsid)
+
+        fire.cli.print(
+            "------------------------- SAG -------------------------", bold=True
+        )
+        fire.cli.print(f"  Sagsid        : {sag.id}")
+        fire.cli.print(f"  Oprettet      : {sag.registreringfra}")
+        fire.cli.print(f"  Sagsbehandler : {sag.behandler}")
+        if sag.aktiv == Boolean.TRUE:
+            status = "Aktiv"
+        else:
+            status = "Lukket"
+        fire.cli.print(f"  Status        : {status}")
+        fire.cli.print(f"  Beskrivelse   :\n")
+        beskrivelse = textwrap.fill(
+            sag.beskrivelse.strip(),
+            width=80,
+            initial_indent=" " * 4,
+            subsequent_indent=" " * 4,
+        )
+        fire.cli.print(f"{beskrivelse}\n\n")
+
+        for sagsevent in sag.sagsevents:
+            try:
+                beskrivelse = sagsevent.beskrivelse
+            except IndexError:
+                beskrivelse = ""
+            eventtype = (
+                str(sagsevent.eventtype).replace("EventType.", "").replace("OE", "Ø")
+            )
+            fire.cli.print(f"[{sagsevent.registreringfra}] {eventtype}: {beskrivelse}")
+
+        return
+
+    sager = firedb.hent_alle_sager()
+    fire.cli.print("Sagsid     Behandler           Beskrivelse", bold=True)
+    fire.cli.print("---------  ------------------  -----------")
+    for sag in sager:
+        beskrivelse = (
+            sag.sagsinfos[-1]
+            .beskrivelse[0:70]
+            .strip()
+            .replace("\n", " ")
+            .replace("\r", "")
+        )
+        fire.cli.print(
+            f"{sag.id[0:8]}:  {sag.sagsinfos[-1].behandler:20}{beskrivelse}..."
+        )
