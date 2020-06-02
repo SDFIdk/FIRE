@@ -328,7 +328,9 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
     IDENT kan være enhver form for navn et punkt er kendt som, blandt andet
     GNSS stationsnummer, G.I./G.M.-nummer, refnr, landsnummer, uuid osv.
 
-    Søgningen er versalfølsom.
+    Søgningen er delvist versalfølsom, men tager højde for minuskler, udeladte
+    punktummer og manglende foranstillede nuller, i ofte forekommende, let
+    genkendelige tilfælde (GNSS-id, GI/GM-numre, lands- og købstadsnumre).
 
     Punkt-klassen er omfattende og består af følgende elementer:
 
@@ -363,8 +365,10 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
     nivellementsobservationer.
     """
 
+    ident = ident.strip()
+
     # Vær mindre pedantisk mht. foranstillede nuller hvis identen er et landsnummer
-    landsnummermønster = re.compile("[0-9]*-[0-9]*-[0-9]*$")
+    landsnummermønster = re.compile("^[0-9]*-[0-9]*-[0-9]*$")
     if landsnummermønster.match(ident):
         dele = ident.split("-")
         herred = int(dele[0])
@@ -372,10 +376,33 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
         lbnr = int(dele[2])
         ident = f"{herred}-{sogn:02}-{lbnr:05}"
 
+    # Næsten samme procedure for købstadsnumre
+    købstadsnummermønster = re.compile("^[Kk][ ]*-[0-9]*-[0-9]*$")
+    if købstadsnummermønster.match(ident):
+        dele = ident.split("-")
+        stad = int(dele[1])
+        lbnr = int(dele[2])
+        ident = f"K-{stad:02}-{lbnr:05}"
+
+    # GNSS-id'er er indeholder pr. def. kun A-Z0-9, så her kan vi også lette lidt på stringensen
+    gnssid = re.compile("^[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]$")
+    if gnssid.match(ident):
+        ident = str(ident).upper()
+
+    # Og nogle hjørneafskæringer for hyppigt brugte navne
+    if ident.startswith("gi"):
+        ident = ident.replace("gi", "G.I.", 1)
+    if ident.startswith("GI"):
+        ident = ident.replace("GI", "G.I.", 1)
+    if ident.startswith("gm"):
+        ident = ident.replace("gm", "G.M.", 1)
+    if ident.startswith("GM"):
+        ident = ident.replace("GM", "G.M.", 1)
+
     try:
         punkter = firedb.hent_punkter(ident)
     except NoResultFound:
-        fire.cli.print(f"Error! {ident} not found!", fg="red", err=True)
+        fire.cli.print(f"Fejl: Kunne ikke finde {ident}.", fg="red", err=True)
         sys.exit(1)
 
     # Succesfuld søgning - vis hvad der blev fundet
