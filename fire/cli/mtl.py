@@ -55,7 +55,7 @@ def get_observation_strings(
         filnavn = fil[0]
         spredning = fil[1]
         if verbose:
-            print("Læser " + filnavn + " med spredning ", spredning)
+            fire.cli.print(f"Læser {filnavn} med spredning {spredning}")
         try:
             with open(filnavn, "rt", encoding="utf-8") as obsfil:
                 for line in obsfil:
@@ -65,9 +65,11 @@ def get_observation_strings(
 
                     # Check at observationen er i et af de kendte formater
                     tokens = line.split(" ", 13)
-                    assert len(tokens) in (9, 13, 14), (
-                        "Deform input linje: " + line + " i fil: " + filnavn
-                    )
+                    assert len(tokens) in (
+                        9,
+                        13,
+                        14,
+                    ), f"Deform input linje: {line} i fil: {filnavn}"
 
                     # Bring observationen på kanonisk 14-feltform.
                     for i in range(len(tokens), 13):
@@ -82,10 +84,7 @@ def get_observation_strings(
                         isotid = datetime.strptime(tid, "%d.%m.%Y %H.%M")
                     except ValueError:
                         sys.exit(
-                            "Argh - ikke-understøttet datoformat: '"
-                            + tid
-                            + "' i fil: "
-                            + filnavn
+                            f'Argh - ikke-understøttet datoformat: "{tid}" i fil: "{filnavn}"'
                         )
 
                     # Reorganiser søjler og omsæt numeriske data fra strengrepræsentation til tal
@@ -108,7 +107,7 @@ def get_observation_strings(
                     ]
                     observationer.append(reordered)
         except FileNotFoundError:
-            print("Kunne ikke læse filen '" + filnavn + "'")
+            fire.cli.print(f'Kunne ikke læse filen "{filnavn}"')
     return observationer
 
 
@@ -207,10 +206,10 @@ def path_to_origin(
 # ------------------------------------------------------------------------------
 def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
     """Opbyg oversigt over nyetablerede punkter"""
-    print("Finder nyetablerede punkter")
+    fire.cli.print("Finder nyetablerede punkter")
     try:
         nyetablerede = pd.read_excel(
-            projektnavn + ".xlsx",
+            f"{projektnavn}.xlsx",
             sheet_name="Nyetablerede punkter",
             usecols="A:E",
             dtype={
@@ -237,7 +236,7 @@ def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning"""
     try:
         inputfiler = pd.read_excel(
-            navn + ".xlsx", sheet_name="Filoversigt", usecols="C:E"
+            f"{navn}.xlsx", sheet_name="Filoversigt", usecols="C:E"
         )
     except:
         sys.exit("Kan ikke finde filoversigt i projektfil")
@@ -251,7 +250,7 @@ def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
 # ------------------------------------------------------------------------------
 def importer_observationer(projektnavn: str) -> pd.DataFrame:
     """Opbyg dataframe med observationer importeret fra rådatafil"""
-    print("Importerer observationer")
+    fire.cli.print("Importerer observationer")
     observationer = pd.DataFrame(
         get_observation_strings(find_inputfiler(projektnavn)),
         columns=[
@@ -340,7 +339,7 @@ def observationer_geojson(
 ) -> None:
     """Skriv observationer til geojson-fil"""
 
-    with open(projektnavn + "-observationer.geojson", "wt") as obsfil:
+    with open(f"{projektnavn}-observationer.geojson", "wt") as obsfil:
         til_json = {
             "type": "FeatureCollection",
             "Features": list(obs_feature(punkter, observationer)),
@@ -395,7 +394,7 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
 # ------------------------------------------------------------------------------
 def punkter_geojson(projektnavn: str, punkter: pd.DataFrame,) -> None:
     """Skriv punkter/koordinater i geojson-format"""
-    with open(projektnavn + "-punkter.geojson", "wt") as punktfil:
+    with open(f"{projektnavn}-punkter.geojson", "wt") as punktfil:
         til_json = {
             "type": "FeatureCollection",
             "Features": list(punkt_feature(punkter)),
@@ -423,7 +422,7 @@ def opbyg_punktoversigt(
             "λ",
         ]
     )
-    print("Opbygger punktoversigt")
+    fire.cli.print("Opbygger punktoversigt")
 
     # Forlæng punktoversigt, så der er plads til alle punkter
     punktoversigt = punktoversigt.reindex(range(len(alle_punkter)))
@@ -504,7 +503,7 @@ def netanalyse(
     alle_punkter: Tuple[str, ...],
     fastholdte_punkter: Tuple[str, ...],
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    print("Analyserer net")
+    fire.cli.print("Analyserer net")
     assert len(fastholdte_punkter) > 0, "Netanalyse kræver mindst et fastholdt punkt"
     # Initialiser
     net = {}
@@ -571,7 +570,7 @@ def find_forbundne_punkter(
 ) -> Tuple[str, ...]:
     """Læs net fra allerede foretaget netanalyse"""
     try:
-        net = pd.read_excel(navn + ".xlsx", sheet_name="Netgeometri", usecols="A")
+        net = pd.read_excel(f"{navn}.xlsx", sheet_name="Netgeometri", usecols="A")
     except:
         (net, ensomme) = netanalyse(observationer, alle_punkter, fastholdte_punkter)
     return tuple(sorted(net["Punkt"]))
@@ -611,7 +610,7 @@ def gama_beregning(
     # -----------------------------------------------------
     # Skriv Gama-inputfil i XML-format
     # -----------------------------------------------------
-    with open(projektnavn + ".xml", "wt") as gamafil:
+    with open(f"{projektnavn}.xml", "wt") as gamafil:
         # Preambel
         gamafil.writelines(
             [
@@ -627,7 +626,7 @@ def gama_beregning(
         )
         gamafil.write(
             f"<description>\n"
-            f'    {"Nivellementsprojekt " + projektnavn}\n'
+            f"    Nivellementsprojekt {projektnavn}\n"
             f"</description>\n"
             f"<points-observations>\n\n"
         )
@@ -669,7 +668,7 @@ def gama_beregning(
     )
     if 0 != ret:
         fire.cli.print(
-            f"ADVARSEL! GNU Gama fandt mistænkelige observationer - check {projektnavn}.html for detaljer",
+            f"ADVARSEL! GNU Gama fandt mistænkelige observationer - check {projektnavn}-resultat.html for detaljer",
             bg="red",
             fg="white",
             err=False,
@@ -677,7 +676,7 @@ def gama_beregning(
     # ----------------------------------------------
     # Grav resultater frem fra GNU Gamas outputfil
     # ----------------------------------------------
-    with open(projektnavn + "-resultat.xml") as resultat:
+    with open(f"{projektnavn}-resultat.xml") as resultat:
         doc = xmltodict.parse(resultat.read())
     koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
     punkter = [punkt["id"] for punkt in koteliste]
@@ -715,12 +714,12 @@ def gama_beregning(
 # -----------------------------------------------------------------------------
 def skriv_resultater(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> None:
     """Skriv resultater til excel-fil"""
-    print(f"Skriver resultat-ark: {tuple(resultater)}")
+    fire.cli.print(f"Skriver resultat-ark: {tuple(resultater)}")
     writer = pd.ExcelWriter(f"{projektnavn}-resultat.xlsx", engine="xlsxwriter")
     for r in resultater:
         resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
     writer.save()
-    print(f"Færdig - output kan ses i '{projektnavn}-resultat.xlsx'")
+    fire.cli.print(f'Færdig - output kan ses i "{projektnavn}-resultat.xlsx"')
 
 
 # ------------------------------------------------------------------------------
@@ -733,7 +732,7 @@ def skriv_resultater(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> N
 )
 def indlæs(projektnavn: str, **kwargs) -> None:
     """Importer data fra observationsfiler og opbyg punktoversigt"""
-    print("Så kører vi")
+    fire.cli.print("Så kører vi")
     resultater = {}
 
     # -----------------------------------------------------
@@ -782,7 +781,7 @@ def indlæs(projektnavn: str, **kwargs) -> None:
 )
 def regn(projektnavn: str, **kwargs) -> None:
     """Udfør netanalyse og beregn nye koter"""
-    print("Så regner vi")
+    fire.cli.print("Så regner vi")
 
     resultater = {}
 
@@ -797,7 +796,7 @@ def regn(projektnavn: str, **kwargs) -> None:
     # -----------------------------------------------------
     try:
         observationer = pd.read_excel(
-            projektnavn + ".xlsx", sheet_name="Observationer", usecols="A:P"
+            f"{projektnavn}.xlsx", sheet_name="Observationer", usecols="A:P"
         )
     except:
         fire.cli.print(f'Der er ingen observationsoversigt i "{projektnavn}.xlsx"')
@@ -820,7 +819,7 @@ def regn(projektnavn: str, **kwargs) -> None:
     # ------------------------------------------------------
     try:
         punktoversigt = pd.read_excel(
-            projektnavn + ".xlsx", sheet_name="Punktoversigt", usecols="A:L"
+            f"{projektnavn}.xlsx", sheet_name="Punktoversigt", usecols="A:L"
         )
     except:
         fire.cli.print(f'Der er ingen punktoversigt i "{projektnavn}.xlsx"')
@@ -845,14 +844,14 @@ def regn(projektnavn: str, **kwargs) -> None:
     # -----------------------------------------------------
     fastholdte = find_fastholdte(punktoversigt)
     if len(fastholdte) == 0:
-        print("Vælger arbitrært punkt til fastholdelse")
+        fire.cli.print("Vælger arbitrært punkt til fastholdelse")
         fastholdte = {observerede_punkter[0]: 0}
     # Nem oversigt fordi tuple(fastholdte) er tuple(fastholdte.keys())
-    print(f"Fastholdte: {tuple(fastholdte)}")
+    fire.cli.print(f"Fastholdte: {tuple(fastholdte)}")
 
     holdte = find_holdte(punktoversigt)
     if len(holdte) > 0:
-        print(f"Holdte: {tuple(holdte)}")
+        fire.cli.print(f"Holdte: {tuple(holdte)}")
 
     # -----------------------------------------------------
     # Udfør netanalyse
@@ -864,8 +863,8 @@ def regn(projektnavn: str, **kwargs) -> None:
     forbundne_punkter = tuple(sorted(net["Punkt"]))
     ensomme_punkter = tuple(sorted(ensomme["Punkt"]))
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
-    print(f"Fandt {len(ensomme_punkter)} ensomme punkter: {ensomme_punkter}")
-    print(f"Beregner nye koter for {len(estimerede_punkter)} punkter")
+    fire.cli.print(f"Fandt {len(ensomme_punkter)} ensomme punkter: {ensomme_punkter}")
+    fire.cli.print(f"Beregner nye koter for {len(estimerede_punkter)} punkter")
 
     # -----------------------------------------------------
     # Udfør beregning
