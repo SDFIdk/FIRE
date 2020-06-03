@@ -1116,31 +1116,31 @@ VALUES ('observation nummer nul, indlagt fra start i observationstabellen, så d
 
 -- Oprettelse af eventyper i FIRE
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges når koordinater indsættes efter en beregning', 'koordinat_beregnet', 1);
+VALUES ('Bruges når koordinater indsættes efter en beregning.', 'koordinat_beregnet', 1);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges når en koordinat nedlægges', 'koordinat_nedlagt', 2);
+VALUES ('Bruges når en koordinat nedlægges.', 'koordinat_nedlagt', 2);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('Indsættelse af en eller flere observationer', 'observation_indsat', 3);
+VALUES ('Indsættelse af en eller flere observationer.', 'observation_indsat', 3);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges når en observation aflyses fordi den er fejlbehæftet', 'observation_nedlagt', 4);
+VALUES ('Bruges når en observation aflyses fordi den er fejlbehæftet.', 'observation_nedlagt', 4);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges når der tilføjes Punktinfo til et eller flere punkter', 'punktinfo_tilføjet', 5);
+VALUES ('Bruges når der tilføjes Punktinfo til et eller flere punkter.', 'punktinfo_tilføjet', 5);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges når Punktinfo fjernes fra et eller flere punkter', 'punktinfo_fjernet', 6);
+VALUES ('Bruges når Punktinfo fjernes fra et eller flere punkter.', 'punktinfo_fjernet', 6);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges når et punkt og tilhørende geometri oprettes', 'punkt_oprettet', 7);
+VALUES ('Bruges når et punkt og tilhørende geometri oprettes.', 'punkt_oprettet', 7);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges når et punkt og tilhørende geometri nedlægges', 'punkt_nedlagt', 8);
+VALUES ('Bruges når et punkt og tilhørende geometri nedlægges.', 'punkt_nedlagt', 8);
 
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
-VALUES ('bruges til at tilføje fritekst kommentarer til sagen i tilfælde af at der er behov for at påhæfte sagen yderligere information som ikke passer i andre hændelser. Bruges fx også til påhæftning af materiale på sagen.', 'kommentar', 9);
+VALUES ('Bruges til at tilføje fritekst-kommentarer til sagen i tilfælde af at der er behov for at påhæfte sagen yderligere information, som ikke passer i andre hændelser. Bruges fx også til påhæftning af materiale på sagen.', 'kommentar', 9);
 
 -- End
 
