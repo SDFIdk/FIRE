@@ -600,7 +600,7 @@ her i databasen:
 * Indsæt Observationer, henvis til Sagsevent på linjen ovenfor
 * Opret Sagsevent af typen ``koordinat_beregnet`` (+ Sagseventinfo, beregningsrapport vedlægges).
 * Indsæt Koordinater og Beregning, henvis til Sagsevent på linjen ovenfor
-* Opdater aktiv til "false" på Sagens Sagsinfo.
+* Opdater aktiv-feltet til "false" på Sagens Sagsinfo.
 
 Der tilføjes beskrivelser af Sag og Sagsevent i forbindelse med at de oprettes. Beskrivelse for Sag kan fx lyde noget i stil med "Kommunal vedligehold Vejle 2020" og for Sagsevents fx "Indsættelse af observationer" og "Indsættelse af koordinater". Tilsammen gør det det muligt at få et hurtigt overblik over hvad der er
 sket på en Sag.
