@@ -569,13 +569,5 @@ def sag(sagsid: str, **kwargs):
     fire.cli.print("Sagsid     Behandler           Beskrivelse", bold=True)
     fire.cli.print("---------  ------------------  -----------")
     for sag in sager:
-        beskrivelse = (
-            sag.sagsinfos[-1]
-            .beskrivelse[0:70]
-            .strip()
-            .replace("\n", " ")
-            .replace("\r", "")
-        )
-        fire.cli.print(
-            f"{sag.id[0:8]}:  {sag.sagsinfos[-1].behandler:20}{beskrivelse}..."
-        )
+        beskrivelse = sag.beskrivelse[0:70].strip().replace("\n", " ").replace("\r", "")
+        fire.cli.print(f"{sag.id[0:8]}:  {sag.behandler:20}{beskrivelse}...")

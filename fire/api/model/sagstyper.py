@@ -49,6 +49,8 @@ class Sag(RegisteringFraObjekt):
 
     @property
     def beskrivelse(self) -> str:
+        if self.sagsinfos[-1].beskrivelse is None:
+            return ""
         return self.sagsinfos[-1].beskrivelse
 
 
@@ -147,6 +149,8 @@ class Sagsevent(RegisteringFraObjekt):
 
     @property
     def beskrivelse(self) -> str:
+        if self.sagseventinfos[-1].beskrivelse is None:
+            return ""
         return self.sagseventinfos[-1].beskrivelse
 
 
