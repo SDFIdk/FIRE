@@ -41,7 +41,7 @@ disse fire attributter muligheden for at holde styr på historikken i databasen.
             Fikspunktregisterobjekt [
                 fillcolor = lightskyblue
                 style = filled
-                label = "{Fikspunktregisterobjekt|
+                label = "{Fikspunktregisterobjekt|\l
                         + registreringfra : Datetime\l
                         + registreringtil : Datetime\l
                         + sagseventidfra : UUID\l
@@ -88,7 +88,7 @@ i separate afsnit længere nede i teksten.
         Punkt [
             label = "{Punkt|\l
                     + objectid : Integer\l
-                    + id : UUID
+                    + id : UUID\l
             }"
             fillcolor = lightskyblue
             style = filled
