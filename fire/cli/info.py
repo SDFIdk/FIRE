@@ -4,23 +4,19 @@ import textwrap
 import math
 import re
 import sys
-import textwrap
 from typing import List
 
 import click
-from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import or_, not_
-
-
+from sqlalchemy import not_
 from pyproj import CRS
+from pyproj.exceptions import CRSError
 
 import fire.cli
 from fire.cli import firedb
 from fire.api.model import (
     Punkt,
     PunktInformation,
-    PunktInformationType,
     Koordinat,
     Observation,
     Boolean,
@@ -34,21 +30,6 @@ def info():
     Information om objekter i FIRE
     """
     pass
-
-
-def punktinforapport(punktinformationer: List[PunktInformation]) -> None:
-    """
-    Hjælpefunktion for 'punkt_fuld_rapport'.
-    """
-    for info in punktinformationer:
-        if info.registreringtil @ click.option("--profile", is_flag=True) is not None:
-            continue
-        tekst = info.tekst or ""
-        # efter mellemrum rykkes teksten ind på linje med resten af
-        # attributteksten
-        tekst = tekst.replace("\n", "\n" + " " * 30).replace("\r", "").rstrip(" \n")
-        tal = info.tal or ""
-        fire.cli.print(f"  {info.infotype.name:27} {tekst}{tal}")
 
 
 def observation_linje(obs: Observation) -> str:
@@ -100,7 +81,7 @@ def koordinat_linje(koord: Koordinat) -> str:
         grader = False
         if CRS(koord.srid.name).axis_info[0].unit_name in ("degree", "radian"):
             grader = True
-    except:
+    except CRSError:
         # ignorer pyproj.exceptions.CRSError: Antag at ukendte koordinatsystemers enheder
         # er lineære, bortset fra specialtilfældet NAD83G
         if koord.srid.name == "GL:NAD83G":
@@ -544,7 +525,7 @@ def sag(sagsid: str, **kwargs):
         else:
             status = "Lukket"
         fire.cli.print(f"  Status        : {status}")
-        fire.cli.print(f"  Beskrivelse   :\n")
+        fire.cli.print("  Beskrivelse   :\n")
         beskrivelse = textwrap.fill(
             sag.beskrivelse.strip(),
             width=80,
