@@ -640,11 +640,12 @@ def gama_beregning(
             gamafil.write(f'<point adj="z" id="{punkt}"/>\n')
         # Observationer
         gamafil.write("\n\n<height-differences>\n\n")
-        for obs in observationer[["fra", "til", "dH", "L", "σ"]].values:
+        for obs in observationer[["fra", "til", "dH", "L", "σ", "journal"]].values:
             gamafil.write(
                 f'<dh from="{obs[0]}" to="{obs[1]}" '
                 f'val="{obs[2]:+.6f}" '
-                f'dist="{obs[3]/1000:.5f}" stdev="{1000*spredning(obs[3], obs[4]):.5f}"/>\n'
+                f'dist="{obs[3]/1000:.5f}" stdev="{1000*spredning(obs[3], obs[4]):.5f}" '
+                f'extern="{obs[5]:.1f}"/>\n'
             )
         # Postambel
         gamafil.write(
