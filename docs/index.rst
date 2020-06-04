@@ -6,6 +6,7 @@ FIRE - FIkspunktREgister
     :caption: Contents:
 
     installation
+    datamodel
     for_udviklere
     apps/index
     api/index

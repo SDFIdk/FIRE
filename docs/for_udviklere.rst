@@ -88,6 +88,11 @@ HTML dokumentation kan genereres lokalt ved hjælp af følgende kommando::
 
 hvorefter dokumentationen vil være at finde i ``docs/_build``.
 
+Det er muligt at Sphinx ikke kan finde `graphviz` (fx relevant på :ref:`datamodel`), i så
+fald kan placeringen til denne angives som følger::
+
+    sphinx-build -b html -D graphviz_dot=C:\Users\<USERNAME>\AppData\Local\Continuum\miniconda3\envs\fire-dev\Library\bin\graphviz\dot.exe ./docs ./docs/_build
+
 Når der tilføjes eller fjernes moduler til API koden skal dokumentationen
 opdaters (filer i ``docs/api``). Dette kan gøres med::
 
