@@ -6,13 +6,12 @@ import sys
 from datetime import datetime
 from enum import IntEnum
 from math import sqrt
-from typing import Dict, List, Set, Tuple, IO
+from typing import Dict, List, Set, Tuple
 
 # Tredjepartsafhængigheder
 import click
 import numpy as np
 import pandas as pd
-import xlsxwriter
 import xmltodict
 
 from pyproj import Proj
@@ -27,9 +26,6 @@ from fire.api.model import (
     Koordinat,
     PunktInformation,
     PunktInformationType,
-    Sag,
-    Sagsevent,
-    Sagsinfo,
 )
 
 

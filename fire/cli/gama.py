@@ -1,9 +1,5 @@
-import configparser
-import os
-
 import click
 
-import fire.cli
 from fire.cli import firedb
 from fire.cli.utils import Datetime
 from fire.api.model import Geometry
