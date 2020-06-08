@@ -272,7 +272,7 @@ class GamaNetworkDoc:
     def get_dh_element(self, observation: Observation):
         fromId = observation.opstillingspunkt.ident
         toId = observation.sigtepunkt.ident
-        oId = observation.objectid
+        oId = observation.obsid
         gamavalues = getattr(observation, "gama_values")
         val = gamavalues["val"]
         dist = gamavalues["dist"]

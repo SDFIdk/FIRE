@@ -22,11 +22,13 @@ def test_observation(firedb: FireDb, observation: Observation):
 
 def test_hent_observationer(firedb: FireDb, observationer):
     firedb.session.commit()
-    id1 = observationer[0].objectid
-    id2 = observationer[1].objectid
+    id1 = observationer[0].obsid
+    id2 = observationer[1].obsid
     os = firedb.hent_observationer((id1, id2))
     assert len(os) == 2
-    os = firedb.hent_observationer((-999, -998))
+    os = firedb.hent_observationer(
+        ("60cd07f2-2c9a-471c-bc7e-ef3473098e85", "7e277296-2412-46ff-91f2-0841cf1cc3af")
+    )
     assert len(os) == 0
 
 

@@ -191,11 +191,14 @@ class FireDb(object):
             .all()
         )
 
-    def hent_observationer(self, objectids: List[int]) -> List[Observation]:
+    def hent_observationer(self, obsids: List[str]) -> List[Observation]:
+        """
+        Returnerer alle observationer fra databasen hvis obsid'er er indeholdt i listen
+        `obsids`. Hvis `obsids` indeholder ID'er som ikke findes i databasen gives der
+        *ikke* en fejlmelding.
+        """
         return (
-            self.session.query(Observation)
-            .filter(Observation.objectid.in_(objectids))
-            .all()
+            self.session.query(Observation).filter(Observation.obsid.in_(obsids)).all()
         )
 
     def hent_observationer_naer_opstillingspunkt(
