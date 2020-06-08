@@ -17,6 +17,7 @@ from fire.cli import firedb
 from fire.api.model import (
     Punkt,
     PunktInformation,
+    PunktInformationType,
     Koordinat,
     Observation,
     Boolean,
@@ -445,25 +446,43 @@ def srid(srid: str, ts: bool, **kwargs):
 
 @info.command()
 @fire.cli.default_options()
-@click.argument("infotype")
+@click.argument("infotype", required=False, default="")
 def infotype(infotype: str, **kwargs):
     """
     Information om en punktinfotype.
 
-    Eksempler på punktinfotyper: IDENT:GNSS, AFM:diverse, ATTR:beskrivelse
+    Eksempler på punktinfotyper: IDENT:GNSS, AFM:diverse, ATTR:beskrivelse.
+
+    Angives INFOTYPE ikke vises en liste med alle tilgængelige punktinfotyper.
+    Denne liste kan snævres ind ved at angive starten af et navn på en punktinfotype,
+    fx "IDENT" eller "attr".
     """
     try:
-        pit = firedb.hent_punktinformationtype(infotype)
-        if pit is None:
+        punktinfotyper = (
+            firedb.session.query(PunktInformationType)
+            .filter(PunktInformationType.name.ilike(f"{infotype}%"))
+            .order_by(PunktInformationType.name)
+            .all()
+        )
+        if punktinfotyper is None:
             raise NoResultFound
     except NoResultFound:
         fire.cli.print(f"Error! {infotype} not found!", fg="red", err=True)
         sys.exit(1)
 
-    fire.cli.print("--- PUNKTINFOTYPE ---", bold=True)
-    fire.cli.print(f"  Name        :  {pit.name}")
-    fire.cli.print(f"  Description :  {pit.beskrivelse}")
-    fire.cli.print(f"  Type        :  {pit.anvendelse}")
+    if len(punktinfotyper) == 1:
+        pit = punktinfotyper[0]
+        fire.cli.print("--- PUNKTINFOTYPE ---", bold=True)
+        fire.cli.print(f"  Name        :  {pit.name}")
+        fire.cli.print(f"  Description :  {pit.beskrivelse}")
+        fire.cli.print(f"  Type        :  {pit.anvendelse}")
+    else:
+        if infotype == "":
+            fire.cli.print("Følgende punktinfotyper er tilgængelige:\n")
+        else:
+            fire.cli.print(f'"{infotype}" matcher følgende punktinfotyper:\n')
+        for punktinfotype in punktinfotyper:
+            fire.cli.print(punktinfotype.name)
 
 
 @info.command()
