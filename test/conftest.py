@@ -2,6 +2,7 @@ import pytest
 
 from sqlalchemy.orm.exc import NoResultFound
 
+import fire.cli
 from fire.api import FireDb
 from fire.api.model import (
     func,
@@ -37,6 +38,7 @@ class TestFireDb(FireDb):
 
 
 persistent_firedb = TestFireDb(debug=False)
+fire.cli.override_firedb(persistent_firedb)
 
 
 @pytest.fixture

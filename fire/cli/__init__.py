@@ -2,6 +2,7 @@ import click
 
 from fire.api import FireDb
 
+firedb = FireDb()
 _show_colors = True
 
 
@@ -46,4 +47,11 @@ def print(*args, **kwargs):
     click.secho(*args, **kwargs)
 
 
-firedb = FireDb()
+def override_firedb(new_firedb):
+    """
+    Tillad at bruge en anden firedb end den der oprettes automatisk af
+    fire.cli. Primært brugbar i forbindelse med afvikling af test-suite,
+    hvor fire.cli ellers vil arbejde op mod produktionsdatabasen.
+    """
+    global firedb
+    firedb = new_firedb
