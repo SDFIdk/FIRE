@@ -1,18 +1,13 @@
 import pytest
-import os
 
 from sqlalchemy.orm.exc import NoResultFound
 
 from fire.api import FireDb
 from fire.api.model import (
     func,
-    RegisteringTidObjekt,
     Sag,
     Punkt,
-    GeometriObjekt,
     Observation,
-    ObservationType,
-    Bbox,
     Sagsevent,
     Sagsinfo,
     Beregning,

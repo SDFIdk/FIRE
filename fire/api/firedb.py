@@ -24,7 +24,6 @@ from fire.api.model import (
     ObservationType,
     Bbox,
     Sagsevent,
-    SagseventInfo,
     Sagsinfo,
     Beregning,
     Geometry,
@@ -43,8 +42,8 @@ class FireDb(object):
             Connection string for the oracle database where the FIRE database resides.
             Of the general form 'user:pass@host:port/dbname[?key=value&key=value...]'
         debug: bool
-            if True, the SQLALchemy Engine will log all statements as well as a repr() of their parameter lists to the
-            engines logger, which defaults to sys.stdout
+            if True, the SQLALchemy Engine will log all statements as well as a repr()
+            of their parameter lists to the engines logger, which defaults to sys.stdout
         """
 
         self._cache = {
@@ -124,7 +123,7 @@ class FireDb(object):
         go = aliased(GeometriObjekt)
         return (
             self.session.query(go)
-            .filter(go.punktid == punktid, go._registreringtil == None)
+            .filter(go.punktid == punktid, go._registreringtil == None)  # NOQA
             .one()
         )
 
@@ -274,7 +273,8 @@ class FireDb(object):
         Parameters
         ----------
         namespace: str - optional
-            Return only Srids with the specified namespace. For instance "EPSG". If not specified all objects are returned.
+            Return only Srids with the specified namespace. For instance "EPSG". If not
+            specified all objects are returned.
 
         Returns
         -------
@@ -339,13 +339,11 @@ class FireDb(object):
         punkt.sagsevent = sagsevent
         for geometriobjekt in punkt.geometriobjekter:
             if not self._is_new_object(geometriobjekt):
-                raise Exception(f"Added punkt cannot refer to existing geometriobjekt")
+                raise Exception("Added punkt cannot refer to existing geometriobjekt")
             geometriobjekt.sagsevent = sagsevent
         for punktinformation in punkt.punktinformationer:
             if not self._is_new_object(punktinformation):
-                raise Exception(
-                    f"Added punkt cannot refer to existing punktinformation"
-                )
+                raise Exception("Added punkt cannot refer to existing punktinformation")
             punktinformation.sagsevent = sagsevent
         self.session.add(punkt)
         self.session.commit()
@@ -561,8 +559,9 @@ class FireDb(object):
     def _check_and_prepare_sagsevent(self, sagsevent: Sagsevent, eventtype: EventType):
         """Checks that the given Sagsevent is valid in the context given by eventtype.
 
-        The sagsevent must be a "new" object (ie not persisted ot the database). It must have the specified eventtype.
-        If the sagsevent doesnt have an id, this method will assign a guid.
+        The sagsevent must be a "new" object (ie not persisted ot the database). It must
+        have the specified eventtype. If the sagsevent doesnt have an id, this method
+        will assign a guid.
         """
         if not self._is_new_object(sagsevent):
             raise Exception("Do not attach new objects to an existing Sagsevent")
@@ -609,7 +608,8 @@ class FireDb(object):
         # state.pending     # session & !identity_key
         # state.persistent  # session &  identity_key
         # state.detached    # !session &  identity_key
-        # state.deleted     # session & identity_key, flushed but not committed. Commit moves it to detached state
+        # state.deleted     # session & identity_key, flushed but not committed. Commit
+        #                     moves it to detached state
         insp = inspect(obj)
         return not (insp.persistent or insp.detached)
 
@@ -638,7 +638,7 @@ class FireDb(object):
             raise EnvironmentError("Konfigurationsfil ikke fundet!")
 
         default_settings = {
-            # se # https://www.gnu.org/software/gama/manual/gama.html#Network-SQL-definition
+            # se https://www.gnu.org/software/gama/manual/gama.html#Network-SQL-definition
             "network-attributes": {
                 "axes-xy": "en",
                 "angles": "left-handed",

@@ -2,8 +2,6 @@ import enum
 from sqlalchemy import Table, Column, String, Integer, Float, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 
-# DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
-
 import fire
 from fire.api.model import (
     IntEnum,

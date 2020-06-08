@@ -1,5 +1,4 @@
 from sqlalchemy.types import UserDefinedType, TypeDecorator, Integer
-from sqlalchemy.sql import type_coerce
 from sqlalchemy import func
 from fire.api.model import geometry
 
