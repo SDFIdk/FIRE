@@ -244,7 +244,6 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     fra = list(observationer["fra"])
     til = list(observationer["til"])
     observerede_punkter = tuple(set(fra + til))
-
     kanonisk_ident = {}
 
     for punktnavn in observerede_punkter:
@@ -254,17 +253,12 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
         except NoResultFound:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
             sys.exit(1)
+        kanonisk_ident[punktnavn] = ident
 
-        if ident != punktnavn:
-            kanonisk_ident[punktnavn] = ident
-
-    for ident, kanon in kanonisk_ident.items():
-        hvor = [idx for idx, val in enumerate(fra) if val == ident]
-        for i in hvor:
-            fra[i] = kanon
-        hvor = [idx for idx, val in enumerate(til) if val == ident]
-        for i in hvor:
-            til[i] = kanon
+    for i in range(len(fra)):
+        fra[i] = kanonisk_ident[fra[i]]
+    for i in range(len(til)):
+        til[i] = kanonisk_ident[til[i]]
 
     observationer["fra"] = fra
     observationer["til"] = til
