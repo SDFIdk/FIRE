@@ -25,15 +25,7 @@ import fire.cli
 from fire.cli import firedb
 
 # Typingelementer fra databaseAPIet.
-from fire.api.model import (
-    Punkt,
-    Koordinat,
-    PunktInformation,
-    PunktInformationType,
-    Sag,
-    Sagsevent,
-    Sagsinfo,
-)
+from fire.api.model import Punkt, Koordinat, PunktInformation, PunktInformationType
 
 
 # ------------------------------------------------------------------------------
@@ -112,14 +104,6 @@ def get_observation_strings(
         except FileNotFoundError:
             fire.cli.print(f"Kunne ikke læse filen '{filnavn}''")
     return observationer
-
-
-# ------------------------------------------------------------------------------
-def punkt_geometri(punkt: Punkt) -> Tuple[float, float]:
-    """Find placeringskoordinat for punkt"""
-    if len(punkt.geometriobjekter) == 0:
-        return (11, 56)
-    return tuple(punkt.geometriobjekter[-1].geometri.__geo_interface__["coordinates"])
 
 
 # ------------------------------------------------------------------------------
@@ -436,10 +420,9 @@ def opbyg_punktoversigt(
         punktoversigt.at[punkt, "σ"] = kote.sz
         punktoversigt.at[punkt, "år"] = kote.registreringfra.year
 
-        (λ, φ) = punkt_geometri(pkt)
         if pd.isna(punktoversigt.at[punkt, "φ"]):
-            punktoversigt.at[punkt, "φ"] = φ
-            punktoversigt.at[punkt, "λ"] = λ
+            punktoversigt.at[punkt, "φ"] = pkt.geometri.koordinater[1]
+            punktoversigt.at[punkt, "λ"] = pkt.geometri.koordinater[0]
 
     # Nyetablerede punkter er ikke i databasen, så hent eventuelle manglende
     # koter og placeringskoordinater i fanebladet 'Nyetablerede punkter'
