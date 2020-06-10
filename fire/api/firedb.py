@@ -47,6 +47,7 @@ class FireDb(object):
         """
 
         self._cache = {
+            "punkt": {},
             "punktinfotype": {},
         }
 
@@ -80,7 +81,13 @@ class FireDb(object):
 
         Hvis intet punkt findes udsendes en NoResultFound exception.
         """
-        return self.hent_punkter(ident)[0]
+        if ident not in self._cache["punkt"].keys():
+            punkt = self.hent_punkter(ident)[0]
+            for idt in punkt.identer:
+                self._cache["punkt"][idt] = punkt
+            self._cache["punkt"][punkt.id] = punkt
+
+        return self._cache["punkt"][ident]
 
     def hent_punkter(self, ident: str) -> List[Punkt]:
         """

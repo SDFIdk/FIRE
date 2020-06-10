@@ -131,3 +131,11 @@ def test_identer(firedb: FireDb):
     assert "SKEJ" in punkt.identer
     assert "102-08-00802" in punkt.identer
     assert len(punkt.identer) == 2
+
+
+def test_punkt_cache(firedb: FireDb):
+    punkt = firedb.hent_punkt("8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c")
+
+    assert punkt is firedb.hent_punkt("SKEJ")
+    assert punkt is firedb.hent_punkt("102-08-00802")
+    assert punkt is firedb.hent_punkt("8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c")
