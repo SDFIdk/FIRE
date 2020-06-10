@@ -45,6 +45,8 @@ def test_point():
     p_wkt = Point(WKT_POINT)
     assert p_wkt.__geo_interface__ == DICT_POINT
     assert p_wkt.wkt == WKT_POINT
+    assert p_wkt.geometri.koordinater[0] == DICT_POINT["coordinates"][0]
+    assert p_wkt.geometri.koordinater[1] == DICT_POINT["coordinates"][1]
 
     p_dict = Point(DICT_POINT)
     assert p_dict.__geo_interface__ == DICT_POINT
