@@ -139,3 +139,19 @@ def test_punkt_cache(firedb: FireDb):
     assert punkt is firedb.hent_punkt("SKEJ")
     assert punkt is firedb.hent_punkt("102-08-00802")
     assert punkt is firedb.hent_punkt("8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c")
+
+
+def test_hent_punkt_liste(firedb: FireDb):
+    identer = ["RDIO", "RDO1", "SKEJ"]
+    punkter = firedb.hent_punkt_liste(identer)
+
+    for ident, punkt in zip(identer, punkter):
+        assert ident == punkt.ident
+
+    with pytest.raises(ValueError):
+        firedb.hent_punkt_liste(["SKEJ", "RDIO", "ukendt_ident"], ignorer_ukendte=False)
+
+    punkter = firedb.hent_punkt_liste(
+        ["SKEJ", "RDIO", "ukendt_ident"], ignorer_ukendte=True
+    )
+    assert len(punkter) == 2
