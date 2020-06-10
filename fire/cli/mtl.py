@@ -208,7 +208,7 @@ def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
 
 
 # ------------------------------------------------------------------------------
-def importer_observationer(projektnavn: str) -> pd.DataFrame:
+def importer_observationer(projektnavn: str) -> Tuple[pd.DataFrame, Dict[str, Punkt]]:
     """Opbyg dataframe med observationer importeret fra rådatafil"""
     fire.cli.print("Importerer observationer")
     observationer = pd.DataFrame(
@@ -241,28 +241,29 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     # -------------------------------------------------
     # Oversæt alle anvendte identer til kanonisk form
     # -------------------------------------------------
-    fra = list(observationer["fra"])
-    til = list(observationer["til"])
+    fra = tuple(observationer["fra"])
+    til = tuple(observationer["til"])
     observerede_punkter = tuple(set(fra + til))
     kanonisk_ident = {}
+    punkter = {}
 
     for punktnavn in observerede_punkter:
         try:
-            ident = firedb.hent_punkt(punktnavn).ident
+            punkt = firedb.hent_punkt(punktnavn)
+            ident = punkt.ident
             fire.cli.print(f"Fandt {ident}", fg="green")
         except NoResultFound:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
             sys.exit(1)
         kanonisk_ident[punktnavn] = ident
+        punkter[ident] = punkt
 
-    for i in range(len(fra)):
-        fra[i] = kanonisk_ident[fra[i]]
-    for i in range(len(til)):
-        til[i] = kanonisk_ident[til[i]]
+    fra = tuple(kanonisk_ident[ident] for ident in fra)
+    til = tuple(kanonisk_ident[ident] for ident in til)
 
     observationer["fra"] = fra
     observationer["til"] = til
-    return observationer
+    return (observationer, punkter)
 
 
 # ------------------------------------------------------------------------------
@@ -365,7 +366,10 @@ def punkter_geojson(projektnavn: str, punkter: pd.DataFrame,) -> None:
 
 # ------------------------------------------------------------------------------
 def opbyg_punktoversigt(
-    navn: str, nyetablerede: pd.DataFrame, alle_punkter: Tuple[str, ...]
+    navn: str,
+    nyetablerede: pd.DataFrame,
+    alle_punkter: Tuple[str, ...],
+    punkter: Dict[str, Punkt],
 ) -> pd.DataFrame:
     punktoversigt = pd.DataFrame(
         columns=[
@@ -408,7 +412,8 @@ def opbyg_punktoversigt(
             continue
 
         fire.cli.print(f"Finder kote for {punkt}", fg="green")
-        pkt = firedb.hent_punkt(punkt)
+        # Meget hurtigere end pkt = firedb.hent_punkt(punkt)
+        pkt = punkter[punkt]
 
         # Grav aktuel kote frem
         kote = None
@@ -727,7 +732,7 @@ def indlæs(projektnavn: str, **kwargs) -> None:
     # -----------------------------------------------------
     # Opbyg oversigt over alle observationer
     # -----------------------------------------------------
-    observationer = importer_observationer(projektnavn)
+    (observationer, punkter) = importer_observationer(projektnavn)
     resultater["Observationer"] = observationer
     observerede_punkter = set(list(observationer["fra"]) + list(observationer["til"]))
     alle_gamle_punkter = observerede_punkter - nye_punkter
@@ -740,7 +745,9 @@ def indlæs(projektnavn: str, **kwargs) -> None:
     # ------------------------------------------------------
     # Opbyg oversigt over alle punkter m. kote og placering
     # ------------------------------------------------------
-    punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
+    punktoversigt = opbyg_punktoversigt(
+        projektnavn, nyetablerede, alle_punkter, punkter
+    )
     resultater["Punktoversigt"] = punktoversigt
     skriv_resultater(projektnavn, resultater)
     fire.cli.print(
