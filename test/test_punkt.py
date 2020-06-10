@@ -108,7 +108,7 @@ def test_luk_punkt(
         firedb.luk_punkt(999)
 
 
-def test_ident(firedb: FireDb):
+def test_ident(firedb: FireDb, punkt: Punkt):
     """
     Test at Punkt.ident returnerer det forventede ident.
 
@@ -117,6 +117,17 @@ def test_ident(firedb: FireDb):
     skal returneres.
     """
 
+    assert punkt.ident == punkt.id
+
     punkt = firedb.hent_punkt("8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c")
 
     assert punkt.ident == "SKEJ"
+
+
+def test_identer(firedb: FireDb):
+
+    punkt = firedb.hent_punkt("8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c")
+
+    assert "SKEJ" in punkt.identer
+    assert "102-08-00802" in punkt.identer
+    assert len(punkt.identer) == 2
