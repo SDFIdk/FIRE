@@ -22,6 +22,15 @@ def test_punkt(firedb: FireDb, punkt: Punkt):
     firedb.session.commit()
 
 
+def test_punkt_geometri():
+    p = Punkt()
+    go = GeometriObjekt()
+    go.geometri = Point([1, 2])
+    p.geometriobjekter.append(go)
+    assert p.geometri.koordinater[0] == 1
+    assert p.geometri.koordinater[1] == 2
+
+
 def test_indset_punkt(firedb: FireDb, sag: Sag):
     p = Punkt()
     go = GeometriObjekt()

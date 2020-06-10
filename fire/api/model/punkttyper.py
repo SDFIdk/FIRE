@@ -124,6 +124,10 @@ class Punkt(FikspunktregisterObjekt):
     )
 
     @property
+    def geometri(self):
+        return self.geometriobjekter[-1]
+
+    @property
     def ident(self) -> str:
         """
         Udtræk det geodætisk mest læsbare ident.
@@ -237,6 +241,10 @@ class GeometriObjekt(FikspunktregisterObjekt):
     )
     punktid = Column(String(36), ForeignKey("punkt.id"), nullable=False)
     punkt = relationship("Punkt", back_populates="geometriobjekter")
+
+    @property
+    def koordinater(self):
+        return self.geometri.__geo_interface__["coordinates"]
 
 
 class Beregning(FikspunktregisterObjekt):
