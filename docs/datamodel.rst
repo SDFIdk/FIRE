@@ -139,7 +139,7 @@ i separate afsnit længere nede i teksten.
         Observation [
             label = "{Observation|\l
                     + objectid : Integer\l
-                    + obsid : UUID\l
+                    + id : UUID\l
                     + observationtypeid : Integer\l
                     + antal : Integer\l
                     + gruppe : Integer\l

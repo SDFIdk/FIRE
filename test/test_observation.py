@@ -22,8 +22,8 @@ def test_observation(firedb: FireDb, observation: Observation):
 
 def test_hent_observationer(firedb: FireDb, observationer):
     firedb.session.commit()
-    id1 = observationer[0].obsid
-    id2 = observationer[1].obsid
+    id1 = observationer[0].id
+    id2 = observationer[1].id
     os = firedb.hent_observationer((id1, id2))
     assert len(os) == 2
     os = firedb.hent_observationer(
