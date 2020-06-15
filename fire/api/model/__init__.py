@@ -62,7 +62,7 @@ class RegisteringFraObjekt(DeclarativeBase):
     # SQLALchemy knows abstract classes do not map to a table.
     # If class is not declared abstract then SQLAlchemy whines about missing table declaration.
     __abstract__ = True
-    objectid = Column(Integer, primary_key=True)
+    objektid = Column(Integer, primary_key=True)
     _registreringfra = Column(
         "registreringfra",
         DateTime(timezone=True),
@@ -79,7 +79,7 @@ class RegisteringTidObjekt(DeclarativeBase):
     # SQLALchemy knows abstract classes do not map to a table.
     # If class is not declared abstract then SQLAlchemy whines about missing table declaration.
     __abstract__ = True
-    objectid = Column(Integer, primary_key=True)
+    objektid = Column(Integer, primary_key=True)
     _registreringfra = Column(
         "registreringfra",
         DateTime(timezone=True),
@@ -108,7 +108,7 @@ class Konfiguration(DeclarativeBase):
     """
 
     __tablename__ = "konfiguration"
-    objectid = Column(Integer, primary_key=True)
+    objektid = Column(Integer, primary_key=True)
     dir_skitser = Column(String, nullable=False)
     dir_materiale = Column(String, nullable=False)
 

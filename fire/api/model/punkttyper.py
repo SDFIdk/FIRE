@@ -22,7 +22,7 @@ __all__ = [
     "Artskode",
     "GeometriObjekt",
     "Beregning",
-    "ObservationType",
+    "ObservationsType",
     "Observation",
     "PunktInformation",
     "PunktInformationType",
@@ -77,16 +77,16 @@ class Artskode(enum.Enum):
 beregning_koordinat = Table(
     "beregning_koordinat",
     DeclarativeBase.metadata,
-    Column("beregningobjectid", Integer, ForeignKey("beregning.objectid")),
-    Column("koordinatobjectid", Integer, ForeignKey("koordinat.objectid")),
+    Column("beregningobjektid", Integer, ForeignKey("beregning.objektid")),
+    Column("koordinatobjektid", Integer, ForeignKey("koordinat.objektid")),
 )
 
 
 beregning_observation = Table(
     "beregning_observation",
     DeclarativeBase.metadata,
-    Column("beregningobjectid", Integer, ForeignKey("beregning.objectid")),
-    Column("observationobjectid", Integer, ForeignKey("observation.objectid")),
+    Column("beregningobjektid", Integer, ForeignKey("beregning.objektid")),
+    Column("observationobjektid", Integer, ForeignKey("observation.objektid")),
 )
 
 
@@ -106,13 +106,13 @@ class Punkt(FikspunktregisterObjekt):
         "Sagsevent", foreign_keys=[sagseventtilid], back_populates="punkter_slettede"
     )
     koordinater = relationship(
-        "Koordinat", order_by="Koordinat.objectid", back_populates="punkt"
+        "Koordinat", order_by="Koordinat.objektid", back_populates="punkt"
     )
     geometriobjekter = relationship(
-        "GeometriObjekt", order_by="GeometriObjekt.objectid", back_populates="punkt"
+        "GeometriObjekt", order_by="GeometriObjekt.objektid", back_populates="punkt"
     )
     punktinformationer = relationship(
-        "PunktInformation", order_by="PunktInformation.objectid", back_populates="punkt"
+        "PunktInformation", order_by="PunktInformation.objektid", back_populates="punkt"
     )
     observationer_fra = relationship(
         "Observation",
@@ -273,7 +273,7 @@ class Ident:
 
 class PunktInformationType(DeclarativeBase):
     __tablename__ = "punktinfotype"
-    objectid = Column(Integer, primary_key=True)
+    objektid = Column(Integer, primary_key=True)
     infotypeid = Column(Integer, unique=True, nullable=False)
     name = Column("infotype", String(4000), nullable=False)
     anvendelse = Column(Enum(PunktInformationTypeAnvendelse), nullable=False)
@@ -333,7 +333,7 @@ class GeometriObjekt(FikspunktregisterObjekt):
 
 class Beregning(FikspunktregisterObjekt):
     __tablename__ = "beregning"
-    objectid = Column(Integer, primary_key=True)
+    objektid = Column(Integer, primary_key=True)
     sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
     sagsevent = relationship(
         "Sagsevent", foreign_keys=[sagseventfraid], back_populates="beregninger"
@@ -352,9 +352,9 @@ class Beregning(FikspunktregisterObjekt):
     )
 
 
-class ObservationType(DeclarativeBase):
-    __tablename__ = "observationtype"
-    objectid = Column(Integer, primary_key=True)
+class ObservationsType(DeclarativeBase):
+    __tablename__ = "observationstype"
+    objektid = Column(Integer, primary_key=True)
     observationstypeid = Column(Integer, unique=True, nullable=False)
     name = Column("observationstype", String(4000), nullable=False)
     beskrivelse = Column(String(4000), nullable=False)
@@ -376,7 +376,7 @@ class ObservationType(DeclarativeBase):
     sigtepunkt = Column(StringEnum(Boolean), nullable=False, default=Boolean.FALSE)
     observationer = relationship(
         "Observation",
-        order_by="Observation.objectid",
+        order_by="Observation.objektid",
         back_populates="observationstype",
     )
 
@@ -413,9 +413,9 @@ class Observation(FikspunktregisterObjekt):
     antal = Column(Integer, nullable=False, default=1)
     gruppe = Column(Integer)
     observationstypeid = Column(
-        Integer, ForeignKey("observationtype.observationstypeid")
+        Integer, ForeignKey("observationstype.observationstypeid")
     )
-    observationstype = relationship("ObservationType", back_populates="observationer")
+    observationstype = relationship("ObservationsType", back_populates="observationer")
     sigtepunktid = Column(String(36), ForeignKey("punkt.id"))
     sigtepunkt = relationship("Punkt", foreign_keys=[sigtepunktid])
     opstillingspunktid = Column(String(36), ForeignKey("punkt.id"))
@@ -427,7 +427,7 @@ class Observation(FikspunktregisterObjekt):
 
 class Srid(DeclarativeBase):
     __tablename__ = "sridtype"
-    objectid = Column(Integer, primary_key=True)
+    objektid = Column(Integer, primary_key=True)
     sridid = Column(Integer, unique=True, nullable=False)
     name = Column("srid", String(36), nullable=False, unique=True)
     beskrivelse = Column(String(4000))

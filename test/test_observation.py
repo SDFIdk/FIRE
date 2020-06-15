@@ -9,15 +9,15 @@ from fire.api.model import (
     Punkt,
     Observation,
     Geometry,
-    ObservationType,
+    ObservationsType,
     EventType,
 )
 
 
 def test_observation(firedb: FireDb, observation: Observation):
     firedb.session.commit()
-    o1 = firedb.session.query(Observation).get(observation.objectid)
-    assert o1.objectid == observation.objectid
+    o1 = firedb.session.query(Observation).get(observation.objektid)
+    assert o1.objektid == observation.objektid
 
 
 def test_hent_observationer(firedb: FireDb, observationer):
@@ -77,7 +77,7 @@ def test_hent_observationer_naer_geometri(firedb: FireDb):
 
 
 def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
-    obstype = firedb.session.query(ObservationType).first()
+    obstype = firedb.session.query(ObservationsType).first()
     observation = Observation(
         antal=0,
         observationstype=obstype,

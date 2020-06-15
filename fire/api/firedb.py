@@ -21,7 +21,7 @@ from fire.api.model import (
     Konfiguration,
     Koordinat,
     Observation,
-    ObservationType,
+    ObservationsType,
     Bbox,
     Sagsevent,
     Sagsinfo,
@@ -156,7 +156,7 @@ class FireDb(object):
     def hent_alle_punkter(self) -> List[Punkt]:
         return self.session.query(Punkt).all()
 
-    def hent_sag(self, sagid: str) -> Sag:
+    def hent_sag(self, sagsid: str) -> Sag:
         """
         Hent en sag ud fra dens sagsid.
 
@@ -165,7 +165,7 @@ class FireDb(object):
         tilfælde af at søgningen med et partielt sagsid resulterer i flere
         matches udsendes en sqlalchemy.orm.exc.MultipleResultsFound exception.
         """
-        return self.session.query(Sag).filter(Sag.id.ilike(f"{sagid}%")).one()
+        return self.session.query(Sag).filter(Sag.id.ilike(f"{sagsid}%")).one()
 
     def hent_alle_sager(self, aktive=True) -> List[Sag]:
         """
@@ -182,38 +182,38 @@ class FireDb(object):
             .all()
         )
 
-    def hent_observationtype(self, name: str) -> ObservationType:
-        """Gets ObservationType by its name.
+    def hent_observationstype(self, name: str) -> ObservationsType:
+        """Gets ObservationsType by its name.
 
         Parameters
         ----------
         observationstypeid : str
-            Name (including namespace) of the observationtype.
+            Name (including namespace) of the observationstype.
 
         Returns
         -------
-        ObservationType:
-            The first ObservationType matching the specified name. None if not found.
+        ObservationsType:
+            The first ObservationsType matching the specified name. None if not found.
 
         """
         namefilter = name
         return (
-            self.session.query(ObservationType)
-            .filter(ObservationType.name == namefilter)
+            self.session.query(ObservationsType)
+            .filter(ObservationsType.name == namefilter)
             .first()
         )
 
-    def hent_observationtyper(
+    def hent_observationstyper(
         self, namespace: Optional[str] = None
-    ) -> List[ObservationType]:
-        """Gets all ObservationTyper optionally filtered by namespace.
+    ) -> List[ObservationsType]:
+        """Gets all ObservationsTyper optionally filtered by namespace.
         """
         if not namespace:
-            return self.session.query(ObservationType).all()
+            return self.session.query(ObservationsType).all()
         like_filter = f"{namespace}:%"
         return (
-            self.session.query(ObservationType)
-            .filter(ObservationType.name.ilike(like_filter))
+            self.session.query(ObservationsType)
+            .filter(ObservationsType.name.ilike(like_filter))
             .all()
         )
 
@@ -409,16 +409,16 @@ class FireDb(object):
         self.session.add(observation)
         self.session.commit()
 
-    def indset_observationtype(self, observationtype: ObservationType):
-        if not self._is_new_object(observationtype):
+    def indset_observationstype(self, observationstype: ObservationsType):
+        if not self._is_new_object(observationstype):
             raise Exception(
-                f"Cannot re-add already persistent observationtype: {observationtype}"
+                f"Cannot re-add already persistent observationstype: {observationstype}"
             )
-        n = self.session.query(func.max(ObservationType.observationstypeid)).one()[0]
+        n = self.session.query(func.max(ObservationsType.observationstypeid)).one()[0]
         if n is None:
             n = 0
-        observationtype.observationstypeid = n + 1
-        self.session.add(observationtype)
+        observationstype.observationstypeid = n + 1
+        self.session.add(observationstype)
         self.session.commit()
 
     def indset_beregning(self, sagsevent: Sagsevent, beregning: Beregning):
@@ -567,7 +567,7 @@ class FireDb(object):
     def _hent_konfiguration(self):
         return (
             self.session.query(Konfiguration)
-            .filter(Konfiguration.objectid == 1)
+            .filter(Konfiguration.objektid == 1)
             .first()
         )
 

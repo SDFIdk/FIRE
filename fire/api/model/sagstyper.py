@@ -27,10 +27,10 @@ class Sag(RegisteringFraObjekt):
     __tablename__ = "sag"
     id = Column(String(36), nullable=False, default=fire.uuid)
     sagsevents = relationship(
-        "Sagsevent", order_by="Sagsevent.objectid", back_populates="sag"
+        "Sagsevent", order_by="Sagsevent.objektid", back_populates="sag"
     )
     sagsinfos = relationship(
-        "Sagsinfo", order_by="Sagsinfo.objectid", back_populates="sag"
+        "Sagsinfo", order_by="Sagsinfo.objektid", back_populates="sag"
     )
 
     @property
@@ -58,7 +58,7 @@ class Sagsinfo(RegisteringTidObjekt):
     journalnummer = Column(String)
     behandler = Column(String, nullable=False)
     beskrivelse = Column(String)
-    sagid = Column(String, ForeignKey("sag.id"), nullable=False)
+    sagsid = Column(String, ForeignKey("sag.id"), nullable=False)
     sag = relationship("Sag", back_populates="sagsinfos")
 
 
@@ -66,81 +66,81 @@ class Sagsevent(RegisteringFraObjekt):
     __tablename__ = "sagsevent"
     id = Column(String(36), nullable=False, default=fire.uuid)
     eventtype = Column("eventtypeid", IntegerEnum(EventType), nullable=False)
-    sagid = Column(String(36), ForeignKey("sag.id"), nullable=False)
+    sagsid = Column(String(36), ForeignKey("sag.id"), nullable=False)
     sag = relationship("Sag", back_populates="sagsevents")
     sagseventinfos = relationship(
-        "SagseventInfo", order_by="SagseventInfo.objectid", back_populates="sagsevent"
+        "SagseventInfo", order_by="SagseventInfo.objektid", back_populates="sagsevent"
     )
     # Fikspunktregisterobjekter
     punkter = relationship(
         "Punkt",
-        order_by="Punkt.objectid",
+        order_by="Punkt.objektid",
         back_populates="sagsevent",
         foreign_keys="Punkt.sagseventfraid",
     )
     punkter_slettede = relationship(
         "Punkt",
-        order_by="Punkt.objectid",
+        order_by="Punkt.objektid",
         back_populates="slettet",
         foreign_keys="Punkt.sagseventtilid",
     )
     koordinater = relationship(
         "Koordinat",
-        order_by="Koordinat.objectid",
+        order_by="Koordinat.objektid",
         back_populates="sagsevent",
         foreign_keys="Koordinat.sagseventfraid",
     )
     koordinater_slettede = relationship(
         "Koordinat",
-        order_by="Koordinat.objectid",
+        order_by="Koordinat.objektid",
         back_populates="slettet",
         foreign_keys="Koordinat.sagseventtilid",
     )
     geometriobjekter = relationship(
         "GeometriObjekt",
-        order_by="GeometriObjekt.objectid",
+        order_by="GeometriObjekt.objektid",
         back_populates="sagsevent",
         foreign_keys="GeometriObjekt.sagseventfraid",
     )
     geometriobjekter_slettede = relationship(
         "GeometriObjekt",
-        order_by="GeometriObjekt.objectid",
+        order_by="GeometriObjekt.objektid",
         back_populates="slettet",
         foreign_keys="GeometriObjekt.sagseventtilid",
     )
     observationer = relationship(
         "Observation",
-        order_by="Observation.objectid",
+        order_by="Observation.objektid",
         back_populates="sagsevent",
         foreign_keys="Observation.sagseventfraid",
     )
     observationer_slettede = relationship(
         "Observation",
-        order_by="Observation.objectid",
+        order_by="Observation.objektid",
         back_populates="slettet",
         foreign_keys="Observation.sagseventtilid",
     )
     punktinformationer = relationship(
         "PunktInformation",
-        order_by="PunktInformation.objectid",
+        order_by="PunktInformation.objektid",
         back_populates="sagsevent",
         foreign_keys="PunktInformation.sagseventfraid",
     )
     punktinformationer_slettede = relationship(
         "PunktInformation",
-        order_by="PunktInformation.objectid",
+        order_by="PunktInformation.objektid",
         back_populates="slettet",
         foreign_keys="PunktInformation.sagseventtilid",
     )
     beregninger = relationship(
         "Beregning",
-        order_by="Beregning.objectid",
+        order_by="Beregning.objektid",
         back_populates="sagsevent",
         foreign_keys="Beregning.sagseventfraid",
     )
     beregninger_slettede = relationship(
         "Beregning",
-        order_by="Beregning.objectid",
+        order_by="Beregning.objektid",
         back_populates="slettet",
         foreign_keys="Beregning.sagseventtilid",
     )
@@ -159,32 +159,32 @@ class SagseventInfo(RegisteringTidObjekt):
     sagsevent = relationship("Sagsevent", back_populates="sagseventinfos")
     materialer = relationship(
         "SagseventInfoMateriale",
-        order_by="SagseventInfoMateriale.objectid",
+        order_by="SagseventInfoMateriale.objektid",
         back_populates="sagseventinfo",
     )
     htmler = relationship(
         "SagseventInfoHtml",
-        order_by="SagseventInfoHtml.objectid",
+        order_by="SagseventInfoHtml.objektid",
         back_populates="sagseventinfo",
     )
 
 
 class SagseventInfoMateriale(DeclarativeBase):
     __tablename__ = "sagseventinfo_materiale"
-    objectid = Column(Integer, primary_key=True)
+    objektid = Column(Integer, primary_key=True)
     md5sum = Column(String(32), nullable=False)
     sti = Column(String(4000), nullable=False)
-    sagseventinfoobjectid = Column(
-        Integer, ForeignKey("sagseventinfo.objectid"), nullable=False
+    sagseventinfoobjektid = Column(
+        Integer, ForeignKey("sagseventinfo.objektid"), nullable=False
     )
     sagseventinfo = relationship("SagseventInfo", back_populates="materialer")
 
 
 class SagseventInfoHtml(DeclarativeBase):
     __tablename__ = "sagseventinfo_html"
-    objectid = Column(Integer, primary_key=True)
+    objektid = Column(Integer, primary_key=True)
     html = Column(String, nullable=False)
-    sagseventinfoobjectid = Column(
-        Integer, ForeignKey("sagseventinfo.objectid"), nullable=False
+    sagseventinfoobjektid = Column(
+        Integer, ForeignKey("sagseventinfo.objektid"), nullable=False
     )
     sagseventinfo = relationship("SagseventInfo", back_populates="htmler")
