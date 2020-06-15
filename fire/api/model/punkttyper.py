@@ -383,6 +383,7 @@ class ObservationType(DeclarativeBase):
 
 class Observation(FikspunktregisterObjekt):
     __tablename__ = "observation"
+    id = Column(String, nullable=False, unique=True, default=fire.uuid)
     value1 = Column(Float, nullable=False)
     value2 = Column(Float)
     value3 = Column(Float)
