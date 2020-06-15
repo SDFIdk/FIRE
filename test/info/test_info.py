@@ -52,8 +52,8 @@ def test_info_obstype():
   Værdi2      :  Nivellementslængde [m]
   Værdi3      :  Antal opstillinger
   Værdi4      :  Variabel vedr. eta_1 (refraktion) [m^3]
-  Værdi5      :  Afstandsafhængig varians koteforskel pr. målt koteforskel [m^2/m]
-  Værdi6      :  Afstandsuafhængig varians koteforskel pr. målt koteforskel [m^2]
+  Værdi5      :  Empirisk spredning pr. afstandsenhed [mm/sqrt(km)]
+  Værdi6      :  Empirisk centreringsfejl pr. opstilling [mm]
   Værdi7      :  Præcisionsnivellement [0,1,2,3]
   Sigtepunkt? :  True
 """

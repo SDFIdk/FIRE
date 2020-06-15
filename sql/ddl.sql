@@ -1125,7 +1125,7 @@ INSERT INTO observationstype (
 )
 VALUES (
     -- Overordnet beskrivelse
-    'Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk ',
+    'Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk',
      1,
     'geometrisk_koteforskel',
     'true',
