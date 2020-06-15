@@ -43,7 +43,7 @@ def observation_linje(obs: Observation) -> str:
     fra = obs.opstillingspunkt.ident
     til = obs.sigtepunkt.ident
     dH = obs.value1
-    L = max(obs.value2, 0.001)  # undgå division med 0 nedenfor
+    L = obs.value2
     N = int(obs.value3)
     tid = obs.observationstidspunkt.strftime("%Y-%m-%d %H:%M")
     grp = obs.gruppe
@@ -53,16 +53,14 @@ def observation_linje(obs: Observation) -> str:
     if obs.observationstypeid == 1:
         præs = int(obs.value7)
         eta_1 = obs.value4
-        fejlfaktor = math.sqrt(obs.value5) * 1000 / math.sqrt(L / 1000.0)
-        fejlfaktor = math.sqrt(obs.value5 * 1000 / L) * 1000
-        centrering = math.sqrt(obs.value6) * 1000
+        fejlfaktor = obs.value5
+        centrering = obs.value6
         return f"G {præs} {tid}    {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:3.1f} {centrering:4.2f} {eta_1:+07.2f} {grp:6} {oid:6}"
 
     # Trigonometrisk nivellement
     if obs.observationstypeid == 2:
         fejlfaktor = obs.value4
-        fejlfaktor = math.sqrt(obs.value4 * 1000 / L) * 1000
-        centrering = math.sqrt(obs.value5) * 1000
+        centrering = obs.value5
         return f"T 0 {tid}    {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:3.1f} {centrering:4.2f}    0.00 {grp:6} {oid:6}"
 
 
