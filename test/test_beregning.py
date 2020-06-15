@@ -10,7 +10,7 @@ from fire.api.model import (
     Sagsevent,
     Sag,
     Srid,
-    ObservationType,
+    ObservationsType,
     EventType,
     Boolean,
 )
@@ -22,7 +22,7 @@ def test_indset_beregning(
     sagsevent: Sagsevent,
     punkt: Punkt,
     srid: Srid,
-    observationstype: ObservationType,
+    observationstype: ObservationsType,
 ):
     o0 = Observation(
         sagsevent=sagsevent,
@@ -38,7 +38,7 @@ def test_indset_beregning(
     beregning.koordinater.append(koordinat)
     firedb.indset_beregning(Sagsevent(sag=sag), beregning)
 
-    assert koordinat.objectid is not None
+    assert koordinat.objektid is not None
 
 
 def test_indset_beregning_invalidates_existing_koordinat(

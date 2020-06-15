@@ -312,7 +312,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         idents: Dict[str, str],
         feedback: QgsProcessingFeedback,
     ):
-        observation_id = observation.objectid
+        observation_id = observation.objektid
 
         fikspunkt1_id = observation.opstillingspunktid
         fikspunkt1_ident = "uuid:" + fikspunkt1_id
@@ -457,7 +457,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         else:
             try:
                 fireDb = FireDb(fire_connection_string)
-                fireDb.hent_observationtyper()
+                fireDb.hent_observationstyper()
                 return True, "OK"
             except Exception as ex:
                 str_ex = str(ex)

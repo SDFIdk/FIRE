@@ -87,7 +87,7 @@ i separate afsnit længere nede i teksten.
 
         Punkt [
             label = "{Punkt|\l
-                    + objectid : Integer\l
+                    + objektid : Integer\l
                     + id : UUID\l
             }"
             fillcolor = lightskyblue
@@ -96,7 +96,7 @@ i separate afsnit længere nede i teksten.
 
         Geometriobjekt [
             label = "{Geometriobjekt|\l
-                    + objectid : Integer\l
+                    + objektid : Integer\l
                     + punktid : UUID\l
                     + geometri : Geometry\l
             }"
@@ -106,7 +106,7 @@ i separate afsnit længere nede i teksten.
 
         Punktinformation [
             label = "{Punktinformation|\l
-                    + objectid : Integer\l
+                    + objektid : Integer\l
                     + punktid : UUID\l
                     + infotypeid : Integer\l
                     + tal : Boolean\l
@@ -118,7 +118,7 @@ i separate afsnit længere nede i teksten.
 
         Koordinat [
             label = "{Koordinat|\l
-                    + objectid : Integer\l
+                    + objektid : Integer\l
                     + punktid : UUID\l
                     + sridid : Integer\l
                     + t : Datetime\l
@@ -138,9 +138,9 @@ i separate afsnit længere nede i teksten.
 
         Observation [
             label = "{Observation|\l
-                    + objectid : Integer\l
+                    + objektid : Integer\l
                     + id : UUID\l
-                    + observationtypeid : Integer\l
+                    + observationstypeid : Integer\l
                     + antal : Integer\l
                     + gruppe : Integer\l
                     + observationstidspunkt : Datetime\l
@@ -177,11 +177,11 @@ tre objekter er bygget op.
             node [shape=record, fontname="Verdana", fontsize="12"];
             graph [splines=ortho];
 
-            Observationtype [
+            Observationstype [
                 fillcolor = palegreen
                 style = filled
-                label = "{Observationtype|\l
-                        + objectid : Integer\l
+                label = "{Observationstype|\l
+                        + objektid : Integer\l
                         + id : Integer\l
                         + observationstype: String\l
                         + beskrivelse: String\l
@@ -197,7 +197,7 @@ tre objekter er bygget op.
                 fillcolor = palegreen
                 style = filled
                 label = "{SRIDType|\l
-                        + objectid : Integer\l
+                        + objektid : Integer\l
                         + id : Integer\l
                         + SRID: String\l
                         + beskrivelse: String\l
@@ -211,7 +211,7 @@ tre objekter er bygget op.
                 fillcolor = palegreen
                 style = filled
                 label = "{Punktinfotype|\l
-                        + objectid : Integer\l
+                        + objektid : Integer\l
                         + id : Integer\l
                         + infotype: String\l
                         + beskrivelse: String\l
@@ -241,7 +241,7 @@ tre objekter er bygget op.
 
                 Punktinfotype -> Punktinformation;
                 SRIDType -> Koordinat;
-                Observationtype -> Observation;
+                Observationstype -> Observation;
 
                 Punktinformation -> Punkt;
                 Koordinat -> Punkt;
@@ -391,7 +391,7 @@ præcist hvilke observationer der ligger til grund for en bestemt Koordinat.
                 fillcolor = lightskyblue
                 style = filled
                 label = "{Beregning|\l
-                        + objectid : Integer\l
+                        + objektid : Integer\l
                 }"
             ]
 
@@ -399,8 +399,8 @@ præcist hvilke observationer der ligger til grund for en bestemt Koordinat.
                 fillcolor = yellow
                 style = filled
                 label = "{Beregning_koordinat|\l
-                        + beregningobjectid : Integer\l
-                        + koordinatobjectid : Integer\l
+                        + beregningobjektid : Integer\l
+                        + koordinatobjektid : Integer\l
                 }"
             ]
 
@@ -408,8 +408,8 @@ præcist hvilke observationer der ligger til grund for en bestemt Koordinat.
                 fillcolor = yellow
                 style = filled
                 label = "{Beregning_observation|\l
-                        + beregningobjectid : Integer\l
-                        + observationobjectid : Integer\l
+                        + beregningobjektid : Integer\l
+                        + observationobjektid : Integer\l
                 }"
             ]
 
@@ -417,7 +417,7 @@ præcist hvilke observationer der ligger til grund for en bestemt Koordinat.
                 fillcolor = lightskyblue
                 style = filled
                 label = "{Koordinat|\l
-                        + objectid : Integer\l
+                        + objektid : Integer\l
                 }"
             ]
 
@@ -425,7 +425,7 @@ præcist hvilke observationer der ligger til grund for en bestemt Koordinat.
                 fillcolor = lightskyblue
                 style = filled
                 label = "{Observation|\l
-                    + objectid : Integer\l
+                    + objektid : Integer\l
 
                 }"
             ]
@@ -478,7 +478,7 @@ er nedlagt.
                 fillcolor = salmon
                 style = filled
                 label = "{Sag|\l
-                        + objectid : Integer\l
+                        + objektid : Integer\l
                         + id : UUID\l
                         + registreringfra : Datetime\l
                 }"
@@ -488,8 +488,8 @@ er nedlagt.
                 fillcolor = lightpink
                 style = filled
                 label = "{Sagsinfo|\l
-                        + objectid : Integer\l
-                        + sagid : UUID\l
+                        + objektid : Integer\l
+                        + sagsid : UUID\l
                         + aktiv : Boolean\l
                         + registreringfra : Datetime\l
                         + registreringtil : Datetime\l
@@ -503,9 +503,9 @@ er nedlagt.
                 fillcolor = salmon
                 style = filled
                 label = "{Sagsevent|\l
-                        + objectid : Integer\l
+                        + objektid : Integer\l
                         + id : UUID\l
-                        + sagid : UUID\l
+                        + sagsid : UUID\l
                         + registreringfra : Datetime\l
                         + eventtypeid : Integer\l
 
@@ -516,7 +516,7 @@ er nedlagt.
                 fillcolor = lightpink
                 style = filled
                 label = "{Sagseventinfo|\l
-                        + objectid : Integer\l
+                        + objektid : Integer\l
                         + sagseventid : UUID\l
                         + registreringfra : Datetime\l
                         + registreringtil : Datetime\l
@@ -528,7 +528,7 @@ er nedlagt.
                 fillcolor = lightpink
                 style = filled
                 label = "{Sagseventinfo_html|\l
-                        + objectid : Integer\l
+                        + objektid : Integer\l
                         + html : String\l
                         + sagseventinfoid : Integer\l
                 }"
@@ -538,7 +538,7 @@ er nedlagt.
                 fillcolor = lightpink
                 style = filled
                 label = "{Sagseventinfo_materiale|\l
-                        + objectid : Integer\l
+                        + objektid : Integer\l
                         + sti : String\l
                         + md5sum : String\l
                         + sagseventinfoid : Integer\l
@@ -549,7 +549,7 @@ er nedlagt.
                 fillcolor = palegreen
                 style = filled
                 label = "{Eventtype|\l
-                        + objectid : Integer\l
+                        + objektid : Integer\l
                         + beskrivelse : String\l
                         + event : String\l
                         + eventtypeid : Integer\l

@@ -23,13 +23,13 @@ class GamaWriter(object):
         for point in points:
             of = point.observationer_fra
             for o in of:
-                if o.objectid not in obsDict:
-                    obsDict[o.objectid] = o
+                if o.objektid not in obsDict:
+                    obsDict[o.objektid] = o
                     self.obsList.append(o)
             ot = point.observationer_til
             for o in ot:
-                if o.objectid not in obsDict:
-                    obsDict[o.objectid] = o
+                if o.objektid not in obsDict:
+                    obsDict[o.objektid] = o
                     self.obsList.append(o)
 
         self.point_set_description = (

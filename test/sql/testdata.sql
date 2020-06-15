@@ -86,7 +86,7 @@ INSERT INTO sagsinfo (
     journalnummer,
     behandler,
     beskrivelse,
-    sagid
+    sagsid
 ) VALUES (
     'true',
     sysdate,
@@ -103,7 +103,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0001-000000000001',
     sysdate,
@@ -244,7 +244,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0001-000000000002',
     sysdate,
@@ -344,7 +344,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0001-000000000003',
     sysdate,
@@ -393,7 +393,7 @@ INSERT INTO sagsinfo (
     journalnummer,
     behandler,
     beskrivelse,
-    sagid
+    sagsid
 ) VALUES (
     'false',
     sysdate,
@@ -430,7 +430,7 @@ INSERT INTO sagsinfo (
     journalnummer,
     behandler,
     beskrivelse,
-    sagid
+    sagsid
 ) VALUES (
     'true',
     sysdate,
@@ -449,7 +449,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0002-000000000001',
     sysdate,
@@ -571,7 +571,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0002-000000000002',
     sysdate,
@@ -644,13 +644,13 @@ Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TR
 -- Opretning beregning
 INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0002-000000000002');
 
-INSERT INTO beregning_observation (beregningobjectid, observationobjectid)
-SELECT (SELECT objectid FROM beregning WHERE sagseventfraid = 'sagevent-aaaa-bbbb-0002-000000000002'), o.objectid
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid)
+SELECT (SELECT objektid FROM beregning WHERE sagseventfraid = 'sagevent-aaaa-bbbb-0002-000000000002'), o.objektid
 FROM observation o
 WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0002-000000000001';
 
-INSERT INTO beregning_koordinat (beregningobjectid, koordinatobjectid)
-SELECT (SELECT objectid FROM beregning WHERE sagseventfraid = 'sagevent-aaaa-bbbb-0002-000000000002'), k.objectid
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid)
+SELECT (SELECT objektid FROM beregning WHERE sagseventfraid = 'sagevent-aaaa-bbbb-0002-000000000002'), k.objektid
 FROM koordinat k
 WHERE k.sagseventfraid = 'sagevent-aaaa-bbbb-0002-000000000002';
 
@@ -662,7 +662,7 @@ INSERT INTO sagsinfo (
     journalnummer,
     behandler,
     beskrivelse,
-    sagid
+    sagsid
 ) VALUES (
     'false',
     sysdate,
@@ -701,7 +701,7 @@ INSERT INTO sagsinfo (
     journalnummer,
     behandler,
     beskrivelse,
-    sagid
+    sagsid
 ) VALUES (
     'true',
     sysdate,
@@ -720,7 +720,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0003-000000000001',
     sysdate,
@@ -766,7 +766,7 @@ INSERT INTO sagsinfo (
     journalnummer,
     behandler,
     beskrivelse,
-    sagid
+    sagsid
 ) VALUES (
     'false',
     sysdate,
@@ -803,7 +803,7 @@ INSERT INTO sagsinfo (
     journalnummer,
     behandler,
     beskrivelse,
-    sagid
+    sagsid
 ) VALUES (
     'true',
     sysdate,
@@ -822,7 +822,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0004-000000000001',
     sysdate,
@@ -946,7 +946,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0004-000000000002',
     sysdate,
@@ -1024,13 +1024,13 @@ Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TR
 -- Opretning beregning
 INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0004-000000000002');
 
-INSERT INTO beregning_observation (beregningobjectid, observationobjectid)
-SELECT (SELECT objectid FROM beregning WHERE sagseventfraid = 'sagevent-aaaa-bbbb-0004-000000000002'), o.objectid
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid)
+SELECT (SELECT objektid FROM beregning WHERE sagseventfraid = 'sagevent-aaaa-bbbb-0004-000000000002'), o.objektid
 FROM observation o
 WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0004-000000000001';
 
-INSERT INTO beregning_koordinat (beregningobjectid, koordinatobjectid)
-SELECT (SELECT objectid FROM beregning WHERE sagseventfraid = 'sagevent-aaaa-bbbb-0004-000000000002'), k.objectid
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid)
+SELECT (SELECT objektid FROM beregning WHERE sagseventfraid = 'sagevent-aaaa-bbbb-0004-000000000002'), k.objektid
 FROM koordinat k
 WHERE k.sagseventfraid = 'sagevent-aaaa-bbbb-0004-000000000002';
 
@@ -1042,7 +1042,7 @@ INSERT INTO sagsinfo (
     journalnummer,
     behandler,
     beskrivelse,
-    sagid
+    sagsid
 ) VALUES (
     'false',
     sysdate,
@@ -1082,7 +1082,7 @@ INSERT INTO sagsinfo (
     journalnummer,
     behandler,
     beskrivelse,
-    sagid
+    sagsid
 ) VALUES (
     'true',
     sysdate,
@@ -1101,7 +1101,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0005-000000000001',
     sysdate,
@@ -1127,8 +1127,8 @@ COMMIT;
 
 UPDATE koordinat
 SET registreringtil = sysdate, sagseventtilid='sagevent-aaaa-bbbb-0005-000000000001'
-WHERE objectid = (
-        SELECT k.objectid
+WHERE objektid = (
+        SELECT k.objektid
         FROM koordinat k
         JOIN punktinfo pi ON k.punktid = pi.punktid
         WHERE pi.tekst = 'K-63-09446'
@@ -1139,7 +1139,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0005-000000000002',
     sysdate,
@@ -1165,8 +1165,8 @@ COMMIT;
 
 UPDATE observation
 SET registreringtil = sysdate, sagseventtilid='sagevent-aaaa-bbbb-0005-000000000002'
-WHERE objectid = (
-        SELECT o.objectid
+WHERE objektid = (
+        SELECT o.objektid
         FROM observation o
         JOIN punktinfo pi1 ON o.opstillingspunktid = pi1.punktid
         JOIN punktinfo pi2 ON o.sigtepunktid = pi2.punktid
@@ -1179,7 +1179,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0005-000000000003',
     sysdate,
@@ -1205,8 +1205,8 @@ UPDATE punktinfo
 SET
     registreringtil = sysdate,
     sagseventtilid='sagevent-aaaa-bbbb-0005-000000000003'
-WHERE objectid = (
-        SELECT pi.objectid
+WHERE objektid = (
+        SELECT pi.objektid
         FROM punktinfo pi
         WHERE registreringtil IS NULL
             AND infotypeid = (
@@ -1226,7 +1226,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0005-000000000004',
     sysdate,
@@ -1276,7 +1276,7 @@ INSERT INTO sagsevent (
     id,
     registreringfra,
     eventtypeid,
-    sagid
+    sagsid
 ) VALUES (
     'sagevent-aaaa-bbbb-0005-000000000005',
     sysdate,
@@ -1303,11 +1303,11 @@ COMMIT;
 INSERT INTO sagseventinfo_materiale (
     sti,
     md5sum,
-    sagseventinfoobjectid
+    sagseventinfoobjektid
 ) VALUES (
     'materiale/K-63-09446.pdf',
     'af8f278306a057ba41bef6c29911df79',
-    (SELECT objectid
+    (SELECT objektid
      FROM sagseventinfo
      WHERE sagseventid='sagevent-aaaa-bbbb-0005-000000000005'
        AND registreringtil IS NULL)
@@ -1315,10 +1315,10 @@ INSERT INTO sagseventinfo_materiale (
 
 INSERT INTO sagseventinfo_html (
     html,
-    sagseventinfoobjectid
+    sagseventinfoobjektid
 ) VALUES (
     '<html><body>K-63-09446.pdf</body></html>',
-    (SELECT objectid
+    (SELECT objektid
      FROM sagseventinfo
      WHERE sagseventid='sagevent-aaaa-bbbb-0005-000000000005'
        AND registreringtil IS NULL)

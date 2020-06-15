@@ -83,7 +83,7 @@ def koordinat(firedb, sagsevent, punkt, srid):
 
 @pytest.fixture()
 def observationstype(firedb):
-    ot0 = firedb.hent_observationtype("nulobservation")
+    ot0 = firedb.hent_observationstype("nulobservation")
     return ot0
 
 

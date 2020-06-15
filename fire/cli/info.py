@@ -47,7 +47,7 @@ def observation_linje(obs: Observation) -> str:
     N = int(obs.value3)
     tid = obs.observationstidspunkt.strftime("%Y-%m-%d %H:%M")
     grp = obs.gruppe
-    oid = obs.objectid
+    oid = obs.objektid
 
     # Geometrisk nivellement
     if obs.observationstypeid == 1:
@@ -264,8 +264,8 @@ def punkt_fuld_rapport(
 
     if opt_detaljeret:
         fire.cli.print(f"  uuid                        {punkt.id}")
-        fire.cli.print(f"  objekt-id                   {punkt.objectid}")
-        fire.cli.print(f"  sagsid                      {punkt.sagsevent.sagid}")
+        fire.cli.print(f"  objekt-id                   {punkt.objektid}")
+        fire.cli.print(f"  sagsid                      {punkt.sagsevent.sagsid}")
         fire.cli.print(f"  sagsevent-fra               {punkt.sagseventfraid}")
         if punkt.sagseventtilid is not None:
             fire.cli.print(f"  sagsevent-til               {punkt.sagseventtilid}")
@@ -322,7 +322,7 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
         'id',                 -- uuid: intern databaseidentifikation\n
         'koordinater',        -- alle tilgængelige koordinater\n
         'metadata',           -- øh\n
-        'objectid',           -- databaserækkenummer\n
+        'objektid',           -- databaserækkenummer\n
         'observationer_fra',  -- alle observationer udført fra punkt\n
         'observationer_til',  -- alle observationer udført til punkt\n
         'punktinformationer', -- attributter og punktbeskrivelser\n
@@ -495,7 +495,7 @@ def obstype(obstype: str, **kwargs):
     Anføres `obstype` ikke gives liste af mulige obstyper.
     """
     if not obstype:
-        obstyper = firedb.hent_observationtyper()
+        obstyper = firedb.hent_observationstyper()
         for obstype in obstyper:
             beskrivelse = textwrap.shorten(
                 obstype.beskrivelse, width=70, placeholder="..."
@@ -504,7 +504,7 @@ def obstype(obstype: str, **kwargs):
 
         return 0
 
-    ot = firedb.hent_observationtype(obstype)
+    ot = firedb.hent_observationstype(obstype)
     if ot is None:
         fire.cli.print(f"Error! {obstype} not found!", fg="red", err=True)
         sys.exit(1)

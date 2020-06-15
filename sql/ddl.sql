@@ -1,6 +1,6 @@
 CREATE TABLE BEREGNING (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
    SAGSEVENTFRAID VARCHAR2(36) NOT NULL,
@@ -9,21 +9,21 @@ CREATE TABLE BEREGNING (
 
 CREATE TABLE BEREGNING_KOORDINAT (
 
-   BEREGNINGOBJECTID INTEGER NOT NULL,
-   KOORDINATOBJECTID INTEGER NOT NULL,
-   PRIMARY KEY (BEREGNINGOBJECTID, KOORDINATOBJECTID)
+   BEREGNINGOBJEKTID INTEGER NOT NULL,
+   KOORDINATOBJEKTID INTEGER NOT NULL,
+   PRIMARY KEY (BEREGNINGOBJEKTID, KOORDINATOBJEKTID)
 );
 
 CREATE TABLE BEREGNING_OBSERVATION (
 
-   BEREGNINGOBJECTID INTEGER NOT NULL,
-   OBSERVATIONOBJECTID INTEGER NOT NULL,
-   PRIMARY KEY (BEREGNINGOBJECTID, OBSERVATIONOBJECTID)
+   BEREGNINGOBJEKTID INTEGER NOT NULL,
+   OBSERVATIONOBJEKTID INTEGER NOT NULL,
+   PRIMARY KEY (BEREGNINGOBJEKTID, OBSERVATIONOBJEKTID)
 );
 
 CREATE TABLE EVENTTYPE (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    BESKRIVELSE VARCHAR2(4000) NOT NULL,
    EVENT VARCHAR2(4000) NOT NULL,
    EVENTTYPEID INTEGER NOT NULL
@@ -31,7 +31,7 @@ CREATE TABLE EVENTTYPE (
 
 CREATE TABLE GEOMETRIOBJEKT (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
    SAGSEVENTFRAID VARCHAR2(36) NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE GEOMETRIOBJEKT (
 
 CREATE TABLE KOORDINAT (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
    SAGSEVENTFRAID VARCHAR2(36) NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE KOORDINAT (
 );
 
 CREATE TABLE KONFIGURATION (
-  OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+  OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
   DIR_SKITSER VARCHAR(200) NOT NULL,
   DIR_MATERIALE VARCHAR(200) NOT NULL
 );
@@ -70,7 +70,7 @@ CREATE UNIQUE INDEX only_one_row ON konfiguration ('1');
 
 CREATE TABLE OBSERVATION (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    ID VARCHAR2(36) NOT NULL,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
@@ -99,9 +99,9 @@ CREATE TABLE OBSERVATION (
    SIGTEPUNKTID VARCHAR2(36)
 );
 
-CREATE TABLE OBSERVATIONTYPE (
+CREATE TABLE OBSERVATIONSTYPE (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    OBSERVATIONSTYPEID INTEGER NOT NULL,
    OBSERVATIONSTYPE VARCHAR2(4000) NOT NULL,
    BESKRIVELSE VARCHAR2(4000) NOT NULL,
@@ -125,7 +125,7 @@ CREATE TABLE OBSERVATIONTYPE (
 
 CREATE TABLE PUNKT (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
    SAGSEVENTFRAID VARCHAR2(36) NOT NULL,
@@ -135,7 +135,7 @@ CREATE TABLE PUNKT (
 
 CREATE TABLE PUNKTINFO (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
    SAGSEVENTFRAID VARCHAR2(36) NOT NULL,
@@ -148,7 +148,7 @@ CREATE TABLE PUNKTINFO (
 
 CREATE TABLE PUNKTINFOTYPE (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    INFOTYPEID INTEGER NOT NULL,
    INFOTYPE VARCHAR2(4000) NOT NULL,
    ANVENDELSE VARCHAR2(9) NOT NULL,
@@ -158,23 +158,23 @@ CREATE TABLE PUNKTINFOTYPE (
 
 CREATE TABLE SAG (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    ID VARCHAR2(36) NOT NULL,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE TABLE SAGSEVENT (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    ID VARCHAR2(36) NOT NULL,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    EVENTTYPEID INTEGER NOT NULL,
-   SAGID VARCHAR2(36) NOT NULL
+   SAGSID VARCHAR2(36) NOT NULL
 );
 
 CREATE TABLE SAGSEVENTINFO (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
    BESKRIVELSE VARCHAR2(4000),
@@ -183,35 +183,35 @@ CREATE TABLE SAGSEVENTINFO (
 
 CREATE TABLE SAGSEVENTINFO_HTML (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    HTML CLOB NOT NULL,
-   SAGSEVENTINFOOBJECTID INTEGER NOT NULL
+   SAGSEVENTINFOOBJEKTID INTEGER NOT NULL
 );
 
 CREATE TABLE SAGSEVENTINFO_MATERIALE (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    MD5SUM VARCHAR2(32) NOT NULL,
    STI VARCHAR2(4000) NOT NULL,
-   SAGSEVENTINFOOBJECTID INTEGER NOT NULL
+   SAGSEVENTINFOOBJEKTID INTEGER NOT NULL
 );
 
 CREATE TABLE SAGSINFO (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    AKTIV VARCHAR2(5) NOT NULL,
    REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
    REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
    JOURNALNUMMER VARCHAR2(4000),
    BEHANDLER VARCHAR2(4000) NOT NULL,
    BESKRIVELSE VARCHAR2(4000),
-   SAGID VARCHAR2(36) NOT NULL
+   SAGSID VARCHAR2(36) NOT NULL
 );
 
 
 CREATE TABLE SRIDTYPE (
 
-   OBJECTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
+   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
    X VARCHAR2(4000),
    Y VARCHAR2(4000),
    Z VARCHAR2(4000),
@@ -222,7 +222,7 @@ CREATE TABLE SRIDTYPE (
 
 
 ALTER TABLE KOORDINAT ADD CONSTRAINT CK_KOORDINAT_TRANSFORMER248 CHECK (TRANSFORMERET IN ('true', 'false'));
-ALTER TABLE OBSERVATIONTYPE ADD CONSTRAINT CK_OBSERVATION_SIGTEPUNKT085 CHECK (SIGTEPUNKT IN ('true', 'false'));
+ALTER TABLE OBSERVATIONSTYPE ADD CONSTRAINT CK_OBSERVATION_SIGTEPUNKT085 CHECK (SIGTEPUNKT IN ('true', 'false'));
 ALTER TABLE PUNKTINFOTYPE ADD CONSTRAINT CK_PUNKTINFOTY_ANVENDELSE138 CHECK (ANVENDELSE IN ('FLAG', 'TAL', 'TEKST'));
 ALTER TABLE SAGSINFO ADD CONSTRAINT CK_SAGSINFO_AKTIV060 CHECK (AKTIV IN ('true', 'false'));
 
@@ -235,10 +235,10 @@ COMMENT ON COLUMN BEREGNING.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen 
 COMMENT ON COLUMN BEREGNING.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
 COMMENT ON COLUMN BEREGNING.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
 COMMENT ON COLUMN BEREGNING.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
-COMMENT ON COLUMN BEREGNING_KOORDINAT.KOORDINATOBJECTID IS 'Udpegning af de koordinater der er indgået i en beregning.';
-COMMENT ON COLUMN BEREGNING_OBSERVATION.OBSERVATIONOBJECTID IS 'Udpegning af de observationer der er brugt i en beregning.';
+COMMENT ON COLUMN BEREGNING_KOORDINAT.KOORDINATOBJEKTID IS 'Udpegning af de koordinater der er indgået i en beregning.';
+COMMENT ON COLUMN BEREGNING_OBSERVATION.OBSERVATIONOBJEKTID IS 'Udpegning af de observationer der er brugt i en beregning.';
 COMMENT ON TABLE EVENTTYPE IS 'Objekt til at holde en liste over lovlige typer af events i fikspunktsforvaltningssystemet, samt en beskrivelse hvad eventtypen dækker over.';
-COMMENT ON COLUMN EVENTTYPE.BESKRIVELSE IS 'Kort beskrivelse af en eventype.';
+COMMENT ON COLUMN EVENTTYPE.BESKRIVELSE IS 'Kort beskrivelse af en eventtype.';
 COMMENT ON COLUMN EVENTTYPE.EVENT IS 'Navngivning af en eventtype.';
 COMMENT ON COLUMN EVENTTYPE.EVENTTYPEID IS 'Identifikation af typen af en sagsevent.';
 COMMENT ON TABLE GEOMETRIOBJEKT IS 'Objekt indeholdende et punkts placeringsgeometri.';
@@ -303,26 +303,26 @@ COMMENT ON COLUMN OBSERVATION.VALUE6 IS 'En værdi for en observation.';
 COMMENT ON COLUMN OBSERVATION.VALUE7 IS 'En værdi for en observation.';
 COMMENT ON COLUMN OBSERVATION.VALUE8 IS 'En værdi for en observation.';
 COMMENT ON COLUMN OBSERVATION.VALUE9 IS 'En værdi for en observation.';
-COMMENT ON TABLE OBSERVATIONTYPE IS 'Objekttype til beskrivelse af hvorledes en Observation skal læses, ud fra typen af observation.';
-COMMENT ON COLUMN OBSERVATIONTYPE.BESKRIVELSE IS 'Overordnet beskrivelse af denne observationstype.';
-COMMENT ON COLUMN OBSERVATIONTYPE.OBSERVATIONSTYPE IS 'Kortnavn for observationstypen, fx dH';
-COMMENT ON COLUMN OBSERVATIONTYPE.OBSERVATIONSTYPEID IS 'Identifikation af observationenst type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.SIGTEPUNKT IS 'Indikator for om Sigtepunkt anvendes for denne observationstype.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE1 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE10 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE11 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE12 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE13 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE14 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE15 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE2 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE3 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE4 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE5 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE6 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE7 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE8 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONTYPE.VALUE9 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON TABLE OBSERVATIONSTYPE IS 'Objekttype til beskrivelse af hvorledes en Observation skal læses, ud fra typen af observation.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.BESKRIVELSE IS 'Overordnet beskrivelse af denne observationstype.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.OBSERVATIONSTYPE IS 'Kortnavn for observationstypen, fx dH';
+COMMENT ON COLUMN OBSERVATIONSTYPE.OBSERVATIONSTYPEID IS 'Identifikation af observationenst type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.SIGTEPUNKT IS 'Indikator for om Sigtepunkt anvendes for denne observationstype.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE1 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE10 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE11 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE12 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE13 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE14 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE15 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE2 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE3 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE4 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE5 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE6 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE7 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE8 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE9 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
 COMMENT ON TABLE PUNKT IS 'Abstrakt repræsentation af et fysisk punkt. Knytter alle punktinformationer sammen.';
 COMMENT ON COLUMN PUNKT.ID IS 'Persistent unik nøgle.';
 COMMENT ON COLUMN PUNKT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
@@ -350,7 +350,7 @@ COMMENT ON TABLE SAGSEVENT IS 'Udvikling i sag som kan, men ikke behøver, medf�
 COMMENT ON COLUMN SAGSEVENT.EVENTTYPEID IS 'Identifikation af typen af en sagsevent.';
 COMMENT ON COLUMN SAGSEVENT.ID IS 'Persistent unik nøgle.';
 COMMENT ON COLUMN SAGSEVENT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN SAGSEVENT.SAGID IS 'Udpegning af den sag i fikspunktsforvalningssystemet som en event er foretaget i.';
+COMMENT ON COLUMN SAGSEVENT.SAGSID IS 'Udpegning af den sag i fikspunktsforvalningssystemet som en event er foretaget i.';
 COMMENT ON TABLE SAGSEVENTINFO IS 'Informationer der knytter sig til en et sagsevent.';
 COMMENT ON COLUMN SAGSEVENTINFO.BESKRIVELSE IS 'Specifik beskrivelse af den aktuelle fremdrift.';
 COMMENT ON COLUMN SAGSEVENTINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
@@ -367,7 +367,7 @@ COMMENT ON COLUMN SAGSINFO.BESKRIVELSE IS 'Kort beskrivelse af en fikspunktssag.
 COMMENT ON COLUMN SAGSINFO.JOURNALNUMMER IS 'Sagsmappeidentifikation i opmålings- og beregningssagsregistret.';
 COMMENT ON COLUMN SAGSINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
 COMMENT ON COLUMN SAGSINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN SAGSINFO.SAGID IS 'Den sag som sagsinfo holder information for.';
+COMMENT ON COLUMN SAGSINFO.SAGSID IS 'Den sag som sagsinfo holder information for.';
 COMMENT ON TABLE SRIDTYPE IS 'Udfaldsrum for SRID-koordinatbeskrivelser.';
 COMMENT ON COLUMN SRIDTYPE.BESKRIVELSE IS 'Generel beskrivelse af systemet.';
 COMMENT ON COLUMN SRIDTYPE.SRID IS 'Den egentlige referencesystemindikator.';
@@ -426,11 +426,11 @@ USING INDEX PUNKTINFOTYPE_IDX_01
 ENABLE VALIDATE;
 
 
-CREATE UNIQUE INDEX OBSERVATIONSTYPE_IDX_001 ON OBSERVATIONTYPE
+CREATE UNIQUE INDEX OBSERVATIONSTYPE_IDX_001 ON OBSERVATIONSTYPE
 (OBSERVATIONSTYPEID);
 
-ALTER TABLE OBSERVATIONTYPE ADD
-CONSTRAINT OBSERVATIONTYPE_U01
+ALTER TABLE OBSERVATIONSTYPE ADD
+CONSTRAINT OBSERVATIONSTYPE_U01
 UNIQUE (OBSERVATIONSTYPEID)
 USING INDEX OBSERVATIONSTYPE_IDX_001
 ENABLE VALIDATE;
@@ -463,7 +463,7 @@ ENABLE VALIDATE;
 ALTER TABLE OBSERVATION ADD
 CONSTRAINT OBSERVATION_R01
 FOREIGN KEY (OBSERVATIONSTYPEID)
-REFERENCES OBSERVATIONTYPE (OBSERVATIONSTYPEID)
+REFERENCES OBSERVATIONSTYPE (OBSERVATIONSTYPEID)
 ENABLE VALIDATE;
 
 ALTER TABLE PUNKTINFO ADD
@@ -518,7 +518,7 @@ ENABLE VALIDATE);
 
 ALTER TABLE SAGSINFO ADD (
 CONSTRAINT SAGSINFO_R01
-FOREIGN KEY (SAGID)
+FOREIGN KEY (SAGSID)
 REFERENCES SAG (ID)
 ENABLE VALIDATE);
 
@@ -531,7 +531,7 @@ ENABLE VALIDATE;
 -- Constraint der sikrer at et sagsevent henviser til en eksisterende sag
 ALTER TABLE SAGSEVENT ADD
 CONSTRAINT SAGSEVENT_R01
-FOREIGN KEY (SAGID)
+FOREIGN KEY (SAGSID)
 REFERENCES SAG (ID)
 ENABLE VALIDATE;
 
@@ -563,7 +563,7 @@ CREATE OR REPLACE TRIGGER AUD#BEREGNING
 after update ON BEREGNING
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+IF :new.OBJEKTID != :old.OBJEKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -578,7 +578,7 @@ after update ON GEOMETRIOBJEKT
 for each row
 begin
 
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+IF :new.OBJEKTID != :old.OBJEKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -593,7 +593,7 @@ CREATE OR REPLACE TRIGGER AUD#KOORDINAT
 after update ON KOORDINAT
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+IF :new.OBJEKTID != :old.OBJEKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -629,7 +629,7 @@ CREATE OR REPLACE TRIGGER AUD#OBSERVATION
 after update ON OBSERVATION
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+IF :new.OBJEKTID != :old.OBJEKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -720,7 +720,7 @@ CREATE OR REPLACE TRIGGER AUD#PUNKT
 after update ON PUNKT
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+IF :new.OBJEKTID != :old.OBJEKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -736,7 +736,7 @@ CREATE OR REPLACE TRIGGER AUD#SAG
 before update ON SAG
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+IF :new.OBJEKTID != :old.OBJEKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 
 IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
@@ -751,13 +751,13 @@ CREATE OR REPLACE TRIGGER AUD#SAGSEVENT
 after update ON SAGSEVENT
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(a) '); END IF;
+IF :new.OBJEKTID != :old.OBJEKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(a) '); END IF;
 
 IF :new.ID != :old.ID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(b) '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(c) '); END IF;
 
-IF :new.SAGID != :old.SAGID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(d) '); END IF;
+IF :new.SAGSID != :old.SAGSID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(d) '); END IF;
 
 end;
 /
@@ -768,7 +768,7 @@ CREATE OR REPLACE TRIGGER AUD#SAGSEVENTINFO
 before update ON SAGSEVENTINFO
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+IF :new.OBJEKTID != :old.OBJEKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.SAGSEVENTID != :old.SAGSEVENTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -784,9 +784,9 @@ CREATE OR REPLACE TRIGGER AUD#SAGSINFO
 before update ON SAGSINFO
 for each row
 begin
-IF :new.OBJECTID != :old.OBJECTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+IF :new.OBJEKTID != :old.OBJEKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
-IF :new.SAGID != :old.SAGID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+IF :new.SAGSID != :old.SAGSID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.REGISTRERINGFRA != :old.REGISTRERINGFRA THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
@@ -815,19 +815,19 @@ begin
     from sagsinfo
     where aktiv = 'true'
     and registreringtil is null
-    and sagid = :new.sagid;
+    and sagsid = :new.sagsid;
   exception when no_data_found then cnt:=0;
   end;
 
   if cnt = 0 then
-    RAISE_APPLICATION_ERROR(-20000,'Ingen aktiv sag fundet paa sagid '||:new.sagid);
+    RAISE_APPLICATION_ERROR(-20000,'Ingen aktiv sag fundet paa sagsid '||:new.sagsid);
   END IF;
 
 end;
 /
 
 
--- Trigger der skal sikre at inholdet i Observation-tabellen matcher hvad der er defineret observationtype-tabellen
+-- Trigger der skal sikre at inholdet i Observation-tabellen matcher hvad der er defineret observationstype-tabellen
 CREATE OR REPLACE TRIGGER AID#OBSERVATION
 after insert Or UPDATE ON OBSERVATION
 for each row
@@ -879,7 +879,7 @@ begin
          val13,
          val14,
          val15
-  from observationtype a
+  from observationstype a
   where A.OBSERVATIONSTYPEID = :new.OBSERVATIONSTYPEID;
 
 
@@ -985,7 +985,7 @@ IF :new.registreringtil IS NULL THEN
   IF cnt = 1 THEN
     UPDATE punktinfo
     SET registreringtil = :new.registreringfra, sagseventtilid = :new.sagseventfraid
-    WHERE objectid = (SELECT objectid FROM punktinfo WHERE punktid = :new.punktid AND infotypeid = :new.infotypeid AND registreringtil IS NULL);
+    WHERE objektid = (SELECT objektid FROM punktinfo WHERE punktid = :new.punktid AND infotypeid = :new.infotypeid AND registreringtil IS NULL);
   END IF;
 END IF;
 
@@ -1038,7 +1038,7 @@ IF :new.REGISTRERINGTIL IS NULL THEN
   if cnt = 1 THEN
     UPDATE koordinat
     SET registreringtil = :new.registreringfra, sagseventtilid = :new.sagseventfraid
-    WHERE objectid = (SELECT objectid FROM koordinat WHERE punktid = :new.punktid AND sridid = :new.sridid AND registreringtil IS NULL);
+    WHERE objektid = (SELECT objektid FROM koordinat WHERE punktid = :new.punktid AND sridid = :new.sridid AND registreringtil IS NULL);
   END IF;
 END IF;
 
@@ -1054,15 +1054,15 @@ BEGIN
 IF :new.REGISTRERINGTIL IS NULL THEN
   SELECT count(*) INTO cnt
   FROM SAGSINFO
-  WHERE sagid = :new.sagid AND registreringtil IS NULL;
+  WHERE sagsid = :new.sagsid AND registreringtil IS NULL;
 
   IF cnt = 1 THEN
     UPDATE sagsinfo
     SET registreringtil = :new.registreringfra
-    WHERE objectid = (
-        SELECT objectid
+    WHERE objektid = (
+        SELECT objektid
         FROM sagsinfo
-        WHERE sagid = :new.sagid AND registreringtil IS NULL
+        WHERE sagsid = :new.sagsid AND registreringtil IS NULL
     );
   END IF;
 END IF;
@@ -1084,8 +1084,8 @@ IF :new.REGISTRERINGTIL IS NULL THEN
   IF cnt = 1 THEN
     UPDATE sagseventinfo
     SET registreringtil = :new.registreringfra
-    WHERE objectid = (
-        SELECT objectid
+    WHERE objektid = (
+        SELECT objektid
         FROM sagseventinfo
         WHERE sagseventid = :new.sagseventid AND registreringtil IS NULL
     );
@@ -1096,34 +1096,34 @@ END;
 /
 
 
--- Indhold til observationtype
-INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+-- Indhold til observationstype
+INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk', 1, 'geometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Variabel vedr. eta_1 (refraktion) [m^3]', 'Afstandsafhængig varians koteforskel pr. målt koteforskel [m^2/m]', 'Afstandsuafhængig varians koteforskel pr. målt koteforskel [m^2]', 'Præcisionsnivellement [0,1,2,3]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt trigonometrisk', 2 , 'trigonometrisk_koteforskel', 'true','Koteforskel [m]', 'Nivellementslængde [m]', 'Antal opstillinger', 'Afstandsafhængig varians pr. målt koteforskel [m^2/m^2]', 'Afstandsuafhængig varians pr. målt koteforskel [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Horisontal retning med uret fra opstilling til sigtepunkt (reduceret til ellipsoiden)', 3 , 'retning', 'true','Retning [m]', 'Varians  retning hidrørende instrument, pr. sats  [rad^2]', 'Samlet centreringsvarians for instrument prisme [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Horisontal afstand mellem opstilling og sigtepunkt (reduceret til ellipsoiden)', 4 , 'horisontalafstand', 'true','Afstand [m]', 'Afstandsafhængig varians afstandsmåler [m^2/m^2]', 'Samlet varians for centrering af instrument og prisme, samt grundfejl på afstandsmåler [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Skråafstand mellem opstilling og sigtepunkt', 5 , 'skråafstand', 'true','Afstand [m]', 'Afstandsafhængig varians afstandsmåler pr. måling [m^2/m^2]', 'Samlet varians for centrering af instrument og prisme, samt grundfejl på afstandsmåler pr. måling [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Zenitvinkel mellem opstilling og sigtepunkt', 6 , 'zenitvinkel', 'true','Zenitvinkel [rad]', 'Instrumenthøjde [m]', 'Højde sigtepunkt [m]', 'Varians zenitvinkel hidrørende instrument, pr. sats  [rad^2]', 'Samlet varians instrumenthøjde/højde sigtepunkt [m^2]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 2 (v2-v1)', 7 , 'vektor', 'true','dx [m]', 'dy [m]', 'dz [m]', 'Afstandsafhængig varians [m^2/m^2]', 'Samlet varians for centrering af antenner [m^2]', 'Varians dx [m^2]', 'Varians dy [m^2]', 'Varians dz [m^2]', 'Covarians dx, dy [m^2]', 'Covarians dx, dz [m^2]', 'Covarians dy, dz [m^2]', NULL, NULL, NULL, NULL);
 
-INSERT INTO observationtype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+INSERT INTO observationstype (beskrivelse, OBSERVATIONSTYPEID, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('observation nummer nul, indlagt fra start i observationstabellen, så der kan refereres til den i de mange beregningsevents der fører til population af koordinattabellen', 8 , 'nulobservation', 'false', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 
 
--- Oprettelse af eventyper i FIRE
+-- Oprettelse af eventtyper i FIRE
 INSERT INTO EVENTTYPE (BESKRIVELSE, EVENT, EVENTTYPEID)
 VALUES ('Bruges når koordinater indsættes efter en beregning.', 'koordinat_beregnet', 1);
 
