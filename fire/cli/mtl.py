@@ -627,6 +627,11 @@ def gama_beregning(
     # ----------------------------------------------
     with open(f"{projektnavn}-resultat.xml") as resultat:
         doc = xmltodict.parse(resultat.read())
+    # Sammenhængen mellem rækkefølgen af elementer i Gamas punktliste (koteliste
+    # herunder) og varianserne i covariansmatricens diagonal er uklart beskrevet:
+    # I Gamas xml-resultatfil antydes at der skal foretages en ombytning.
+    # Men rækkefølgen anvendt her passer sammen med det Gama præsenterer i
+    # html-rapportudgaven af beregningsresultatet.
     koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
     punkter = [punkt["id"] for punkt in koteliste]
     koter = [float(punkt["z"]) for punkt in koteliste]
