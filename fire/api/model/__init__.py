@@ -34,6 +34,9 @@ class StringEnum(BetterBehavedEnum):
 
     impl = sqlalchemy.String
 
+    def process_bind_param(self, value, dialect):
+        return value
+
 
 class ReprBase(object):
     """Extend the base class
