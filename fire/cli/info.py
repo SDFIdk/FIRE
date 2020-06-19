@@ -537,7 +537,7 @@ def sag(sagsid: str, **kwargs):
         fire.cli.print(f"  Sagsid        : {sag.id}")
         fire.cli.print(f"  Oprettet      : {sag.registreringfra}")
         fire.cli.print(f"  Sagsbehandler : {sag.behandler}")
-        if sag.aktiv == Boolean.TRUE:
+        if sag.aktiv == True:
             status = "Aktiv"
         else:
             status = "Lukket"
