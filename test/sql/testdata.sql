@@ -77,8 +77,6 @@ INSERT INTO sag (
     sysdate
 );
 
-COMMIT;
-
 INSERT INTO sagsinfo (
     aktiv,
     registreringfra,
@@ -96,8 +94,6 @@ INSERT INTO sagsinfo (
     'Indsættelse punkter mellem Aarhus Domkirke og GNSS station SKEJ via 5D-punkt RDIO',
     'sag00001-aaaa-bbbb-cccc-000000000001'
 );
-
-COMMIT;
 
 INSERT INTO sagsevent (
     id,
@@ -122,8 +118,6 @@ INSERT INTO sagseventinfo (
     'Indsættelse af punkter og geometrier til testdata fra Aarhus',
     'sagevent-aaaa-bbbb-0001-000000000001'
 );
-
-COMMIT;
 
 
 -- SELECT
@@ -176,8 +170,6 @@ Insert into PUNKT (ID,REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID) values ('b
 Insert into PUNKT (ID,REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID) values ('8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c',to_timestamp_tz('2019-01-08 08:38:00','YYYY-MM-DD HH24:MI:SS'),null,'sagevent-aaaa-bbbb-0001-000000000001');
 Insert into PUNKT (ID,REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID) values ('fca43e51-5166-44b3-b941-c46915cd791b',to_timestamp_tz('2019-01-29 08:13:00','YYYY-MM-DD HH24:MI:SS'),null,'sagevent-aaaa-bbbb-0001-000000000001');
 Insert into PUNKT (ID,REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID) values ('c3d38a21-329e-474a-a4d1-068e8219b622',to_timestamp_tz('1700-03-01 00:00:00','YYYY-MM-DD HH24:MI:SS'),null,'sagevent-aaaa-bbbb-0001-000000000001');
-
-COMMIT;
 
 -- SELECT
 --   g.registreringfra,
@@ -364,27 +356,29 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0001-000000000003'
 );
 
-SELECT
-  k.registreringfra, 'sagevent-aaaa-bbbb-0001-000000000003' as sagseventfraid,
-  k.sridid, k.x, k.y, k.z, k.sx, k.sy, k.sz, k.t, k.transformeret,
-  k.artskode,  k.punktid
-FROM
-  koordinat k
-JOIN punktinfo pi ON k.punktid = pi.punktid
-WHERE
-  k.sridid IN (SELECT sridid FROM sridtype WHERE srid = 'EPSG:5799')
-    AND
-  pi.infotypeid = (SELECT infotypeid FROM punktinfotype WHERE infotype = 'IDENT:landsnr')
-    AND
-  pi.tekst IN (
-    'K-63-09946', -- G.M.902, Domkirken i Aarhus
-    'K-63-09944',
-    'K-63-00909' -- RDIO, 5D-punkt ved Radiohuset, Aarhus
-) AND k.registreringtil IS NULL;
+-- SELECT
+--   k.registreringfra, 'sagevent-aaaa-bbbb-0001-000000000003' as sagseventfraid,
+--   k.sridid, k.x, k.y, k.z, k.sx, k.sy, k.sz, k.t, k.transformeret,
+--   k.artskode,  k.punktid
+-- FROM
+--   koordinat k
+-- JOIN punktinfo pi ON k.punktid = pi.punktid
+-- WHERE
+--   k.sridid IN (SELECT sridid FROM sridtype WHERE srid = 'EPSG:5799')
+--     AND
+--   pi.infotypeid = (SELECT infotypeid FROM punktinfotype WHERE infotype = 'IDENT:landsnr')
+--     AND
+--   pi.tekst IN (
+--     'K-63-09946', -- G.M.902, Domkirken i Aarhus
+--     'K-63-09944',
+--     'K-63-00909' -- RDIO, 5D-punkt ved Radiohuset, Aarhus
+-- ) AND k.registreringtil IS NULL;
 
 Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,ARTSKODE,PUNKTID) values (to_timestamp_tz('2009-10-20 12:11:07','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0001-000000000003',8,null,null,2.8318,null,null,0,to_timestamp_tz('2000-02-11 13:30:00','YYYY-MM-DD HH24:MI:SS'),'false',1,'61c61847-ed54-4969-b94e-df74fd63f108');
 Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,ARTSKODE,PUNKTID) values (to_timestamp_tz('2001-07-31 12:32:02','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0001-000000000003',8,null,null,5.5700000000000003,null,null,0,to_timestamp_tz('2001-07-31 08:54:00','YYYY-MM-DD HH24:MI:SS'),'false',1,'67e3987a-dc6b-49ee-8857-417ef35777af');
 Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,ARTSKODE,PUNKTID) values (to_timestamp_tz('2003-11-07 10:53:02','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0001-000000000003',8,null,null,85.181,null,null,0,to_timestamp_tz('2001-02-28 12:45:00','YYYY-MM-DD HH24:MI:SS'),'false',2,'301b8578-8cc8-48a8-8446-541f31482f86');
+
+COMMIT;
 
 INSERT INTO sagsinfo (
     aktiv,
@@ -421,8 +415,6 @@ INSERT INTO sag (
     sysdate
 );
 
-COMMIT;
-
 INSERT INTO sagsinfo (
     aktiv,
     registreringfra,
@@ -441,9 +433,6 @@ INSERT INTO sagsinfo (
     'sag00002-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
-
-
 
 INSERT INTO sagsevent (
     id,
@@ -457,8 +446,6 @@ INSERT INTO sagsevent (
     'sag00002-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
-
 INSERT INTO sagseventinfo (
     REGISTRERINGFRA,
     REGISTRERINGTIL,
@@ -470,8 +457,6 @@ INSERT INTO sagseventinfo (
     'Indsættelse af observationer',
     'sagevent-aaaa-bbbb-0002-000000000001'
 );
-
-COMMIT;
 
 -- SELECT
 --   o.registreringfra,
@@ -591,8 +576,6 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0002-000000000002'
 );
 
-COMMIT;
-
 -- SELECT
 --   k.registreringfra, 'sagevent-aaaa-bbbb-0002-000000000002' as sagseventfraid,
 --   k.sridid, k.x, k.y, k.z, k.sx, k.sy, k.sz, k.t, k.transformeret,
@@ -654,6 +637,7 @@ SELECT (SELECT objektid FROM beregning WHERE sagseventfraid = 'sagevent-aaaa-bbb
 FROM koordinat k
 WHERE k.sagseventfraid = 'sagevent-aaaa-bbbb-0002-000000000002';
 
+COMMIT;
 
 INSERT INTO sagsinfo (
     aktiv,
@@ -692,7 +676,6 @@ INSERT INTO sag (
     sysdate
 );
 
-COMMIT;
 
 INSERT INTO sagsinfo (
     aktiv,
@@ -712,9 +695,6 @@ INSERT INTO sagsinfo (
     'sag00003-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
-
-
 
 INSERT INTO sagsevent (
     id,
@@ -728,7 +708,6 @@ INSERT INTO sagsevent (
     'sag00003-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
 
 INSERT INTO sagseventinfo (
     REGISTRERINGFRA,
@@ -741,8 +720,6 @@ INSERT INTO sagseventinfo (
     'Tilføjelse af ATTR:tabtgået til punkt K-63-09446',
     'sagevent-aaaa-bbbb-0003-000000000001'
 );
-
-COMMIT;
 
 
 INSERT INTO punktinfo (
@@ -794,7 +771,6 @@ INSERT INTO sag (
     sysdate
 );
 
-COMMIT;
 
 INSERT INTO sagsinfo (
     aktiv,
@@ -814,9 +790,6 @@ INSERT INTO sagsinfo (
     'sag00004-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
-
-
 
 INSERT INTO sagsevent (
     id,
@@ -830,7 +803,6 @@ INSERT INTO sagsevent (
     'sag00004-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
 
 INSERT INTO sagseventinfo (
     REGISTRERINGFRA,
@@ -844,7 +816,6 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0004-000000000001'
 );
 
-COMMIT;
 
 -- SELECT
 --   o.registreringfra,
@@ -954,7 +925,6 @@ INSERT INTO sagsevent (
     'sag00004-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
 
 INSERT INTO sagseventinfo (
     REGISTRERINGFRA,
@@ -967,8 +937,6 @@ INSERT INTO sagseventinfo (
     'Indsættelse af koordinater og beregning',
     'sagevent-aaaa-bbbb-0004-000000000002'
 );
-
-COMMIT;
 
 -- SELECT
 --   k.registreringfra, 'sagevent-aaaa-bbbb-0004-000000000002' as sagseventfraid,
@@ -1073,7 +1041,6 @@ INSERT INTO sag (
     sysdate
 );
 
-COMMIT;
 
 INSERT INTO sagsinfo (
     aktiv,
@@ -1093,9 +1060,6 @@ INSERT INTO sagsinfo (
     'sag00005-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
-
-
 
 INSERT INTO sagsevent (
     id,
@@ -1109,8 +1073,6 @@ INSERT INTO sagsevent (
     'sag00005-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
-
 INSERT INTO sagseventinfo (
     REGISTRERINGFRA,
     REGISTRERINGTIL,
@@ -1122,8 +1084,6 @@ INSERT INTO sagseventinfo (
     'Afregistrer DVR90 kote for K-63-09446',
     'sagevent-aaaa-bbbb-0005-000000000001'
 );
-
-COMMIT;
 
 UPDATE koordinat
 SET registreringtil = sysdate, sagseventtilid='sagevent-aaaa-bbbb-0005-000000000001'
@@ -1147,7 +1107,6 @@ INSERT INTO sagsevent (
     'sag00005-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
 
 INSERT INTO sagseventinfo (
     REGISTRERINGFRA,
@@ -1161,7 +1120,6 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0005-000000000002'
 );
 
-COMMIT;
 
 UPDATE observation
 SET registreringtil = sysdate, sagseventtilid='sagevent-aaaa-bbbb-0005-000000000002'
@@ -1187,7 +1145,6 @@ INSERT INTO sagsevent (
     'sag00005-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
 
 INSERT INTO sagseventinfo (
     REGISTRERINGFRA,
@@ -1234,8 +1191,6 @@ INSERT INTO sagsevent (
     'sag00005-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
-
 INSERT INTO sagseventinfo (
     REGISTRERINGFRA,
     REGISTRERINGTIL,
@@ -1248,7 +1203,6 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0005-000000000004'
 );
 
-COMMIT;
 
 UPDATE geometriobjekt
 SET
@@ -1284,8 +1238,6 @@ INSERT INTO sagsevent (
     'sag00005-aaaa-bbbb-cccc-000000000001'
 );
 
-COMMIT;
-
 INSERT INTO sagseventinfo (
     REGISTRERINGFRA,
     REGISTRERINGTIL,
@@ -1297,8 +1249,6 @@ INSERT INTO sagseventinfo (
     'Tilføjelse af notat om K-63-09446',
     'sagevent-aaaa-bbbb-0005-000000000005'
 );
-
-COMMIT;
 
 INSERT INTO sagseventinfo_materiale (
     sti,
@@ -1325,5 +1275,3 @@ INSERT INTO sagseventinfo_html (
 );
 
 COMMIT;
-
-
