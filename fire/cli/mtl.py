@@ -9,6 +9,7 @@ from datetime import datetime
 from enum import IntEnum
 from math import sqrt
 from typing import Dict, List, Set, Tuple
+from uuid import uuid4
 
 # Tredjepartsafhængigheder
 import click
@@ -25,7 +26,37 @@ import fire.cli
 from fire.cli import firedb
 
 # Typingelementer fra databaseAPIet.
-from fire.api.model import Punkt, Koordinat, PunktInformation, PunktInformationType
+from fire.api.model import (
+    Punkt,
+    Koordinat,
+    PunktInformation,
+    PunktInformationType,
+    Sag,
+    Sagsinfo,
+)
+
+
+class Koordinatvrider:
+    """Check op på placeringskoordinaterne.
+    Hvis nogle ligner UTM, så regner vi om til geografiske koordinater.
+    NaN og 0 flyttes ud i Kattegat, så man kan få øje på dem
+    """
+
+    utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
+    assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
+
+    def vrid(self, λ, φ):
+        if pd.isna(λ) or pd.isna(φ) or 0 == λ or 0 == φ:
+            return (11, 56)
+
+        # Heuristik til at skelne mellem UTM og geografiske koordinater.
+        # Heuristikken fejler kun for UTM-koordinater fra et lille
+        # område på 4 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
+        # Det er langt ude i Atlanterhavet, så det lever vi med.
+        if abs(λ) < 100 and abs(φ) < 100:
+            return (λ, φ)
+
+        return self.utm32(λ, φ, inverse=True)
 
 
 # ------------------------------------------------------------------------------
@@ -155,10 +186,11 @@ def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
         nyetablerede = pd.read_excel(
             f"{projektnavn}.xlsx",
             sheet_name="Nyetablerede punkter",
-            usecols="A:E",
+            usecols="A:F",
             dtype={
-                "Foreløbigt navn": np.object,
-                "Endeligt navn": np.object,
+                "Distrikt": "string",
+                "Foreløbigt navn": "string",
+                "Endeligt navn": "string",
                 "φ": np.float64,
                 "λ": np.float64,
                 "Foreløbig kote": np.float64,
@@ -166,7 +198,22 @@ def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
         )
     except:
         nyetablerede = pd.DataFrame(
-            columns=["Foreløbigt navn", "Endeligt navn", "φ", "λ", "Foreløbig kote"],
+            columns=[
+                "Distrikt",
+                "Foreløbigt navn",
+                "Endeligt navn",
+                "φ",
+                "λ",
+                "Foreløbig kote",
+            ],
+            dtype={
+                "Distrikt": "string",
+                "Foreløbigt navn": "string",
+                "Endeligt navn": "string",
+                "φ": np.float64,
+                "λ": np.float64,
+                "Foreløbig kote": np.float64,
+            },
         )
         assert nyetablerede.shape[0] == 0, "Forventede tom dataframe"
 
@@ -364,6 +411,7 @@ def opbyg_punktoversigt(
             "kommentar",
             "φ",
             "λ",
+            "uuid",
         ]
     )
     fire.cli.print("Opbygger punktoversigt")
@@ -413,6 +461,7 @@ def opbyg_punktoversigt(
         punktoversigt.at[punkt, "kote"] = kote.z
         punktoversigt.at[punkt, "σ"] = kote.sz
         punktoversigt.at[punkt, "år"] = kote.registreringfra.year
+        punktoversigt.at[punkt, "uuid"] = pkt.id
 
         if pd.isna(punktoversigt.at[punkt, "φ"]):
             punktoversigt.at[punkt, "φ"] = pkt.geometri.koordinater[1]
@@ -427,6 +476,8 @@ def opbyg_punktoversigt(
             punktoversigt.at[punkt, "φ"] = nyetablerede.at[punkt, "φ"]
         if pd.isna(punktoversigt.at[punkt, "λ"]):
             punktoversigt.at[punkt, "λ"] = nyetablerede.at[punkt, "λ"]
+        # if punktoversigt.at[punkt, "uuid"] == "":
+        #     punktoversigt.at[punkt, "uuid"] = uuid4()
 
     # Check op på placeringskoordinaterne. Hvis nogle ligner UTM, så regner vi
     # om til geografiske koordinater. NaN og 0 flyttes ud i Kattegat, så man kan
@@ -846,3 +897,147 @@ def regn(projektnavn: str, **kwargs) -> None:
 
     punkter_geojson(projektnavn, resultater["Punktoversigt"])
     skriv_resultater(projektnavn, resultater)
+
+
+# ------------------------------------------------------------------------------
+def find_sagsgang(projektnavn: str) -> pd.DataFrame:
+    """Opbyg oversigt over sagsforløb"""
+    fire.cli.print("Finder nyetablerede punkter")
+    try:
+        sagsgang = pd.read_excel(
+            f"{projektnavn}.xlsx",
+            sheet_name="Sagsgang",
+            usecols="A:F",
+            dtype={
+                "Dato": "datetime64[ns]",
+                "Initialer": "string",
+                "Hændelse": "string",
+                "Type": "string",
+                "Tekst": "string",
+                "uuid": "string",
+            },
+        )
+    except:
+        sagsgang = pd.DataFrame(
+            columns=["Dato", "Initialer", "Hændelse", "Type", "Tekst", "uuid"],
+            dtype={
+                "Dato": "datetime64[ns]",
+                "Initialer": "string",
+                "Hændelse": "string",
+                "Type": "string",
+                "Tekst": "string",
+                "uuid": "string",
+            },
+        )
+        assert sagsgang.shape[0] == 0, "Forventede tom dataframe"
+    return sagsgang
+
+
+# ------------------------------------------------------------------------------
+def find_sagsid(sagsgang: pd.DataFrame) -> str:
+    sag = sagsgang.index[sagsgang["Hændelse"] == "sagsoprettelse"].tolist()
+    assert (
+        len(sag) == 1
+    ), "Der skal være præcis 1 hændelse af type sagsoprettelse i arket"
+    i = sag[0]
+    if False == pd.isna(sagsgang.uuid[i]):
+        return str(sagsgang.uuid[i])
+    return ""
+
+
+from pprint import pprint
+
+# ------------------------------------------------------------------------------
+# Her starter punktregistreringsprogrammet...
+# ------------------------------------------------------------------------------
+@mtl.command()
+@fire.cli.default_options()
+@click.argument(
+    "projektnavn", nargs=1, type=str,
+)
+def registrer_punkter(projektnavn: str, **kwargs) -> None:
+    """Registrer nyoprettede punkter i databasen"""
+    check_om_resultatregneark_er_lukket(projektnavn)
+    fire.cli.print("Så registrerer vi")
+    resultater = {}
+
+    sagsgang = find_sagsgang(projektnavn)
+    sagsid = find_sagsid(sagsgang)
+    pprint(sagsgang)
+    try:
+        sag = firedb.hent_sag(sagsid)
+    except:
+        fire.cli.print(
+            f" Sag for {projektnavn} er endnu ikke oprettet - brug fire mtl opret-sag! ",
+            bold=True,
+            bg="red",
+        )
+    print(f"sag.aktiv={sag.aktiv}")
+
+    # -----------------------------------------------------
+    # Opbyg oversigt over nyetablerede punkter
+    # -----------------------------------------------------
+    nyetablerede = find_nyetablerede(projektnavn)
+    nye_punkter = set(nyetablerede.index)
+
+    pprint(nyetablerede)
+    nyt = Punkt()
+
+    v = Koordinatvrider()
+    for p in nye_punkter:
+        print(v.vrid(nyetablerede.at[p, "λ"], nyetablerede.at[p, "φ"]))
+    for i in range(nyetablerede.shape[0]):
+        print(v.vrid(nyetablerede["λ"][i], nyetablerede["φ"][i]))
+    print(v.vrid(0, 0))
+
+
+# ------------------------------------------------------------------------------
+# Her starter sagsoprettelsesprogrammet...
+# ------------------------------------------------------------------------------
+@mtl.command()
+@fire.cli.default_options()
+@click.argument(
+    "projektnavn", nargs=1, type=str,
+)
+@click.argument(
+    "initialer", nargs=1, type=str,
+)
+def opret_sag(projektnavn: str, initialer: str, **kwargs) -> None:
+    """Registrer nyoprettede punkter i databasen"""
+    check_om_resultatregneark_er_lukket(projektnavn)
+    fire.cli.print("Så opretter vi")
+    resultater = {}
+
+    sagsgang = find_sagsgang(projektnavn)
+    sag = sagsgang.index[sagsgang["Hændelse"] == "sagsoprettelse"].tolist()
+    assert (
+        len(sag) == 1
+    ), "Der skal være præcis 1 hændelse af type sagsoprettelse i arket"
+    i = sag[0]
+    if False == pd.isna(sagsgang.uuid[i]):
+        print(f"Sag allerede oprettet - uuid={sagsgang.uuid[i]}")
+        return
+    sagsgang.at[i, "Dato"] = pd.Timestamp.now()
+    sagsgang.at[i, "Initialer"] = initialer
+    uuid = str(uuid4())
+    sagsgang.at[i, "uuid"] = uuid
+
+    sagsinfo = Sagsinfo(
+        aktiv="true", behandler=initialer, beskrivelse=sagsgang.Tekst[i]
+    )
+
+    fire.cli.print(f"Opretter sag {uuid}")
+    fire.cli.print(f"med {initialer} som sagsbehandler")
+    fire.cli.print(f"og sagsinfo: {sagsinfo}")
+    svar = input("OK (ja/nej)? ")
+    if svar != "ja":
+        fire.cli.print("Opretter IKKE sag")
+        return
+    firedb.indset_sag(Sag(id=uuid, sagsinfos=[sagsinfo]))
+    fire.cli.print("Sag oprettet")
+
+    resultater["Sagsgang"] = sagsgang
+    skriv_resultater(projektnavn, resultater)
+    fire.cli.print(
+        f"Sag oprettet. Kopiér nu faneblad fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
+    )
