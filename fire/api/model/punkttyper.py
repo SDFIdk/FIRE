@@ -40,6 +40,7 @@ __all__ = [
     "Srid",
     "Boolean",
     "Ident",
+    "FikspunktsType",
 ]
 
 
@@ -82,6 +83,16 @@ class Artskode(enum.Enum):
     FAA_OBS_OG_UKENDT_KOORDINATSYSTEM = 8
     LOKATIONSKOORDINAT = 9
     NULL = None
+
+
+class FikspunktsType(enum.Enum):
+
+    GI = 1
+    MV = 2
+    HØJDE = 3
+    JESSEN = 4
+    HJÆLPEPUNKT = 5
+    VANDSTANDSBRÆT = 6
 
 
 beregning_koordinat = Table(
@@ -156,7 +167,10 @@ class Punkt(FikspunktregisterObjekt):
 
     @property
     def geometri(self):
-        return self.geometriobjekter[-1]
+        try:
+            return self.geometriobjekter[-1]
+        except IndexError:
+            return None
 
     @property
     def identer(self) -> List[str]:

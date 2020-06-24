@@ -1275,3 +1275,78 @@ INSERT INTO sagseventinfo_html (
 );
 
 COMMIT;
+
+
+-------------------------------------------------------------------------------
+-- PUNKTER TIL TEST AF FireDb.tilknyt_landsnumre()
+
+-- FireDb.tilknyt_landsnumre() forudsætter at de adspurgte punkter findes i
+-- databasen og at de ikke har et landsnr-ident i punktinformationstabellen.
+-- Derfor indsættes her "tomme" punkter der kun har GeometriObjekter som eneste
+-- anden information. Ud fra dette kan nye landsnumre genereres.
+-------------------------------------------------------------------------------
+
+INSERT INTO sag (
+    id,
+    registreringfra
+) VALUES (
+    'sag00006-aaaa-bbbb-cccc-000000000001',
+    sysdate
+);
+
+
+INSERT INTO sagsinfo (
+    aktiv,
+    registreringfra,
+    registreringtil,
+    journalnummer,
+    behandler,
+    beskrivelse,
+    sagsid
+) VALUES (
+    'true',
+    sysdate,
+    null,
+    null,
+    'Kristian Evers',
+    'Tilføj testdata til FireDb.tilknyt_landsnumre()',
+    'sag00006-aaaa-bbbb-cccc-000000000001'
+);
+
+
+INSERT INTO sagsevent (
+    id,
+    registreringfra,
+    eventtypeid,
+    sagsid
+) VALUES (
+    'sagevent-aaaa-bbbb-0006-000000000001',
+    sysdate,
+    7, -- oprettelse af punkt+geometri
+    'sag00006-aaaa-bbbb-cccc-000000000001'
+);
+
+INSERT INTO sagseventinfo (
+    registreringfra,
+    registreringtil,
+    beskrivelse,
+    sagseventid
+) VALUES (
+    sysdate,
+    null,
+    'Punkter+geometrier til test af FireDb.tilknyt_landsnumre()',
+    'sagevent-aaaa-bbbb-0006-000000000001'
+);
+
+
+INSERT INTO punkt (id,registreringfra,registreringtil,sagseventfraid) VALUES ('b3d47ca0-cfaa-484c-84d6-c864bbed133a',SYSDATE,NULL,'sagevent-aaaa-bbbb-0006-000000000001');
+INSERT INTO geometriobjekt (registreringfra,registreringtil,sagseventfraid,sagseventtilid,punktid,geometri) VALUES (SYSDATE,NULL,'sagevent-aaaa-bbbb-0006-000000000001',NULL,'b3d47ca0-cfaa-484c-84d6-c864bbed133a',MDSYS.SDO_GEOMETRY(2001,4326,MDSYS.SDO_POINT_TYPE(10.209327,56.173717,NULL),NULL,NULL));
+
+INSERT INTO punkt (id,registreringfra,registreringtil,sagseventfraid) VALUES ('182a6be2-b048-48f9-8af7-093cc891f43d',SYSDATE,NULL,'sagevent-aaaa-bbbb-0006-000000000001');
+INSERT INTO geometriobjekt (registreringfra,registreringtil,sagseventfraid,sagseventtilid,punktid,geometri) VALUES (SYSDATE,NULL,'sagevent-aaaa-bbbb-0006-000000000001',NULL,'182a6be2-b048-48f9-8af7-093cc891f43d',MDSYS.SDO_GEOMETRY(2001,4326,MDSYS.SDO_POINT_TYPE(10.209223,56.163423,NULL),NULL,NULL));
+
+INSERT INTO punkt (id,registreringfra,registreringtil,sagseventfraid) VALUES ('e2122480-ee8c-48c1-b89c-eb7fad18490b',SYSDATE,NULL,'sagevent-aaaa-bbbb-0006-000000000001');
+INSERT INTO geometriobjekt (registreringfra,registreringtil,sagseventfraid,sagseventtilid,punktid,geometri) VALUES (SYSDATE,NULL,'sagevent-aaaa-bbbb-0006-000000000001',NULL,'e2122480-ee8c-48c1-b89c-eb7fad18490b',MDSYS.SDO_GEOMETRY(2001,4326,MDSYS.SDO_POINT_TYPE(10.204990,56.155215,NULL),NULL,NULL));
+
+COMMIT;
+

@@ -37,6 +37,19 @@ class TestFireDb(FireDb):
         return f"{username}:{password}@{hostname}:{port}/{database}"
 
 
+class DummyFireDb(FireDb):
+    """
+    FireDb klasse der bruges i tests hvor databaseudtræk med
+    API-funktioner mockes.
+    """
+
+    def __init__(self, connectionstring=None, debug=False):
+        self._cache = {
+            "punkt": {},
+            "punktinfotype": {},
+        }
+
+
 persistent_firedb = TestFireDb(debug=False)
 fire.cli.override_firedb(persistent_firedb)
 
@@ -44,6 +57,11 @@ fire.cli.override_firedb(persistent_firedb)
 @pytest.fixture
 def firedb():
     return persistent_firedb
+
+
+@pytest.fixture
+def dummydb():
+    return DummyFireDb()
 
 
 @pytest.fixture()

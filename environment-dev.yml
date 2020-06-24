@@ -16,12 +16,14 @@ dependencies:
   - gama
   - pytest
   - pytest-cov
+  - pytest-mock
   - sphinx
   - sphinx_rtd_theme
   - sphinx-click
   - black
   - pylint
   - sqlalchemy_schemadisplay
+  - fiona
   - m2-zip
   - pip
   - pip:

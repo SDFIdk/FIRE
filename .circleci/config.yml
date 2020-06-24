@@ -39,10 +39,20 @@ jobs:
           command: |
             NLS_LANG=.AL32UTF8 ORACLE_PATH="${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @test/sql/testdata.sql
       - run:
+          name: Install FIRE
+          command: |
+            source /opt/conda/bin/activate fire-dev
+            pip install -e .
+            cp .circleci/fire.ini ~/fire.ini
+      - run:
+          name: Add herred/sogn geometries
+          command: |
+            source /opt/conda/bin/activate fire-dev
+            python scripts/load_shapefile.py
+      - run:
           name: Run tests
           command: |
             source /opt/conda/bin/activate fire-dev
-            cp .circleci/fire.ini ~/fire.ini
 
             ORA_USER=fire ORA_PASSWORD=fire ORA_HOST=localhost pytest --cov=fire --cov-report=xml --ignore=test/read/ --ignore=test/write/
             bash <(curl -s https://codecov.io/bash)
