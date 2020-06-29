@@ -3,11 +3,13 @@ import json
 import os
 import os.path
 import subprocess
+import re
 import sys
 
 from datetime import datetime
 from enum import IntEnum
 from math import sqrt
+from pprint import pprint
 from typing import Dict, List, Set, Tuple
 from uuid import uuid4
 
@@ -27,11 +29,15 @@ from fire.cli import firedb
 
 # Typingelementer fra databaseAPIet.
 from fire.api.model import (
+    GeometriObjekt,
+    Point,
     Punkt,
     Koordinat,
     PunktInformation,
     PunktInformationType,
     Sag,
+    Sagsevent,
+    SagseventInfo,
     Sagsinfo,
 )
 
@@ -182,40 +188,45 @@ def path_to_origin(
 def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
     """Opbyg oversigt over nyetablerede punkter"""
     fire.cli.print("Finder nyetablerede punkter")
+    datatyper = {
+        "Foreløbigt navn": "string",
+        "Landsnummer": "string",
+        "φ": np.float64,
+        "λ": np.float64,
+        "Foreløbig kote": np.float64,
+        "Etableret dato": "string",
+        "Initialer": "string",
+        "Beskrivelse": "string",
+        "Afmærkning": "string",
+        "Højde over terræn": np.float64,
+        "uuid": "string",
+    }
+
+    søjlenavne = [
+        "Foreløbigt navn",
+        "Landsnummer",
+        "φ",
+        "λ",
+        "Foreløbig kote",
+        "Etableret dato",
+        "Initialer",
+        "Beskrivelse",
+        "Afmærkning",
+        "Højde over terræn",
+        "uuid",
+    ]
+
     try:
         nyetablerede = pd.read_excel(
-            f"{projektnavn}.xlsx",
-            sheet_name="Nyetablerede punkter",
-            usecols="A:F",
-            dtype={
-                "Distrikt": "string",
-                "Foreløbigt navn": "string",
-                "Endeligt navn": "string",
-                "φ": np.float64,
-                "λ": np.float64,
-                "Foreløbig kote": np.float64,
-            },
+            f"{projektnavn}.xlsx", sheet_name="Nyetablerede punkter", usecols="A:K",
         )
     except:
-        nyetablerede = pd.DataFrame(
-            columns=[
-                "Distrikt",
-                "Foreløbigt navn",
-                "Endeligt navn",
-                "φ",
-                "λ",
-                "Foreløbig kote",
-            ],
-            dtype={
-                "Distrikt": "string",
-                "Foreløbigt navn": "string",
-                "Endeligt navn": "string",
-                "φ": np.float64,
-                "λ": np.float64,
-                "Foreløbig kote": np.float64,
-            },
-        )
+        nyetablerede = pd.DataFrame(columns=søjlenavne, dtype=datatyper)
         assert nyetablerede.shape[0] == 0, "Forventede tom dataframe"
+
+    print(nyetablerede.dtypes)
+    # Af uudgrundelige årsager insisterer uuid-søjlen på at være float...
+    nyetablerede["uuid"] = nyetablerede.uuid.astype(str)
 
     # Sæt 'Foreløbigt navn'-søjlen som index, så vi kan adressere
     # som nyetablerede.at[punktnavn, elementnavn]
@@ -902,29 +913,28 @@ def regn(projektnavn: str, **kwargs) -> None:
 # ------------------------------------------------------------------------------
 def find_sagsgang(projektnavn: str) -> pd.DataFrame:
     """Opbyg oversigt over sagsforløb"""
-    fire.cli.print("Finder nyetablerede punkter")
+    fire.cli.print(f"Finder sagsgang for {projektnavn}")
     try:
+        sagsgang = pd.read_excel(f"{projektnavn}.xlsx", sheet_name="Sagsgang")
         sagsgang = pd.read_excel(
             f"{projektnavn}.xlsx",
             sheet_name="Sagsgang",
-            usecols="A:F",
+            usecols="A:E",
             dtype={
                 "Dato": "datetime64[ns]",
                 "Initialer": "string",
                 "Hændelse": "string",
-                "Type": "string",
                 "Tekst": "string",
                 "uuid": "string",
             },
         )
     except:
         sagsgang = pd.DataFrame(
-            columns=["Dato", "Initialer", "Hændelse", "Type", "Tekst", "uuid"],
+            columns=["Dato", "Initialer", "Hændelse", "Tekst", "uuid"],
             dtype={
                 "Dato": "datetime64[ns]",
                 "Initialer": "string",
                 "Hændelse": "string",
-                "Type": "string",
                 "Tekst": "string",
                 "uuid": "string",
             },
@@ -945,7 +955,22 @@ def find_sagsid(sagsgang: pd.DataFrame) -> str:
     return ""
 
 
-from pprint import pprint
+def find_alle_GI_landsnumre_i_distrikt(distrikt: str) -> List[str]:
+    pit = firedb.hent_punktinformationtype("IDENT:landsnr")
+    landsnumre = (
+        firedb.session.query(PunktInformation)
+        .filter(
+            PunktInformation.infotypeid == pit.infotypeid,
+            PunktInformation.tekst.startswith(distrikt),
+        )
+        .all()
+    )
+    løbenumre = [n.tekst.split("-")[-1] for n in landsnumre if "-" in n.tekst]
+    numre = [
+        int(n) for n in løbenumre if n.isnumeric() and (int(n) < 11 or int(n) > 800)
+    ]
+    return set(numre)
+
 
 # ------------------------------------------------------------------------------
 # Her starter punktregistreringsprogrammet...
@@ -955,7 +980,10 @@ from pprint import pprint
 @click.argument(
     "projektnavn", nargs=1, type=str,
 )
-def registrer_punkter(projektnavn: str, **kwargs) -> None:
+@click.argument(
+    "initialer", nargs=1, type=str,
+)
+def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
     """Registrer nyoprettede punkter i databasen"""
     check_om_resultatregneark_er_lukket(projektnavn)
     fire.cli.print("Så registrerer vi")
@@ -973,22 +1001,184 @@ def registrer_punkter(projektnavn: str, **kwargs) -> None:
             bg="red",
         )
     print(f"sag.aktiv={sag.aktiv}")
+    # landsnumre = find_alle_GI_landsnumre_i_distrikt("K-01")
+    # pprint(len(landsnumre))
 
     # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
     # -----------------------------------------------------
     nyetablerede = find_nyetablerede(projektnavn)
     nye_punkter = set(nyetablerede.index)
+    nyetablerede = nyetablerede.reset_index()
+    n = nyetablerede.shape[0]
+
+    if n == 0:
+        fire.cli.print("Ingen nyetablerede punkter at registrere")
+        return
 
     pprint(nyetablerede)
-    nyt = Punkt()
 
     v = Koordinatvrider()
-    for p in nye_punkter:
-        print(v.vrid(nyetablerede.at[p, "λ"], nyetablerede.at[p, "φ"]))
-    for i in range(nyetablerede.shape[0]):
-        print(v.vrid(nyetablerede["λ"][i], nyetablerede["φ"][i]))
-    print(v.vrid(0, 0))
+    til_registrering = []
+    anvendte_landsnumre = {}
+    sagsevent = None
+    landsnummer_pit = firedb.hent_punktinformationtype("IDENT:landsnr")
+    beskrivelse_pit = firedb.hent_punktinformationtype("ATTR:beskrivelse")
+    h_over_terræn_pit = firedb.hent_punktinformationtype("AFM:højde_over_terræn")
+    assert landsnummer_pit is not None, "Rådden pit"
+    assert beskrivelse_pit is not None, "Rådden pit"
+    assert h_over_terræn_pit is not None, "Rådden pit"
+
+    pprint(nyetablerede.uuid)
+
+    for i in range(n):
+        # Et tomt tekstfelt kan repræsenteres på en del forskellige måder...
+        # Punkter udstyret med uuid er allerede registrerede
+        # if not (nyetablerede["uuid"][i] in ["", None] or pd.isna(nyetablerede["uuid"][i])):
+        if nyetablerede.uuid[i] is None:
+            print(f"Tom snak: {nyetablerede.uuid[i]}")
+            continue
+        print("")
+
+        lokation = v.vrid(nyetablerede["λ"][i], nyetablerede["φ"][i])
+        distrikt = nyetablerede["Landsnummer"][i]
+
+        # Gør klar til at finde et ledigt landsnummer, hvis vi ikke allerede har et
+        if 2 == len(distrikt.split("-")):
+            if distrikt in anvendte_landsnumre:
+                numre = anvendte_landsnumre[distrikt]
+            else:
+                numre = set(find_alle_GI_landsnumre_i_distrikt(distrikt))
+                anvendte_landsnumre[distrikt] = numre
+                print(f"Fandt {len(numre)} GI-punkter i distrikt {distrikt}")
+        # Hvis der er anført et fuldt landsnummer må det hellere se ud som et
+        elif 3 != len(distrikt.split("-")):
+            fire.cli.print(f"Usselt landsnummer: {distrikt}")
+            continue
+        # Ellers har vi et komplet landsnummer, så punktet er allerede registreret
+        else:
+            continue
+        # Så leder vi...
+        for løbenummer in range(801, 10000):
+            if løbenummer not in numre:
+                landsnummer = f"{distrikt}-{løbenummer:05}"
+                fire.cli.print(f"Anvender landsnummer {landsnummer}")
+                numre.add(løbenummer)
+                break
+        else:
+            # for/else er sjældent brugt, men nyttig her: eksekveres når
+            # for-løkken IKKE afbrydes af break
+            fire.cli.print(f"Løbet tør for landsnumre i distrikt {distrikt}")
+            continue
+
+        # Skab nyt punktobjekt
+        nyt = Punkt()
+        nyt.id = str(uuid4())
+        print(f"Nyt punkt-id: {nyt.id}")
+
+        # Tilføj punktets lokation som geometriobjekt
+        geo = GeometriObjekt()
+        geo.geometri = Point(lokation)
+        nyt.geometriobjekter.append(geo)
+        # Hvis lokationen i regnearket var UTM32, så bliver den nu længde/bredde
+        nyetablerede.at[i, "λ"] = lokation[0]
+        nyetablerede.at[i, "φ"] = lokation[1]
+
+        # Tilføj punktets landsnummer som punktinformation
+        pi_l = PunktInformation(infotype=landsnummer_pit, punkt=nyt, tekst=landsnummer)
+        nyt.punktinformationer.append(pi_l)
+        nyetablerede.at[i, "Landsnummer"] = landsnummer
+        print(
+            f"Ny punktinfo: {nyt.punktinformationer[-1].infotype.beskrivelse} {nyt.punktinformationer[-1].tekst}"
+        )
+
+        # Tilføj punktets højde over terræn som punktinformation, hvis anført
+        if not pd.isna(nyetablerede["Højde over terræn"][i]):
+            pi_h = PunktInformation(
+                infotype=h_over_terræn_pit,
+                punkt=nyt,
+                tal=nyetablerede["Højde over terræn"][i],
+            )
+            nyt.punktinformationer.append(pi_h)
+            print(
+                f"Ny punktinfo: {nyt.punktinformationer[-1].infotype.beskrivelse} {nyt.punktinformationer[-1].tal}"
+            )
+
+        # Tilføj punktets afmærkning som punktinformation, selv hvis ikke anført
+        afm_id = 4999  # AFM:4999 = "ukendt"
+        if not pd.isna(nyetablerede["Afmærkning"][i]):
+            afm = str(nyetablerede["Afmærkning"][i]).split()[0]
+            if afm.lower() == "ukendt":
+                afm_id = 4999
+            if afm.lower() == "bolt":
+                afm_id = 2700
+            elif afm.lower() == "skruepløk":
+                afm_id = 2950
+            if afm.isnumeric():
+                afm_id = int(afm)
+            afmærkning_pit = firedb.hent_punktinformationtype(f"AFM:{afm_id}")
+            if afmærkning_pit is None:
+                afm_id = 4999
+                afmærkning_pit = firedb.hent_punktinformationtype(f"AFM:4999")
+                nyetablerede.at[i, "Afmærkning"] = "ukendt"
+        if afm_id == 4999:
+            fire.cli.print(
+                f"ADVARSEL: Nyoprettet punkt index {i} har ingen gyldig afmærkning anført",
+                fg="red",
+                bg="white",
+            )
+        pi_a = PunktInformation(infotype=afmærkning_pit, punkt=nyt)
+        nyt.punktinformationer.append(pi_a)
+        print(f"Ny punktinfo: {nyt.punktinformationer[-1].infotype.beskrivelse}")
+
+        # Tilføj punktbeskrivelsen som punktinformation, hvis anført
+        if not pd.isna(nyetablerede["Beskrivelse"][i]):
+            pi_b = PunktInformation(
+                infotype=beskrivelse_pit,
+                punkt=nyt,
+                tekst=nyetablerede["Beskrivelse"][i],
+            )
+            nyt.punktinformationer.append(pi_b)
+            print(
+                f"Ny punktinfo: {nyt.punktinformationer[-1].infotype.beskrivelse} {nyt.punktinformationer[-1].tekst}"
+            )
+
+        # Som systemet er indrettet lige nu skal vi bruge et sagsevent pr. punkt der oprettes
+        sagsevent = Sagsevent(sag=sag)
+        sagsevent.id = str(uuid4())
+        sagseventinfo = SagseventInfo(beskrivelse=f"Oprettelse af punkt {landsnummer}")
+        sagsevent.sagseventinfos.append(sagseventinfo)
+        print(f"sagsevent {sagsevent}")
+        print(f"sagsevent.id {sagsevent.id}")
+        sagsgangslinje = {}
+        sagsgangslinje["Dato"] = pd.Timestamp.now()
+        sagsgangslinje["Initialer"] = initialer
+        sagsgangslinje["Hændelse"] = "punktoprettelse"
+        sagsgangslinje["Tekst"] = f"Oprettelse af punkt {landsnummer}"
+        sagsgangslinje["uuid"] = sagsevent.id
+        sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+
+        # Og nu kan vi så endelig persistere punktet til databasen
+        firedb.indset_punkt(sagsevent, nyt)
+        # ... og markere i regnearket at det er sket
+        nyetablerede.at[i, "uuid"] = nyt.id
+
+        til_registrering.append(i)
+
+    if len(til_registrering) == 0:
+        fire.cli.print("Ingen nyetablerede punkter at registrere")
+        return
+
+    resultater["Sagsgang"] = sagsgang
+
+    # Vi resetter en gang til, for at droppe det numeriske index fra uddata
+    nyetablerede = nyetablerede.reset_index(drop=True)
+    resultater["Nyetablerede punkter"] = nyetablerede
+
+    skriv_resultater(projektnavn, resultater)
+    fire.cli.print(
+        f"Punkter oprettet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
+    )
 
 
 # ------------------------------------------------------------------------------
