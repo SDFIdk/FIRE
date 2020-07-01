@@ -8,7 +8,7 @@ from typing import List
 
 import click
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import not_
+from sqlalchemy import not_, or_
 from pyproj import CRS
 from pyproj.exceptions import CRSError
 
@@ -445,7 +445,14 @@ def srid(srid: str, ts: bool, **kwargs):
 @info.command()
 @fire.cli.default_options()
 @click.argument("infotype", required=False, default="")
-def infotype(infotype: str, **kwargs):
+@click.option(
+    "-s",
+    "--søg",
+    is_flag=True,
+    default=False,
+    help="Generel søgning i både typenavn og beskrivelse",
+)
+def infotype(infotype: str, søg: bool, **kwargs):
     """
     Information om en punktinfotype.
 
@@ -454,14 +461,33 @@ def infotype(infotype: str, **kwargs):
     Angives INFOTYPE ikke vises en liste med alle tilgængelige punktinfotyper.
     Denne liste kan snævres ind ved at angive starten af et navn på en punktinfotype,
     fx "IDENT" eller "attr".
+
+    Med tilvalg `--søg/-s` vises punktinfotyper og tilhørende beskrivelser,
+    for alle de punktinfotyper, som matcher INFOTYPE et vilkårligt sted i
+    enten navn eller beskrivelse.
     """
     try:
-        punktinfotyper = (
-            firedb.session.query(PunktInformationType)
-            .filter(PunktInformationType.name.ilike(f"{infotype}%"))
-            .order_by(PunktInformationType.name)
-            .all()
-        )
+        if søg:
+            punktinfotyper = (
+                firedb.session.query(PunktInformationType)
+                .filter(
+                    or_(
+                        PunktInformationType.name.ilike(f"%{infotype}%"),
+                        PunktInformationType.beskrivelse.ilike(f"%{infotype}%"),
+                        PunktInformationType.anvendelse.ilike(f"%{infotype}%"),
+                    )
+                )
+                .order_by(PunktInformationType.name)
+                .all()
+            )
+        else:
+            punktinfotyper = (
+                firedb.session.query(PunktInformationType)
+                .filter(PunktInformationType.name.ilike(f"{infotype}%"))
+                .order_by(PunktInformationType.name)
+                .all()
+            )
+
         if punktinfotyper is None:
             raise NoResultFound
     except NoResultFound:
@@ -474,13 +500,22 @@ def infotype(infotype: str, **kwargs):
         fire.cli.print(f"  Name        :  {pit.name}")
         fire.cli.print(f"  Description :  {pit.beskrivelse}")
         fire.cli.print(f"  Type        :  {pit.anvendelse}")
+        return
+
+    if infotype == "":
+        fire.cli.print("Følgende punktinfotyper er tilgængelige:\n")
     else:
-        if infotype == "":
-            fire.cli.print("Følgende punktinfotyper er tilgængelige:\n")
-        else:
-            fire.cli.print(f'"{infotype}" matcher følgende punktinfotyper:\n')
+        fire.cli.print(f'"{infotype}" matcher følgende punktinfotyper:\n')
+
+    if not søg:
         for punktinfotype in punktinfotyper:
             fire.cli.print(punktinfotype.name)
+        return
+
+    bredde = max([len(p.name) for p in punktinfotyper]) + 2
+    for punktinfotype in punktinfotyper:
+        besk = punktinfotype.beskrivelse.replace("-\n", "").replace("\n", " ").strip()
+        fire.cli.print(f"{punktinfotype.name:{bredde}} {besk}")
 
 
 @info.command()
