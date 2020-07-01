@@ -1,4 +1,5 @@
 # Python infrastrukturelementer
+import itertools
 import json
 import os
 import os.path
@@ -224,7 +225,6 @@ def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
         nyetablerede = pd.DataFrame(columns=søjlenavne, dtype=datatyper)
         assert nyetablerede.shape[0] == 0, "Forventede tom dataframe"
 
-    print(nyetablerede.dtypes)
     # Af uudgrundelige årsager insisterer uuid-søjlen på at være float...
     nyetablerede["uuid"] = nyetablerede.uuid.astype(str)
 
@@ -955,7 +955,7 @@ def find_sagsid(sagsgang: pd.DataFrame) -> str:
     return ""
 
 
-def find_alle_GI_landsnumre_i_distrikt(distrikt: str) -> List[str]:
+def find_alle_landsnumre_i_distrikt(distrikt: str) -> List[str]:
     pit = firedb.hent_punktinformationtype("IDENT:landsnr")
     landsnumre = (
         firedb.session.query(PunktInformation)
@@ -966,9 +966,7 @@ def find_alle_GI_landsnumre_i_distrikt(distrikt: str) -> List[str]:
         .all()
     )
     løbenumre = [n.tekst.split("-")[-1] for n in landsnumre if "-" in n.tekst]
-    numre = [
-        int(n) for n in løbenumre if n.isnumeric() and (int(n) < 11 or int(n) > 800)
-    ]
+    numre = [int(n) for n in løbenumre if n.isnumeric()]
     return set(numre)
 
 
@@ -991,7 +989,6 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
 
     sagsgang = find_sagsgang(projektnavn)
     sagsid = find_sagsid(sagsgang)
-    pprint(sagsgang)
     try:
         sag = firedb.hent_sag(sagsid)
     except:
@@ -1000,9 +997,11 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
             bold=True,
             bg="red",
         )
-    print(f"sag.aktiv={sag.aktiv}")
-    # landsnumre = find_alle_GI_landsnumre_i_distrikt("K-01")
-    # pprint(len(landsnumre))
+    if not sag.aktiv:
+        fire.cli.print(
+            f"Sag {sagsid} for {projektnavn} er markeret inaktiv. Genåbn for at gå videre."
+        )
+        return
 
     # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
@@ -1016,8 +1015,6 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
         fire.cli.print("Ingen nyetablerede punkter at registrere")
         return
 
-    pprint(nyetablerede)
-
     v = Koordinatvrider()
     til_registrering = []
     anvendte_landsnumre = {}
@@ -1029,16 +1026,18 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
     assert beskrivelse_pit is not None, "Rådden pit"
     assert h_over_terræn_pit is not None, "Rådden pit"
 
-    pprint(nyetablerede.uuid)
+    # Vi samler de genererede punkter i en dict, så de kan persisteres samlet
+    # under et enkelt sagsevent
+    genererede_punkter = {}
+    genererede_landsnumre = []
 
     for i in range(n):
         # Et tomt tekstfelt kan repræsenteres på en del forskellige måder...
         # Punkter udstyret med uuid er allerede registrerede
         # if not (nyetablerede["uuid"][i] in ["", None] or pd.isna(nyetablerede["uuid"][i])):
-        if nyetablerede.uuid[i] is None:
-            print(f"Tom snak: {nyetablerede.uuid[i]}")
+        if str(nyetablerede.uuid[i]) not in ["", "None", "nan"]:
             continue
-        print("")
+        print(f"Behandler punkt {nyetablerede['Foreløbigt navn'][i]}")
 
         lokation = v.vrid(nyetablerede["λ"][i], nyetablerede["φ"][i])
         distrikt = nyetablerede["Landsnummer"][i]
@@ -1048,9 +1047,9 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
             if distrikt in anvendte_landsnumre:
                 numre = anvendte_landsnumre[distrikt]
             else:
-                numre = set(find_alle_GI_landsnumre_i_distrikt(distrikt))
+                numre = set(find_alle_landsnumre_i_distrikt(distrikt))
                 anvendte_landsnumre[distrikt] = numre
-                print(f"Fandt {len(numre)} GI-punkter i distrikt {distrikt}")
+                print(f"Fandt {len(numre)} punkter i distrikt {distrikt}")
         # Hvis der er anført et fuldt landsnummer må det hellere se ud som et
         elif 3 != len(distrikt.split("-")):
             fire.cli.print(f"Usselt landsnummer: {distrikt}")
@@ -1058,23 +1057,32 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
         # Ellers har vi et komplet landsnummer, så punktet er allerede registreret
         else:
             continue
+
+        # Hjælpepunkter har egen nummerserie
+        if "ingen" == str(nyetablerede["Afmærkning"][i]).lower():
+            nummerserie = range(90001, 99999)
+        else:
+            nummerserie = itertools.chain(range(9001, 10000), range(19001, 20000))
+
         # Så leder vi...
-        for løbenummer in range(801, 10000):
+        for løbenummer in nummerserie:
             if løbenummer not in numre:
                 landsnummer = f"{distrikt}-{løbenummer:05}"
+                genererede_landsnumre.append(landsnummer)
                 fire.cli.print(f"Anvender landsnummer {landsnummer}")
                 numre.add(løbenummer)
                 break
         else:
             # for/else er sjældent brugt, men nyttig her: eksekveres når
             # for-løkken IKKE afbrydes af break
-            fire.cli.print(f"Løbet tør for landsnumre i distrikt {distrikt}")
+            fire.cli.print(
+                f"Løbet tør for landsnumre i distrikt {distrikt}", fg="red", bg="white"
+            )
             continue
 
         # Skab nyt punktobjekt
         nyt = Punkt()
         nyt.id = str(uuid4())
-        print(f"Nyt punkt-id: {nyt.id}")
 
         # Tilføj punktets lokation som geometriobjekt
         geo = GeometriObjekt()
@@ -1088,48 +1096,61 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
         pi_l = PunktInformation(infotype=landsnummer_pit, punkt=nyt, tekst=landsnummer)
         nyt.punktinformationer.append(pi_l)
         nyetablerede.at[i, "Landsnummer"] = landsnummer
-        print(
-            f"Ny punktinfo: {nyt.punktinformationer[-1].infotype.beskrivelse} {nyt.punktinformationer[-1].tekst}"
-        )
 
         # Tilføj punktets højde over terræn som punktinformation, hvis anført
+        try:
+            dH = float(nyetablerede["Højde over terræn"][i])
+        except:
+            dH = 0
+        if dH != dH:
+            dH = 0.0
+        print(f"dH er {dH}")
         if not pd.isna(nyetablerede["Højde over terræn"][i]):
-            pi_h = PunktInformation(
-                infotype=h_over_terræn_pit,
-                punkt=nyt,
-                tal=nyetablerede["Højde over terræn"][i],
-            )
+            pi_h = PunktInformation(infotype=h_over_terræn_pit, punkt=nyt, tal=dH,)
             nyt.punktinformationer.append(pi_h)
-            print(
-                f"Ny punktinfo: {nyt.punktinformationer[-1].infotype.beskrivelse} {nyt.punktinformationer[-1].tal}"
-            )
 
         # Tilføj punktets afmærkning som punktinformation, selv hvis ikke anført
         afm_id = 4999  # AFM:4999 = "ukendt"
+        afm_ids = {
+            "ukendt": 4999,
+            "bolt": 2700,
+            "lodret bolt": 2701,
+            "skruepløk": 2950,
+            "ingen": 5998,
+        }
+
         if not pd.isna(nyetablerede["Afmærkning"][i]):
-            afm = str(nyetablerede["Afmærkning"][i]).split()[0]
-            if afm.lower() == "ukendt":
-                afm_id = 4999
-            if afm.lower() == "bolt":
-                afm_id = 2700
-            elif afm.lower() == "skruepløk":
-                afm_id = 2950
-            if afm.isnumeric():
-                afm_id = int(afm)
+            # Afmærkningsbeskrivelse
+            afm = str(nyetablerede["Afmærkning"][i]).lower()
+            # Første ord i afmærkningsbeskrivelsen
+            afm_første = afm.split()[0].rstrip(":;,.- ").lstrip("afm:")
+
+            if afm_første.isnumeric():
+                afm_id = int(afm_første)
+            else:
+                afm_id = afm_ids.get(afm, 4999)
+
             afmærkning_pit = firedb.hent_punktinformationtype(f"AFM:{afm_id}")
             if afmærkning_pit is None:
                 afm_id = 4999
                 afmærkning_pit = firedb.hent_punktinformationtype(f"AFM:4999")
-                nyetablerede.at[i, "Afmærkning"] = "ukendt"
+            beskrivelse = (
+                afmærkning_pit.beskrivelse.replace("-\n", "")
+                .replace("\n", " ")
+                .rstrip(".")
+                .strip()
+            )
+            nyetablerede.at[i, "Afmærkning"] = f"AFM:{afm_id} - {beskrivelse}"
+
         if afm_id == 4999:
             fire.cli.print(
                 f"ADVARSEL: Nyoprettet punkt index {i} har ingen gyldig afmærkning anført",
                 fg="red",
                 bg="white",
+                bold=True,
             )
         pi_a = PunktInformation(infotype=afmærkning_pit, punkt=nyt)
         nyt.punktinformationer.append(pi_a)
-        print(f"Ny punktinfo: {nyt.punktinformationer[-1].infotype.beskrivelse}")
 
         # Tilføj punktbeskrivelsen som punktinformation, hvis anført
         if not pd.isna(nyetablerede["Beskrivelse"][i]):
@@ -1139,43 +1160,52 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
                 tekst=nyetablerede["Beskrivelse"][i],
             )
             nyt.punktinformationer.append(pi_b)
-            print(
-                f"Ny punktinfo: {nyt.punktinformationer[-1].infotype.beskrivelse} {nyt.punktinformationer[-1].tekst}"
-            )
 
-        # Som systemet er indrettet lige nu skal vi bruge et sagsevent pr. punkt der oprettes
-        sagsevent = Sagsevent(sag=sag)
-        sagsevent.id = str(uuid4())
-        sagseventinfo = SagseventInfo(beskrivelse=f"Oprettelse af punkt {landsnummer}")
-        sagsevent.sagseventinfos.append(sagseventinfo)
-        print(f"sagsevent {sagsevent}")
-        print(f"sagsevent.id {sagsevent.id}")
-        sagsgangslinje = {}
-        sagsgangslinje["Dato"] = pd.Timestamp.now()
-        sagsgangslinje["Initialer"] = initialer
-        sagsgangslinje["Hændelse"] = "punktoprettelse"
-        sagsgangslinje["Tekst"] = f"Oprettelse af punkt {landsnummer}"
-        sagsgangslinje["uuid"] = sagsevent.id
-        sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+        genererede_punkter[i] = nyt
 
-        # Og nu kan vi så endelig persistere punktet til databasen
-        firedb.indset_punkt(sagsevent, nyt)
-        # ... og markere i regnearket at det er sket
-        nyetablerede.at[i, "uuid"] = nyt.id
-
-        til_registrering.append(i)
-
-    if len(til_registrering) == 0:
+    if len(genererede_punkter) == 0:
         fire.cli.print("Ingen nyetablerede punkter at registrere")
         return
 
-    resultater["Sagsgang"] = sagsgang
+    # Gør klar til at persistere
 
-    # Vi resetter en gang til, for at droppe det numeriske index fra uddata
+    # Generer sagsevent
+    sagsevent = Sagsevent(sag=sag)
+    sagsevent.id = str(uuid4())
+    er = "er" if len(genererede_landsnumre) > 1 else ""
+    sagseventtekst = f"Oprettelse af punkt{er} {', '.join(genererede_landsnumre)}"
+    sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
+    sagsevent.sagseventinfos.append(sagseventinfo)
+
+    # Generer dokumentation til fanebladet "Sagsgang"
+    sagsgangslinje = {}
+    sagsgangslinje["Dato"] = pd.Timestamp.now()
+    sagsgangslinje["Initialer"] = initialer
+    sagsgangslinje["Hændelse"] = "punktoprettelse"
+    sagsgangslinje["Tekst"] = sagseventtekst
+    sagsgangslinje["uuid"] = sagsevent.id
+    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+
+    # Persister punkterne til databasen
+    fire.cli.print(sagseventtekst, fg="yellow", bold=True)
+    if "ja" != input(
+        "-->  HELT sikker på at du vil skrive punkterne til databasen (ja/nej)? "
+    ):
+        fire.cli.print("Dropper skrivning")
+        return
+    firedb.indset_flere_punkter(sagsevent, list(genererede_punkter.values()))
+
+    # ... og marker i regnearket at det er sket
+    for k in genererede_punkter:
+        nyetablerede.at[k, "uuid"] = genererede_punkter[k].id
+
+    # Skriv resultater til resultatregneark
+    resultater["Sagsgang"] = sagsgang
+    # Drop numerisk index
     nyetablerede = nyetablerede.reset_index(drop=True)
     resultater["Nyetablerede punkter"] = nyetablerede
-
     skriv_resultater(projektnavn, resultater)
+
     fire.cli.print(
         f"Punkter oprettet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
     )
