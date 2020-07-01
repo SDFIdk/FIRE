@@ -357,6 +357,55 @@ class FireDb(object):
         self.session.add(sagsevent)
         self.session.commit()
 
+    def indset_flere_punkter(self, sagsevent: Sagsevent, punkter: List[Punkt]) -> None:
+        """Indsæt flere punkter i punkttabellen, alle under samme sagsevent
+
+        Parameters
+        ----------
+        sagsevent: Sagsevent
+            Nyt (endnu ikke persisteret) sagsevent.
+
+            NB: Principielt ligger "indset_flere_punkter" på et højere API-niveau
+            end "indset_punkter", så det bør overvejes at generere sagsevent her.
+            Argumentet vil så skulle ændres til "sagseventtekst: str", og der vil
+            skulle tilføjes et argument "sag: Sag". Alternativt kan sagseventtekst
+            autogenereres her ("oprettelse af punkterne nn, mm, ...")
+
+        punkter: List[Punkt]
+            De punkter der skal persisteres under samme sagsevent
+
+        Returns
+        -------
+        None
+
+        """
+        # Check at alle punkter er i orden
+        for punkt in punkter:
+            if not self._is_new_object(punkt):
+                raise Exception(f"Cannot re-add already persistent punkt: {punkt}")
+            if len(punkt.geometriobjekter) != 1:
+                raise Exception("A single geometriobjekt must be added to the punkt")
+
+        self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
+
+        for punkt in punkter:
+            punkt.sagsevent = sagsevent
+            for geometriobjekt in punkt.geometriobjekter:
+                if not self._is_new_object(geometriobjekt):
+                    raise Exception(
+                        "Added punkt cannot refer to existing geometriobjekt"
+                    )
+                geometriobjekt.sagsevent = sagsevent
+            for punktinformation in punkt.punktinformationer:
+                if not self._is_new_object(punktinformation):
+                    raise Exception(
+                        "Added punkt cannot refer to existing punktinformation"
+                    )
+                punktinformation.sagsevent = sagsevent
+            self.session.add(punkt)
+
+        self.session.commit()
+
     def indset_punkt(self, sagsevent: Sagsevent, punkt: Punkt):
         if not self._is_new_object(punkt):
             raise Exception(f"Cannot re-add already persistent punkt: {punkt}")
