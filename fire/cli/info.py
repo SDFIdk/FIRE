@@ -474,7 +474,6 @@ def infotype(infotype: str, søg: bool, **kwargs):
                     or_(
                         PunktInformationType.name.ilike(f"%{infotype}%"),
                         PunktInformationType.beskrivelse.ilike(f"%{infotype}%"),
-                        PunktInformationType.anvendelse.ilike(f"%{infotype}%"),
                     )
                 )
                 .order_by(PunktInformationType.name)
