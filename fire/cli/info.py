@@ -510,7 +510,7 @@ def infotype(infotype: str, søg: bool, **kwargs):
         for punktinfotype in punktinfotyper:
             fire.cli.print(punktinfotype.name)
         return
-    
+
     # undgå at max() bomber ved manglende match
     if len(punktinfotyper) == 0:
         fire.cli.print("...")
