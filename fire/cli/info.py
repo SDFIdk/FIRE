@@ -511,6 +511,11 @@ def infotype(infotype: str, søg: bool, **kwargs):
             fire.cli.print(punktinfotype.name)
         return
 
+    # undgå at max() bomber ved manglende match
+    if len(punktinfotyper) == 0:
+        fire.cli.print("...")
+        return
+
     bredde = max([len(p.name) for p in punktinfotyper]) + 2
     for punktinfotype in punktinfotyper:
         besk = punktinfotype.beskrivelse.replace("-\n", "").replace("\n", " ").strip()
