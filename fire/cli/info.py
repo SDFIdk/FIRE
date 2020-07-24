@@ -543,7 +543,7 @@ def obstype(obstype: str, **kwargs):
 
     ot = firedb.hent_observationstype(obstype)
     if ot is None:
-        fire.cli.print(f"Error! {obstype} not found!", fg="red", err=True)
+        fire.cli.print(f"Fejl! {obstype} ikke fundet!", fg="red", err=True)
         sys.exit(1)
 
     fire.cli.print("--- OBSERVATIONSTYPE ---", bold=True)

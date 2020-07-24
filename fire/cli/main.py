@@ -1,5 +1,5 @@
 """
-Main entry point for the "fire" command line interface to kvikler.
+Hovedindgang for kommondalinjeinterface til FIRE.
 """
 from pkg_resources import iter_entry_points
 

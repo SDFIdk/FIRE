@@ -39,11 +39,11 @@ class FireDb(object):
         Parameters
         ----------
         connectionstring : str
-            Connection string for the oracle database where the FIRE database resides.
-            Of the general form 'user:pass@host:port/dbname[?key=value&key=value...]'
+            Connection string til FIRE databasen.
+            På formen 'user:pass@host:port/dbname[?key=value&key=value...]'
         debug: bool
-            if True, the SQLALchemy Engine will log all statements as well as a repr()
-            of their parameter lists to the engines logger, which defaults to sys.stdout
+            Hvis sat til True spyttes debug information ud på stdout. Kan
+            omdirigeres ved at angive en anden logger til self.engine.
         """
 
         self._cache = {
@@ -183,18 +183,19 @@ class FireDb(object):
         )
 
     def hent_observationstype(self, name: str) -> ObservationsType:
-        """Gets ObservationsType by its name.
+        """
+        Hent en ObservationsType ud fra dens navn.
 
         Parameters
         ----------
         observationstypeid : str
-            Name (including namespace) of the observationstype.
+            Navn (inkl. namespace) på observationstypen.
 
         Returns
         -------
         ObservationsType:
-            The first ObservationsType matching the specified name. None if not found.
-
+            Den første ObservationsType der matcher det angivne navn. None hvis
+            ingen observationstyper matcher det søgte navn.
         """
         namefilter = name
         return (
@@ -206,7 +207,8 @@ class FireDb(object):
     def hent_observationstyper(
         self, namespace: Optional[str] = None
     ) -> List[ObservationsType]:
-        """Gets all ObservationsTyper optionally filtered by namespace.
+        """
+        Henter alle ObservationsTyper, evt. begrænset til et enkelt namespace.
         """
         if not namespace:
             return self.session.query(ObservationsType).all()
@@ -257,9 +259,20 @@ class FireDb(object):
         Parameters
         ----------
         geometri
-            Either a WKT string or a Geometry instance which will be used as
-            filter to identify the set of spatial objects that are within some
-            specified distance of the given object.
+            Enten en WKT-streng eller en instans af Geometry, der bruges til
+            udvælge alle geometriobjekter der befinder sig inden for en given
+            afstand af denne geometri.
+        afstand
+            Bufferafstand omkring geometri.
+        tidfra
+
+        tidtil
+            asd
+
+        Returns
+        -------
+        List[Observation]
+            En liste af alle de Observation'er der matcher søgekriterierne.
         """
         g = aliased(GeometriObjekt)
         return (
@@ -277,36 +290,39 @@ class FireDb(object):
             .all()
         )
 
-    def hent_srid(self, sridid: str):
-        """Gets a Srid object by its id.
+    def hent_srid(self, sridid: str) -> Srid:
+        """
+        Hent et Srid objekt ud fra dets id.
 
         Parameters
         ----------
         sridid : str
-            srid id string. For instance "EPSG:25832"
+            SRID streng, fx "EPSG:25832".
 
         Returns
         -------
         Srid
-            Srid object with the specified id. None if not found.
-
+            Srid objekt med det angivne ID. None hvis det efterspurgte
+            SRID ikke findes i databasen.
         """
         srid_filter = str(sridid).upper()
         return self.session.query(Srid).filter(Srid.name == srid_filter).one()
 
-    def hent_srider(self, namespace: Optional[str] = None):
-        """Gets Srid objects. Optionally filtering by srid namespace
+    def hent_srider(self, namespace: Optional[str] = None) -> List[Srid]:
+        """
+        Returnerer samtlige Srid objekter i databasen, evt. filtreret på namespace.
 
         Parameters
         ----------
-        namespace: str - optional
+        namespace: str - valgfri
             Return only Srids with the specified namespace. For instance "EPSG". If not
             specified all objects are returned.
+            Returne kun SRID-objekter fra det valgte namespace, fx "EPSG". Hvis ikke
+            angivet returneres samtlige SRID objekter fra databasen.
 
         Returns
         -------
-        List of Srid
-
+        List[Srid]
         """
         if not namespace:
             return self.session.query(Srid).all()
@@ -341,19 +357,20 @@ class FireDb(object):
 
     def indset_sag(self, sag: Sag):
         if not self._is_new_object(sag):
-            raise Exception(f"Cannot re-add already persistent sag: {sag}")
+            raise Exception(f"Sag allerede tilføjet databasen: {sag}")
         if len(sag.sagsinfos) < 1:
-            raise Exception("At least one sagsinfo must be added to the sag")
+            raise Exception("Mindst et SagsInfo objekt skal tilføjes Sagen")
         if sag.sagsinfos[-1].aktiv != "true":
-            raise Exception("Last sagsinfo should have aktiv = 'true'")
+            raise Exception("Sidst SagsInfo på sagen skal have aktiv = 'true'")
         self.session.add(sag)
         self.session.commit()
 
     def indset_sagsevent(self, sagsevent: Sagsevent):
         if not self._is_new_object(sagsevent):
-            raise Exception(f"Cannot re-add already persistent sagsevent: {sagsevent}")
+            raise Exception(f"Sagsevent allerede tilføjet databasen: {sagsevent}")
         if len(sagsevent.sagseventinfos) < 1:
             raise Exception("At least one sagseventinfo must be added to the sagsevent")
+            raise Exception("Mindst et SagseventInfo skal tilføjes Sag")
         self.session.add(sagsevent)
         self.session.commit()
 
@@ -382,9 +399,11 @@ class FireDb(object):
         # Check at alle punkter er i orden
         for punkt in punkter:
             if not self._is_new_object(punkt):
-                raise Exception(f"Cannot re-add already persistent punkt: {punkt}")
+                raise Exception(f"Punkt allerede tilføjet databasen: {punkt}")
             if len(punkt.geometriobjekter) != 1:
-                raise Exception("A single geometriobjekt must be added to the punkt")
+                raise Exception(
+                    "Der skal tilføjes et (og kun et) GeometriObjekt til punktet"
+                )
 
         self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
 
@@ -393,13 +412,13 @@ class FireDb(object):
             for geometriobjekt in punkt.geometriobjekter:
                 if not self._is_new_object(geometriobjekt):
                     raise Exception(
-                        "Added punkt cannot refer to existing geometriobjekt"
+                        "Punktet kan ikke henvise til et eksisterende GeometriObjekt"
                     )
                 geometriobjekt.sagsevent = sagsevent
             for punktinformation in punkt.punktinformationer:
                 if not self._is_new_object(punktinformation):
                     raise Exception(
-                        "Added punkt cannot refer to existing punktinformation"
+                        "Punktet kan ikke henvise til et eksisterende PunktInformation objekt"
                     )
                 punktinformation.sagsevent = sagsevent
             self.session.add(punkt)
@@ -408,18 +427,24 @@ class FireDb(object):
 
     def indset_punkt(self, sagsevent: Sagsevent, punkt: Punkt):
         if not self._is_new_object(punkt):
-            raise Exception(f"Cannot re-add already persistent punkt: {punkt}")
+            raise Exception(f"Punkt er allerede tilføjet databasen: {punkt}")
         if len(punkt.geometriobjekter) != 1:
-            raise Exception("A single geometriobjekt must be added to the punkt")
+            raise Exception(
+                "Der skal tilføjes et (og kun et) GeometriObjekt til punktet"
+            )
         self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
         punkt.sagsevent = sagsevent
         for geometriobjekt in punkt.geometriobjekter:
             if not self._is_new_object(geometriobjekt):
-                raise Exception("Added punkt cannot refer to existing geometriobjekt")
+                raise Exception(
+                    "Punktet kan ikke henvise til et eksisterende GeometriObjekt"
+                )
             geometriobjekt.sagsevent = sagsevent
         for punktinformation in punkt.punktinformationer:
             if not self._is_new_object(punktinformation):
-                raise Exception("Added punkt cannot refer to existing punktinformation")
+                raise Exception(
+                    "Punktet kan ikke henvise til et eksisterende PunktInformation objekt"
+                )
             punktinformation.sagsevent = sagsevent
         self.session.add(punkt)
         self.session.commit()
@@ -429,7 +454,7 @@ class FireDb(object):
     ):
         if not self._is_new_object(punktinformation):
             raise Exception(
-                f"Cannot re-add already persistant punktinformation: {punktinformation}"
+                f"PunktInformation allerede tilføjet databasen: {punktinformation}"
             )
         self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKTINFO_TILFOEJET)
         punktinformation.sagsevent = sagsevent
@@ -439,7 +464,7 @@ class FireDb(object):
     def indset_punktinformationtype(self, punktinfotype: PunktInformationType):
         if not self._is_new_object(punktinfotype):
             raise Exception(
-                f"Cannot re-add already persistant punktinformationtype: {punktinfotype}"
+                f"PunktInformationType allerede tilføjet databasen: {punktinfotype}"
             )
         n = self.session.query(func.max(PunktInformationType.infotypeid)).one()[0]
         if n is None:
@@ -450,9 +475,7 @@ class FireDb(object):
 
     def indset_observation(self, sagsevent: Sagsevent, observation: Observation):
         if not self._is_new_object(observation):
-            raise Exception(
-                f"Cannot re-add already persistent observation: {observation}"
-            )
+            raise Exception(f"Observation allerede tilføjet databasen: {observation}")
         self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
         observation.sagsevent = sagsevent
         self.session.add(observation)
@@ -461,7 +484,7 @@ class FireDb(object):
     def indset_observationstype(self, observationstype: ObservationsType):
         if not self._is_new_object(observationstype):
             raise Exception(
-                f"Cannot re-add already persistent observationstype: {observationstype}"
+                f"ObservationsType allerede tilføjet databasen: {observationstype}"
             )
         n = self.session.query(func.max(ObservationsType.observationstypeid)).one()[0]
         if n is None:
@@ -472,22 +495,20 @@ class FireDb(object):
 
     def indset_beregning(self, sagsevent: Sagsevent, beregning: Beregning):
         if not self._is_new_object(beregning):
-            raise Exception(f"Cannot re-add already persistent beregning: {beregning}")
+            raise Exception(f"Beregning allerede tilføjet datbasen: {beregning}")
 
         self._check_and_prepare_sagsevent(sagsevent, EventType.KOORDINAT_BEREGNET)
         beregning.sagsevent = sagsevent
         for koordinat in beregning.koordinater:
             if not self._is_new_object(koordinat):
-                raise Exception(
-                    f"Added beregning cannot refer to existing koordinat: {koordinat}"
-                )
+                raise Exception(f"Koordinat allerede tilføjet datbasen: {koordinat}")
             koordinat.sagsevent = sagsevent
         self.session.add(beregning)
         self.session.commit()
 
     def indset_srid(self, srid: Srid):
         if not self._is_new_object(srid):
-            raise Exception(f"Cannot re-add already persistent Srid: {srid}")
+            raise Exception(f"Srid allerede tilføjet datbasen: {srid}")
 
         n = self.session.query(func.max(Srid.sridid)).one()[0]
         if n is None:
@@ -503,7 +524,7 @@ class FireDb(object):
     def luk_sag(self, sag: Sag):
         """Sætter en sags status til inaktiv"""
         if not isinstance(sag, Sag):
-            raise TypeError("'sag' is not an instance of Sag")
+            raise TypeError("'sag' er ikke en instans af Sag")
 
         current = sag.sagsinfos[-1]
         new = Sagsinfo(
@@ -527,7 +548,7 @@ class FireDb(object):
         Dette er den ultimative udrensning. BRUG MED OMTANKE!
         """
         if not isinstance(punkt, Punkt):
-            raise TypeError("'punkt' is not an instance of Punkt")
+            raise TypeError("'punkt' er ikke en instans af Punkt")
 
         sagsevent.eventtype = EventType.PUNKT_NEDLAGT
         self._luk_fikspunkregisterobjekt(punkt, sagsevent, commit=False)
@@ -556,7 +577,7 @@ class FireDb(object):
         Hvis ikke allerede sat, ændres sagseventtypen til EventType.KOORDINAT_NEDLAGT.
         """
         if not isinstance(koordinat, Koordinat):
-            raise TypeError("'koordinat' is not an instance of Koordinat")
+            raise TypeError("'koordinat' er ikke en instans af Koordinat")
 
         sagsevent.eventtype = EventType.KOORDINAT_NEDLAGT
         self._luk_fikspunkregisterobjekt(koordinat, sagsevent)
@@ -568,7 +589,7 @@ class FireDb(object):
         Hvis ikke allerede sat, ændres sagseventtypen til EventType.OBSERVATION_NEDLAGT.
         """
         if not isinstance(observation, Observation):
-            raise TypeError("'observation' is not an instance of Observation")
+            raise TypeError("'observation' er ikk en instans af Observation")
 
         sagsevent.eventtype = EventType.OBSERVATION_NEDLAGT
         self._luk_fikspunkregisterobjekt(observation, sagsevent)
@@ -580,7 +601,7 @@ class FireDb(object):
         Hvis ikke allerede sat, ændres sagseventtypen til EventType.PUNKTINFO_FJERNET.
         """
         if not isinstance(punktinfo, PunktInformation):
-            raise TypeError("'punktinfo' is not an instance of PunktInformation")
+            raise TypeError("'punktinfo' er ikke en instans af PunktInformation")
 
         sagsevent.eventtype = EventType.PUNKTINFO_FJERNET
         self._luk_fikspunkregisterobjekt(punktinfo, sagsevent)
@@ -593,7 +614,7 @@ class FireDb(object):
         Hvis ikke allerede sat, ændres sagseventtypen til EventType.KOORDINAT_NEDLAGT.
         """
         if not isinstance(beregning, Beregning):
-            raise TypeError("'beregning' is not an instance of Beregning")
+            raise TypeError("'beregning' er ikke en instans af Beregning")
 
         sagsevent.eventtype = EventType.KOORDINAT_NEDLAGT
         for koordinat in beregning.koordinater:
@@ -633,18 +654,23 @@ class FireDb(object):
             self.session.commit()
 
     def _check_and_prepare_sagsevent(self, sagsevent: Sagsevent, eventtype: EventType):
-        """Checks that the given Sagsevent is valid in the context given by eventtype.
+        """
+        Tjek at et Sagsevent er gyldigt i den sammehæng som eventtype angiver.
 
-        The sagsevent must be a "new" object (ie not persisted ot the database). It must
-        have the specified eventtype. If the sagsevent doesnt have an id, this method
-        will assign a guid.
+        sagsevent skal være et "nyt" objekt, forstået på den måde at det ikke
+        må være tilføjet databasen allerede. Det skal have samme eventtype som
+        angivet.
         """
         if not self._is_new_object(sagsevent):
-            raise Exception("Do not attach new objects to an existing Sagsevent")
+            raise Exception(
+                "Nye objekter kan ikke tilføjes et allerede eksisterende Sagsevent"
+            )
         if sagsevent.eventtype is None:
             sagsevent.eventtype = eventtype
         elif sagsevent.eventtype != eventtype:
-            raise Exception(f"'{sagsevent.eventtype}' sagsevent. Should be {eventtype}")
+            raise Exception(
+                f"'{sagsevent.eventtype}' sagsevent. Burde være {eventtype}"
+            )
 
     def _filter_observationer(
         self,
@@ -667,17 +693,18 @@ class FireDb(object):
         return and_(*exps)
 
     def _is_new_object(self, obj):
-        """Check that the object has not been persisted to the database (= is 'new').
+        """
+        Tjek at objektet ikke allerede er tilføjet til databasne (= det er 'nyt').
 
         Parameters
         ----------
         obj: object
-            Object to check.
+            Objekt der skal tjekkes.
 
         Returns
         -------
         bool
-            True if object has not been persisted. False otherwise
+            True hvis objektet ikke er tilføjet databasen, ellers False.
         """
         # here are the five states:
         # state.transient   # !session & !identity_key
@@ -741,7 +768,8 @@ class FireDb(object):
         return parser
 
     def _build_connection_string(self):
-        # Establish connection to database
+        """Konstruer connection-string til databasen."""
+
         username = self.config.get("connection", "username")
         password = self.config.get("connection", "password")
         hostname = self.config.get("connection", "hostname")
