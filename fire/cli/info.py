@@ -254,8 +254,12 @@ def punkt_fuld_rapport(
 
     # Geometri, fire-id, oprettelsesdato og PunktInformation håndteres
     # under et, da det giver et bedre indledende overblik
-    for geometriobjekt in punkt.geometriobjekter:
-        fire.cli.print(f"  Lokation                    {geometriobjekt.geometri}")
+    try:
+        for geometriobjekt in punkt.geometriobjekter:
+            fire.cli.print(f"  Lokation                    {geometriobjekt.geometri}")
+    except Exception:
+        pass
+
     fire.cli.print(f"  Oprettelsesdato             {punkt.registreringfra}")
 
     punktinforapport(punkt.punktinformationer)
