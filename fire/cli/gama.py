@@ -77,7 +77,7 @@ def gama():
 def write(
     output, geometri, geometrifil, buffer, fra, til, fixpunkter, fixpunkterfil,
 ):
-    """Create a gama input file"""
+    """Skriv en gama input fil"""
     writer = GamaWriter(firedb, output)
 
     g = None
@@ -114,10 +114,14 @@ def write(
     "-i", "--in", "input", help="navn på gama output, der skal indlæses (.xml)"
 )
 @click.option(
-    "-c", "--cid", "case_id", help="Case number under which to save in fire", type=str
+    "-c",
+    "--cid",
+    "case_id",
+    help="Sagsnummer som beregningen gemmes under i databasen",
+    type=str,
 )
 def read(input, case_id):
-    """Read a gama output file (read --help)"""
+    """Læs en gama resultatfil (se --help)"""
     reader = GamaReader(firedb, input)
     reader.read(case_id)
 

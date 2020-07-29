@@ -10,7 +10,7 @@ __all__ = ["Geometry", "Point", "Bbox"]
 
 
 class Geometry(expression.Function):
-    """Represents a geometry value."""
+    """Repræsenterer en geometri værdi."""
 
     def __init__(self, geometry, srid=4326):
         if isinstance(geometry, str):
@@ -21,7 +21,7 @@ class Geometry(expression.Function):
             self._wkt = None
         else:
             raise TypeError(
-                "must be either a coordinate, a WKT string or a geojson like dictionary"
+                "Skal være enten en koordinat, en WKT streng eller en GeoJSON-agtig dictionary"
             )
 
         self.srid = srid
@@ -43,7 +43,7 @@ class Geometry(expression.Function):
 
     @property
     def __geo_interface__(self):
-        """Dictionary representation of the geometry"""
+        """Geometri repræsenteret som en dictionary."""
         return self._geom
 
 
@@ -55,7 +55,7 @@ class Point(Geometry):
             geom = p
         else:
             raise TypeError(
-                "must be either a coordinate, a WKT string or a geojson like dictionary"
+                "Skal være enten en koordinat, en WKT streng eller en GeoJSON-agtig dictionary"
             )
         super(Point, self).__init__(geom, srid)
 
@@ -63,12 +63,14 @@ class Point(Geometry):
 class Bbox(Geometry):
     def __init__(self, bounds, srid=4326):
         """
-        Create a bounding box polygon.
+        Bounding box polygon.
 
-        Input:
-
-            bounds: list/tuple of corner coordinates (west, south, east, north)
-            srid:   number part of a CRS EPSG-code, e.g. the 4326 in EPSG:4326
+        Parameters
+        ----------
+        bounds:
+            List/tuple of corner coordinates (west, south, east, north)
+        srid:
+            Number part of a CRS EPSG-code, e.g. the 4326 in EPSG:4326
         """
         geom = dict(
             type="Polygon",
@@ -96,11 +98,11 @@ def geometry_factory(geom, srid=4326):
             return Point(geom, srid)
         else:
             return Geometry(geom, srid)
-    raise TypeError(f"Unknown geometry format: {geom}")
+    raise TypeError(f"Ukendt geometri format: {geom}")
 
 
 def from_wkt(geom):
-    """wkt helper: converts from WKT to a GeoJSON-like geometry."""
+    """Konverter fra WKT streng til GeoJSON-agtig geometry."""
     wkt_linestring_match = re.compile(r"\(([^()]+)\)")
     re_space = re.compile(r"\s+")
 
@@ -135,13 +137,13 @@ def from_wkt(geom):
         geomtype = "Polygon"
     else:
         geomtype = geom[: geom.index("(")]
-        raise Exception("Unsupported geometry type %s" % geomtype)
+        raise Exception("Usupporteret geometritype %s" % geomtype)
 
     return {"type": geomtype, "coordinates": coords}
 
 
 def to_wkt(geom):
-    """Converts a GeoJSON-like geometry to WKT."""
+    """Konverter en GeoJSON-agtig geometri til WKT."""
 
     def coords_to_wkt(coords):
         format_str = " ".join(("%f",) * len(coords[0]))
@@ -176,7 +178,7 @@ def to_wkt(geom):
     else:
         raise Exception(
             (
-                f"Couldn't create WKT from geometry of type {geom['type']} ({geom}). "
-                "Only Point, Line, Polygon are supported."
+                f"Kan ikke lave WKT fra geometritypen {geom['type']} ({geom}). "
+                "Kun Point, Line og Polygon er understøttet."
             )
         )

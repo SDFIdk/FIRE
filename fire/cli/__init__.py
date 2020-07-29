@@ -9,7 +9,7 @@ _show_colors = True
 # Create decorator that handles all default options
 def _set_monochrome(ctx, param, value):
     """
-    Grab value of --monokrom option and set global state of _show_colors
+    Anvend værdien af --monokrom og sæt den globale værdi af _show_colors.
     """
     global _show_colors
     _show_colors = not value
@@ -38,10 +38,10 @@ def default_options():
 
 def print(*args, **kwargs):
     """
-    Custom print function based on click.secho.
+    FIRE-specifik print funktion baseret på click.secho.
 
-    Overrides color when 'monokrom' parameter is set applied in command
-    line calls.
+    Tilsidesætter farven når --monokrom parameteren anvendes i
+    kommandolinjekald.
     """
     kwargs["color"] = _show_colors
     click.secho(*args, **kwargs)

@@ -1,5 +1,5 @@
 """
-Various utilities for 
+Diverse redskaber til brug i fire.cli.
 """
 
 import click

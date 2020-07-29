@@ -36,9 +36,10 @@ class StringEnum(BetterBehavedEnum):
 
 
 class ReprBase(object):
-    """Extend the base class
-    Provides a nicer representation when a class instance is printed.
-    Found on the SA wiki
+    """
+    Udvid SQLAlchemys Base klasse.
+
+    Giver pænere repr() output. Fundet på SQLAlchemys wiki.
     """
 
     def __repr__(self):

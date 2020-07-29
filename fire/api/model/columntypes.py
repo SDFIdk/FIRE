@@ -6,7 +6,7 @@ from fire.api.model import geometry
 
 
 class Geometry(UserDefinedType):
-    """Base Oracle Geometry column type."""
+    """Oracle geometri Column type."""
 
     name = "GEOMETRY"
 
@@ -63,7 +63,7 @@ class LineString(Curve):
 
 
 class IntegerEnum(TypeDecorator):
-    """Column type which persists the integer value of a Python enumeration"""
+    """SQLAlchemy Column type der benytter den numeriske værdi af en Python Enum"""
 
     impl = Integer
 
