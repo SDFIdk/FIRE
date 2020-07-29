@@ -189,7 +189,7 @@ class FireDb(object):
         Parameters
         ----------
         observationstypeid : str
-            Navn (inkl. namespace) på observationstypen.
+            Navn på observationstypen.
 
         Returns
         -------
@@ -204,20 +204,11 @@ class FireDb(object):
             .first()
         )
 
-    def hent_observationstyper(
-        self, namespace: Optional[str] = None
-    ) -> List[ObservationsType]:
+    def hent_observationstyper(self) -> List[ObservationsType]:
         """
-        Henter alle ObservationsTyper, evt. begrænset til et enkelt namespace.
+        Henter alle ObservationsTyper.
         """
-        if not namespace:
-            return self.session.query(ObservationsType).all()
-        like_filter = f"{namespace}:%"
-        return (
-            self.session.query(ObservationsType)
-            .filter(ObservationsType.name.ilike(like_filter))
-            .all()
-        )
+        return self.session.query(ObservationsType).all()
 
     def hent_observationer(self, ids: List[str]) -> List[Observation]:
         """
