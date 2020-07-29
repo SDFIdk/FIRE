@@ -7,8 +7,8 @@ from fire.api.model import (
     RegisteringTidObjekt,
     RegisteringFraObjekt,
     DeclarativeBase,
+    IntEnum,
 )
-from fire.api.model.columntypes import IntegerEnum
 
 
 class EventType(enum.Enum):
@@ -65,7 +65,7 @@ class Sagsinfo(RegisteringTidObjekt):
 class Sagsevent(RegisteringFraObjekt):
     __tablename__ = "sagsevent"
     id = Column(String(36), nullable=False, default=fire.uuid)
-    eventtype = Column("eventtypeid", IntegerEnum(EventType), nullable=False)
+    eventtype = Column("eventtypeid", IntEnum(EventType), nullable=False)
     sagsid = Column(String(36), ForeignKey("sag.id"), nullable=False)
     sag = relationship("Sag", back_populates="sagsevents")
     sagseventinfos = relationship(
