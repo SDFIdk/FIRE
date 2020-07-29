@@ -2,7 +2,17 @@ from __future__ import annotations
 import enum
 from typing import List
 
-from sqlalchemy import Table, Column, String, Integer, Float, DateTime, ForeignKey, Enum
+from sqlalchemy import (
+    Table,
+    Column,
+    String,
+    Integer,
+    Float,
+    DateTime,
+    ForeignKey,
+    Enum,
+    func,
+)
 from sqlalchemy.orm import relationship, reconstructor
 
 import fire
@@ -287,7 +297,7 @@ class Koordinat(FikspunktregisterObjekt):
     sx = Column(Float)
     sy = Column(Float)
     sz = Column(Float)
-    t = Column(DateTime(timezone=True))
+    t = Column(DateTime(timezone=True), default=func.sysdate())
     transformeret = Column(StringEnum(Boolean), nullable=False, default=Boolean.FALSE)
     artskode = Column(IntEnum(Artskode), nullable=True, default=Artskode.NULL)
     x = Column(Float)
