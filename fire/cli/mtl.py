@@ -1,14 +1,13 @@
 # Python infrastrukturelementer
-import itertools
 import json
 import os
 import os.path
 import subprocess
-import re
 import sys
 
 from datetime import datetime
 from enum import IntEnum
+from itertools import chain
 from math import sqrt
 from pprint import pprint
 from typing import Dict, List, Set, Tuple
@@ -43,27 +42,26 @@ from fire.api.model import (
 )
 
 
-class Koordinatvrider:
+# ------------------------------------------------------------------------------
+def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
     """Check op på placeringskoordinaterne.
     Hvis nogle ligner UTM, så regner vi om til geografiske koordinater.
     NaN og 0 flyttes ud i Kattegat, så man kan få øje på dem
     """
 
+    if pd.isna(λ) or pd.isna(φ) or 0 == λ or 0 == φ:
+        return (11.0, 56.0)
+
+    # Heuristik til at skelne mellem UTM og geografiske koordinater.
+    # Heuristikken fejler kun for UTM-koordinater fra et lille
+    # område på 4 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
+    # Det er langt ude i Atlanterhavet, så det lever vi med.
+    if abs(λ) < 100 and abs(φ) < 100:
+        return (λ, φ)
+
     utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
     assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
-
-    def vrid(self, λ, φ):
-        if pd.isna(λ) or pd.isna(φ) or 0 == λ or 0 == φ:
-            return (11, 56)
-
-        # Heuristik til at skelne mellem UTM og geografiske koordinater.
-        # Heuristikken fejler kun for UTM-koordinater fra et lille
-        # område på 4 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
-        # Det er langt ude i Atlanterhavet, så det lever vi med.
-        if abs(λ) < 100 and abs(φ) < 100:
-            return (λ, φ)
-
-        return self.utm32(λ, φ, inverse=True)
+    return utm32(λ, φ, inverse=True)
 
 
 # ------------------------------------------------------------------------------
@@ -203,7 +201,7 @@ def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
         "uuid": "string",
     }
 
-    søjlenavne = [
+    søjlenavne = (
         "Foreløbigt navn",
         "Landsnummer",
         "φ",
@@ -215,15 +213,10 @@ def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
         "Afmærkning",
         "Højde over terræn",
         "uuid",
-    ]
-
-    try:
-        nyetablerede = pd.read_excel(
-            f"{projektnavn}.xlsx", sheet_name="Nyetablerede punkter", usecols="A:K",
-        )
-    except:
-        nyetablerede = pd.DataFrame(columns=søjlenavne, dtype=datatyper)
-        assert nyetablerede.shape[0] == 0, "Forventede tom dataframe"
+    )
+    nyetablerede = pd.read_excel(
+        f"{projektnavn}.xlsx", sheet_name="Nyetablerede punkter", usecols="A:K",
+    )
 
     # Af uudgrundelige årsager insisterer uuid-søjlen på at være float...
     nyetablerede["uuid"] = nyetablerede.uuid.astype(str)
@@ -753,6 +746,14 @@ def skriv_resultater(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> N
     fire.cli.print(f"Færdig - output kan ses i '{projektnavn}-resultat.xlsx'")
 
 
+def skriv_arbejdsark(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> None:
+    """Skriv sags-arbejdsark til excel-fil"""
+    writer = pd.ExcelWriter(f"{projektnavn}.xlsx", engine="xlsxwriter")
+    for r in resultater:
+        resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
+    writer.save()
+
+
 # ------------------------------------------------------------------------------
 # Her starter indlæsningsprogrammet...
 # ------------------------------------------------------------------------------
@@ -955,7 +956,7 @@ def find_sagsid(sagsgang: pd.DataFrame) -> str:
     return ""
 
 
-def find_alle_landsnumre_i_distrikt(distrikt: str) -> List[str]:
+def find_alle_løbenumre_i_distrikt(distrikt: str) -> List[str]:
     pit = firedb.hent_punktinformationtype("IDENT:landsnr")
     landsnumre = (
         firedb.session.query(PunktInformation)
@@ -966,7 +967,9 @@ def find_alle_landsnumre_i_distrikt(distrikt: str) -> List[str]:
         .all()
     )
     løbenumre = [n.tekst.split("-")[-1] for n in landsnumre if "-" in n.tekst]
-    numre = [int(n) for n in løbenumre if n.isnumeric()]
+    # Ikke-numeriske løbenumre (fx vandstandsbrædder) forbliver som tekst,
+    # men numeriske vil vi gerne have gjort til tal
+    numre = [int(n) if str(n).isnumeric() else n for n in løbenumre]
     return set(numre)
 
 
@@ -988,7 +991,9 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
     resultater = {}
 
     sagsgang = find_sagsgang(projektnavn)
+    print(f"sagsgang={sagsgang}")
     sagsid = find_sagsid(sagsgang)
+    print(f"sagsid={sagsid}")
     try:
         sag = firedb.hent_sag(sagsid)
     except:
@@ -1015,16 +1020,15 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
         fire.cli.print("Ingen nyetablerede punkter at registrere")
         return
 
-    v = Koordinatvrider()
     til_registrering = []
-    anvendte_landsnumre = {}
+    anvendte_løbenumre = {}
     sagsevent = None
     landsnummer_pit = firedb.hent_punktinformationtype("IDENT:landsnr")
     beskrivelse_pit = firedb.hent_punktinformationtype("ATTR:beskrivelse")
     h_over_terræn_pit = firedb.hent_punktinformationtype("AFM:højde_over_terræn")
-    assert landsnummer_pit is not None, "Rådden pit"
-    assert beskrivelse_pit is not None, "Rådden pit"
-    assert h_over_terræn_pit is not None, "Rådden pit"
+    assert landsnummer_pit is not None, "Rådden landsnummer_pit"
+    assert beskrivelse_pit is not None, "Rådden beskrivelse_pit"
+    assert h_over_terræn_pit is not None, "Rådden h_over_terræn_pit"
 
     # Vi samler de genererede punkter i en dict, så de kan persisteres samlet
     # under et enkelt sagsevent
@@ -1039,16 +1043,18 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
             continue
         print(f"Behandler punkt {nyetablerede['Foreløbigt navn'][i]}")
 
-        lokation = v.vrid(nyetablerede["λ"][i], nyetablerede["φ"][i])
+        lokation = normaliser_placeringskoordinat(
+            nyetablerede["λ"][i], nyetablerede["φ"][i]
+        )
         distrikt = nyetablerede["Landsnummer"][i]
 
         # Gør klar til at finde et ledigt landsnummer, hvis vi ikke allerede har et
         if 2 == len(distrikt.split("-")):
-            if distrikt in anvendte_landsnumre:
-                numre = anvendte_landsnumre[distrikt]
+            if distrikt in anvendte_løbenumre:
+                numre = anvendte_løbenumre[distrikt]
             else:
-                numre = set(find_alle_landsnumre_i_distrikt(distrikt))
-                anvendte_landsnumre[distrikt] = numre
+                numre = find_alle_løbenumre_i_distrikt(distrikt)
+                anvendte_løbenumre[distrikt] = numre
                 print(f"Fandt {len(numre)} punkter i distrikt {distrikt}")
         # Hvis der er anført et fuldt landsnummer må det hellere se ud som et
         elif 3 != len(distrikt.split("-")):
@@ -1060,21 +1066,25 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
 
         # Hjælpepunkter har egen nummerserie
         if "ingen" == str(nyetablerede["Afmærkning"][i]).lower():
-            nummerserie = range(90001, 99999)
+            nummerserie = range(90001, 100000)
         else:
-            nummerserie = itertools.chain(range(9001, 10000), range(19001, 20000))
+            nummerserie = chain(range(9001, 10000), range(19001, 20000))
 
         # Så leder vi...
         for løbenummer in nummerserie:
             if løbenummer not in numre:
-                landsnummer = f"{distrikt}-{løbenummer:05}"
+                # Lige nu laver vi kun numeriske løbenumre, men fx vandstandsbrædder
+                # og punkter fra de gamle hovedstadsregistre har tekstuelle løbe"numre"
+                if str(løbenummer).isnumeric():
+                    landsnummer = f"{distrikt}-{løbenummer:05}"
+                else:
+                    landsnummer = f"{distrikt}-{løbenummer}"
                 genererede_landsnumre.append(landsnummer)
                 fire.cli.print(f"Anvender landsnummer {landsnummer}")
                 numre.add(løbenummer)
                 break
+        # Hvis for-løkken løber til ende er vi løbet tør for løbenumre
         else:
-            # for/else er sjældent brugt, men nyttig her: eksekveres når
-            # for-løkken IKKE afbrydes af break
             fire.cli.print(
                 f"Løbet tør for landsnumre i distrikt {distrikt}", fg="red", bg="white"
             )
@@ -1212,7 +1222,7 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
 
 
 # ------------------------------------------------------------------------------
-# Her starter sagsoprettelsesprogrammet...
+# Her starter sagsoprettelsesprogrammet
 # ------------------------------------------------------------------------------
 @mtl.command()
 @fire.cli.default_options()
@@ -1220,44 +1230,114 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
     "projektnavn", nargs=1, type=str,
 )
 @click.argument(
-    "initialer", nargs=1, type=str,
+    "sagsbehandler", nargs=1, type=str,
 )
-def opret_sag(projektnavn: str, initialer: str, **kwargs) -> None:
-    """Registrer nyoprettede punkter i databasen"""
-    check_om_resultatregneark_er_lukket(projektnavn)
+@click.argument(
+    "beskrivelse", nargs=1, type=str,
+)
+def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) -> None:
+    """Registrer ny sag i databasen - husk anførelsestegn om argumenterne"""
+
+    if os.path.isfile(f"{projektnavn}.xlsx"):
+        fire.cli.print(
+            f"Filen '{projektnavn}.xlsx' eksisterer - sagen er allerede oprettet"
+        )
+        sys.exit(1)
+
     fire.cli.print("Så opretter vi")
-    resultater = {}
 
-    sagsgang = find_sagsgang(projektnavn)
-    sag = sagsgang.index[sagsgang["Hændelse"] == "sagsoprettelse"].tolist()
-    assert (
-        len(sag) == 1
-    ), "Der skal være præcis 1 hændelse af type sagsoprettelse i arket"
-    i = sag[0]
-    if False == pd.isna(sagsgang.uuid[i]):
-        print(f"Sag allerede oprettet - uuid={sagsgang.uuid[i]}")
-        return
-    sagsgang.at[i, "Dato"] = pd.Timestamp.now()
-    sagsgang.at[i, "Initialer"] = initialer
-    uuid = str(uuid4())
-    sagsgang.at[i, "uuid"] = uuid
-
-    sagsinfo = Sagsinfo(
-        aktiv="true", behandler=initialer, beskrivelse=sagsgang.Tekst[i]
+    sag = {
+        "Dato": pd.Timestamp.now(),
+        "Initialer": sagsbehandler,
+        "Hændelse": "sagsoprettelse",
+        "Tekst": beskrivelse,
+        "uuid": str(uuid4()),
+    }
+    sagsgang = pd.DataFrame(
+        [sag], columns=("Dato", "Initialer", "Hændelse", "Tekst", "uuid"),
     )
+    print(sagsgang)
 
-    fire.cli.print(f"Opretter sag {uuid}")
-    fire.cli.print(f"med {initialer} som sagsbehandler")
-    fire.cli.print(f"og sagsinfo: {sagsinfo}")
-    svar = input("OK (ja/nej)? ")
-    if svar != "ja":
-        fire.cli.print("Opretter IKKE sag")
-        return
-    firedb.indset_sag(Sag(id=uuid, sagsinfos=[sagsinfo]))
-    fire.cli.print("Sag oprettet")
-
-    resultater["Sagsgang"] = sagsgang
-    skriv_resultater(projektnavn, resultater)
     fire.cli.print(
-        f"Sag oprettet. Kopiér nu faneblad fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
+        f" BEKRÆFT: Opretter ny sag i FIRE databasen!!! ", bg="red", fg="white"
     )
+    fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag['uuid']})")
+    fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
+    fire.cli.print(f"Beskrivelse:       {beskrivelse}")
+    svar = input("OK (ja/nej)? ")
+    if svar == "ja":
+        sagsinfo = Sagsinfo(
+            aktiv="true", behandler=sagsbehandler, beskrivelse=beskrivelse
+        )
+        firedb.indset_sag(Sag(id=sag["uuid"], sagsinfos=[sagsinfo]))
+        fire.cli.print(f"Sag '{projektnavn}' oprettet")
+    else:
+        fire.cli.print("Opretter IKKE sag")
+        # Ved demonstration af systemet er det nyttigt at kunne oprette
+        # et sagsregneark, uden at oprette en tilhørende sag
+        svar = input("Opret sagsregneark alligevel (ja/nej)? ")
+        if svar != "ja":
+            return
+
+    fire.cli.print(f"Skriver sagsregneark '{projektnavn}.xlsx'")
+
+    # Dummyopsætninger til sagsregnearkets sider
+    forside = pd.DataFrame()
+    revision = pd.DataFrame()
+    tabtgåede = pd.DataFrame(
+        [
+            {
+                "PunktID": "999-99-9999",
+                "Konstateret dato": pd.Timestamp.now(),
+                "Initialer": sagsbehandler,
+                "Kommentar": "Denne linje kan slettes",
+            }
+        ]
+    )
+    nyetablerede = pd.DataFrame(
+        [
+            {
+                "Foreløbigt navn": "",
+                "Landsnummer": "",
+                "φ": 0.0,
+                "λ": 0.0,
+                "Foreløbig kote": 0.0,
+                "Etableret dato": pd.Timestamp.now(),
+                "Initialer": "",
+                "Beskrivelse": "Denne linje kan slettes",
+                "Afmærkning": "",
+                "Højde over terræn": 0.0,
+                "uuid": "",
+            }
+        ]
+    )
+    notater = pd.DataFrame(
+        [{"Dato": pd.Timestamp.now(), "Initialer": "", "Tekst": "",}]
+    )
+    filoversigt = pd.DataFrame(
+        [
+            {
+                "Dato": pd.Timestamp.now(),
+                "Initialer": "",
+                "Filnavn": "",
+                "Type": "MTL",
+                "σ": 0.7,
+                "δ": 0.1,
+                "Kommentar": "Denne linje kan slettes",
+            }
+        ]
+    )
+    version = pd.DataFrame([{"Major": 0, "Minor": 0, "Revision": 0,}])
+
+    resultater = {}
+    resultater["Projektforside"] = forside
+    resultater["Tabtgåede"] = tabtgåede
+    resultater["Revision"] = revision
+    resultater["Sagsgang"] = sagsgang
+    resultater["Nyetablerede punkter"] = nyetablerede
+    resultater["Notater"] = notater
+    resultater["Filoversigt"] = filoversigt
+    resultater["Version"] = version
+
+    skriv_arbejdsark(projektnavn, resultater)
+    fire.cli.print("Den er Orla Porla!")
