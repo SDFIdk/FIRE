@@ -73,7 +73,7 @@ def mtl():
 
 # ------------------------------------------------------------------------------
 def get_observation_strings(
-    filinfo: List[Tuple[str, float]], verbose: bool = False
+    filinfo: List[Tuple[str, float, float]], verbose: bool = False
 ) -> List[str]:
     """Pil observationsstrengene ud fra en række råfiler"""
     kol = IntEnum(
@@ -84,9 +84,10 @@ def get_observation_strings(
     observationer = list()
     for fil in filinfo:
         filnavn = fil[0]
-        spredning = fil[1]
+        σ = fil[1]
+        δ = fil[2]
         if verbose:
-            fire.cli.print(f"Læser {filnavn} med spredning {spredning}")
+            fire.cli.print(f"Læser {filnavn} med σ={σ} og δ={δ}")
         try:
             with open(filnavn, "rt", encoding="utf-8") as obsfil:
                 for line in obsfil:
@@ -121,12 +122,14 @@ def get_observation_strings(
                     # Reorganiser søjler og omsæt numeriske data fra strengrepræsentation til tal
                     reordered = [
                         tokens[kol.journal],
+                        "",
                         tokens[kol.fra],
                         tokens[kol.til],
                         float(tokens[kol.dH]),
                         float(tokens[kol.L]),
                         int(tokens[kol.setups]),
-                        spredning,
+                        σ,
+                        δ,
                         tokens[kol.kommentar],
                         isotid,
                         float(tokens[kol.T]),
@@ -228,18 +231,19 @@ def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
 
 # ------------------------------------------------------------------------------
 def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
-    """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning"""
+    """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning og centreringsfejl"""
     try:
         inputfiler = pd.read_excel(
-            f"{navn}.xlsx", sheet_name="Filoversigt", usecols="C:E"
+            f"{navn}.xlsx", sheet_name="Filoversigt", usecols="C:F"
         )
     except:
         sys.exit("Kan ikke finde filoversigt i projektfil")
     inputfiler = inputfiler[inputfiler["Filnavn"].notnull()]  # Fjern blanklinjer
     filnavne = inputfiler["Filnavn"]
     spredning = inputfiler["σ"]
+    centreringsfejl = inputfiler["δ"]
     assert len(filnavne) > 0, "Ingen inputfiler anført"
-    return list(zip(filnavne, spredning))
+    return list(zip(filnavne, spredning, centreringsfejl))
 
 
 # ------------------------------------------------------------------------------
@@ -250,12 +254,14 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
         get_observation_strings(find_inputfiler(projektnavn)),
         columns=[
             "journal",
+            "sluk",
             "fra",
             "til",
             "dH",
             "L",
             "opst",
             "σ",
+            "δ",
             "kommentar",
             "hvornår",
             "T",
@@ -351,23 +357,23 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
         if punkter.at[i, "fix"] == 0:
             fastholdt = True
             delta = 0.0
-            kote = punkter.at[i, "kote"]
-            sigma = punkter.at[i, "σ"]
+            kote = float(punkter.at[i, "kote"])
+            sigma = float(punkter.at[i, "σ"])
         else:
             fastholdt = False
-            delta = punkter.at[i, "Δ"]
-            kote = punkter.at[i, "ny"]
-            sigma = punkter.at[i, "ny σ"]
+            delta = float(punkter.at[i, "Δ"])
+            kote = float(punkter.at[i, "ny"])
+            sigma = float(punkter.at[i, "ny σ"])
 
         # Endnu uberegnede punkter
         if kote is None:
-            kote = 0
-            delta = 0
-            sigma = 0
+            kote = 0.0
+            delta = 0.0
+            sigma = 0.0
 
         # Ignorerede ændringer (under 1 um)
         if delta is None:
-            delta = 0
+            delta = 0.0
 
         feature = {
             "type": "Feature",
@@ -480,8 +486,6 @@ def opbyg_punktoversigt(
             punktoversigt.at[punkt, "φ"] = nyetablerede.at[punkt, "φ"]
         if pd.isna(punktoversigt.at[punkt, "λ"]):
             punktoversigt.at[punkt, "λ"] = nyetablerede.at[punkt, "λ"]
-        # if punktoversigt.at[punkt, "uuid"] == "":
-        #     punktoversigt.at[punkt, "uuid"] = uuid4()
 
     # Check op på placeringskoordinaterne. Hvis nogle ligner UTM, så regner vi
     # om til geografiske koordinater. NaN og 0 flyttes ud i Kattegat, så man kan
@@ -640,12 +644,17 @@ def gama_beregning(
 
         # Observationer
         gamafil.write("\n\n<height-differences>\n\n")
-        for obs in observationer[["fra", "til", "dH", "L", "σ", "journal"]].values:
+        for obs in observationer[
+            ["fra", "til", "sluk", "dH", "L", "σ", "journal"]
+        ].values:
+            if not pd.isna(obs[2]):
+                print(f"Slukket {obs}")
+                continue
             gamafil.write(
                 f"<dh from='{obs[0]}' to='{obs[1]}' "
-                f"val='{obs[2]:+.6f}' "
-                f"dist='{obs[3]/1000:.5f}' stdev='{1000*spredning(obs[3], obs[4]):.5f}' "
-                f"extern='{obs[5]:.1f}'/>\n"
+                f"val='{obs[3]:+.6f}' "
+                f"dist='{obs[4]/1000:.5f}' stdev='{1000*spredning(obs[4], obs[5]):.5f}' "
+                f"extern='{obs[6]:.1f}'/>\n"
             )
 
         # Postambel
@@ -830,7 +839,7 @@ def regn(projektnavn: str, **kwargs) -> None:
     # -----------------------------------------------------
     try:
         observationer = pd.read_excel(
-            f"{projektnavn}.xlsx", sheet_name="Observationer", usecols="A:P"
+            f"{projektnavn}.xlsx", sheet_name="Observationer", usecols="A:Q"
         )
     except:
         fire.cli.print(f"Der er ingen observationsoversigt i '{projektnavn}.xlsx'")
@@ -915,33 +924,7 @@ def regn(projektnavn: str, **kwargs) -> None:
 def find_sagsgang(projektnavn: str) -> pd.DataFrame:
     """Opbyg oversigt over sagsforløb"""
     fire.cli.print(f"Finder sagsgang for {projektnavn}")
-    try:
-        sagsgang = pd.read_excel(f"{projektnavn}.xlsx", sheet_name="Sagsgang")
-        sagsgang = pd.read_excel(
-            f"{projektnavn}.xlsx",
-            sheet_name="Sagsgang",
-            usecols="A:E",
-            dtype={
-                "Dato": "datetime64[ns]",
-                "Initialer": "string",
-                "Hændelse": "string",
-                "Tekst": "string",
-                "uuid": "string",
-            },
-        )
-    except:
-        sagsgang = pd.DataFrame(
-            columns=["Dato", "Initialer", "Hændelse", "Tekst", "uuid"],
-            dtype={
-                "Dato": "datetime64[ns]",
-                "Initialer": "string",
-                "Hændelse": "string",
-                "Tekst": "string",
-                "uuid": "string",
-            },
-        )
-        assert sagsgang.shape[0] == 0, "Forventede tom dataframe"
-    return sagsgang
+    return pd.read_excel(f"{projektnavn}.xlsx", sheet_name="Sagsgang")
 
 
 # ------------------------------------------------------------------------------
@@ -951,7 +934,7 @@ def find_sagsid(sagsgang: pd.DataFrame) -> str:
         len(sag) == 1
     ), "Der skal være præcis 1 hændelse af type sagsoprettelse i arket"
     i = sag[0]
-    if False == pd.isna(sagsgang.uuid[i]):
+    if not pd.isna(sagsgang.uuid[i]):
         return str(sagsgang.uuid[i])
     return ""
 
@@ -1091,20 +1074,22 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
             continue
 
         # Skab nyt punktobjekt
-        nyt = Punkt()
-        nyt.id = str(uuid4())
+        nyt_punkt = Punkt()
+        nyt_punkt.id = str(uuid4())
 
         # Tilføj punktets lokation som geometriobjekt
         geo = GeometriObjekt()
         geo.geometri = Point(lokation)
-        nyt.geometriobjekter.append(geo)
+        nyt_punkt.geometriobjekter.append(geo)
         # Hvis lokationen i regnearket var UTM32, så bliver den nu længde/bredde
         nyetablerede.at[i, "λ"] = lokation[0]
         nyetablerede.at[i, "φ"] = lokation[1]
 
         # Tilføj punktets landsnummer som punktinformation
-        pi_l = PunktInformation(infotype=landsnummer_pit, punkt=nyt, tekst=landsnummer)
-        nyt.punktinformationer.append(pi_l)
+        pi_l = PunktInformation(
+            infotype=landsnummer_pit, punkt=nyt_punkt, tekst=landsnummer
+        )
+        nyt_punkt.punktinformationer.append(pi_l)
         nyetablerede.at[i, "Landsnummer"] = landsnummer
 
         # Tilføj punktets højde over terræn som punktinformation, hvis anført
@@ -1116,8 +1101,10 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
             dH = 0.0
         print(f"dH er {dH}")
         if not pd.isna(nyetablerede["Højde over terræn"][i]):
-            pi_h = PunktInformation(infotype=h_over_terræn_pit, punkt=nyt, tal=dH,)
-            nyt.punktinformationer.append(pi_h)
+            pi_h = PunktInformation(
+                infotype=h_over_terræn_pit, punkt=nyt_punkt, tal=dH,
+            )
+            nyt_punkt.punktinformationer.append(pi_h)
 
         # Tilføj punktets afmærkning som punktinformation, selv hvis ikke anført
         afm_id = 4999  # AFM:4999 = "ukendt"
@@ -1159,19 +1146,19 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
                 bg="white",
                 bold=True,
             )
-        pi_a = PunktInformation(infotype=afmærkning_pit, punkt=nyt)
-        nyt.punktinformationer.append(pi_a)
+        pi_a = PunktInformation(infotype=afmærkning_pit, punkt=nyt_punkt)
+        nyt_punkt.punktinformationer.append(pi_a)
 
         # Tilføj punktbeskrivelsen som punktinformation, hvis anført
         if not pd.isna(nyetablerede["Beskrivelse"][i]):
             pi_b = PunktInformation(
                 infotype=beskrivelse_pit,
-                punkt=nyt,
+                punkt=nyt_punkt,
                 tekst=nyetablerede["Beskrivelse"][i],
             )
-            nyt.punktinformationer.append(pi_b)
+            nyt_punkt.punktinformationer.append(pi_b)
 
-        genererede_punkter[i] = nyt
+        genererede_punkter[i] = nyt_punkt
 
     if len(genererede_punkter) == 0:
         fire.cli.print("Ingen nyetablerede punkter at registrere")
