@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List, Optional, Iterator
 from pathlib import Path
+from itertools import chain
 import os
 import re
 import configparser
@@ -9,6 +10,7 @@ import getpass
 from sqlalchemy import create_engine, func, event, and_, or_, inspect
 from sqlalchemy.orm import sessionmaker, aliased
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import text
 
 from fire.api.model import (
     RegisteringTidObjekt,
@@ -29,6 +31,7 @@ from fire.api.model import (
     Geometry,
     EventType,
     Srid,
+    FikspunktsType,
 )
 
 
@@ -624,6 +627,141 @@ class FireDb(object):
         """Returner absolut del af sti til sagsmateriale."""
         konf = self._hent_konfiguration()
         return konf.dir_materiale
+
+    def _generer_tilladte_løbenumre(
+        self, fikspunktstype: FikspunktsType
+    ) -> Iterator[str]:
+        """
+        Returner en generator med alle tilladte løbenumre for en given type fikspunkt.
+
+        Hjælpefunktion til tilknyt_landsnumre.
+        """
+
+        interval = lambda start, stop: (str(i).zfill(5) for i in range(start, stop + 1))
+
+        if fikspunktstype == FikspunktsType.GI:
+            return chain(interval(1, 10), interval(801, 8999))
+
+        if fikspunktstype == FikspunktsType.MV:
+            return interval(11, 799)
+
+        if fikspunktstype == FikspunktsType.HØJDE:
+            return chain(interval(9001, 10000), interval(19001, 19999))
+
+        if fikspunktstype == FikspunktsType.JESSEN:
+            return interval(81001, 81999)
+
+        if fikspunktstype == FikspunktsType.HJÆLPEPUNKT:
+            return interval(90001, 99999)
+
+        if fikspunktstype == FikspunktsType.VANDSTANDSBRÆT:
+            raise NotImplementedError(
+                "Fikspunktstypen 'VANDSTANDSBRÆT' er endnu ikke understøttet"
+            )
+
+        raise ValueError("Ukendt fikspunktstype")
+
+    def _opmålingsdistrikt_fra_punktid(self, uuider: List[str]):
+        """
+        Udtræk relevante opmålingsdistrikter, altså dem hvor de adspurgte punkter
+        befinder sig i.
+
+        Hjælpefunktion til tilknyt_landsnumre(). Defineret i seperat funktion
+        med henblik på at kunne mocke den i unit tests.
+        """
+        statement = text(
+            f"""SELECT hs.kode, go.punktid
+                FROM geometriobjekt go
+                JOIN herredsogn hs ON sdo_relate(hs.geometri, go.geometri, 'mask=contains') = 'TRUE'
+                WHERE
+                go.punktid IN ({','.join(uuider)})
+            """
+        )
+
+        return self.session.execute(statement)
+
+    def _løbenumre_i_distrikt(self, distrikt: str):
+        """
+        For et givent opmålingsdistrikt findes alle landsnumre på formen
+        xx-yyy-*****, hvorefter løbenummrene (*****) udskilles og returneres
+        i sorteret orden.
+
+        Hjælpefunktion til tilknyt_landsnumre(). Defineret i seperat funktion
+        med henblik på at kunne mocke den i unit tests.
+        """
+        landsnr = self.hent_punktinformationtype("IDENT:landsnr")
+        sql = text(
+            fr"""SELECT lbnr
+                FROM (
+                    SELECT
+                        regexp_substr(tekst, '.*-.*-(.+)', 1, 1, '', 1) lbnr
+                    FROM punktinfo
+                    WHERE infotypeid={landsnr.infotypeid} AND REGEXP_LIKE(tekst, '{distrikt}-.+$')
+                )
+                ORDER BY lbnr ASC
+                """
+        )
+
+        return [løbenummer for løbenummer in self.session.execute(sql)]
+
+    def tilknyt_landsnumre(
+        self, punkter: List[Punkt], fikspunktstyper: List[FikspunktsType],
+    ) -> List[PunktInformation]:
+        """
+        Tilknytter et landsnummer til punktet hvis der ikke findes et i forvejen.
+
+        Returnerer en liste med IDENT:landsnr PunktInformation'er for alle de fikspunkter i
+        `punkter` som ikke i forvejen har et landsnummer. Hvis alle fikspunkter i `punkter`
+        allerede har et landsnummer returneres en tom liste.
+
+        Kun punkter i Danmark kan tildeles et landsnummer. Det forudsættes at punktet
+        har et tilhørende geometriobjekt og er indlæst i databasen i forvejen.
+        """
+
+        landsnr = self.hent_punktinformationtype("IDENT:landsnr")
+
+        uuider = []
+        punkttyper = {}
+        for punkt, fikspunktstype in zip(punkter, fikspunktstyper):
+            if not punkt.geometri:
+                raise AttributeError("Geometriobjekt ikke tilknyttet Punkt")
+
+            # Ignorer punkter, der allerede har et landsnummer
+            if landsnr in [pi.infotype for pi in punkt.punktinformationer]:
+                continue
+            uuider.append(f"'{punkt.id}'")
+            punkttyper[punkt.id] = fikspunktstype
+
+        if not uuider:
+            return []
+
+        distrikter = self._opmålingsdistrikt_fra_punktid(uuider)
+
+        distrikt_punkter = {}
+        for (distrikt, pktid) in distrikter:
+            if distrikt not in distrikt_punkter.keys():
+                distrikt_punkter[distrikt] = []
+            distrikt_punkter[distrikt].append(pktid)
+
+        landsnumre = {}
+        for distrikt, pkt_ider in distrikt_punkter.items():
+            brugte_løbenumre = self._løbenumre_i_distrikt(distrikt)
+
+            for punktid in pkt_ider:
+                for kandidat in self._generer_tilladte_løbenumre(punkttyper[punktid]):
+                    if kandidat in brugte_løbenumre:
+                        continue
+
+                    landsnumre[punktid] = f"{distrikt}-{kandidat}"
+                    brugte_løbenumre.append(kandidat)
+                    break
+
+        punktinfo = []
+        for punktid, landsnummer in landsnumre.items():
+            pi = PunktInformation(punktid=punktid, infotype=landsnr, tekst=landsnummer)
+            punktinfo.append(pi)
+
+        return punktinfo
 
     def _hent_konfiguration(self):
         return (
