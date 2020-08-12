@@ -648,7 +648,10 @@ def gama_beregning(
             ["fra", "til", "sluk", "dH", "L", "σ", "journal"]
         ].values:
             if not pd.isna(obs[2]):
-                print(f"Slukket {obs}")
+                fire.cli.print(f"Slukket {obs}")
+                continue
+            if (obs[0] in fastholdte) and (obs[1] in fastholdte):
+                fire.cli.print(f"Udeladt {obs}")
                 continue
             gamafil.write(
                 f"<dh from='{obs[0]}' to='{obs[1]}' "
