@@ -8,6 +8,7 @@ dependencies:
   - sqlalchemy=1.2.13
   - pyproj
   - qgis=3.10
+  - click
   - pandas
   - statsmodels
   - xlsxwriter
