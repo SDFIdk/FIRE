@@ -3,34 +3,24 @@ from typing import List, Optional, Iterator
 from pathlib import Path
 from itertools import chain
 import os
-import re
 import configparser
 import getpass
 
-from sqlalchemy import create_engine, func, event, and_, or_, inspect
-from sqlalchemy.orm import sessionmaker, aliased
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import create_engine, func, event, and_, inspect
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 
 from fire.api.model import (
     RegisteringTidObjekt,
     FikspunktregisterObjekt,
-    Sag,
     Punkt,
     PunktInformation,
-    PunktInformationType,
     GeometriObjekt,
     Konfiguration,
-    Koordinat,
     Observation,
-    ObservationsType,
     Bbox,
     Sagsevent,
-    Sagsinfo,
-    Beregning,
-    Geometry,
     EventType,
-    Srid,
     FikspunktsType,
 )
 
@@ -76,105 +66,46 @@ class FireDb(object):
                     obj._registreringtil = func.sysdate()
                     thissession.add(obj)
 
-    # region "Hent" methods
+    from ._firedb_hent import (
+        hent_punkt,
+        hent_punkt_liste,
+        hent_punkter,
+        hent_geometri_objekt,
+        hent_alle_punkter,
+        hent_sag,
+        hent_alle_sager,
+        hent_observationstype,
+        hent_observationstyper,
+        hent_observationer,
+        hent_observationer_naer_opstillingspunkt,
+        hent_observationer_naer_geometri,
+        hent_srid,
+        hent_srider,
+        hent_punktinformationtype,
+        hent_punktinformationtyper,
+    )
 
-    def hent_punkt(self, ident: str) -> Punkt:
-        """
-        Returnerer det første punkt der matcher 'ident'
+    from ._firedb_indset import (
+        indset_sag,
+        indset_sagsevent,
+        indset_flere_punkter,
+        indset_punkt,
+        indset_punktinformation,
+        indset_punktinformationtype,
+        indset_observation,
+        indset_observationstype,
+        indset_beregning,
+        indset_srid,
+    )
 
-        Hvis intet punkt findes udsendes en NoResultFound exception.
-        """
-        if ident not in self._cache["punkt"].keys():
-            punkt = self.hent_punkter(ident)[0]
-            for idt in punkt.identer:
-                self._cache["punkt"][idt] = punkt
-            self._cache["punkt"][punkt.id] = punkt
-
-        return self._cache["punkt"][ident]
-
-    def hent_punkt_liste(
-        self, identer: List[str], ignorer_ukendte: bool = True
-    ) -> List[Punkt]:
-        """
-        Returnerer en liste af punkter der matcher identerne i listen `identer`.
-
-        Hvis `ignorer_ukendte` sættes til False udløses en ValueError exception
-        hvis et ident ikke kan matches med et Punkt i databasen.
-        """
-        punkter = []
-        for ident in identer:
-            try:
-                punkter.append(self.hent_punkt(ident))
-            except NoResultFound:
-                if not ignorer_ukendte:
-                    raise ValueError(f"Ident {ident} ikke fundet i databasen")
-
-        return punkter
-
-    def hent_punkter(self, ident: str) -> List[Punkt]:
-        """
-        Returnerer alle punkter der matcher 'ident'
-
-        Hvis intet punkt findes udsendes en NoResultFound exception.
-        """
-        uuidmønster = re.compile(
-            r"^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
-        )
-        if uuidmønster.match(ident):
-            result = (
-                self.session.query(Punkt)
-                .filter(Punkt.id == ident, Punkt._registreringtil == None)  # NOQA
-                .all()
-            )
-        else:
-            result = (
-                self.session.query(Punkt)
-                .join(PunktInformation)
-                .join(PunktInformationType)
-                .filter(
-                    PunktInformationType.name.startswith("IDENT:"),
-                    or_(
-                        PunktInformation.tekst == ident,
-                        PunktInformation.tekst.like(f"FO  %{ident}"),
-                        PunktInformation.tekst.like(f"GL  %{ident}"),
-                    ),
-                    Punkt._registreringtil == None,  # NOQA
-                )
-                .all()
-            )
-
-        if not result:
-            raise NoResultFound
-
-        return result
-
-    def hent_geometri_objekt(self, punktid: str) -> GeometriObjekt:
-        go = aliased(GeometriObjekt)
-        return (
-            self.session.query(go)
-            .filter(go.punktid == punktid, go._registreringtil == None)  # NOQA
-            .one()
-        )
-
-    def hent_alle_punkter(self) -> List[Punkt]:
-        return self.session.query(Punkt).all()
-
-    def hent_sag(self, sagsid: str) -> Sag:
-        """
-        Hent en sag ud fra dens sagsid.
-
-        Sagsid'er behøver ikke være fuldstændige, funktionen forsøger at matche
-        partielle sagsider i samme stil som git håndterer commit hashes. I
-        tilfælde af at søgningen med et partielt sagsid resulterer i flere
-        matches udsendes en sqlalchemy.orm.exc.MultipleResultsFound exception.
-        """
-        return self.session.query(Sag).filter(Sag.id.ilike(f"{sagsid}%")).one()
-
-    def hent_alle_sager(self, aktive=True) -> List[Sag]:
-        """
-        Henter alle sager fra databasen.
-        """
-        return self.session.query(Sag).all()
+    from ._firedb_luk import (
+        luk_sag,
+        luk_punkt,
+        luk_koordinat,
+        luk_observation,
+        luk_punktinfo,
+        luk_beregning,
+    )
 
     def soeg_geometriobjekt(self, bbox) -> List[GeometriObjekt]:
         if not isinstance(bbox, Bbox):
@@ -185,436 +116,64 @@ class FireDb(object):
             .all()
         )
 
-    def hent_observationstype(self, name: str) -> ObservationsType:
+    def tilknyt_landsnumre(
+        self, punkter: List[Punkt], fikspunktstyper: List[FikspunktsType],
+    ) -> List[PunktInformation]:
         """
-        Hent en ObservationsType ud fra dens navn.
+        Tilknytter et landsnummer til punktet hvis der ikke findes et i forvejen.
 
-        Parameters
-        ----------
-        observationstypeid : str
-            Navn på observationstypen.
+        Returnerer en liste med IDENT:landsnr PunktInformation'er for alle de fikspunkter i
+        `punkter` som ikke i forvejen har et landsnummer. Hvis alle fikspunkter i `punkter`
+        allerede har et landsnummer returneres en tom liste.
 
-        Returns
-        -------
-        ObservationsType:
-            Den første ObservationsType der matcher det angivne navn. None hvis
-            ingen observationstyper matcher det søgte navn.
+        Kun punkter i Danmark kan tildeles et landsnummer. Det forudsættes at punktet
+        har et tilhørende geometriobjekt og er indlæst i databasen i forvejen.
         """
-        namefilter = name
-        return (
-            self.session.query(ObservationsType)
-            .filter(ObservationsType.name == namefilter)
-            .first()
-        )
 
-    def hent_observationstyper(self) -> List[ObservationsType]:
-        """
-        Henter alle ObservationsTyper.
-        """
-        return self.session.query(ObservationsType).all()
+        landsnr = self.hent_punktinformationtype("IDENT:landsnr")
 
-    def hent_observationer(self, ids: List[str]) -> List[Observation]:
-        """
-        Returnerer alle observationer fra databasen hvis id'er er indeholdt i listen
-        `ids`. Hvis `ids` indeholder ID'er som ikke findes i databasen gives der
-        *ikke* en fejlmelding.
-        """
-        return self.session.query(Observation).filter(Observation.id.in_(ids)).all()
+        uuider = []
+        punkttyper = {}
+        for punkt, fikspunktstype in zip(punkter, fikspunktstyper):
+            if not punkt.geometri:
+                raise AttributeError("Geometriobjekt ikke tilknyttet Punkt")
 
-    def hent_observationer_naer_opstillingspunkt(
-        self,
-        punkt: Punkt,
-        afstand: float,
-        tidfra: Optional[datetime] = None,
-        tidtil: Optional[datetime] = None,
-    ) -> List[Observation]:
-        g1 = aliased(GeometriObjekt)
-        g2 = aliased(GeometriObjekt)
-        return (
-            self.session.query(Observation)
-            .join(g1, Observation.opstillingspunktid == g1.punktid)
-            .join(g2, g2.punktid == punkt.id)
-            .filter(
-                self._filter_observationer(
-                    g1.geometri, g2.geometri, afstand, tidfra, tidtil
-                )
-            )
-            .all()
-        )
+            # Ignorer punkter, der allerede har et landsnummer
+            if landsnr in [pi.infotype for pi in punkt.punktinformationer]:
+                continue
+            uuider.append(f"'{punkt.id}'")
+            punkttyper[punkt.id] = fikspunktstype
 
-    def hent_observationer_naer_geometri(
-        self,
-        geometri: Geometry,
-        afstand: float,
-        tidfra: Optional[datetime] = None,
-        tidtil: Optional[datetime] = None,
-    ) -> List[Observation]:
-        """
-        Parameters
-        ----------
-        geometri
-            Enten en WKT-streng eller en instans af Geometry, der bruges til
-            udvælge alle geometriobjekter der befinder sig inden for en given
-            afstand af denne geometri.
-        afstand
-            Bufferafstand omkring geometri.
-        tidfra
+        if not uuider:
+            return []
 
-        tidtil
-            asd
+        distrikter = self._opmålingsdistrikt_fra_punktid(uuider)
 
-        Returns
-        -------
-        List[Observation]
-            En liste af alle de Observation'er der matcher søgekriterierne.
-        """
-        g = aliased(GeometriObjekt)
-        return (
-            self.session.query(Observation)
-            .join(
-                g,
-                g.punktid == Observation.opstillingspunktid
-                or g.punktid == Observation.sigtepunktid,
-            )
-            .filter(
-                self._filter_observationer(
-                    g.geometri, geometri, afstand, tidfra, tidtil
-                )
-            )
-            .all()
-        )
+        distrikt_punkter = {}
+        for (distrikt, pktid) in distrikter:
+            if distrikt not in distrikt_punkter.keys():
+                distrikt_punkter[distrikt] = []
+            distrikt_punkter[distrikt].append(pktid)
 
-    def hent_srid(self, sridid: str) -> Srid:
-        """
-        Hent et Srid objekt ud fra dets id.
+        landsnumre = {}
+        for distrikt, pkt_ider in distrikt_punkter.items():
+            brugte_løbenumre = self._løbenumre_i_distrikt(distrikt)
 
-        Parameters
-        ----------
-        sridid : str
-            SRID streng, fx "EPSG:25832".
+            for punktid in pkt_ider:
+                for kandidat in self._generer_tilladte_løbenumre(punkttyper[punktid]):
+                    if kandidat in brugte_løbenumre:
+                        continue
 
-        Returns
-        -------
-        Srid
-            Srid objekt med det angivne ID. None hvis det efterspurgte
-            SRID ikke findes i databasen.
-        """
-        srid_filter = str(sridid).upper()
-        return self.session.query(Srid).filter(Srid.name == srid_filter).one()
+                    landsnumre[punktid] = f"{distrikt}-{kandidat}"
+                    brugte_løbenumre.append(kandidat)
+                    break
 
-    def hent_srider(self, namespace: Optional[str] = None) -> List[Srid]:
-        """
-        Returnerer samtlige Srid objekter i databasen, evt. filtreret på namespace.
+        punktinfo = []
+        for punktid, landsnummer in landsnumre.items():
+            pi = PunktInformation(punktid=punktid, infotype=landsnr, tekst=landsnummer)
+            punktinfo.append(pi)
 
-        Parameters
-        ----------
-        namespace: str - valgfri
-            Return only Srids with the specified namespace. For instance "EPSG". If not
-            specified all objects are returned.
-            Returne kun SRID-objekter fra det valgte namespace, fx "EPSG". Hvis ikke
-            angivet returneres samtlige SRID objekter fra databasen.
-
-        Returns
-        -------
-        List[Srid]
-        """
-        if not namespace:
-            return self.session.query(Srid).all()
-        like_filter = f"{namespace}:%"
-        return self.session.query(Srid).filter(Srid.name.ilike(like_filter)).all()
-
-    def hent_punktinformationtype(self, infotype: str) -> PunktInformationType:
-        if infotype not in self._cache["punktinfotype"]:
-            typefilter = infotype
-            pit = (
-                self.session.query(PunktInformationType)
-                .filter(PunktInformationType.name == typefilter)
-                .first()
-            )
-            self._cache["punktinfotype"][infotype] = pit
-
-        return self._cache["punktinfotype"][infotype]
-
-    def hent_punktinformationtyper(self, namespace: Optional[str] = None):
-        if not namespace:
-            return self.session.query(PunktInformationType).all()
-        like_filter = f"{namespace}:%"
-        return (
-            self.session.query(PunktInformationType)
-            .filter(PunktInformationType.name.ilike(like_filter))
-            .all()
-        )
-
-    # endregion
-
-    # region "Indset" methods
-
-    def indset_sag(self, sag: Sag):
-        if not self._is_new_object(sag):
-            raise Exception(f"Sag allerede tilføjet databasen: {sag}")
-        if len(sag.sagsinfos) < 1:
-            raise Exception("Mindst et SagsInfo objekt skal tilføjes Sagen")
-        if sag.sagsinfos[-1].aktiv != "true":
-            raise Exception("Sidst SagsInfo på sagen skal have aktiv = 'true'")
-        self.session.add(sag)
-        self.session.commit()
-
-    def indset_sagsevent(self, sagsevent: Sagsevent):
-        if not self._is_new_object(sagsevent):
-            raise Exception(f"Sagsevent allerede tilføjet databasen: {sagsevent}")
-        if len(sagsevent.sagseventinfos) < 1:
-            raise Exception("At least one sagseventinfo must be added to the sagsevent")
-            raise Exception("Mindst et SagseventInfo skal tilføjes Sag")
-        self.session.add(sagsevent)
-        self.session.commit()
-
-    def indset_flere_punkter(self, sagsevent: Sagsevent, punkter: List[Punkt]) -> None:
-        """Indsæt flere punkter i punkttabellen, alle under samme sagsevent
-
-        Parameters
-        ----------
-        sagsevent: Sagsevent
-            Nyt (endnu ikke persisteret) sagsevent.
-
-            NB: Principielt ligger "indset_flere_punkter" på et højere API-niveau
-            end "indset_punkter", så det bør overvejes at generere sagsevent her.
-            Argumentet vil så skulle ændres til "sagseventtekst: str", og der vil
-            skulle tilføjes et argument "sag: Sag". Alternativt kan sagseventtekst
-            autogenereres her ("oprettelse af punkterne nn, mm, ...")
-
-        punkter: List[Punkt]
-            De punkter der skal persisteres under samme sagsevent
-
-        Returns
-        -------
-        None
-
-        """
-        # Check at alle punkter er i orden
-        for punkt in punkter:
-            if not self._is_new_object(punkt):
-                raise Exception(f"Punkt allerede tilføjet databasen: {punkt}")
-            if len(punkt.geometriobjekter) != 1:
-                raise Exception(
-                    "Der skal tilføjes et (og kun et) GeometriObjekt til punktet"
-                )
-
-        self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
-
-        for punkt in punkter:
-            punkt.sagsevent = sagsevent
-            for geometriobjekt in punkt.geometriobjekter:
-                if not self._is_new_object(geometriobjekt):
-                    raise Exception(
-                        "Punktet kan ikke henvise til et eksisterende GeometriObjekt"
-                    )
-                geometriobjekt.sagsevent = sagsevent
-            for punktinformation in punkt.punktinformationer:
-                if not self._is_new_object(punktinformation):
-                    raise Exception(
-                        "Punktet kan ikke henvise til et eksisterende PunktInformation objekt"
-                    )
-                punktinformation.sagsevent = sagsevent
-            self.session.add(punkt)
-
-        self.session.commit()
-
-    def indset_punkt(self, sagsevent: Sagsevent, punkt: Punkt):
-        if not self._is_new_object(punkt):
-            raise Exception(f"Punkt er allerede tilføjet databasen: {punkt}")
-        if len(punkt.geometriobjekter) != 1:
-            raise Exception(
-                "Der skal tilføjes et (og kun et) GeometriObjekt til punktet"
-            )
-        self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
-        punkt.sagsevent = sagsevent
-        for geometriobjekt in punkt.geometriobjekter:
-            if not self._is_new_object(geometriobjekt):
-                raise Exception(
-                    "Punktet kan ikke henvise til et eksisterende GeometriObjekt"
-                )
-            geometriobjekt.sagsevent = sagsevent
-        for punktinformation in punkt.punktinformationer:
-            if not self._is_new_object(punktinformation):
-                raise Exception(
-                    "Punktet kan ikke henvise til et eksisterende PunktInformation objekt"
-                )
-            punktinformation.sagsevent = sagsevent
-        self.session.add(punkt)
-        self.session.commit()
-
-    def indset_punktinformation(
-        self, sagsevent: Sagsevent, punktinformation: PunktInformation
-    ):
-        if not self._is_new_object(punktinformation):
-            raise Exception(
-                f"PunktInformation allerede tilføjet databasen: {punktinformation}"
-            )
-        self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKTINFO_TILFOEJET)
-        punktinformation.sagsevent = sagsevent
-        self.session.add(punktinformation)
-        self.session.commit()
-
-    def indset_punktinformationtype(self, punktinfotype: PunktInformationType):
-        if not self._is_new_object(punktinfotype):
-            raise Exception(
-                f"PunktInformationType allerede tilføjet databasen: {punktinfotype}"
-            )
-        n = self.session.query(func.max(PunktInformationType.infotypeid)).one()[0]
-        if n is None:
-            n = 0
-        punktinfotype.infotypeid = n + 1
-        self.session.add(punktinfotype)
-        self.session.commit()
-
-    def indset_observation(self, sagsevent: Sagsevent, observation: Observation):
-        if not self._is_new_object(observation):
-            raise Exception(f"Observation allerede tilføjet databasen: {observation}")
-        self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
-        observation.sagsevent = sagsevent
-        self.session.add(observation)
-        self.session.commit()
-
-    def indset_observationstype(self, observationstype: ObservationsType):
-        if not self._is_new_object(observationstype):
-            raise Exception(
-                f"ObservationsType allerede tilføjet databasen: {observationstype}"
-            )
-        n = self.session.query(func.max(ObservationsType.observationstypeid)).one()[0]
-        if n is None:
-            n = 0
-        observationstype.observationstypeid = n + 1
-        self.session.add(observationstype)
-        self.session.commit()
-
-    def indset_beregning(self, sagsevent: Sagsevent, beregning: Beregning):
-        if not self._is_new_object(beregning):
-            raise Exception(f"Beregning allerede tilføjet datbasen: {beregning}")
-
-        self._check_and_prepare_sagsevent(sagsevent, EventType.KOORDINAT_BEREGNET)
-        beregning.sagsevent = sagsevent
-        for koordinat in beregning.koordinater:
-            if not self._is_new_object(koordinat):
-                raise Exception(f"Koordinat allerede tilføjet datbasen: {koordinat}")
-            koordinat.sagsevent = sagsevent
-        self.session.add(beregning)
-        self.session.commit()
-
-    def indset_srid(self, srid: Srid):
-        if not self._is_new_object(srid):
-            raise Exception(f"Srid allerede tilføjet datbasen: {srid}")
-
-        n = self.session.query(func.max(Srid.sridid)).one()[0]
-        if n is None:
-            n = 0
-        srid.sridid = n + 1
-        self.session.add(srid)
-        self.session.commit()
-
-    # endregion
-
-    # region "luk" methods
-
-    def luk_sag(self, sag: Sag):
-        """Sætter en sags status til inaktiv"""
-        if not isinstance(sag, Sag):
-            raise TypeError("'sag' er ikke en instans af Sag")
-
-        current = sag.sagsinfos[-1]
-        new = Sagsinfo(
-            aktiv="false",
-            journalnummer=current.journalnummer,
-            behandler=current.behandler,
-            beskrivelse=current.beskrivelse,
-            sag=sag,
-        )
-        self.session.add(new)
-        self.session.commit()
-
-    def luk_punkt(self, punkt: Punkt, sagsevent: Sagsevent):
-        """
-        Luk et punkt.
-
-        Lukker udover selve punktet også tilhørende geometriobjekt,
-        koordinater og punktinformationer. Alle lukkede objekter tilknyttes
-        samme sagsevent af typen EventType.PUNKT_NEDLAGT.
-
-        Dette er den ultimative udrensning. BRUG MED OMTANKE!
-        """
-        if not isinstance(punkt, Punkt):
-            raise TypeError("'punkt' er ikke en instans af Punkt")
-
-        sagsevent.eventtype = EventType.PUNKT_NEDLAGT
-        self._luk_fikspunkregisterobjekt(punkt, sagsevent, commit=False)
-        self._luk_fikspunkregisterobjekt(
-            punkt.geometriobjekter[-1], sagsevent, commit=False
-        )
-
-        for koordinat in punkt.koordinater:
-            self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
-
-        for punktinfo in punkt.punktinformationer:
-            self._luk_fikspunkregisterobjekt(punktinfo, sagsevent, commit=False)
-
-        for observation in punkt.observationer_fra:
-            self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=False)
-
-        for observation in punkt.observationer_til:
-            self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=False)
-
-        self.session.commit()
-
-    def luk_koordinat(self, koordinat: Koordinat, sagsevent: Sagsevent):
-        """
-        Luk en koordinat.
-
-        Hvis ikke allerede sat, ændres sagseventtypen til EventType.KOORDINAT_NEDLAGT.
-        """
-        if not isinstance(koordinat, Koordinat):
-            raise TypeError("'koordinat' er ikke en instans af Koordinat")
-
-        sagsevent.eventtype = EventType.KOORDINAT_NEDLAGT
-        self._luk_fikspunkregisterobjekt(koordinat, sagsevent)
-
-    def luk_observation(self, observation: Observation, sagsevent: Sagsevent):
-        """
-        Luk en observation.
-
-        Hvis ikke allerede sat, ændres sagseventtypen til EventType.OBSERVATION_NEDLAGT.
-        """
-        if not isinstance(observation, Observation):
-            raise TypeError("'observation' er ikk en instans af Observation")
-
-        sagsevent.eventtype = EventType.OBSERVATION_NEDLAGT
-        self._luk_fikspunkregisterobjekt(observation, sagsevent)
-
-    def luk_punktinfo(self, punktinfo: PunktInformation, sagsevent: Sagsevent):
-        """
-        Luk en punktinformation.
-
-        Hvis ikke allerede sat, ændres sagseventtypen til EventType.PUNKTINFO_FJERNET.
-        """
-        if not isinstance(punktinfo, PunktInformation):
-            raise TypeError("'punktinfo' er ikke en instans af PunktInformation")
-
-        sagsevent.eventtype = EventType.PUNKTINFO_FJERNET
-        self._luk_fikspunkregisterobjekt(punktinfo, sagsevent)
-
-    def luk_beregning(self, beregning: Beregning, sagsevent: Sagsevent):
-        """
-        Luk en beregning.
-
-        Lukker alle koordinater der er tilknyttet beregningen.
-        Hvis ikke allerede sat, ændres sagseventtypen til EventType.KOORDINAT_NEDLAGT.
-        """
-        if not isinstance(beregning, Beregning):
-            raise TypeError("'beregning' er ikke en instans af Beregning")
-
-        sagsevent.eventtype = EventType.KOORDINAT_NEDLAGT
-        for koordinat in beregning.koordinater:
-            self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
-        self._luk_fikspunkregisterobjekt(beregning, sagsevent, commit=False)
-        self.session.commit()
+        return punktinfo
 
     @property
     def basedir_skitser(self):
@@ -704,73 +263,12 @@ class FireDb(object):
 
         return [løbenummer for løbenummer in self.session.execute(sql)]
 
-    def tilknyt_landsnumre(
-        self, punkter: List[Punkt], fikspunktstyper: List[FikspunktsType],
-    ) -> List[PunktInformation]:
-        """
-        Tilknytter et landsnummer til punktet hvis der ikke findes et i forvejen.
-
-        Returnerer en liste med IDENT:landsnr PunktInformation'er for alle de fikspunkter i
-        `punkter` som ikke i forvejen har et landsnummer. Hvis alle fikspunkter i `punkter`
-        allerede har et landsnummer returneres en tom liste.
-
-        Kun punkter i Danmark kan tildeles et landsnummer. Det forudsættes at punktet
-        har et tilhørende geometriobjekt og er indlæst i databasen i forvejen.
-        """
-
-        landsnr = self.hent_punktinformationtype("IDENT:landsnr")
-
-        uuider = []
-        punkttyper = {}
-        for punkt, fikspunktstype in zip(punkter, fikspunktstyper):
-            if not punkt.geometri:
-                raise AttributeError("Geometriobjekt ikke tilknyttet Punkt")
-
-            # Ignorer punkter, der allerede har et landsnummer
-            if landsnr in [pi.infotype for pi in punkt.punktinformationer]:
-                continue
-            uuider.append(f"'{punkt.id}'")
-            punkttyper[punkt.id] = fikspunktstype
-
-        if not uuider:
-            return []
-
-        distrikter = self._opmålingsdistrikt_fra_punktid(uuider)
-
-        distrikt_punkter = {}
-        for (distrikt, pktid) in distrikter:
-            if distrikt not in distrikt_punkter.keys():
-                distrikt_punkter[distrikt] = []
-            distrikt_punkter[distrikt].append(pktid)
-
-        landsnumre = {}
-        for distrikt, pkt_ider in distrikt_punkter.items():
-            brugte_løbenumre = self._løbenumre_i_distrikt(distrikt)
-
-            for punktid in pkt_ider:
-                for kandidat in self._generer_tilladte_løbenumre(punkttyper[punktid]):
-                    if kandidat in brugte_løbenumre:
-                        continue
-
-                    landsnumre[punktid] = f"{distrikt}-{kandidat}"
-                    brugte_løbenumre.append(kandidat)
-                    break
-
-        punktinfo = []
-        for punktid, landsnummer in landsnumre.items():
-            pi = PunktInformation(punktid=punktid, infotype=landsnr, tekst=landsnummer)
-            punktinfo.append(pi)
-
-        return punktinfo
-
     def _hent_konfiguration(self):
         return (
             self.session.query(Konfiguration)
             .filter(Konfiguration.objektid == 1)
             .first()
         )
-
-    # region Private methods
 
     def _luk_fikspunkregisterobjekt(
         self, objekt: FikspunktregisterObjekt, sagsevent: Sagsevent, commit: bool = True
@@ -906,5 +404,3 @@ class FireDb(object):
         port = self.config.get("connection", "port", fallback=1521)
 
         return f"{username}:{password}@{hostname}:{port}/{database}"
-
-    # endregion
