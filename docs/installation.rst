@@ -20,46 +20,19 @@ Installation
 Der er en række trin der skal gennemføres for at få en komplet installation.
 Herunder tager vi dem et ad gangen
 
+Git
+++++
+
+Installer Git fra Software Centeret. Åben "Software Center" via Startmenuen. Søg
+efter "git" og installer det.
+
 Oracle Instantclient
 ++++++++++++++++++++
 
-Download "Basic package" fra denne side:
-https://www.oracle.com/database/technologies/instant-client/winx64-64-downloads.html
-
-Pak den downloadede zip-fil ud i ``C:\oracle\``. Det skulle gerne resultere i en
-mappe på placeringen ``C:\oracle\Instantclient_19_6`` som indeholder en masse
-``*.dll``-filer og lignende.
-
-Herefter skal miløvariablen ``%PATH%`` tilpasses. I Start-menuens søgefelt skrives
-"miljøvariable", hvilken gerne skulle resultere i et enkelt resultat: "Rediger
-miljøvariabler for din konto". Åben dialogboksen.
-
-.. figure:: ./images/envvar.png
-   :align: center
-   :alt:   Rediger miljøvariable
-
-   Rediger miljøvariable
-
-I miljøvariabeldialogboksen skal variablen "Path" ændres.
-
-.. figure:: ./images/path1.png
-   :align: center
-   :alt:   Rediger Path
-
-   Rediger Path
-
-Herefter tilføjes en ny sti til "Path" ved at trykke på "Ny":
-
-.. figure:: ./images/path1.png
-   :align: center
-   :alt:   Tilføj Instantclient til Path
-
-   Tilføj Instantclient til Path
-
-Indsæt stien hvor du har gemt Oracle Instantclient, eksempelvis
-``C:\oracle\instantclient_19_6`` (bemærk at versionsnummeret kan være
-anderledes hos dig). Klik "OK" i de to vinduer og fortsæt til næste
-afsnit.
+Installer Oracle instantclient fra Software Centeret. Åben "Software Center" via Startmenuen.
+Søg efter "Oracle", der dukker flere muligheder op. Den korrekte er
+"Oracle 12.1.0.1 Client 64bit - Install" (versionsnummeret er muligvis anderledes). Følg
+instruktionerne på skærmen.
 
 Conda
 +++++
@@ -94,7 +67,9 @@ den med git::
 Initialiser et "conda environment" til FIRE::
 
     > cd FIRE
-    > conda env create --file environment.yml -y
+    > conda env create --file environment.yml
+
+Vær tålmodig, det kan godt tage lang tid.
 
 Gør som ``conda`` siger og aktiver dit nye "fire environment"::
 
