@@ -361,8 +361,8 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
             sigma = float(punkter.at[i, "σ"])
         else:
             fastholdt = False
-            delta = float(punkter.at[i, "Δ"])
-            kote = float(punkter.at[i, "ny"])
+            delta = float(punkter.at[i, "Δ-kote"])
+            kote = float(punkter.at[i, "ny kote"])
             sigma = float(punkter.at[i, "ny σ"])
 
         # Endnu uberegnede punkter
@@ -411,13 +411,13 @@ def opbyg_punktoversigt(
         columns=[
             "punkt",
             "fix",
-            "upub",
+            "hold",
             "år",
             "kote",
             "σ",
-            "ny",
+            "ny kote",
             "ny σ",
-            "Δ",
+            "Δ-kote",
             "kommentar",
             "φ",
             "λ",
@@ -585,7 +585,7 @@ def netanalyse(
 def spredning(
     afstand_i_m: float, slope_i_mm_pr_sqrt_km: float = 0.6, bias: float = 0.0005
 ) -> float:
-    return 0.001 * (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias)
+    return (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias) * 1.0
 
 
 # ------------------------------------------------------------------------------
@@ -634,8 +634,8 @@ def gama_beregning(
 
         # Fastholdte punkter
         gamafil.write("\n\n<!-- Fixed -->\n\n")
-        for key, val in fastholdte.items():
-            gamafil.write(f"<point fix='Z' id='{key}' z='{val}'/>\n")
+        for punkt, kote in fastholdte.items():
+            gamafil.write(f"<point fix='Z' id='{punkt}' z='{kote}'/>\n")
 
         # Punkter til udjævning
         gamafil.write("\n\n<!-- Adjusted -->\n\n")
@@ -643,21 +643,20 @@ def gama_beregning(
             gamafil.write(f"<point adj='z' id='{punkt}'/>\n")
 
         # Observationer
-        gamafil.write("\n\n<height-differences>\n\n")
-        for obs in observationer[
-            ["fra", "til", "sluk", "dH", "L", "σ", "journal"]
-        ].values:
-            if not pd.isna(obs[2]):
+        gamafil.write("<height-differences>\n")
+        for obs in observationer.itertuples(index=False):
+            if not pd.isna(obs.sluk):
                 fire.cli.print(f"Slukket {obs}")
                 continue
-            if (obs[0] in fastholdte) and (obs[1] in fastholdte):
+            # Det er sandsynligt at vi bør bevare disse, for at sikre netsammenhængen
+            if (obs.fra in fastholdte) and (obs.til in fastholdte):
                 fire.cli.print(f"Udeladt {obs}")
                 continue
             gamafil.write(
-                f"<dh from='{obs[0]}' to='{obs[1]}' "
-                f"val='{obs[3]:+.6f}' "
-                f"dist='{obs[4]/1000:.5f}' stdev='{1000*spredning(obs[4], obs[5]):.5f}' "
-                f"extern='{obs[6]:.1f}'/>\n"
+                f"<dh from='{obs.fra}' to='{obs.til}' "
+                f"val='{obs.dH:+.6f}' "
+                f"dist='{obs.L:.5f}' stdev='{spredning(obs.L, obs.σ, obs.δ):.5f}' "
+                f"extern='{obs.journal:.1f}'/>\n"
             )
 
         # Postambel
@@ -711,15 +710,15 @@ def gama_beregning(
     # ----------------------------------------------
     punktoversigt = punktoversigt.set_index("punkt")
     for index in range(len(punkter)):
-        punktoversigt.at[punkter[index], "ny"] = koter[index]
+        punktoversigt.at[punkter[index], "ny kote"] = koter[index]
         punktoversigt.at[punkter[index], "ny σ"] = sqrt(varianser[index])
     punktoversigt = punktoversigt.reset_index()
 
     # Ændring i millimeter...
-    d = list(abs(punktoversigt["kote"] - punktoversigt["ny"]) * 1000)
+    d = list(abs(punktoversigt["kote"] - punktoversigt["ny kote"]) * 1000)
     # ...men vi ignorerer ændringer under mikrometerniveau
     dd = [e if e > 0.001 else None for e in d]
-    punktoversigt["Δ"] = dd
+    punktoversigt["Δ-kote"] = dd
     return punktoversigt
 
 
@@ -865,7 +864,7 @@ def regn(projektnavn: str, **kwargs) -> None:
     # ------------------------------------------------------
     try:
         punktoversigt = pd.read_excel(
-            f"{projektnavn}.xlsx", sheet_name="Punktoversigt", usecols="A:L"
+            f"{projektnavn}.xlsx", sheet_name="Punktoversigt", usecols="A:M"
         )
     except:
         fire.cli.print(f"Der er ingen punktoversigt i '{projektnavn}.xlsx'")
@@ -873,6 +872,7 @@ def regn(projektnavn: str, **kwargs) -> None:
             f"- har du glemt at kopiere den fra '{projektnavn}-resultat.xlsx'?"
         )
         sys.exit(1)
+    punktoversigt["uuid"] = ""
 
     # Har vi alle punkter med i punktoversigten?
     punkter_i_oversigt = set(punktoversigt["punkt"])
