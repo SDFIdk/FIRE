@@ -313,7 +313,9 @@ def punkt_fuld_rapport(
 )
 @fire.cli.default_options()
 @click.argument("ident")
-def punkt(ident: str, obs: str, koord: str, detaljeret: bool, antal: int, **kwargs) -> None:
+def punkt(
+    ident: str, obs: str, koord: str, detaljeret: bool, antal: int, **kwargs
+) -> None:
     """
     Vis al tilgængelig information om et fikspunkt
 
@@ -406,11 +408,14 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, antal: int, **kwar
     # Succesfuld søgning - vis hvad der blev fundet
     n = len(punkter)
     for i, punkt in enumerate(punkter):
-        if i==antal:
+        if i == antal:
             break
         punkt_fuld_rapport(punkt, punkt.ident, i + 1, n, obs, koord, detaljeret)
-    if (n > antal):
-        fire.cli.print(f"Yderligere {n-antal} punkter fundet. Brug tilvalg '-n {n}' for at vise alle.")
+    if n > antal:
+        fire.cli.print(
+            f"Yderligere {n-antal} punkter fundet. Brug tilvalg '-n {n}' for at vise alle."
+        )
+
 
 @info.command()
 @click.option(

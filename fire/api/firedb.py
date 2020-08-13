@@ -117,7 +117,6 @@ class FireDb(object):
             .all()
         )
 
-
     def soeg_punkter(self, ident: str) -> List[Punkt]:
         """
         Returnerer alle punkter der 'like'-matcher 'ident'
@@ -139,7 +138,6 @@ class FireDb(object):
         if not result:
             raise NoResultFound
         return result
-
 
     def tilknyt_landsnumre(
         self, punkter: List[Punkt], fikspunktstyper: List[FikspunktsType],
