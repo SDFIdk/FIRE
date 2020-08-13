@@ -317,6 +317,9 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
     punktummer og manglende foranstillede nuller, i ofte forekommende, let
     genkendelige tilfælde (GNSS-id, GI/GM-numre, lands- og købstadsnumre).
 
+    Hvis der indgår procenttegn i det søgte punktnavn opfattes disse som
+    jokertegn, og søgningen returnerer alle punkter der matcher mønstret.
+
     Punkt-klassen er omfattende og består af følgende elementer:
 
     Punkt = Punkt(\n
@@ -385,7 +388,10 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
         ident = ident.replace("GM", "G.M.", 1)
 
     try:
-        punkter = firedb.hent_punkter(ident)
+        if ('%' in ident):
+            punkter = firedb.hent_punkter_med_jokertegn(ident)
+        else:
+            punkter = firedb.hent_punkter(ident)
     except NoResultFound:
         fire.cli.print(f"Fejl: Kunne ikke finde {ident}.", fg="red", err=True)
         sys.exit(1)

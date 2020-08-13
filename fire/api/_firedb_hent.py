@@ -99,6 +99,29 @@ def hent_punkter(self, ident: str) -> List[Punkt]:
     return result
 
 
+def hent_punkter_med_jokertegn(self, ident: str) -> List[Punkt]:
+    """
+    Returnerer alle punkter der 'like'-matcher 'ident'
+
+    Hvis intet punkt findes udsendes en NoResultFound exception.
+    """
+    result = (
+        self.session.query(Punkt)
+        .join(PunktInformation)
+        .join(PunktInformationType)
+        .filter(
+            PunktInformationType.name.startswith("IDENT:"),
+            PunktInformation.tekst.like(ident),
+            Punkt._registreringtil == None,  # NOQA
+        )
+        .all()
+    )
+
+    if not result:
+        raise NoResultFound
+    return result
+
+
 def hent_alle_punkter(self) -> List[Punkt]:
     return self.session.query(Punkt).all()
 

@@ -70,6 +70,7 @@ class FireDb(object):
         hent_punkt,
         hent_punkt_liste,
         hent_punkter,
+        hent_punkter_med_jokertegn,
         hent_geometri_objekt,
         hent_alle_punkter,
         hent_sag,
