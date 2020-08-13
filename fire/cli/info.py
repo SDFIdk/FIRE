@@ -397,10 +397,7 @@ def punkt(
         ident = ident.replace("GM", "G.M.", 1)
 
     try:
-        if "%" in ident:
-            punkter = firedb.soeg_punkter(ident)
-        else:
-            punkter = firedb.hent_punkter(ident)
+        punkter = firedb.hent_punkter(ident)
     except NoResultFound:
         fire.cli.print(f"Fejl: Kunne ikke finde {ident}.", fg="red", err=True)
         sys.exit(1)
