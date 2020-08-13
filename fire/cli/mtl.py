@@ -1210,6 +1210,43 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
         f"Punkter oprettet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
     )
 
+# ------------------------------------------------------------------------------
+# Her starter punktrevisionsprogrammet
+# ------------------------------------------------------------------------------
+@mtl.command()
+@fire.cli.default_options()
+@click.argument(
+    "projektnavn", nargs=1, type=str,
+)
+@click.argument('opmålingsdistrikter', nargs=-1)
+def udtræk_revision(projektnavn: str, opmålingsdistrikter: Tuple[str], **kwargs) -> None:
+    """Gør klar til punktrevision: Udtræk eksisterende information."""
+
+    fire.cli.print("Udtrækker punktinformation til revision")
+    for distrikt in opmålingsdistrikter:
+        fire.cli.print(f"Behandler distrikt {distrikt}")
+        try:
+            punkter = firedb.hent_punkter(distrikt)
+        except NoResultFound:
+            punkter = []
+        fire.cli.print(f"Der er {len(punkter)} punkter i distrikt {distrikt}")
+
+        for punkt in punkter:
+            fire.cli.print(f"{punkt.ident}")
+            navne = [i.infotype.name for i in punkt.punktinformationer if i.registreringtil is None]
+            print(f"navne: {navne}")
+            for info in punkt.punktinformationer:
+                if info.registreringtil is not None:
+                    continue
+                tekst = info.tekst or ""
+                # efter mellemrum rykkes teksten ind på linje med resten af
+                # attributteksten
+                tekst = tekst.replace("\n", "\n" + " " * 30).replace("\r", "").rstrip(" \n")
+                tal = info.tal or None
+                fire.cli.print(f"\n{info.infotype.name:27} {tekst or ''}{tal or ''}")
+                fire.cli.print(repr(info))
+
+        # udtræk geometri, beskrivelse, højde over terræn, afmærkning, oprettelsesdato, gnss_egnet
 
 # ------------------------------------------------------------------------------
 # Her starter sagsoprettelsesprogrammet
