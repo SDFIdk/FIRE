@@ -15,6 +15,7 @@ from fire.api.model import (
     FikspunktregisterObjekt,
     Punkt,
     PunktInformation,
+    PunktInformationType,
     GeometriObjekt,
     Konfiguration,
     Observation,
@@ -115,6 +116,28 @@ class FireDb(object):
             .filter(func.sdo_filter(GeometriObjekt.geometri, bbox) == "TRUE")
             .all()
         )
+
+    def soeg_punkter(self, ident: str) -> List[Punkt]:
+        """
+        Returnerer alle punkter der 'like'-matcher 'ident'
+
+        Hvis intet punkt findes udsendes en NoResultFound exception.
+        """
+        result = (
+            self.session.query(Punkt)
+            .join(PunktInformation)
+            .join(PunktInformationType)
+            .filter(
+                PunktInformationType.name.startswith("IDENT:"),
+                PunktInformation.tekst.like(ident),
+                Punkt._registreringtil == None,  # NOQA
+            )
+            .all()
+        )
+
+        if not result:
+            raise NoResultFound
+        return result
 
     def tilknyt_landsnumre(
         self, punkter: List[Punkt], fikspunktstyper: List[FikspunktsType],

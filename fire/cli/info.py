@@ -304,9 +304,18 @@ def punkt_fuld_rapport(
     default=False,
     help="Udskriv også sjældent anvendte elementer",
 )
+@click.option(
+    "-n",
+    "--antal",
+    is_flag=False,
+    default=20,
+    help="Begræns antallet af punkter der udskrives",
+)
 @fire.cli.default_options()
 @click.argument("ident")
-def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
+def punkt(
+    ident: str, obs: str, koord: str, detaljeret: bool, antal: int, **kwargs
+) -> None:
     """
     Vis al tilgængelig information om et fikspunkt
 
@@ -316,6 +325,9 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
     Søgningen er delvist versalfølsom, men tager højde for minuskler, udeladte
     punktummer og manglende foranstillede nuller, i ofte forekommende, let
     genkendelige tilfælde (GNSS-id, GI/GM-numre, lands- og købstadsnumre).
+
+    Hvis der indgår procenttegn i det søgte punktnavn opfattes disse som
+    jokertegn, og søgningen returnerer alle punkter der matcher mønstret.
 
     Punkt-klassen er omfattende og består af følgende elementer:
 
@@ -393,7 +405,13 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
     # Succesfuld søgning - vis hvad der blev fundet
     n = len(punkter)
     for i, punkt in enumerate(punkter):
+        if i == antal:
+            break
         punkt_fuld_rapport(punkt, punkt.ident, i + 1, n, obs, koord, detaljeret)
+    if n > antal:
+        fire.cli.print(
+            f"Yderligere {n-antal} punkter fundet. Brug tilvalg '-n {n}' for at vise alle."
+        )
 
 
 @info.command()
