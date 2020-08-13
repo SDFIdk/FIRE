@@ -388,7 +388,7 @@ def punkt(ident: str, obs: str, koord: str, detaljeret: bool, **kwargs) -> None:
         ident = ident.replace("GM", "G.M.", 1)
 
     try:
-        if ('%' in ident):
+        if "%" in ident:
             punkter = firedb.hent_punkter_med_jokertegn(ident)
         else:
             punkter = firedb.hent_punkter(ident)
