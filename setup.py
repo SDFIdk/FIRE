@@ -63,5 +63,6 @@ setup(
         gama=fire.cli.gama:gama
         mark=fire.cli.mark:mark
         mtl=fire.cli.mtl:mtl
+        søg=fire.cli.søg:søg
     """,
 )

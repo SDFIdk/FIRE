@@ -8,6 +8,7 @@ import getpass
 
 from sqlalchemy import create_engine, func, event, and_, inspect
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 
 from fire.api.model import (
@@ -117,7 +118,7 @@ class FireDb(object):
             .all()
         )
 
-    def soeg_punkter(self, ident: str) -> List[Punkt]:
+    def soeg_punkter(self, ident: str, antal: int = None) -> List[Punkt]:
         """
         Returnerer alle punkter der 'like'-matcher 'ident'
 
@@ -129,9 +130,11 @@ class FireDb(object):
             .join(PunktInformationType)
             .filter(
                 PunktInformationType.name.startswith("IDENT:"),
-                PunktInformation.tekst.like(ident),
+                PunktInformation.tekst.ilike(ident),
                 Punkt._registreringtil == None,  # NOQA
             )
+            .order_by(PunktInformation.tekst)
+            .limit(antal)
             .all()
         )
 

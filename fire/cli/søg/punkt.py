@@ -1,0 +1,41 @@
+import re
+
+import click
+
+import fire.cli
+from fire.cli import firedb
+from . import søg
+
+
+@søg.command()
+@click.argument("ident")
+@click.option(
+    "-n",
+    "--antal",
+    default=20,
+    type=int,
+    help="Begræns antallet af fundne søgeresultater",
+)
+def punkt(ident: str, antal: int):
+    """
+    Søg efter et punkt ud fra dets ident
+
+    Søgeudtryk kan præciseres med wildcards givet ved %. Hvis ingen
+    wildcards angives søges automatisk efter "%IDENT%". Der skælnes
+    ikke mellem små og store bogstaver.
+
+    Antallet af søgeresultater begrænses som standard til 20.
+    """
+    if "%" not in ident:
+        ident = f"%{ident}%"
+
+    ident_pattern = ident.replace("%", ".*")
+
+    punkter = firedb.soeg_punkter(ident, antal)
+    for punkt in punkter:
+        for ident in punkt.identer:
+            if re.match(ident_pattern, ident):
+                fire.cli.print(f"{ident:20}", bold=True, fg="green", nl=False)
+            else:
+                fire.cli.print(f"{ident:20}", nl=False)
+        fire.cli.print(nl=True)
