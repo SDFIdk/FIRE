@@ -1285,6 +1285,8 @@ def udtræk_revision(
                     ignore_index=True,
                 )
 
+            revisionsinfo = revisionsinfo.append({}, ignore_index=True)
+
     resultater = {}
     resultater["Revision"] = revisionsinfo
 
