@@ -1212,6 +1212,8 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
 
 # ------------------------------------------------------------------------------
 # Her starter punktrevisionsprogrammet
+#
+# fx fire mtl udtræk-revision ost K-07 11-08
 # ------------------------------------------------------------------------------
 @mtl.command()
 @fire.cli.default_options()
@@ -1223,36 +1225,62 @@ def udtræk_revision(projektnavn: str, opmålingsdistrikter: Tuple[str], **kwarg
     """Gør klar til punktrevision: Udtræk eksisterende information."""
 
     revisionsinfo = pd.DataFrame(
-        columns=("Punkt", "Sluk", "Ny", "Type", "Navn", "Talværdi", "Tekstværdi", "id")
-    ).astype({"Type": np.int64, "Talværdi": float, "id": np.int64})
+        columns=("Punkt", "Sluk", "Ny", "Navn", "Talværdi", "Tekstværdi", "id")
+    ).astype({"Talværdi": float, "id": np.int64})
+
+    pit_landsnr = firedb.hent_punktinformationtype("IDENT:landsnr")
 
     fire.cli.print("Udtrækker punktinformation til revision")
     for distrikt in opmålingsdistrikter:
         fire.cli.print(f"Behandler distrikt {distrikt}")
         try:
-            punkter = firedb.soeg_punkter(distrikt)
+            punkter = firedb.soeg_punkter(f"{distrikt}%")
         except NoResultFound:
             punkter = []
         fire.cli.print(f"Der er {len(punkter)} punkter i distrikt {distrikt}")
 
         for punkt in punkter:
             ident = punkt.ident
-            fire.cli.print(f"{ident}")
-            navne = [i.infotype.name for i in punkt.punktinformationer if i.registreringtil is None]
-            print(f"navne: {navne}")
+            infotypenavne = [i.infotype.name for i in punkt.punktinformationer]
+
+            if ('ATTR:tabtgået' in infotypenavne):
+                continue
+            if ('ATTR:hjælpepunkt' in infotypenavne):
+                continue
+
+            # Hvis punktet har et landsnummer kan vi bruge det til at frasortere irrelevante punkter
+            if ("IDENT:landsnr" in infotypenavne):
+                landsnrinfo = punkt.punktinformationer[infotypenavne.index('IDENT:landsnr')]
+                landsnr = landsnrinfo.tekst
+                løbenr = landsnr.split("-")[-1]
+
+            # Frasorter numeriske løbenumre udenfor 1-10, 801-999, 9001-19999
+            if (løbenr.isnumeric()):
+                i = int(løbenr)
+                if (10 < i < 801):
+                    continue
+                if (1000 < i < 9001):
+                    continue
+                if (i > 20000):
+                    continue
+            fire.cli.print(f"Punkt: {ident}")
             for info in punkt.punktinformationer:
                 if info.registreringtil is not None:
-                    continue
+                   continue
                 tekst = info.tekst
-                # efter mellemrum rykkes teksten ind på linje med resten af
-                # attributteksten
                 tal = info.tal
-                fire.cli.print(f"\n{info.infotype.name:27} {tekst or ''}{tal or ''}")
-                revisionsinfo.append(
-                    ()
+                revisionsinfo = revisionsinfo.append(
+                    {"Punkt": ident, "Sluk": "", "Ny": "", "Navn": info.infotype.name, "Talværdi": tal, "Tekstværdi": tekst, "id": info.objektid},
+                    ignore_index = True
                 )
 
-        # udtræk geometri, beskrivelse, højde over terræn, afmærkning, oprettelsesdato, gnss_egnet
+    resultater = {}
+    resultater["Revision"] = revisionsinfo
+
+    skriv_resultater(projektnavn, resultater)
+    fire.cli.print("Den er Orla Porla!")
+    print(revisionsinfo)
+
 
 # ------------------------------------------------------------------------------
 # Her starter sagsoprettelsesprogrammet
