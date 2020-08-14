@@ -1222,29 +1222,35 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
 def udtræk_revision(projektnavn: str, opmålingsdistrikter: Tuple[str], **kwargs) -> None:
     """Gør klar til punktrevision: Udtræk eksisterende information."""
 
+    revisionsinfo = pd.DataFrame(
+        columns=("Punkt", "Sluk", "Ny", "Type", "Navn", "Talværdi", "Tekstværdi", "id")
+    ).astype({"Type": np.int64, "Talværdi": float, "id": np.int64})
+
     fire.cli.print("Udtrækker punktinformation til revision")
     for distrikt in opmålingsdistrikter:
         fire.cli.print(f"Behandler distrikt {distrikt}")
         try:
-            punkter = firedb.hent_punkter(distrikt)
+            punkter = firedb.soeg_punkter(distrikt)
         except NoResultFound:
             punkter = []
         fire.cli.print(f"Der er {len(punkter)} punkter i distrikt {distrikt}")
 
         for punkt in punkter:
-            fire.cli.print(f"{punkt.ident}")
+            ident = punkt.ident
+            fire.cli.print(f"{ident}")
             navne = [i.infotype.name for i in punkt.punktinformationer if i.registreringtil is None]
             print(f"navne: {navne}")
             for info in punkt.punktinformationer:
                 if info.registreringtil is not None:
                     continue
-                tekst = info.tekst or ""
+                tekst = info.tekst
                 # efter mellemrum rykkes teksten ind på linje med resten af
                 # attributteksten
-                tekst = tekst.replace("\n", "\n" + " " * 30).replace("\r", "").rstrip(" \n")
-                tal = info.tal or None
+                tal = info.tal
                 fire.cli.print(f"\n{info.infotype.name:27} {tekst or ''}{tal or ''}")
-                fire.cli.print(repr(info))
+                revisionsinfo.append(
+                    ()
+                )
 
         # udtræk geometri, beskrivelse, højde over terræn, afmærkning, oprettelsesdato, gnss_egnet
 
