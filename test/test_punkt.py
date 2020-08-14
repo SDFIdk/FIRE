@@ -1,6 +1,7 @@
 from typing import List
 from itertools import chain
 
+from sqlalchemy.orm.exc import NoResultFound
 import pytest
 
 from fire.api import FireDb
@@ -155,3 +156,16 @@ def test_hent_punkt_liste(firedb: FireDb):
         ["SKEJ", "RDIO", "ukendt_ident"], ignorer_ukendte=True
     )
     assert len(punkter) == 2
+
+
+def test_soeg_punkter(firedb: FireDb):
+    punkter = firedb.soeg_punkter("%rd%")
+
+    for punkt in punkter:
+        assert punkt.ident in ("RDIO", "RDO1")
+
+    kun_et_punkt = firedb.soeg_punkter("K-63-%", antal=1)
+    assert len(kun_et_punkt) == 1
+
+    with pytest.raises(NoResultFound):
+        firedb.soeg_punkter("punkt der ikke findes")
