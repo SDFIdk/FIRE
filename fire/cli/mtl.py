@@ -1210,6 +1210,7 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
         f"Punkter oprettet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
     )
 
+
 # ------------------------------------------------------------------------------
 # Her starter punktrevisionsprogrammet
 #
@@ -1220,15 +1221,15 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
 @click.argument(
     "projektnavn", nargs=1, type=str,
 )
-@click.argument('opmålingsdistrikter', nargs=-1)
-def udtræk_revision(projektnavn: str, opmålingsdistrikter: Tuple[str], **kwargs) -> None:
+@click.argument("opmålingsdistrikter", nargs=-1)
+def udtræk_revision(
+    projektnavn: str, opmålingsdistrikter: Tuple[str], **kwargs
+) -> None:
     """Gør klar til punktrevision: Udtræk eksisterende information."""
 
     revisionsinfo = pd.DataFrame(
         columns=("Punkt", "Sluk", "Ny", "Navn", "Talværdi", "Tekstværdi", "id")
     ).astype({"Talværdi": float, "id": np.int64})
-
-    pit_landsnr = firedb.hent_punktinformationtype("IDENT:landsnr")
 
     fire.cli.print("Udtrækker punktinformation til revision")
     for distrikt in opmålingsdistrikter:
@@ -1243,35 +1244,45 @@ def udtræk_revision(projektnavn: str, opmålingsdistrikter: Tuple[str], **kwarg
             ident = punkt.ident
             infotypenavne = [i.infotype.name for i in punkt.punktinformationer]
 
-            if ('ATTR:tabtgået' in infotypenavne):
+            if "ATTR:tabtgået" in infotypenavne:
                 continue
-            if ('ATTR:hjælpepunkt' in infotypenavne):
+            if "ATTR:hjælpepunkt" in infotypenavne:
                 continue
 
             # Hvis punktet har et landsnummer kan vi bruge det til at frasortere irrelevante punkter
-            if ("IDENT:landsnr" in infotypenavne):
-                landsnrinfo = punkt.punktinformationer[infotypenavne.index('IDENT:landsnr')]
+            if "IDENT:landsnr" in infotypenavne:
+                landsnrinfo = punkt.punktinformationer[
+                    infotypenavne.index("IDENT:landsnr")
+                ]
                 landsnr = landsnrinfo.tekst
                 løbenr = landsnr.split("-")[-1]
 
             # Frasorter numeriske løbenumre udenfor 1-10, 801-999, 9001-19999
-            if (løbenr.isnumeric()):
+            if løbenr.isnumeric():
                 i = int(løbenr)
-                if (10 < i < 801):
+                if 10 < i < 801:
                     continue
-                if (1000 < i < 9001):
+                if 1000 < i < 9001:
                     continue
-                if (i > 20000):
+                if i > 20000:
                     continue
             fire.cli.print(f"Punkt: {ident}")
             for info in punkt.punktinformationer:
                 if info.registreringtil is not None:
-                   continue
+                    continue
                 tekst = info.tekst
                 tal = info.tal
                 revisionsinfo = revisionsinfo.append(
-                    {"Punkt": ident, "Sluk": "", "Ny": "", "Navn": info.infotype.name, "Talværdi": tal, "Tekstværdi": tekst, "id": info.objektid},
-                    ignore_index = True
+                    {
+                        "Punkt": ident,
+                        "Sluk": "",
+                        "Ny": "",
+                        "Navn": info.infotype.name,
+                        "Talværdi": tal,
+                        "Tekstværdi": tekst,
+                        "id": info.objektid,
+                    },
+                    ignore_index=True,
                 )
 
     resultater = {}
