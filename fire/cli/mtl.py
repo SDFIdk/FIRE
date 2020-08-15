@@ -11,7 +11,7 @@ from itertools import chain
 from math import sqrt
 from pprint import pprint
 from typing import Dict, List, Set, Tuple
-from uuid import uuid4
+from fire import uuid
 
 # Tredjepartsafhængigheder
 import click
@@ -67,7 +67,58 @@ def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
 # ------------------------------------------------------------------------------
 @click.group()
 def mtl():
-    """Motoriseret trigonometrisk nivellement: Arbejdsflow, beregning og analyse"""
+    """Motoriseret trigonometrisk nivellement: Arbejdsflow, beregning og analyse
+
+    Underkommandoerne:
+
+        opret-sag
+
+        udtræk-revision
+
+        ilæg-revision
+
+        ilæg-nye-punkter
+
+        indlæs-observationer
+
+        beregn-nye-koter
+
+        ilæg-observationer
+
+        ilæg-koter
+
+        luk-sag
+
+    definerer, i den anførte rækkefølge, nogenlunde arbejdsskridtene i et
+    almindeligt opmålingsprojekt.
+
+    OPRET-SAG registrerer sagen (projektet) i databasen og skriver det regneark,
+    som bruges til at holde styr på arbejdet.
+
+    UDTRÆK-REVISION udtrækker oversigt over eksisterende punkter i det området,
+    til brug for punktrevision.
+
+    ILÆG-REVISION lægger opdaterede og nye punktattributter i databasen efter revision.
+
+    ILÆG-NYE-PUNKTER lægger oplysninger om nyoprettede punkter i databasen, og tildeler
+    bl.a. landsnumre til punkterne.
+
+    INDLÆS-OBSERVATIONER indlæser observationer fra råfilerne til regnearket og gør
+    observationerne klar til brug i beregninger.
+
+    BEREGN-NYE-KOTER beregner nye koter til alle punkter, og genererer rapporter og
+    visualiseringsmateriale.
+
+    ILÆG-OBSERVATIONER lægger nye observationer i databasen.
+
+    ILÆG-KOTER lægger nyberegnede koter i databasen.
+
+    LUK-SAG arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
+
+    (i skrivende stund er ILÆG-REVISION, ILÆG-OBSERVATIONER, ILÆG-KOTER og LUK-SAG
+    endnu ikke implementeret, og ILÆG-NYE-PUNKTER står for en større overhaling)
+
+    """
     pass
 
 
@@ -197,7 +248,7 @@ def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
         "λ": np.float64,
         "Foreløbig kote": np.float64,
         "Etableret dato": "string",
-        "Initialer": "string",
+        "Hvem": "string",
         "Beskrivelse": "string",
         "Afmærkning": "string",
         "Højde over terræn": np.float64,
@@ -211,7 +262,7 @@ def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
         "λ",
         "Foreløbig kote",
         "Etableret dato",
-        "Initialer",
+        "Hvem",
         "Beskrivelse",
         "Afmærkning",
         "Højde over terræn",
@@ -442,6 +493,8 @@ def opbyg_punktoversigt(
         )
         sys.exit(1)
 
+    print(f"ALLE PUNKTER: {alle_punkter}")
+    print(f"NYE PUNKTER: {nye_punkter}")
     for punkt in alle_punkter:
         if not pd.isna(punktoversigt.at[punkt, "kote"]):
             continue
@@ -773,7 +826,7 @@ def skriv_arbejdsark(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> N
 @click.argument(
     "projektnavn", nargs=1, type=str,
 )
-def indlæs(projektnavn: str, **kwargs) -> None:
+def indlæs_observationer(projektnavn: str, **kwargs) -> None:
     """Importer data fra observationsfiler og opbyg punktoversigt"""
     check_om_resultatregneark_er_lukket(projektnavn)
     fire.cli.print("Så kører vi")
@@ -823,7 +876,7 @@ def indlæs(projektnavn: str, **kwargs) -> None:
 @click.argument(
     "projektnavn", nargs=1, type=str,
 )
-def regn(projektnavn: str, **kwargs) -> None:
+def beregn_nye_koter(projektnavn: str, **kwargs) -> None:
     """Udfør netanalyse og beregn nye koter"""
     check_om_resultatregneark_er_lukket(projektnavn)
     fire.cli.print("Så regner vi")
@@ -968,12 +1021,12 @@ def find_alle_løbenumre_i_distrikt(distrikt: str) -> List[str]:
     "projektnavn", nargs=1, type=str,
 )
 @click.argument(
-    "initialer", nargs=1, type=str,
+    "sagsbehandler", nargs=1, type=str,
 )
-def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
+def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyoprettede punkter i databasen"""
     check_om_resultatregneark_er_lukket(projektnavn)
-    fire.cli.print("Så registrerer vi")
+    fire.cli.print("Lægger nye punkter i databasen")
     resultater = {}
 
     sagsgang = find_sagsgang(projektnavn)
@@ -1078,7 +1131,7 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
 
         # Skab nyt punktobjekt
         nyt_punkt = Punkt()
-        nyt_punkt.id = str(uuid4())
+        nyt_punkt.id = uuid()
 
         # Tilføj punktets lokation som geometriobjekt
         geo = GeometriObjekt()
@@ -1171,7 +1224,7 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
 
     # Generer sagsevent
     sagsevent = Sagsevent(sag=sag)
-    sagsevent.id = str(uuid4())
+    sagsevent.id = uuid()
     er = "er" if len(genererede_landsnumre) > 1 else ""
     sagseventtekst = f"Oprettelse af punkt{er} {', '.join(genererede_landsnumre)}"
     sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
@@ -1180,7 +1233,7 @@ def registrer_punkter(projektnavn: str, initialer: str, **kwargs) -> None:
     # Generer dokumentation til fanebladet "Sagsgang"
     sagsgangslinje = {}
     sagsgangslinje["Dato"] = pd.Timestamp.now()
-    sagsgangslinje["Initialer"] = initialer
+    sagsgangslinje["Hvem"] = sagsbehandler
     sagsgangslinje["Hændelse"] = "punktoprettelse"
     sagsgangslinje["Tekst"] = sagseventtekst
     sagsgangslinje["uuid"] = sagsevent.id
@@ -1228,8 +1281,27 @@ def udtræk_revision(
     """Gør klar til punktrevision: Udtræk eksisterende information."""
 
     revisionsinfo = pd.DataFrame(
-        columns=("Punkt", "Sluk", "Ny", "Navn", "Talværdi", "Tekstværdi", "id")
+        columns=("Punkt", "Sluk", "Attribut", "Talværdi", "Tekstværdi", "id")
     ).astype({"Talværdi": float, "id": np.int64})
+
+    # Punkter med bare EN af disse attributter ignoreres
+    uønskede_punkter = {
+        "ATTR:tabtgået",
+        "ATTR:hjælpepunkt",
+        "AFM:naturlig",
+        "ATTR:MV_punkt",
+    }
+
+    # Disse attributter indgår ikke i punktrevisionen
+    ignorerede_attributter = {
+        "REGION:DK",
+        "IDENT:refgeo_id",
+        "IDENT:station",
+        "NET:10KM",
+        "SKITSE:md5",
+        "ATTR:fundamentalpunkt",
+        "ATTR:tinglysningsnr",
+    }
 
     fire.cli.print("Udtrækker punktinformation til revision")
     for distrikt in opmålingsdistrikter:
@@ -1243,10 +1315,7 @@ def udtræk_revision(
         for punkt in punkter:
             ident = punkt.ident
             infotypenavne = [i.infotype.name for i in punkt.punktinformationer]
-
-            if "ATTR:tabtgået" in infotypenavne:
-                continue
-            if "ATTR:hjælpepunkt" in infotypenavne:
+            if not uønskede_punkter.isdisjoint(infotypenavne):
                 continue
 
             # Hvis punktet har et landsnummer kan vi bruge det til at frasortere irrelevante punkter
@@ -1270,14 +1339,18 @@ def udtræk_revision(
             for info in punkt.punktinformationer:
                 if info.registreringtil is not None:
                     continue
+                attributnavn = info.infotype.name
+                if attributnavn in ignorerede_attributter:
+                    continue
                 tekst = info.tekst
+                if tekst:
+                    tekst = tekst.strip()
                 tal = info.tal
                 revisionsinfo = revisionsinfo.append(
                     {
                         "Punkt": ident,
                         "Sluk": "",
-                        "Ny": "",
-                        "Navn": info.infotype.name,
+                        "Attribut": attributnavn,
                         "Talværdi": tal,
                         "Tekstværdi": tekst,
                         "id": info.objektid,
@@ -1285,6 +1358,8 @@ def udtræk_revision(
                     ignore_index=True,
                 )
 
+            # To blanklinjer efter hvert punktoversigt
+            revisionsinfo = revisionsinfo.append({}, ignore_index=True)
             revisionsinfo = revisionsinfo.append({}, ignore_index=True)
 
     resultater = {}
@@ -1292,7 +1367,6 @@ def udtræk_revision(
 
     skriv_resultater(projektnavn, resultater)
     fire.cli.print("Den er Orla Porla!")
-    print(revisionsinfo)
 
 
 # ------------------------------------------------------------------------------
@@ -1322,15 +1396,14 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
 
     sag = {
         "Dato": pd.Timestamp.now(),
-        "Initialer": sagsbehandler,
+        "Hvem": sagsbehandler,
         "Hændelse": "sagsoprettelse",
         "Tekst": beskrivelse,
-        "uuid": str(uuid4()),
+        "uuid": uuid(),
     }
     sagsgang = pd.DataFrame(
-        [sag], columns=("Dato", "Initialer", "Hændelse", "Tekst", "uuid"),
+        [sag], columns=("Dato", "Hvem", "Hændelse", "Tekst", "uuid"),
     )
-    print(sagsgang)
 
     fire.cli.print(
         f" BEKRÆFT: Opretter ny sag i FIRE databasen!!! ", bg="red", fg="white"
@@ -1357,17 +1430,6 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
 
     # Dummyopsætninger til sagsregnearkets sider
     forside = pd.DataFrame()
-    revision = pd.DataFrame()
-    tabtgåede = pd.DataFrame(
-        [
-            {
-                "PunktID": "999-99-9999",
-                "Konstateret dato": pd.Timestamp.now(),
-                "Initialer": sagsbehandler,
-                "Kommentar": "Denne linje kan slettes",
-            }
-        ]
-    )
     nyetablerede = pd.DataFrame(
         [
             {
@@ -1377,7 +1439,7 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
                 "λ": 0.0,
                 "Foreløbig kote": 0.0,
                 "Etableret dato": pd.Timestamp.now(),
-                "Initialer": "",
+                "Hvem": "",
                 "Beskrivelse": "Denne linje kan slettes",
                 "Afmærkning": "",
                 "Højde over terræn": 0.0,
@@ -1385,14 +1447,13 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
             }
         ]
     )
-    notater = pd.DataFrame(
-        [{"Dato": pd.Timestamp.now(), "Initialer": "", "Tekst": "",}]
-    )
+
+    notater = pd.DataFrame([{"Dato": pd.Timestamp.now(), "Hvem": "", "Tekst": "",}])
     filoversigt = pd.DataFrame(
         [
             {
                 "Dato": pd.Timestamp.now(),
-                "Initialer": "",
+                "Hvem": "",
                 "Filnavn": "",
                 "Type": "MTL",
                 "σ": 0.7,
@@ -1405,8 +1466,6 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
 
     resultater = {}
     resultater["Projektforside"] = forside
-    resultater["Tabtgåede"] = tabtgåede
-    resultater["Revision"] = revision
     resultater["Sagsgang"] = sagsgang
     resultater["Nyetablerede punkter"] = nyetablerede
     resultater["Notater"] = notater
