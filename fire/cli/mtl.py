@@ -29,10 +29,12 @@ from fire.cli import firedb
 
 # Typingelementer fra databaseAPIet.
 from fire.api.model import (
+    EventType,
     GeometriObjekt,
     Point,
     Punkt,
     Koordinat,
+    Observation,
     PunktInformation,
     PunktInformationType,
     Sag,
@@ -40,28 +42,6 @@ from fire.api.model import (
     SagseventInfo,
     Sagsinfo,
 )
-
-
-# ------------------------------------------------------------------------------
-def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
-    """Check op på placeringskoordinaterne.
-    Hvis nogle ligner UTM, så regner vi om til geografiske koordinater.
-    NaN og 0 flyttes ud i Kattegat, så man kan få øje på dem
-    """
-
-    if pd.isna(λ) or pd.isna(φ) or 0 == λ or 0 == φ:
-        return (11.0, 56.0)
-
-    # Heuristik til at skelne mellem UTM og geografiske koordinater.
-    # Heuristikken fejler kun for UTM-koordinater fra et lille
-    # område på 4 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
-    # Det er langt ude i Atlanterhavet, så det lever vi med.
-    if abs(λ) < 100 and abs(φ) < 100:
-        return (λ, φ)
-
-    utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
-    assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
-    return utm32(λ, φ, inverse=True)
 
 
 # ------------------------------------------------------------------------------
@@ -103,8 +83,8 @@ def mtl():
     ILÆG-NYE-PUNKTER lægger oplysninger om nyoprettede punkter i databasen, og tildeler
     bl.a. landsnumre til punkterne.
 
-    INDLÆS-OBSERVATIONER indlæser observationer fra råfilerne til regnearket og gør
-    observationerne klar til brug i beregninger.
+    LÆS-OBSERVATIONER læser råfilerne og skriver observationerne til regnearket så de
+    er klar til brug i beregninger.
 
     BEREGN-NYE-KOTER beregner nye koter til alle punkter, og genererer rapporter og
     visualiseringsmateriale.
@@ -118,8 +98,122 @@ def mtl():
     (i skrivende stund er ILÆG-REVISION, ILÆG-OBSERVATIONER, ILÆG-KOTER og LUK-SAG
     endnu ikke implementeret, og ILÆG-NYE-PUNKTER står for en større overhaling)
 
+
+    fire mtl opret-sag moses "Thomas Knudsen" "Testsag til eksperimenter"
+    fire mtl indlæs-observationer moses
+    fire mtl beregn-nye-koter moses
+    moses-resultat.html
+
     """
     pass
+
+
+# ------------------------------------------------------------------------------
+# Hjælpefunktioner
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
+    """Check op på placeringskoordinaterne.
+    Hvis nogle ligner UTM, så regner vi om til geografiske koordinater.
+    NaN og 0 flyttes ud i Kattegat, så man kan få øje på dem
+    """
+
+    if pd.isna(λ) or pd.isna(φ) or 0 == λ or 0 == φ:
+        return (11.0, 56.0)
+
+    # Heuristik til at skelne mellem UTM og geografiske koordinater.
+    # Heuristikken fejler kun for UTM-koordinater fra et lille
+    # område på 4 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
+    # Det er langt ude i Atlanterhavet, så det lever vi med.
+    if abs(λ) < 100 and abs(φ) < 100:
+        return (λ, φ)
+
+    utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
+    assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
+    return utm32(λ, φ, inverse=True)
+
+
+# ------------------------------------------------------------------------------
+def spredning(
+    afstand_i_m: float, slope_i_mm_pr_sqrt_km: float = 0.6, bias: float = 0.0005
+) -> float:
+    """Apriorispredning for nivellementsobservation"""
+    return (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias) * 1.0
+
+# -----------------------------------------------------------------------------
+def check_om_resultatregneark_er_lukket(navn: str) -> None:
+    """Lam check for om resultatregneark stadig er åbent"""
+    rf = f"{navn}-resultat.xlsx"
+    if os.path.isfile(rf):
+        try:
+            os.rename(rf, "tempfile" + rf)
+            os.rename("tempfile" + rf, rf)
+        except OSError:
+            fire.cli.print(f"Luk {rf} og prøv igen")
+            sys.exit(1)
+
+# -----------------------------------------------------------------------------
+def check_om_sag_er_korrekt_oprettet(projektnavn: str) -> Sag:
+    """Bomb hvis sag for projektnavn ikke er oprettet. Ellers returnér sagen"""
+    sagsgang = find_sagsgang(projektnavn)
+    sagsid = find_sagsid(sagsgang)
+    try:
+        sag = firedb.hent_sag(sagsid)
+    except:
+        fire.cli.print(
+            f" Sag for {projektnavn} er endnu ikke oprettet - brug fire mtl opret-sag! ",
+            bold=True,
+            bg="red",
+        )
+        sys.exit(1)
+    if not sag.aktiv:
+        fire.cli.print(
+            f"Sag {sagsid} for {projektnavn} er markeret inaktiv. Genåbn for at gå videre."
+        )
+        sys.exit(1)
+
+    return sag
+
+
+
+
+# ------------------------------------------------------------------------------
+# path_to_origin - eksempel:
+#
+# graph = {
+#     'A': {'B', 'C'},
+#     'B': {'C', 'D'},
+#     'C': {'D'},
+#     'D': {'C'},
+#     'E': {'F'},
+#     'F': {'C'},
+#     'G': {}
+# }
+#
+# print (path_to_origin (graph, 'A', 'C'))
+# print (path_to_origin (graph, 'A', 'G'))
+# ------------------------------------------------------------------------------
+def path_to_origin(
+    graph: Dict[str, Set[str]], start: str, origin: str, path: List[str] = []
+):
+    """
+    Mikroskopisk backtracking netkonnektivitetstest. Baseret på et
+    essay af GvR fra https://www.python.org/doc/essays/graphs/, men
+    her moderniseret fra Python 1.5 til 3.7 og modificeret til
+    at arbejde på dict-over-set (originalen brugte dict-over-list)
+    """
+    path = path + [start]
+    if start == origin:
+        return path
+    if start not in graph:
+        return None
+    for node in graph[start]:
+        if node not in path:
+            newpath = path_to_origin(graph, node, origin, path)
+            if newpath:
+                return newpath
+    return None
 
 
 # ------------------------------------------------------------------------------
@@ -137,6 +231,7 @@ def get_observation_strings(
         filnavn = fil[0]
         σ = fil[1]
         δ = fil[2]
+        observationsfiltype = fil[3]
         if verbose:
             fire.cli.print(f"Læser {filnavn} med σ={σ} og δ={δ}")
         try:
@@ -189,52 +284,13 @@ def get_observation_strings(
                         int(tokens[kol.vind]),
                         int(tokens[kol.sigt]),
                         filnavn,
+                        observationsfiltype,
+                        ""
                     ]
                     observationer.append(reordered)
         except FileNotFoundError:
             fire.cli.print(f"Kunne ikke læse filen '{filnavn}''")
     return observationer
-
-
-# ------------------------------------------------------------------------------
-def path_to_origin(
-    graph: Dict[str, Set[str]], start: str, origin: str, path: List[str] = []
-):
-    """
-    Mikroskopisk backtracking netkonnektivitetstest. Baseret på et
-    essay af GvR fra https://www.python.org/doc/essays/graphs/, men
-    her moderniseret fra Python 1.5 til 3.7 og modificeret til
-    at arbejde på dict-over-set (originalen brugte dict-over-list)
-    """
-    path = path + [start]
-    if start == origin:
-        return path
-    if start not in graph:
-        return None
-    for node in graph[start]:
-        if node not in path:
-            newpath = path_to_origin(graph, node, origin, path)
-            if newpath:
-                return newpath
-    return None
-
-
-# ------------------------------------------------------------------------------
-# Eksempel:
-#
-# graph = {
-#     'A': {'B', 'C'},
-#     'B': {'C', 'D'},
-#     'C': {'D'},
-#     'D': {'C'},
-#     'E': {'F'},
-#     'F': {'C'},
-#     'G': {}
-# }
-#
-# print (path_to_origin (graph, 'A', 'C'))
-# print (path_to_origin (graph, 'A', 'G'))
-# ------------------------------------------------------------------------------
 
 
 # ------------------------------------------------------------------------------
@@ -285,16 +341,17 @@ def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning og centreringsfejl"""
     try:
         inputfiler = pd.read_excel(
-            f"{navn}.xlsx", sheet_name="Filoversigt", usecols="C:F"
+            f"{navn}.xlsx", sheet_name="Filoversigt", usecols="A:D"
         )
     except:
         sys.exit("Kan ikke finde filoversigt i projektfil")
     inputfiler = inputfiler[inputfiler["Filnavn"].notnull()]  # Fjern blanklinjer
     filnavne = inputfiler["Filnavn"]
+    typer = inputfiler["Type"]
     spredning = inputfiler["σ"]
     centreringsfejl = inputfiler["δ"]
     assert len(filnavne) > 0, "Ingen inputfiler anført"
-    return list(zip(filnavne, spredning, centreringsfejl))
+    return list(zip(filnavne, spredning, centreringsfejl, typer))
 
 
 # ------------------------------------------------------------------------------
@@ -321,6 +378,8 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
             "vind",
             "sigt",
             "kilde",
+            "type",
+            "uuid",
         ],
     )
 
@@ -412,7 +471,7 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
             sigma = float(punkter.at[i, "σ"])
         else:
             fastholdt = False
-            delta = float(punkter.at[i, "Δ-kote"])
+            delta = float(punkter.at[i, "Δ-kote [mm]"])
             kote = float(punkter.at[i, "ny kote"])
             sigma = float(punkter.at[i, "ny σ"])
 
@@ -468,7 +527,7 @@ def opbyg_punktoversigt(
             "σ",
             "ny kote",
             "ny σ",
-            "Δ-kote",
+            "Δ-kote [mm]",
             "kommentar",
             "φ",
             "λ",
@@ -635,13 +694,6 @@ def netanalyse(
 
 
 # ------------------------------------------------------------------------------
-def spredning(
-    afstand_i_m: float, slope_i_mm_pr_sqrt_km: float = 0.6, bias: float = 0.0005
-) -> float:
-    return (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias) * 1.0
-
-
-# ------------------------------------------------------------------------------
 def find_fastholdte(punktoversigt: pd.DataFrame) -> Dict[str, float]:
     fastholdte_punkter = tuple(punktoversigt[punktoversigt["fix"] == 0]["punkt"])
     fastholdteKoter = tuple(punktoversigt[punktoversigt["fix"] == 0]["kote"])
@@ -700,10 +752,6 @@ def gama_beregning(
         for obs in observationer.itertuples(index=False):
             if not pd.isna(obs.sluk):
                 fire.cli.print(f"Slukket {obs}")
-                continue
-            # Det er sandsynligt at vi bør bevare disse, for at sikre netsammenhængen
-            if (obs.fra in fastholdte) and (obs.til in fastholdte):
-                fire.cli.print(f"Udeladt {obs}")
                 continue
             gamafil.write(
                 f"<dh from='{obs.fra}' to='{obs.til}' "
@@ -771,21 +819,150 @@ def gama_beregning(
     d = list(abs(punktoversigt["kote"] - punktoversigt["ny kote"]) * 1000)
     # ...men vi ignorerer ændringer under mikrometerniveau
     dd = [e if e > 0.001 else None for e in d]
-    punktoversigt["Δ-kote"] = dd
+    punktoversigt["Δ-kote [mm]"] = dd
     return punktoversigt
 
 
-# -----------------------------------------------------------------------------
-def check_om_resultatregneark_er_lukket(navn: str) -> None:
-    """Lam check for om resultatregneark stadig er åbent"""
-    rf = f"{navn}-resultat.xlsx"
-    if os.path.isfile(rf):
+# ------------------------------------------------------------------------------
+# Her starter observationsregistreringsprogrammet...
+# ------------------------------------------------------------------------------
+@mtl.command()
+@fire.cli.default_options()
+@click.argument(
+    "projektnavn", nargs=1, type=str,
+)
+@click.argument(
+    "sagsbehandler", nargs=1, type=str,
+)
+def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
+    """Registrer nyoprettede punkter i databasen"""
+    check_om_resultatregneark_er_lukket(projektnavn)
+    sag = check_om_sag_er_korrekt_oprettet(projektnavn)
+    sagsgang = find_sagsgang(projektnavn)
+    print(sag)
+    print(sagsgang)
+
+    fire.cli.print("Lægger nye observationer i databasen")
+    obstype_trig = firedb.hent_observationstype("trigonometrisk_koteforskel")
+    obstype_geom = firedb.hent_observationstype("geometrisk_koteforskel")
+
+    til_registrering = []
+    observationer = pd.read_excel(
+        f"{projektnavn}.xlsx", sheet_name="Observationer", usecols="A:S",
+    )
+
+    alle_kilder = " ".join(list(set(observationer.kilde)))
+    alle_uuider = observationer.uuid.astype(str)
+
+
+    # Generer sagsevent
+    sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.OBSERVATION_INDSAT)
+    er = "er" if len(til_registrering) > 1 else ""
+    sagseventtekst = f"Ilægning af observation{er} fra {alle_kilder}"
+    sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
+    sagsevent.sagseventinfos.append(sagseventinfo)
+
+    # Generer dokumentation til fanebladet "Sagsgang"
+    sagsgangslinje = dict()
+    sagsgangslinje["Dato"] = pd.Timestamp.now()
+    sagsgangslinje["Hvem"] = sagsbehandler
+    sagsgangslinje["Hændelse"] = "observationsilægning"
+    sagsgangslinje["Tekst"] = sagseventtekst
+    sagsgangslinje["uuid"] = sagsevent.id
+    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+
+
+    for i, obs in enumerate(observationer.itertuples(index=False)):
+        # Ignorer allerede registrerede observationer
+        if str(obs.uuid) not in ["", "None", "nan"]:
+            continue
+
+        # Vi skal bruge fra- og til-punkterne for at kunne oprette et
+        # objekt af typen Observation
         try:
-            os.rename(rf, "tempfile" + rf)
-            os.rename("tempfile" + rf, rf)
-        except OSError:
-            fire.cli.print(f"Luk {rf} og prøv igen")
+            punktnavn = obs.fra
+            punkt_fra = firedb.hent_punkt(punktnavn)
+            punktnavn = obs.til
+            punkt_til = firedb.hent_punkt(punktnavn)
+        except NoResultFound:
+            fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
             sys.exit(1)
+
+        if obs.type=="MTL":
+            observation = Observation(
+                 antal=1,
+                 observationstype=obstype_trig,
+                 observationstidspunkt=obs.hvornår,
+                 opstillingspunkt=punkt_fra,
+                 sigtepunkt=punkt_til,
+                 id = uuid(),
+                 value1=obs.dH,
+                 value2=obs.L,
+                 value3=obs.opst,
+                 value4=obs.σ,
+                 value5=obs.δ
+            )
+            observation.sagsevent=sagsevent
+
+        elif obs.type=="MGL":
+            observation = Observation(
+                 antal=1,
+                 observationstype=obstype_geom,
+                 observationstidspunkt=obs.hvornår,
+                 opstillingspunkt=id_fra,
+                 sigtepunkt=id_til,
+                 id = uuid(),
+                 value1=obs.dH,
+                 value2=obs.L,
+                 value3=obs.opst,
+                 # value4=Refraktion, eta_1, sættes her til None
+                 value5=obs.σ,
+                 value6=obs.δ
+            )
+        else:
+            fire.cli.print(f"Ukendt observationstype: '{obs.type}'", fg="red", bg="white")
+            sys.exit(1)
+        alle_uuider[i] = observation.id
+        til_registrering.append(observation)
+
+    # Gør klar til at persistere
+
+    # Persister observationerne til databasen
+    fire.cli.print(sagseventtekst, fg="yellow", bold=True)
+    if "ja" != input(
+        "-->  HELT sikker på at du vil skrive observationerne til databasen (ja/nej)? "
+    ):
+        fire.cli.print("Dropper skrivning")
+        return
+
+    # Vi mangler indset_flere_observationer - så til test skriver vi bare den første
+    print(sagsevent)
+    obs = til_registrering[0]
+    print("-----")
+    pprint(obs)
+    #obs.sagsevent = sagsevent
+
+    firedb.indset_observation(sagsevent, obs)
+    # Databasefejl: https://docs.sqlalchemy.org/en/13/errors.html#error-gkpj
+
+    # Vi mangler nedendstående pendant til indset_flere_punkter:
+    # firedb.indset_flere_observationer(sagsevent, til_registrering)
+
+    # ... og marker i regnearket at det er sket
+    observationer.uuid = alle_uuider
+
+    # Skriv resultater til resultatregneark
+    resultater = dict()
+    resultater["Sagsgang"] = sagsgang
+    resultater["Observationer"] = observationer
+    skriv_resultater(projektnavn, resultater)
+
+    fire.cli.print(
+        f"Observationer registreret. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
+    )
+
+
+
 
 
 # -----------------------------------------------------------------------------
@@ -810,6 +987,7 @@ def skriv_resultater(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> N
     fire.cli.print(f"Færdig - output kan ses i '{projektnavn}-resultat.xlsx'")
 
 
+# -----------------------------------------------------------------------------
 def skriv_arbejdsark(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> None:
     """Skriv sags-arbejdsark til excel-fil"""
     writer = pd.ExcelWriter(f"{projektnavn}.xlsx", engine="xlsxwriter")
@@ -826,7 +1004,7 @@ def skriv_arbejdsark(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> N
 @click.argument(
     "projektnavn", nargs=1, type=str,
 )
-def indlæs_observationer(projektnavn: str, **kwargs) -> None:
+def læs_observationer(projektnavn: str, **kwargs) -> None:
     """Importer data fra observationsfiler og opbyg punktoversigt"""
     check_om_resultatregneark_er_lukket(projektnavn)
     fire.cli.print("Så kører vi")
@@ -1026,26 +1204,11 @@ def find_alle_løbenumre_i_distrikt(distrikt: str) -> List[str]:
 def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyoprettede punkter i databasen"""
     check_om_resultatregneark_er_lukket(projektnavn)
+    sag = check_om_sag_er_korrekt_oprettet(projektnavn)
+    sagsgang = find_sagsgang(projektnavn)
+
     fire.cli.print("Lægger nye punkter i databasen")
     resultater = {}
-
-    sagsgang = find_sagsgang(projektnavn)
-    print(f"sagsgang={sagsgang}")
-    sagsid = find_sagsid(sagsgang)
-    print(f"sagsid={sagsid}")
-    try:
-        sag = firedb.hent_sag(sagsid)
-    except:
-        fire.cli.print(
-            f" Sag for {projektnavn} er endnu ikke oprettet - brug fire mtl opret-sag! ",
-            bold=True,
-            bg="red",
-        )
-    if not sag.aktiv:
-        fire.cli.print(
-            f"Sag {sagsid} for {projektnavn} er markeret inaktiv. Genåbn for at gå videre."
-        )
-        return
 
     # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
