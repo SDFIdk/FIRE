@@ -40,6 +40,20 @@ def test_indset_punkt(firedb: FireDb, sag: Sag):
     firedb.indset_punkt(Sagsevent(sag=sag), p)
 
 
+def test_indset_flere_punkter(firedb: FireDb, sag: Sag):
+    p = Punkt()
+    go = GeometriObjekt()
+    go.geometri = Point([1, 1])
+    p.geometriobjekter.append(go)
+
+    q = Punkt()
+    go = GeometriObjekt()
+    go.geometri = Point([2, 2])
+    q.geometriobjekter.append(go)
+
+    firedb.indset_flere_punkter(Sagsevent(sag=sag), [p, q])
+
+
 def test_indset_punkt_with_invalid_sagsevent_eventtype(firedb: FireDb, sag: Sag):
     p = Punkt()
     go = GeometriObjekt()
