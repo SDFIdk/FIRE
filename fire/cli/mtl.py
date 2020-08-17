@@ -75,8 +75,8 @@ def mtl():
     OPRET-SAG registrerer sagen (projektet) i databasen og skriver det regneark,
     som bruges til at holde styr på arbejdet.
 
-    UDTRÆK-REVISION udtrækker oversigt over eksisterende punkter i det området,
-    til brug for punktrevision.
+    UDTRÆK-REVISION udtrækker oversigt over eksisterende punkter i et området,
+    til brug for punktrevision (herunder registrering af tabtgåede punkter).
 
     ILÆG-REVISION lægger opdaterede og nye punktattributter i databasen efter revision.
 
@@ -1421,7 +1421,7 @@ def udtræk_revision(
     """Gør klar til punktrevision: Udtræk eksisterende information."""
 
     revisionsinfo = pd.DataFrame(
-        columns=("Punkt", "Sluk", "Attribut", "Talværdi", "Tekstværdi", "id")
+        columns=("Punkt", "Sluk", "Attribut", "Talværdi", "Tekstværdi", "id", "Ikke besøgt")
     ).astype({"Talværdi": float, "id": np.int64})
 
     # Punkter med bare EN af disse attributter ignoreres
@@ -1466,21 +1466,25 @@ def udtræk_revision(
                 landsnr = landsnrinfo.tekst
                 løbenr = landsnr.split("-")[-1]
 
-            # Frasorter numeriske løbenumre udenfor 1-10, 801-999, 9001-19999
-            if løbenr.isnumeric():
-                i = int(løbenr)
-                if 10 < i < 801:
-                    continue
-                if 1000 < i < 9001:
-                    continue
-                if i > 20000:
-                    continue
+                # Frasorter numeriske løbenumre udenfor 1-10, 801-999, 9001-19999
+                if løbenr.isnumeric():
+                    i = int(løbenr)
+                    if 10 < i < 801:
+                        continue
+                    if 1000 < i < 9001:
+                        continue
+                    if i > 20000:
+                        continue
+
             fire.cli.print(f"Punkt: {ident}")
             for info in punkt.punktinformationer:
                 if info.registreringtil is not None:
                     continue
                 attributnavn = info.infotype.name
                 if attributnavn in ignorerede_attributter:
+                    continue
+                # Vis kun landsnr for punkter med GM/GI/GNSS-primærident
+                if attributnavn=="IDENT:landsnr" and info.tekst==ident:
                     continue
                 tekst = info.tekst
                 if tekst:
@@ -1498,7 +1502,16 @@ def udtræk_revision(
                     ignore_index=True,
                 )
 
-            # To blanklinjer efter hvert punktoversigt
+            # En besøgslinje og to blanklinjer efter hvert punktoversigt
+            revisionsinfo = revisionsinfo.append(
+                {
+                    "Punkt": ident,
+                    "Attribut": "ATTR:bemærkning",
+                    "Tekstværdi": "",
+                    "Ikke besøgt": "x",
+                },
+                ignore_index=True,
+            )
             revisionsinfo = revisionsinfo.append({}, ignore_index=True)
             revisionsinfo = revisionsinfo.append({}, ignore_index=True)
 
