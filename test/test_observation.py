@@ -6,12 +6,14 @@ from fire.api import FireDb
 from fire.api.model import (
     Sag,
     Sagsevent,
+    SagseventInfo,
     Punkt,
     Observation,
     Geometry,
     ObservationsType,
     EventType,
 )
+from fire import uuid
 
 
 def test_observation(firedb: FireDb, observation: Observation):
@@ -78,7 +80,13 @@ def test_hent_observationer_naer_geometri(firedb: FireDb):
 
 def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
     obstype = firedb.session.query(ObservationsType).first()
-    observation = Observation(
+
+    sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.OBSERVATION_INDSAT)
+    sagseventtekst = "Ilægning af observation"
+    sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
+    sagsevent.sagseventinfos.append(sagseventinfo)
+
+    obs1 = Observation(
         antal=0,
         observationstype=obstype,
         observationstidspunkt=dt.datetime.utcnow(),
@@ -92,7 +100,49 @@ def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
         value7=0,
         value8=0,
     )
-    firedb.indset_observation(Sagsevent(sag=sag), observation)
+
+    firedb.indset_observation(sagsevent, obs1)
+
+
+def test_indset_flere_observationer(firedb: FireDb, sag: Sag, punkt: Punkt):
+    obstype = firedb.session.query(ObservationsType).first()
+
+    sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.OBSERVATION_INDSAT)
+    sagseventtekst = "Ilægning af flere observationer"
+    sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
+    sagsevent.sagseventinfos.append(sagseventinfo)
+
+    obs1 = Observation(
+        antal=0,
+        observationstype=obstype,
+        observationstidspunkt=dt.datetime.utcnow(),
+        opstillingspunkt=punkt,
+        value1=0,
+        value2=0,
+        value3=0,
+        value4=0,
+        value5=0,
+        value6=0,
+        value7=0,
+        value8=0,
+    )
+
+    obs2 = Observation(
+        antal=0,
+        observationstype=obstype,
+        observationstidspunkt=dt.datetime.utcnow(),
+        opstillingspunkt=punkt,
+        value1=0,
+        value2=0,
+        value3=0,
+        value4=0,
+        value5=0,
+        value6=0,
+        value7=0,
+        value8=0,
+    )
+
+    firedb.indset_flere_observationer(sagsevent, [obs1, obs2])
 
 
 def test_luk_observation(
