@@ -957,13 +957,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     ):
         fire.cli.print("Dropper skrivning")
         return
-
-    # Vi mangler indset_flere_observationer - så til test skriver vi bare den første
-    # obs = til_registrering[0]
-    # obs.sagsevent = sagsevent
-
-    # firedb.indset_observation(sagsevent, obs)
-    # firedb.indset_flere_observationer(sagsevent, til_registrering)
+    firedb.indset_flere_observationer(sagsevent, til_registrering)
 
     # ... og marker i regnearket at det er sket
     observationer.uuid = alle_uuider
