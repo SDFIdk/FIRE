@@ -141,6 +141,7 @@ def spredning(
     """Apriorispredning for nivellementsobservation"""
     return (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias) * 1.0
 
+
 # -----------------------------------------------------------------------------
 def check_om_resultatregneark_er_lukket(navn: str) -> None:
     """Lam check for om resultatregneark stadig er åbent"""
@@ -152,6 +153,7 @@ def check_om_resultatregneark_er_lukket(navn: str) -> None:
         except OSError:
             fire.cli.print(f"Luk {rf} og prøv igen")
             sys.exit(1)
+
 
 # -----------------------------------------------------------------------------
 def check_om_sag_er_korrekt_oprettet(projektnavn: str) -> Sag:
@@ -174,8 +176,6 @@ def check_om_sag_er_korrekt_oprettet(projektnavn: str) -> Sag:
         sys.exit(1)
 
     return sag
-
-
 
 
 # ------------------------------------------------------------------------------
@@ -217,25 +217,21 @@ def path_to_origin(
 
 
 # ------------------------------------------------------------------------------
-def get_observation_strings(
-    filinfo: List[Tuple[str, float, float]], verbose: bool = False
-) -> List[str]:
+def get_observation_strings(filinfo: pd.DataFrame, verbose: bool = False) -> List[str]:
     """Pil observationsstrengene ud fra en række råfiler"""
     kol = IntEnum(
         "kol",
         "fra til dato tid L dH journal T setups sky sol vind sigt kommentar",
         start=0,
     )
-    observationer = list()
-    for fil in filinfo:
-        filnavn = fil[0]
-        σ = fil[1]
-        δ = fil[2]
-        observationsfiltype = fil[3]
+    observationer = []
+    for fil in filinfo.itertuples(index=False):
+        if fil.Type not in ["MTL", "MGL"]:
+            continue
         if verbose:
-            fire.cli.print(f"Læser {filnavn} med σ={σ} og δ={δ}")
+            fire.cli.print(f"Læser {fil.Filnavn} med σ={fil.σ} og δ={fil.δ}")
         try:
-            with open(filnavn, "rt", encoding="utf-8") as obsfil:
+            with open(fil.Filnavn, "rt", encoding="utf-8") as obsfil:
                 for line in obsfil:
                     if "#" != line[0]:
                         continue
@@ -252,8 +248,10 @@ def get_observation_strings(
                     # Bring observationen på kanonisk 14-feltform.
                     for i in range(len(tokens), 13):
                         tokens.append(0)
+                    # Tilføj tom kommentar hvis der ikke er nogen med indhold
                     if len(tokens) < 14:
                         tokens.append('""')
+                    # Befri kommentar for anførelsestegn og overflødige mellemrum
                     tokens[13] = tokens[13].lstrip('"').strip().rstrip('"')
 
                     # Korriger de rædsomme dato/tidsformater
@@ -266,16 +264,17 @@ def get_observation_strings(
                         )
 
                     # Reorganiser søjler og omsæt numeriske data fra strengrepræsentation til tal
+                    # NB: reordered bør rettes til dict og observationer til DataFrame
                     reordered = [
                         tokens[kol.journal],
-                        "",
+                        "",  # "sluk"-søjle
                         tokens[kol.fra],
                         tokens[kol.til],
                         float(tokens[kol.dH]),
                         float(tokens[kol.L]),
                         int(tokens[kol.setups]),
-                        σ,
-                        δ,
+                        fil.σ,
+                        fil.δ,
                         tokens[kol.kommentar],
                         isotid,
                         float(tokens[kol.T]),
@@ -283,9 +282,9 @@ def get_observation_strings(
                         int(tokens[kol.sol]),
                         int(tokens[kol.vind]),
                         int(tokens[kol.sigt]),
-                        filnavn,
-                        observationsfiltype,
-                        ""
+                        fil.Filnavn,
+                        fil.Type,
+                        "",  # tom uuid-søjle
                     ]
                     observationer.append(reordered)
         except FileNotFoundError:
@@ -345,13 +344,7 @@ def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
         )
     except:
         sys.exit("Kan ikke finde filoversigt i projektfil")
-    inputfiler = inputfiler[inputfiler["Filnavn"].notnull()]  # Fjern blanklinjer
-    filnavne = inputfiler["Filnavn"]
-    typer = inputfiler["Type"]
-    spredning = inputfiler["σ"]
-    centreringsfejl = inputfiler["δ"]
-    assert len(filnavne) > 0, "Ingen inputfiler anført"
-    return list(zip(filnavne, spredning, centreringsfejl, typer))
+    return inputfiler[inputfiler["Filnavn"].notnull()]  # Fjern blanklinjer
 
 
 # ------------------------------------------------------------------------------
@@ -854,7 +847,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     alle_kilder = " ".join(list(set(observationer.kilde)))
     alle_uuider = observationer.uuid.astype(str)
 
-
     # Generer sagsevent
     sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.OBSERVATION_INDSAT)
     er = "er" if len(til_registrering) > 1 else ""
@@ -870,7 +862,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     sagsgangslinje["Tekst"] = sagseventtekst
     sagsgangslinje["uuid"] = sagsevent.id
     sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
-
 
     for i, obs in enumerate(observationer.itertuples(index=False)):
         # Ignorer allerede registrerede observationer
@@ -888,39 +879,41 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
             sys.exit(1)
 
-        if obs.type=="MTL":
+        if obs.type == "MTL":
             observation = Observation(
-                 antal=1,
-                 observationstype=obstype_trig,
-                 observationstidspunkt=obs.hvornår,
-                 opstillingspunkt=punkt_fra,
-                 sigtepunkt=punkt_til,
-                 id = uuid(),
-                 value1=obs.dH,
-                 value2=obs.L,
-                 value3=obs.opst,
-                 value4=obs.σ,
-                 value5=obs.δ
+                antal=1,
+                observationstype=obstype_trig,
+                observationstidspunkt=obs.hvornår,
+                opstillingspunkt=punkt_fra,
+                sigtepunkt=punkt_til,
+                id=uuid(),
+                value1=obs.dH,
+                value2=obs.L,
+                value3=obs.opst,
+                value4=obs.σ,
+                value5=obs.δ,
             )
-            observation.sagsevent=sagsevent
+            observation.sagsevent = sagsevent
 
-        elif obs.type=="MGL":
+        elif obs.type == "MGL":
             observation = Observation(
-                 antal=1,
-                 observationstype=obstype_geom,
-                 observationstidspunkt=obs.hvornår,
-                 opstillingspunkt=id_fra,
-                 sigtepunkt=id_til,
-                 id = uuid(),
-                 value1=obs.dH,
-                 value2=obs.L,
-                 value3=obs.opst,
-                 # value4=Refraktion, eta_1, sættes her til None
-                 value5=obs.σ,
-                 value6=obs.δ
+                antal=1,
+                observationstype=obstype_geom,
+                observationstidspunkt=obs.hvornår,
+                opstillingspunkt=id_fra,
+                sigtepunkt=id_til,
+                id=uuid(),
+                value1=obs.dH,
+                value2=obs.L,
+                value3=obs.opst,
+                # value4=Refraktion, eta_1, sættes her til None
+                value5=obs.σ,
+                value6=obs.δ,
             )
         else:
-            fire.cli.print(f"Ukendt observationstype: '{obs.type}'", fg="red", bg="white")
+            fire.cli.print(
+                f"Ukendt observationstype: '{obs.type}'", fg="red", bg="white"
+            )
             sys.exit(1)
         alle_uuider[i] = observation.id
         til_registrering.append(observation)
@@ -940,7 +933,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     obs = til_registrering[0]
     print("-----")
     pprint(obs)
-    #obs.sagsevent = sagsevent
+    # obs.sagsevent = sagsevent
 
     firedb.indset_observation(sagsevent, obs)
     # Databasefejl: https://docs.sqlalchemy.org/en/13/errors.html#error-gkpj
@@ -960,9 +953,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     fire.cli.print(
         f"Observationer registreret. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
     )
-
-
-
 
 
 # -----------------------------------------------------------------------------
