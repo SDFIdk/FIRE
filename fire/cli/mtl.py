@@ -701,6 +701,37 @@ def find_holdte(punktoversigt: pd.DataFrame) -> Dict[str, Tuple[float, float]]:
     return dict(zip(holdte_punkter, zip(holdteKoter, holdteSpredning)))
 
 
+# -----------------------------------------------------------------------------
+# Skriv resultatfil
+# -----------------------------------------------------------------------------
+# Så kan vi skrive. Med lidt hjælp fra:
+# https://www.marsja.se/pandas-excel-tutorial-how-to-read-and-write-excel-files
+# https://pypi.org/project/XlsxWriter/
+# -----------------------------------------------------------------------------
+# NB: et sted undervejs i eksporten af instrument-rådata bliver utf-8 tegn
+# tilsyneladende erstattet af sekvensen "EF BF BD (character place keeper)".
+# Så det er ikke en fejl i mtl.py, når kommentaren "tæt trafik"
+# bliver repræsenteret som "t�t trafik". Fejlen må rettes opstrøms.
+# -----------------------------------------------------------------------------
+def skriv_resultater(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> None:
+    """Skriv resultater til excel-fil"""
+    fire.cli.print(f"Skriver resultat-ark: {tuple(resultater)}")
+    writer = pd.ExcelWriter(f"{projektnavn}-resultat.xlsx", engine="xlsxwriter")
+    for r in resultater:
+        resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
+    writer.save()
+    fire.cli.print(f"Færdig - output kan ses i '{projektnavn}-resultat.xlsx'")
+
+
+# -----------------------------------------------------------------------------
+def skriv_arbejdsark(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> None:
+    """Skriv sags-arbejdsark til excel-fil"""
+    writer = pd.ExcelWriter(f"{projektnavn}.xlsx", engine="xlsxwriter")
+    for r in resultater:
+        resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
+    writer.save()
+
+
 # ------------------------------------------------------------------------------
 def gama_beregning(
     projektnavn: str,
@@ -832,7 +863,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     check_om_resultatregneark_er_lukket(projektnavn)
     sag = check_om_sag_er_korrekt_oprettet(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
-    print(sag)
     print(sagsgang)
 
     fire.cli.print("Lægger nye observationer i databasen")
@@ -929,16 +959,10 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         return
 
     # Vi mangler indset_flere_observationer - så til test skriver vi bare den første
-    print(sagsevent)
-    obs = til_registrering[0]
-    print("-----")
-    pprint(obs)
+    # obs = til_registrering[0]
     # obs.sagsevent = sagsevent
 
-    firedb.indset_observation(sagsevent, obs)
-    # Databasefejl: https://docs.sqlalchemy.org/en/13/errors.html#error-gkpj
-
-    # Vi mangler nedendstående pendant til indset_flere_punkter:
+    # firedb.indset_observation(sagsevent, obs)
     # firedb.indset_flere_observationer(sagsevent, til_registrering)
 
     # ... og marker i regnearket at det er sket
@@ -953,37 +977,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     fire.cli.print(
         f"Observationer registreret. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
     )
-
-
-# -----------------------------------------------------------------------------
-# Skriv resultatfil
-# -----------------------------------------------------------------------------
-# Så kan vi skrive. Med lidt hjælp fra:
-# https://www.marsja.se/pandas-excel-tutorial-how-to-read-and-write-excel-files
-# https://pypi.org/project/XlsxWriter/
-# -----------------------------------------------------------------------------
-# NB: et sted undervejs i eksporten af instrument-rådata bliver utf-8 tegn
-# tilsyneladende erstattet af sekvensen "EF BF BD (character place keeper)".
-# Så det er ikke en fejl i mtl.py, når kommentaren "tæt trafik"
-# bliver repræsenteret som "t�t trafik". Fejlen må rettes opstrøms.
-# -----------------------------------------------------------------------------
-def skriv_resultater(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> None:
-    """Skriv resultater til excel-fil"""
-    fire.cli.print(f"Skriver resultat-ark: {tuple(resultater)}")
-    writer = pd.ExcelWriter(f"{projektnavn}-resultat.xlsx", engine="xlsxwriter")
-    for r in resultater:
-        resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
-    writer.save()
-    fire.cli.print(f"Færdig - output kan ses i '{projektnavn}-resultat.xlsx'")
-
-
-# -----------------------------------------------------------------------------
-def skriv_arbejdsark(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> None:
-    """Skriv sags-arbejdsark til excel-fil"""
-    writer = pd.ExcelWriter(f"{projektnavn}.xlsx", engine="xlsxwriter")
-    for r in resultater:
-        resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
-    writer.save()
 
 
 # ------------------------------------------------------------------------------

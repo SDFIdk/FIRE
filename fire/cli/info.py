@@ -181,6 +181,17 @@ def observationsrapport(
         for obs in observationer_fra + observationer_til
         if obs.observationstypeid in [1, 2]
     ]
+
+    # "gruppe"-elementet er meningsfyldt for klassiske retningsmålinger
+    # men kun begrænset relevant for nivellementsobservationer, hvor den
+    # dog historisk er blevet populeret med journalsideinformation.
+    # I disse tilfælde er det en nyttig ekstra parameter til relevanssorteringen
+    # nedenfor. I tilfælde hvor "gruppe" ikke er sat sætter vi den til 0.
+    # Dermed undgås sammenligning af inkompatible datatyper i sorteringen.
+    for obs in observationer:
+        if obs.gruppe is None:
+            obs.gruppe = 0
+
     # Behjertet forsøg på at sortere de udvalgte observationer,
     # så de giver bedst mulig mening for brugeren: Først præs,
     # så andre, og indenfor hver gruppe baglæns kronologisk og med
