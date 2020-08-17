@@ -13,6 +13,7 @@ from fire.api.model import (
     ObservationsType,
     EventType,
 )
+from fire import uuid
 
 
 def test_observation(firedb: FireDb, observation: Observation):
