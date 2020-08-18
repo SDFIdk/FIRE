@@ -59,7 +59,7 @@ def mtl():
 
         ilæg-nye-punkter
 
-        indlæs-observationer
+        læs-observationer
 
         beregn-nye-koter
 
@@ -75,7 +75,7 @@ def mtl():
     OPRET-SAG registrerer sagen (projektet) i databasen og skriver det regneark,
     som bruges til at holde styr på arbejdet.
 
-    UDTRÆK-REVISION udtrækker oversigt over eksisterende punkter i et området,
+    UDTRÆK-REVISION udtrækker oversigt over eksisterende punkter i et område,
     til brug for punktrevision (herunder registrering af tabtgåede punkter).
 
     ILÆG-REVISION lægger opdaterede og nye punktattributter i databasen efter revision.
@@ -95,14 +95,22 @@ def mtl():
 
     LUK-SAG arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
 
-    (i skrivende stund er ILÆG-REVISION, ILÆG-OBSERVATIONER, ILÆG-KOTER og LUK-SAG
+    (i skrivende stund er ILÆG-REVISION, ILÆG-KOTER og LUK-SAG
     endnu ikke implementeret, og ILÆG-NYE-PUNKTER står for en større overhaling)
 
+    Eksempel:
 
-    fire mtl opret-sag moses "Thomas Knudsen" "Testsag til eksperimenter"
-    fire mtl indlæs-observationer moses
-    fire mtl beregn-nye-koter moses
-    moses-resultat.html
+    fire mtl opret-sag andeby_2020 "Thomas Knudsen" "Testsag: Nyopmåling af Andeby"
+
+    fire mtl læs-observationer andeby_2020
+
+    fire mtl beregn-nye-koter andeby_2020
+
+    fire mtl ilæg-observationer andeby_2020
+
+    fire mtl ilæg-koter andeby_2020
+
+    andeby_2020-resultat.html
 
     """
     pass
@@ -221,7 +229,7 @@ def get_observation_strings(filinfo: pd.DataFrame, verbose: bool = False) -> Lis
     """Pil observationsstrengene ud fra en række råfiler"""
     kol = IntEnum(
         "kol",
-        "fra til dato tid L dH journal T setups sky sol vind sigt kommentar",
+        "Fra Til dato tid L ΔH Journal T setups Sky Sol Vind Sigt Kommentar",
         start=0,
     )
     observationer = []
@@ -266,25 +274,28 @@ def get_observation_strings(filinfo: pd.DataFrame, verbose: bool = False) -> Lis
                     # Reorganiser søjler og omsæt numeriske data fra strengrepræsentation til tal
                     # NB: reordered bør rettes til dict og observationer til DataFrame
                     reordered = [
-                        tokens[kol.journal],
-                        "",  # "sluk"-søjle
-                        tokens[kol.fra],
-                        tokens[kol.til],
-                        float(tokens[kol.dH]),
+                        # Undgå journalside fortolkes som tal: Erstat decimalseparator
+                        tokens[kol.Journal].replace(".", ":"),
+                        # "sluk"-søjle
+                        "",
+                        tokens[kol.Fra],
+                        tokens[kol.Til],
+                        float(tokens[kol.ΔH]),
                         float(tokens[kol.L]),
                         int(tokens[kol.setups]),
                         fil.σ,
                         fil.δ,
-                        tokens[kol.kommentar],
+                        tokens[kol.Kommentar],
                         isotid,
                         float(tokens[kol.T]),
-                        int(tokens[kol.sky]),
-                        int(tokens[kol.sol]),
-                        int(tokens[kol.vind]),
-                        int(tokens[kol.sigt]),
+                        int(tokens[kol.Sky]),
+                        int(tokens[kol.Sol]),
+                        int(tokens[kol.Vind]),
+                        int(tokens[kol.Sigt]),
                         fil.Filnavn,
                         fil.Type,
-                        "",  # tom uuid-søjle
+                        # tom uuid-søjle
+                        "",
                     ]
                     observationer.append(reordered)
         except FileNotFoundError:
@@ -354,24 +365,24 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     observationer = pd.DataFrame(
         get_observation_strings(find_inputfiler(projektnavn)),
         columns=[
-            "journal",
-            "sluk",
-            "fra",
-            "til",
-            "dH",
+            "Journal",
+            "Sluk",
+            "Fra",
+            "Til",
+            "ΔH",
             "L",
-            "opst",
+            "Opst",
             "σ",
             "δ",
-            "kommentar",
-            "hvornår",
+            "Kommentar",
+            "Hvornår",
             "T",
-            "sky",
-            "sol",
-            "vind",
-            "sigt",
-            "kilde",
-            "type",
+            "Sky",
+            "Sol",
+            "Vind",
+            "Sigt",
+            "Kilde",
+            "Type",
             "uuid",
         ],
     )
@@ -379,14 +390,14 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     # Sorter efter journalside, så frem- og tilbageobservationer følges ad.
     # Den sære index-gymnastik sikrer at vi har fortløbende nummerering
     # også efter sorteringen.
-    observationer.sort_values(by="journal", inplace=True)
+    observationer.sort_values(by="Journal", inplace=True)
     observationer.reset_index(drop=True, inplace=True)
 
     # -------------------------------------------------
     # Oversæt alle anvendte identer til kanonisk form
     # -------------------------------------------------
-    fra = tuple(observationer["fra"])
-    til = tuple(observationer["til"])
+    fra = tuple(observationer["Fra"])
+    til = tuple(observationer["Til"])
     observerede_punkter = tuple(set(fra + til))
     kanonisk_ident = {}
 
@@ -403,27 +414,28 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     fra = tuple(kanonisk_ident[ident] for ident in fra)
     til = tuple(kanonisk_ident[ident] for ident in til)
 
-    observationer["fra"] = fra
-    observationer["til"] = til
+    observationer["Fra"] = fra
+    observationer["Til"] = til
     return observationer
 
 
 # ------------------------------------------------------------------------------
 def obs_feature(punkter: pd.DataFrame, observationer: pd.DataFrame) -> Dict[str, str]:
     """Omsæt observationsinformationer til JSON-egnet dict"""
+    # TODO: for obs in observationer.itertuples(index=False):
     for i in range(observationer.shape[0]):
-        fra = observationer.at[i, "fra"]
-        til = observationer.at[i, "til"]
+        fra = observationer.at[i, "Fra"]
+        til = observationer.at[i, "Til"]
         feature = {
             "type": "Feature",
             "properties": {
-                "fra": fra,
-                "til": til,
-                "afstand": observationer.at[i, "L"],
-                "dH": observationer.at[i, "dH"],
+                "Fra": fra,
+                "Til": til,
+                "Afstand": observationer.at[i, "L"],
+                "ΔH": observationer.at[i, "ΔH"],
                 # konvertering, da json.dump ikke uderstøtter int64
-                "opstillinger": int(observationer.at[i, "opst"]),
-                "journal": observationer.at[i, "journal"],
+                "Opstillinger": int(observationer.at[i, "Opst"]),
+                "Journal": observationer.at[i, "Journal"],
             },
             "geometry": {
                 "type": "LineString",
@@ -454,19 +466,19 @@ def observationer_geojson(
 def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
     """Omsæt punktinformationer til JSON-egnet dict"""
     for i in range(punkter.shape[0]):
-        punkt = punkter.at[i, "punkt"]
+        punkt = punkter.at[i, "Punkt"]
 
         # Fastholdte punkter har ingen ny kote, så vi viser den gamle
-        if punkter.at[i, "fix"] == 0:
+        if punkter.at[i, "Fix"] == 0:
             fastholdt = True
             delta = 0.0
-            kote = float(punkter.at[i, "kote"])
+            kote = float(punkter.at[i, "Kote"])
             sigma = float(punkter.at[i, "σ"])
         else:
             fastholdt = False
             delta = float(punkter.at[i, "Δ-kote [mm]"])
-            kote = float(punkter.at[i, "ny kote"])
-            sigma = float(punkter.at[i, "ny σ"])
+            kote = float(punkter.at[i, "Ny kote"])
+            sigma = float(punkter.at[i, "Ny σ"])
 
         # Endnu uberegnede punkter
         if kote is None:
@@ -484,7 +496,7 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
                 "id": punkt,
                 "H": kote,
                 "sH": sigma,
-                "delta": delta,
+                "Δ": delta,
                 "fastholdt": fastholdt,
             },
             "geometry": {
@@ -512,16 +524,16 @@ def opbyg_punktoversigt(
 ) -> pd.DataFrame:
     punktoversigt = pd.DataFrame(
         columns=[
-            "punkt",
-            "fix",
-            "hold",
-            "år",
-            "kote",
+            "Punkt",
+            "Fix",
+            "Hold",
+            "År",
+            "Kote",
             "σ",
-            "ny kote",
-            "ny σ",
+            "Ny kote",
+            "Ny σ",
             "Δ-kote [mm]",
-            "kommentar",
+            "Kommentar",
             "φ",
             "λ",
             "uuid",
@@ -531,9 +543,9 @@ def opbyg_punktoversigt(
 
     # Forlæng punktoversigt, så der er plads til alle punkter
     punktoversigt = punktoversigt.reindex(range(len(alle_punkter)))
-    punktoversigt["punkt"] = alle_punkter
+    punktoversigt["Punkt"] = alle_punkter
     # Geninstaller 'punkt'-søjlen som indexsøjle
-    punktoversigt = punktoversigt.set_index("punkt")
+    punktoversigt = punktoversigt.set_index("Punkt")
 
     nye_punkter = tuple(sorted(set(nyetablerede.index)))
 
@@ -548,7 +560,7 @@ def opbyg_punktoversigt(
     print(f"ALLE PUNKTER: {alle_punkter}")
     print(f"NYE PUNKTER: {nye_punkter}")
     for punkt in alle_punkter:
-        if not pd.isna(punktoversigt.at[punkt, "kote"]):
+        if not pd.isna(punktoversigt.at[punkt, "Kote"]):
             continue
         if punkt in nye_punkter:
             continue
@@ -573,9 +585,9 @@ def opbyg_punktoversigt(
             )
             sys.exit(1)
 
-        punktoversigt.at[punkt, "kote"] = kote.z
+        punktoversigt.at[punkt, "Kote"] = kote.z
         punktoversigt.at[punkt, "σ"] = kote.sz
-        punktoversigt.at[punkt, "år"] = kote.registreringfra.year
+        punktoversigt.at[punkt, "År"] = kote.registreringfra.year
         punktoversigt.at[punkt, "uuid"] = pkt.id
 
         if pd.isna(punktoversigt.at[punkt, "φ"]):
@@ -585,8 +597,8 @@ def opbyg_punktoversigt(
     # Nyetablerede punkter er ikke i databasen, så hent eventuelle manglende
     # koter og placeringskoordinater i fanebladet 'Nyetablerede punkter'
     for punkt in nye_punkter:
-        if pd.isna(punktoversigt.at[punkt, "kote"]):
-            punktoversigt.at[punkt, "kote"] = nyetablerede.at[punkt, "Foreløbig kote"]
+        if pd.isna(punktoversigt.at[punkt, "Kote"]):
+            punktoversigt.at[punkt, "Kote"] = nyetablerede.at[punkt, "Foreløbig kote"]
         if pd.isna(punktoversigt.at[punkt, "φ"]):
             punktoversigt.at[punkt, "φ"] = nyetablerede.at[punkt, "φ"]
         if pd.isna(punktoversigt.at[punkt, "λ"]):
@@ -635,7 +647,7 @@ def netanalyse(
         net[punkt] = set()
 
     # Tilføj forbindelser alle steder hvor der er observationer
-    for fra, til in zip(observationer["fra"], observationer["til"]):
+    for fra, til in zip(observationer["Fra"], observationer["Til"]):
         net[fra].add(til)
         net[til].add(fra)
 
@@ -660,7 +672,7 @@ def netanalyse(
     net = {}
     for punkt in alle_punkter:
         net[punkt] = set()
-    for fra, til in zip(observationer["fra"], observationer["til"]):
+    for fra, til in zip(observationer["Fra"], observationer["Til"]):
         net[fra].add(til)
         net[til].add(fra)
 
@@ -688,16 +700,16 @@ def netanalyse(
 
 # ------------------------------------------------------------------------------
 def find_fastholdte(punktoversigt: pd.DataFrame) -> Dict[str, float]:
-    fastholdte_punkter = tuple(punktoversigt[punktoversigt["fix"] == 0]["punkt"])
-    fastholdteKoter = tuple(punktoversigt[punktoversigt["fix"] == 0]["kote"])
+    fastholdte_punkter = tuple(punktoversigt[punktoversigt["Fix"] == 0]["Punkt"])
+    fastholdteKoter = tuple(punktoversigt[punktoversigt["Fix"] == 0]["Kote"])
     return dict(zip(fastholdte_punkter, fastholdteKoter))
 
 
 # ------------------------------------------------------------------------------
 def find_holdte(punktoversigt: pd.DataFrame) -> Dict[str, Tuple[float, float]]:
-    holdte_punkter = tuple(punktoversigt[punktoversigt["fix"] > 0]["punkt"])
-    holdteKoter = tuple(punktoversigt[punktoversigt["fix"] > 0]["kote"])
-    holdteSpredning = tuple(punktoversigt[punktoversigt["fix"] > 0]["fix"])
+    holdte_punkter = tuple(punktoversigt[punktoversigt["Fix"] > 0]["Punkt"])
+    holdteKoter = tuple(punktoversigt[punktoversigt["Fix"] > 0]["Kote"])
+    holdteSpredning = tuple(punktoversigt[punktoversigt["Fix"] > 0]["Fix"])
     return dict(zip(holdte_punkter, zip(holdteKoter, holdteSpredning)))
 
 
@@ -756,7 +768,7 @@ def gama_beregning(
             f"    update-constrained-coordinates='no'\n"
             f"/>\n\n"
             f"<description>\n"
-            f"    Nivellementsprojekt {projektnavn}\n"
+            f"    Nivellementsprojekt {ascii(projektnavn)}\n"  # Gama kaster op over Windows-1252 tegn > 127
             f"</description>\n"
             f"<points-observations>\n\n"
         )
@@ -774,14 +786,14 @@ def gama_beregning(
         # Observationer
         gamafil.write("<height-differences>\n")
         for obs in observationer.itertuples(index=False):
-            if not pd.isna(obs.sluk):
+            if not pd.isna(obs.Sluk):
                 fire.cli.print(f"Slukket {obs}")
                 continue
             gamafil.write(
-                f"<dh from='{obs.fra}' to='{obs.til}' "
-                f"val='{obs.dH:+.6f}' "
+                f"<dh from='{obs.Fra}' to='{obs.Til}' "
+                f"val='{obs.ΔH:+.6f}' "
                 f"dist='{obs.L:.5f}' stdev='{spredning(obs.L, obs.σ, obs.δ):.5f}' "
-                f"extern='{obs.journal:.1f}'/>\n"
+                f"extern='{obs.Journal}'/>\n"
             )
 
         # Postambel
@@ -833,14 +845,14 @@ def gama_beregning(
     # ----------------------------------------------
     # Skriv resultaterne til punktoversigten
     # ----------------------------------------------
-    punktoversigt = punktoversigt.set_index("punkt")
+    punktoversigt = punktoversigt.set_index("Punkt")
     for index in range(len(punkter)):
-        punktoversigt.at[punkter[index], "ny kote"] = koter[index]
-        punktoversigt.at[punkter[index], "ny σ"] = sqrt(varianser[index])
+        punktoversigt.at[punkter[index], "Ny kote"] = koter[index]
+        punktoversigt.at[punkter[index], "Ny σ"] = sqrt(varianser[index])
     punktoversigt = punktoversigt.reset_index()
 
     # Ændring i millimeter...
-    d = list(abs(punktoversigt["kote"] - punktoversigt["ny kote"]) * 1000)
+    d = list(abs(punktoversigt["Kote"] - punktoversigt["Ny kote"]) * 1000)
     # ...men vi ignorerer ændringer under mikrometerniveau
     dd = [e if e > 0.001 else None for e in d]
     punktoversigt["Δ-kote [mm]"] = dd
@@ -874,7 +886,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         f"{projektnavn}.xlsx", sheet_name="Observationer", usecols="A:S",
     )
 
-    alle_kilder = " ".join(list(set(observationer.kilde)))
+    alle_kilder = " ".join(list(set(observationer.Kilde)))
     alle_uuider = observationer.uuid.astype(str)
 
     # Generer sagsevent
@@ -901,48 +913,48 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         # Vi skal bruge fra- og til-punkterne for at kunne oprette et
         # objekt af typen Observation
         try:
-            punktnavn = obs.fra
+            punktnavn = obs.Fra
             punkt_fra = firedb.hent_punkt(punktnavn)
-            punktnavn = obs.til
+            punktnavn = obs.Til
             punkt_til = firedb.hent_punkt(punktnavn)
         except NoResultFound:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
             sys.exit(1)
 
-        if obs.type == "MTL":
+        if obs.Type == "MTL":
             observation = Observation(
                 antal=1,
                 observationstype=obstype_trig,
-                observationstidspunkt=obs.hvornår,
+                observationstidspunkt=obs.Hvornår,
                 opstillingspunkt=punkt_fra,
                 sigtepunkt=punkt_til,
                 id=uuid(),
-                value1=obs.dH,
+                value1=obs.ΔH,
                 value2=obs.L,
-                value3=obs.opst,
+                value3=obs.Opst,
                 value4=obs.σ,
                 value5=obs.δ,
             )
             observation.sagsevent = sagsevent
 
-        elif obs.type == "MGL":
+        elif obs.Type == "MGL":
             observation = Observation(
                 antal=1,
                 observationstype=obstype_geom,
-                observationstidspunkt=obs.hvornår,
+                observationstidspunkt=obs.Hvornår,
                 opstillingspunkt=id_fra,
                 sigtepunkt=id_til,
                 id=uuid(),
-                value1=obs.dH,
+                value1=obs.ΔH,
                 value2=obs.L,
-                value3=obs.opst,
+                value3=obs.Opst,
                 # value4=Refraktion, eta_1, sættes her til None
                 value5=obs.σ,
                 value6=obs.δ,
             )
         else:
             fire.cli.print(
-                f"Ukendt observationstype: '{obs.type}'", fg="red", bg="white"
+                f"Ukendt observationstype: '{obs.Type}'", fg="red", bg="white"
             )
             sys.exit(1)
         alle_uuider[i] = observation.id
@@ -998,7 +1010,7 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     # -----------------------------------------------------
     observationer = importer_observationer(projektnavn)
     resultater["Observationer"] = observationer
-    observerede_punkter = set(list(observationer["fra"]) + list(observationer["til"]))
+    observerede_punkter = set(list(observationer["Fra"]) + list(observationer["Til"]))
     alle_gamle_punkter = observerede_punkter - nye_punkter
 
     # Vi vil gerne have de nye punkter først i punktoversigten,
@@ -1020,7 +1032,7 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     )
 
     punkter_geojson(projektnavn, punktoversigt)
-    observationer_geojson(projektnavn, punktoversigt.set_index("punkt"), observationer)
+    observationer_geojson(projektnavn, punktoversigt.set_index("Punkt"), observationer)
 
 
 # ------------------------------------------------------------------------------
@@ -1058,7 +1070,7 @@ def beregn_nye_koter(projektnavn: str, **kwargs) -> None:
         )
         sys.exit(1)
 
-    observerede_punkter = set(list(observationer["fra"]) + list(observationer["til"]))
+    observerede_punkter = set(list(observationer["Fra"]) + list(observationer["Til"]))
     alle_gamle_punkter = observerede_punkter - nye_punkter
 
     # Vi vil gerne have de nye punkter først i listen, så vi sorterer gamle
@@ -1083,7 +1095,7 @@ def beregn_nye_koter(projektnavn: str, **kwargs) -> None:
     punktoversigt["uuid"] = ""
 
     # Har vi alle punkter med i punktoversigten?
-    punkter_i_oversigt = set(punktoversigt["punkt"])
+    punkter_i_oversigt = set(punktoversigt["Punkt"])
     manglende_punkter_i_oversigt = set(alle_punkter) - punkter_i_oversigt
     if len(manglende_punkter_i_oversigt) > 0:
         fire.cli.print(f"Punktoversigten i '{projektnavn}.xlsx' mangler punkterne:")
@@ -1290,15 +1302,14 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
         # Tilføj punktets højde over terræn som punktinformation, hvis anført
         try:
-            dH = float(nyetablerede["Højde over terræn"][i])
+            ΔH = float(nyetablerede["Højde over terræn"][i])
         except:
-            dH = 0
-        if dH != dH:
-            dH = 0.0
-        print(f"dH er {dH}")
+            ΔH = 0
+        if ΔH != ΔH:
+            ΔH = 0.0
         if not pd.isna(nyetablerede["Højde over terræn"][i]):
             pi_h = PunktInformation(
-                infotype=h_over_terræn_pit, punkt=nyt_punkt, tal=dH,
+                infotype=h_over_terræn_pit, punkt=nyt_punkt, tal=ΔH,
             )
             nyt_punkt.punktinformationer.append(pi_h)
 
@@ -1421,7 +1432,15 @@ def udtræk_revision(
     """Gør klar til punktrevision: Udtræk eksisterende information."""
 
     revisionsinfo = pd.DataFrame(
-        columns=("Punkt", "Sluk", "Attribut", "Talværdi", "Tekstværdi", "id", "Ikke besøgt")
+        columns=(
+            "Punkt",
+            "Sluk",
+            "Attribut",
+            "Talværdi",
+            "Tekstværdi",
+            "id",
+            "Ikke besøgt",
+        )
     ).astype({"Talværdi": float, "id": np.int64})
 
     # Punkter med bare EN af disse attributter ignoreres
@@ -1484,7 +1503,7 @@ def udtræk_revision(
                 if attributnavn in ignorerede_attributter:
                     continue
                 # Vis kun landsnr for punkter med GM/GI/GNSS-primærident
-                if attributnavn=="IDENT:landsnr" and info.tekst==ident:
+                if attributnavn == "IDENT:landsnr" and info.tekst == ident:
                     continue
                 tekst = info.tekst
                 if tekst:
@@ -1545,13 +1564,11 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
         )
         sys.exit(1)
 
-    fire.cli.print("Så opretter vi")
-
     sag = {
         "Dato": pd.Timestamp.now(),
         "Hvem": sagsbehandler,
         "Hændelse": "sagsoprettelse",
-        "Tekst": beskrivelse,
+        "Tekst": f"{projektnavn}: {beskrivelse}",
         "uuid": uuid(),
     }
     sagsgang = pd.DataFrame(
@@ -1605,8 +1622,6 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
     filoversigt = pd.DataFrame(
         [
             {
-                "Dato": pd.Timestamp.now(),
-                "Hvem": "",
                 "Filnavn": "",
                 "Type": "MTL",
                 "σ": 0.7,
