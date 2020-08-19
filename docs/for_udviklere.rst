@@ -96,8 +96,7 @@ fald kan placeringen til denne angives som følger::
 Når der tilføjes eller fjernes moduler til API koden skal dokumentationen
 opdaters (filer i ``docs/api``). Dette kan gøres med::
 
-    cd docs
-    sphinx-apidoc -e -o api ../fireapi
+    sphinx-apidoc -E -d 3 -o docs\api fire
 
 
 GitHub og Continuous Integration
