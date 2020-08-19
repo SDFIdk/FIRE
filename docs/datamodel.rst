@@ -249,7 +249,7 @@ tre objekter er bygget op.
         }
 
 Punktinformationer og Punktinformationstyper
-+++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++
 
 Punktinformationer er, som navnet antyder, information om et punkt. Punktinformation
 dækker over mange aspekter af et punkter: Identer, afmærkningstyper, attributter,
