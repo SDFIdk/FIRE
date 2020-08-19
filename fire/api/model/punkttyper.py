@@ -66,10 +66,8 @@ class Artskode(enum.Enum):
     artskode = 4 control point in network of lower or unknown quality.
     artskode = 5 coordinate computed on just a few measurements.
     artskode = 6 coordinate transformed from local or an not valid coordinate system.
-    artskode = 7 coordinate computed on an not valid coordinate system, or system of
-                 unknown origin.
-    artskode = 8 coordinate computed on few measurements, and on an not valid
-                 coordinate system.
+    artskode = 7 coordinate computed on an not valid coordinate system, or system of unknown origin.
+    artskode = 8 coordinate computed on few measurements, and on an not valid coordinate system.
     artskode = 9 location coordinate or location height.
     """
 

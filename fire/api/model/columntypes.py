@@ -21,9 +21,13 @@ class Geometry(UserDefinedType):
         return self.name
 
     def bind_expression(self, bindvalue):
+        """
+        """
         return Geometry(bindvalue)
 
     def column_expression(self, col):
+        """
+        """
         return func.SDO_UTIL.TO_WKTGEOMETRY(col, type_=self)
 
     def bind_processor(self, dialect):
