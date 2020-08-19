@@ -1433,9 +1433,6 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     )
 
 
-
-
-
 # ------------------------------------------------------------------------------
 # Her starter koteregistreringsprogrammet...
 # ------------------------------------------------------------------------------
@@ -1460,7 +1457,11 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             f"{projektnavn}.xlsx", sheet_name="Punktoversigt", usecols="A:M",
         )
     except Exception as ex:
-        fire.cli.print(f"Kan ikke læse punktoversigt fra '{projektnavn}.xlsx'", fg="yellow", bold=True)
+        fire.cli.print(
+            f"Kan ikke læse punktoversigt fra '{projektnavn}.xlsx'",
+            fg="yellow",
+            bold=True,
+        )
         fire.cli.print(f"Mulig årsag: {ex}")
         sys.exit(1)
 
@@ -1486,17 +1487,17 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         punktdata["uuid"] = sagsevent.id
 
         kote = Koordinat(
-            srid = DVR90,
-            punkt = punkt,
-            t = registreringstidspunkt,
-            z = punktdata["Ny kote"],
-            sz = punktdata["Ny σ"]
+            srid=DVR90,
+            punkt=punkt,
+            t=registreringstidspunkt,
+            z=punktdata["Ny kote"],
+            sz=punktdata["Ny σ"],
         )
 
         til_registrering.append(kote)
         ny_punktoversigt = ny_punktoversigt.append(punktdata, ignore_index=True)
 
-    if 0==len(til_registrering):
+    if 0 == len(til_registrering):
         fire.cli.print("Ingen koter at registrere!", fg="yellow", bold=True)
         return
 
@@ -1506,7 +1507,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     n = len(opdaterede_punkter)
     punktnavne = [p.ident for p in opdaterede_punkter]
     if n > 10:
-        punktnavne[9] = '...'
+        punktnavne[9] = "..."
         punktnavne[10] = punktnavne[-1]
     sagseventtekst = f"Opdatering af DVR90 kote til {', '.join(punktnavne)}"
     sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
@@ -1518,7 +1519,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         "Hvem": sagsbehandler,
         "Hændelse": "Koteberegning",
         "Tekst": sagseventtekst,
-        "uuid": sagsevent.id
+        "uuid": sagsevent.id,
     }
     sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
 
@@ -1536,16 +1537,12 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     firedb.indset_sagsevent(sagsevent)
 
     # Skriv resultater til resultatregneark
-    resultater = {
-        "Sagsgang": sagsgang,
-        "Punktoversigt": ny_punktoversigt
-    }
+    resultater = {"Sagsgang": sagsgang, "Punktoversigt": ny_punktoversigt}
     skriv_ark(projektnavn, resultater)
 
     fire.cli.print(
         f"Koter registreret. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
     )
-
 
 
 # ------------------------------------------------------------------------------
