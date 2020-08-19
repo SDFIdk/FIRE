@@ -725,20 +725,14 @@ def find_holdte(punktoversigt: pd.DataFrame) -> Dict[str, Tuple[float, float]]:
 # Så det er ikke en fejl i mtl.py, når kommentaren "tæt trafik"
 # bliver repræsenteret som "t�t trafik". Fejlen må rettes opstrøms.
 # -----------------------------------------------------------------------------
-def skriv_resultater(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> None:
+def skriv_ark(
+    projektnavn: str, resultater: Dict[str, pd.DataFrame], suffix: str = "-resultat"
+) -> None:
     """Skriv resultater til excel-fil"""
-    fire.cli.print(f"Skriver resultat-ark: {tuple(resultater)}")
-    writer = pd.ExcelWriter(f"{projektnavn}-resultat.xlsx", engine="xlsxwriter")
-    for r in resultater:
-        resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
-    writer.save()
-    fire.cli.print(f"Færdig - output kan ses i '{projektnavn}-resultat.xlsx'")
-
-
-# -----------------------------------------------------------------------------
-def skriv_arbejdsark(projektnavn: str, resultater: Dict[str, pd.DataFrame]) -> None:
-    """Skriv sags-arbejdsark til excel-fil"""
-    writer = pd.ExcelWriter(f"{projektnavn}.xlsx", engine="xlsxwriter")
+    if suffix == "-resultater":
+        fire.cli.print(f"Skriver: {tuple(resultater)}")
+        fire.cli.print(f"Til filen '{projektnavn}{suffix}.xlsx'")
+    writer = pd.ExcelWriter(f"{projektnavn}{suffix}.xlsx", engine="xlsxwriter")
     for r in resultater:
         resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
     writer.save()
@@ -875,7 +869,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     check_om_resultatregneark_er_lukket(projektnavn)
     sag = check_om_sag_er_korrekt_oprettet(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
-    print(sagsgang)
 
     fire.cli.print("Lægger nye observationer i databasen")
     obstype_trig = firedb.hent_observationstype("trigonometrisk_koteforskel")
@@ -885,14 +878,18 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     observationer = pd.read_excel(
         f"{projektnavn}.xlsx", sheet_name="Observationer", usecols="A:S",
     )
+    # Fjern blanklinjer
+    observationer = observationer[observationer["Fra"] == observationer["Fra"]]
+    # Fjern allerede gemte
+    observationer = observationer[observationer["uuid"] != observationer["uuid"]]
+    observationer = observationer.reset_index(drop=True)
 
-    alle_kilder = " ".join(list(set(observationer.Kilde)))
+    alle_kilder = ", ".join(sorted(list(set(observationer.Kilde))))
     alle_uuider = observationer.uuid.astype(str)
 
     # Generer sagsevent
     sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.OBSERVATION_INDSAT)
-    er = "er" if len(til_registrering) > 1 else ""
-    sagseventtekst = f"Ilægning af observation{er} fra {alle_kilder}"
+    sagseventtekst = f"Ilægning af observationer fra {alle_kilder}"
     sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
     sagsevent.sagseventinfos.append(sagseventinfo)
 
@@ -921,6 +918,14 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
             sys.exit(1)
 
+        # For nivellementsobservationer er gruppeidentifikatoren identisk
+        # med journalsidenummeret
+        side = obs.Journal.split(":")[0]
+        if side.isnumeric():
+            gruppe = int(side)
+        else:
+            gruppe = None
+
         if obs.Type == "MTL":
             observation = Observation(
                 antal=1,
@@ -928,6 +933,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
                 observationstidspunkt=obs.Hvornår,
                 opstillingspunkt=punkt_fra,
                 sigtepunkt=punkt_til,
+                gruppe=gruppe,
                 id=uuid(),
                 value1=obs.ΔH,
                 value2=obs.L,
@@ -944,6 +950,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
                 observationstidspunkt=obs.Hvornår,
                 opstillingspunkt=id_fra,
                 sigtepunkt=id_til,
+                gruppe=gruppe,
                 id=uuid(),
                 value1=obs.ΔH,
                 value2=obs.L,
@@ -961,24 +968,35 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         til_registrering.append(observation)
 
     # Gør klar til at persistere
+    observationer["uuid"] = alle_uuider
+
+    # En lidt omstændelig dialog, for at fortælle at dette er en alvorlig ting.
+    fire.cli.print(sagseventtekst, fg="yellow", bold=True)
+    print(observationer[["Journal", "Fra", "Til", "uuid"]])
+    fire.cli.print(f"Skriver {len(til_registrering)} observationer")
+    fire.cli.print(
+        "-->  HELT sikker på at du vil skrive observationerne til databasen (ja/nej)? ",
+        bg="red",
+        fg="white",
+        bold=True,
+        nl=False,
+    )
+    if input() != "ja":
+        fire.cli.print("Dropper skrivning til database")
+        return
 
     # Persister observationerne til databasen
-    fire.cli.print(sagseventtekst, fg="yellow", bold=True)
-    if "ja" != input(
-        "-->  HELT sikker på at du vil skrive observationerne til databasen (ja/nej)? "
-    ):
-        fire.cli.print("Dropper skrivning")
-        return
-    firedb.indset_flere_observationer(sagsevent, til_registrering)
-
-    # ... og marker i regnearket at det er sket
-    observationer.uuid = alle_uuider
+    try:
+        firedb.indset_flere_observationer(sagsevent, til_registrering)
+    except:
+        fire.cli.print(
+            "Skrivning til databasen slog fejl", bg="red", fg="white", bold=True
+        )
+        sys.exit(1)
 
     # Skriv resultater til resultatregneark
-    resultater = dict()
-    resultater["Sagsgang"] = sagsgang
-    resultater["Observationer"] = observationer
-    skriv_resultater(projektnavn, resultater)
+    resultater = {"Sagsgang": sagsgang, "Observationer": observationer}
+    skriv_ark(projektnavn, resultater)
 
     fire.cli.print(
         f"Observationer registreret. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
@@ -1023,7 +1041,7 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     # ------------------------------------------------------
     punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
     resultater["Punktoversigt"] = punktoversigt
-    skriv_resultater(projektnavn, resultater)
+    skriv_ark(projektnavn, resultater)
     fire.cli.print(
         f"Dataindlæsning afsluttet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx'"
     )
@@ -1140,13 +1158,12 @@ def beregn_nye_koter(projektnavn: str, **kwargs) -> None:
     )
 
     punkter_geojson(projektnavn, resultater["Punktoversigt"])
-    skriv_resultater(projektnavn, resultater)
+    skriv_ark(projektnavn, resultater)
 
 
 # ------------------------------------------------------------------------------
 def find_sagsgang(projektnavn: str) -> pd.DataFrame:
     """Opbyg oversigt over sagsforløb"""
-    fire.cli.print(f"Finder sagsgang for {projektnavn}")
     return pd.read_excel(f"{projektnavn}.xlsx", sheet_name="Sagsgang")
 
 
@@ -1408,7 +1425,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     # Drop numerisk index
     nyetablerede = nyetablerede.reset_index(drop=True)
     resultater["Nyetablerede punkter"] = nyetablerede
-    skriv_resultater(projektnavn, resultater)
+    skriv_ark(projektnavn, resultater)
 
     fire.cli.print(
         f"Punkter oprettet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
@@ -1445,8 +1462,9 @@ def udtræk_revision(
 
     # Punkter med bare EN af disse attributter ignoreres
     uønskede_punkter = {
-        "ATTR:tabtgået",
         "ATTR:hjælpepunkt",
+        "ATTR:tabtgået",
+        "ATTR:teknikpunkt",
         "AFM:naturlig",
         "ATTR:MV_punkt",
     }
@@ -1537,7 +1555,7 @@ def udtræk_revision(
     resultater = {}
     resultater["Revision"] = revisionsinfo
 
-    skriv_resultater(projektnavn, resultater)
+    skriv_ark(projektnavn, resultater, "-revision")
     fire.cli.print("Den er Orla Porla!")
 
 
@@ -1640,5 +1658,5 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
     resultater["Filoversigt"] = filoversigt
     resultater["Version"] = version
 
-    skriv_arbejdsark(projektnavn, resultater)
+    skriv_ark(projektnavn, resultater, "")
     fire.cli.print("Den er Orla Porla!")
