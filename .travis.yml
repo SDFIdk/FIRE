@@ -21,6 +21,9 @@ script:
   - sed -i '/qgis/d' environment-dev.yml
   - conda env create -f environment-dev.yml
   - conda activate fire-dev
+  # Copy config file to suitable location
+  - cp .circleci/fire.ini ~/.fire.ini
+  # Build docs
   - sphinx-build -b html ./docs ./docs/_build
   # GitHub pages ignores folder starting with _, can be avoid by
   # adding a .nojekyll file
