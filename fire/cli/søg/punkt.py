@@ -8,6 +8,7 @@ from . import søg
 
 
 @søg.command()
+@fire.cli.default_options()
 @click.argument("ident")
 @click.option(
     "-n",
