@@ -15,6 +15,14 @@ def _set_monochrome(ctx, param, value):
     _show_colors = not value
 
 
+def _set_debug(ctx, param, value):
+    """
+    Ændrer debug tilstand på firedb object vha --debug.
+    """
+    global firedb
+    firedb.engine.echo = value
+
+
 _default_options = [
     click.option(
         "-m",
@@ -23,6 +31,7 @@ _default_options = [
         callback=_set_monochrome,
         help="Vis ikke farver i terminalen",
     ),
+    click.option("--debug", is_flag=True, callback=_set_debug, help="Vis debug output"),
     click.help_option(help="Vis denne hjælp tekst"),
 ]
 
