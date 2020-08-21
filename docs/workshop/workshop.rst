@@ -1,91 +1,6 @@
 .. _workshop:
 
-Workshop
-=======================
 
-Indledning
----------------------------------
-
-Velkommen til arbejdet med FIRE! Vi vil starte med at give en gennemgang af hvad 
-man kan med det nuværende setup, og løbende vil der komme mere på.
-
-Men før vi kommer rigtigt i gang, skal vi have noget basisviden om kommandolinjen.
-
-
-Generelle kommandoer i linjen 
------------------------------------------------------
-
-Navigation
-+++++++++++++++++++++++++
-
-Her følger en kort liste over hvordan man i Windows navigerer rundt på sin pc 
-vha. en terminal (fx miniconda) og kommandoer på linjen her. 
-
-===================  ===========================================  ===========================================
-**Kommando**         **Beskrivelse**                              **Eksempel på brug**
--------------------  -------------------------------------------  -------------------------------------------
-ls                   Oplist mapper og filer                       > ls
-dir eller ls -l      Oplist mapper og filer med detaljer          > ls -l
-cd *dir*             Skift mappe (change directory)               > cd Users\\b031422\\Desktop
-cd ..                Skift mappe et niveau op                     > cd ..
-cd\                  Hop til roden af server                      > cd\\
-*Drev*:              Skift drev (uafh. af aktuel placering        > F:
-md *dir*             Opret ny mappe (make directory)              > md TEST
-vim *fil*            Opret ny asciifil (fx med vim)               > vim TEST\\test
-cp *fil1* *fil2*     Kopier (copy) en given *fil1* til *fil2*     > cp test ..\\testkopi	
-mv *fil1* *fil2*     Flyt (move) en given *fil1* til *fil2*       > mv test ..\\. 
-rm *fil*             Slet (remove) en given *fil*                 > rm test
-rmdir *dir*          Slet tom mappe (remove directory)            > rmdir TEST
-\*                   Indikerer *alt*                              > rm TEST\\\*
-.                    Indikerer den aktuelle placering             > cp TEST\\test .
-\| eller >           Information pipes videre i kommandokaldet    > cat test1 test2 >testsamlet
-===================  ===========================================  ===========================================
-
-De fleste kommandoer dur også på unix, dog husk at man på unix benytter slash, /, 
-mens man på Windows benytter backslash, *\\*.
-
-Hvis en sti er skrevet helt ud med */*, kan Windows dog godt genkende og oversætte 
-til *\\*, men autocomplete funktionen *tab* fungerer ikke.
-Det skyldes, at Windows læser */* som en "escape character"-funktion, som man kan 
-sætte foran specielle tegn eller mellemrum, så karakteren læses korrekt, og ikke 
-fx som et mellemrum i kommandolinjen.  
-
-I de fleste terminaler (fx PuTTY, UltraEdit, miniconda...) fungerer *tab* som en 
-autocomplete. Dvs. man kan starte på at skrive et mappenavn eller filnavn, og 
-derefter trykke på tab. Terminalen vil da liste eller cykle igennem de givne 
-muligheder man har. Det er meget praktisk ved især lange fil- og mappenavne.
-
-Øvelse
-+++++++++++++++++++++
-
-Prøv selv at navigér rundt i terminalen og forsøg fx:
-
- | 1) at lave to mapper
- | 2) at oprette filer
- | 3) at flytte filer rundt mellem mapper
- | 4) at rydde op efter jer selv ved at slette filer og mapper
- | 5) at kopier en hel mappe og dens undermapper med indhold over et andet sted på 
-      drevet (hint: */s* er et eksempel på en parameter, der kan tilføjes kommandolinjen. 
-      Søg selv videre på nettet)
- 
- 
-Diverse programmer
-+++++++++++++++++++++++++++++++++++++++
-
-Nedenfor følger en liste over brugbare standardprogrammers anvendelse i terminalen.
-
-=============  ==========================================================  ===========================================
-**Program**    **Beskrivelse**                                             **Eksempel på brug**
--------------  ----------------------------------------------------------  -------------------------------------------
-cat            Sammensæt flere filer til en samlet og vis på skærm         > cat test1 test2 >testsamlet
-echo           Gentag input på skærmen, som kan pipes videre, fx til proj  > echo 12.4 55.8 36 | cct +proj=cart 
-grep           Søg efter bestemte udtryk i asciitekst og print til skærm   > grep -n DK test1
-vim            Tekstbehandlingsprogram, som notesblok, Notepad++ osv.      > vim test1
-=============  ==========================================================  ===========================================
-
-Alle programmer kan yderligere udforskes ved at bruge parameteren *--help*, fx::
- 
-	> grep --help
 
 Præsentation af FIRE 
 ---------------------
@@ -114,35 +29,71 @@ Derfor er det altså stadig kommandolinjekald, som er vejen frem! Men dermed bli
 overgangen til ny database og beregningssoftware nok ikke så slem alligevel.
 
 Nedenfor uddybes de funktionaliteter vi på nuværende tidspunkt har udviklet. Det er 
-alle underprogrammer under fire og køres derfor ved først at kalde ``fire`` efterfulgt 
-af underkommandoen.
+alle underprogrammer (og under-underprogrammer) under ``fire`` og køres derfor ved først at kalde ``fire`` efterfulgt 
+af underkommandoens navn.
 
-info
+fire info
 ++++++++++++++++++++
 
 En grundliggende funktionalitet er at kunne se hvilken data, der ligger i databasen, 
 altså hvilken info man har i arkivet. Til det er der udviklet et kommandolinjeprogram 
-kaldet `fire info`. Man kan se hvad programmet indeholder ved at taste 
-
-fremsøge et punkt og se hvilke oplysninger,
-der knytter sig til det. Det kunne man før med ``valde``, eller Valdemar i tjenesten,
-og det kan man selvfølgelig også med FIRE. Her hedder funktionen blot ``info`` og kaldes 
-via fire::
+kaldet ``fire info``. Man kan se hvad programmet indeholder ved at taste 
 
 	> fire info --help
 
-Hvis du vil have oplysninger om givent punkt, skrives fx:
+Herfra ses fem forskellige kommandoer man kan bruge:
+
+- ``infotype`` 
+- ``obstype``
+- ``punkt``
+- ``sag``
+- ``srid``
+
+Hvis man ønsker at fremsøge et punkt og se hvilke oplysninger, der knytter sig 
+til det (som man før kunne med ``valde``, eller Valdemar i tjenesten), kan man fx taste:
 
 	> fire info g.i.2010
 
-	Det er ligegyldet om der skrives med stort eller småt
+.. note:: Det er ligegyldet om der skrives med stort eller småt eller om der benyttes punktummer eller ej i argumentet.
+
+I udtrækket plottes diverse oplysninger om punktet direkte på skærmen, som set på billedet:
+
+.. image:: fireinfopunkt.png
+  :width: 800
+  :alt: Udtræk fra databasen for punkt G.I.2010
+
+Udtrækket viser den formodede relevante information, der ligger på punktet fra attribut-tabellerne
+og fra koordinattabellerne.
+I eksemplet ses det fx, at punktet er oprettet i databasen 19/3 1985, at det også hedder K-11-09263,
+og i øvrigt er et jessenpunkt til en tidsserie, samt at det har en DVR90-kote fra 3. præc. 
+(indikeret ved EPSG-kode 5799 og beregningstidspunkt 11/2-2000 kl. 13:30), en plankoordinat 
+fra 2011 (med EPSG-koden 4258) og to andre koordinater i andre net. Farven grøn indikerer at koordinaten
+er den gældende for det pågældende net.
+
+På samme måde kan andre elementer slås op i databasen, bl.a. 
+
+Øvelse
+^^^^^^^^^^^^^^^^^^^^
+
+Prøv selv at fremsøge mere info, fx:
+
+1. alle observationer fra et givent punkt
+2. alle historiske koordinater for et punkt
+3. tekstbeskrivelsen på attributten AFM:2701
+4. alle aktive sager i databasen
 
 
-mtl
+
+
+fire niv
 ++++++++++++++++++++++++++++++++
-Der er blevet udviklet et kommandolinjeprogram til udjævningsberegning kaldet ``mtl``. 
-Læs om hvordan programmet kaldes :ref:`her <kommandolinjeprogrammer_mtl>`
+Der er blevet udviklet et kommandolinjeprogram til udjævningsberegning kaldet ``niv``. 
+Læs om hvordan programmet kaldes :ref:`her <kommandolinjeprogrammer_niv>`
 
+Fra dette kald kan hele produktionslinjen køres; fra dataudtræk, revision, beregning, til 
+ilægning af resultat og generering af afsluttende rapport til kunde.
+
+Vi vil nedenfor gennemgå processen.
 
 Revision
 ++++++++++++++++
@@ -154,9 +105,8 @@ Opdatering af database
 Beregning
 ++++++++++++++++
 
+
+
+
 Visualisering i QGIS
 ------------------------
-
-
-
-
