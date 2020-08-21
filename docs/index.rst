@@ -10,8 +10,7 @@ FIRE - FIkspunktREgister
     for_udviklere
     apps/index
     api/modules
-    workshop/index
-
+    workshop/workshop
 
 
 Indices and tables

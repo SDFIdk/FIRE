@@ -57,7 +57,7 @@ FIRE
     Det er for nuværende mere kompliceret at installere koden end det bliver i fremtiden.
     Hav tålmodighed, der er smartere løsninger på vej!
 
-Åben "Anaconda Prompt". Start med at lave en ny mappe til FIRE koden og download
+Åbn "Anaconda Prompt". Start med at lave en ny mappe til FIRE koden og download
 den med git::
 
     > mkdir C:\fire
