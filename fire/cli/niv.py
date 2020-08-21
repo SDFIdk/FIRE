@@ -47,7 +47,7 @@ from fire.api.model import (
 
 # ------------------------------------------------------------------------------
 @click.group()
-def mtl():
+def niv():
     """Motoriseret trigonometrisk nivellement: Arbejdsflow, beregning og analyse
 
     Underkommandoerne:
@@ -101,17 +101,17 @@ def mtl():
 
     Eksempel:
 
-    fire mtl opret-sag andeby_2020 "Thomas Knudsen" "Testsag: Nyopmåling af Andeby"
+    fire niv opret-sag andeby_2020 "Thomas Knudsen" "Testsag: Nyopmåling af Andeby"
 
-    fire mtl læs-observationer andeby_2020
+    fire niv læs-observationer andeby_2020
 
-    fire mtl beregn-nye-koter andeby_2020
+    fire niv beregn-nye-koter andeby_2020
 
     andeby_2020-resultat.html
 
-    fire mtl ilæg-observationer andeby_2020
+    fire niv ilæg-observationer andeby_2020
 
-    fire mtl ilæg-koter andeby_2020
+    fire niv ilæg-koter andeby_2020
 
     """
     pass
@@ -173,7 +173,7 @@ def check_om_sag_er_korrekt_oprettet(projektnavn: str) -> Sag:
         sag = firedb.hent_sag(sagsid)
     except:
         fire.cli.print(
-            f" Sag for {projektnavn} er endnu ikke oprettet - brug fire mtl opret-sag! ",
+            f" Sag for {projektnavn} er endnu ikke oprettet - brug fire niv opret-sag! ",
             bold=True,
             bg="red",
         )
@@ -723,7 +723,7 @@ def find_holdte(punktoversigt: pd.DataFrame) -> Dict[str, Tuple[float, float]]:
 # -----------------------------------------------------------------------------
 # NB: et sted undervejs i eksporten af instrument-rådata bliver utf-8 tegn
 # tilsyneladende erstattet af sekvensen "EF BF BD (character place keeper)".
-# Så det er ikke en fejl i mtl.py, når kommentaren "tæt trafik"
+# Så det er ikke en fejl i niv.py, når kommentaren "tæt trafik"
 # bliver repræsenteret som "t�t trafik". Fejlen må rettes opstrøms.
 # -----------------------------------------------------------------------------
 def skriv_ark(
@@ -857,7 +857,7 @@ def gama_beregning(
 # ------------------------------------------------------------------------------
 # Her starter observationsregistreringsprogrammet...
 # ------------------------------------------------------------------------------
-@mtl.command()
+@niv.command()
 @fire.cli.default_options()
 @click.argument(
     "projektnavn", nargs=1, type=str,
@@ -1007,7 +1007,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 # ------------------------------------------------------------------------------
 # Her starter indlæsningsprogrammet...
 # ------------------------------------------------------------------------------
-@mtl.command()
+@niv.command()
 @fire.cli.default_options()
 @click.argument(
     "projektnavn", nargs=1, type=str,
@@ -1057,7 +1057,7 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
 # ------------------------------------------------------------------------------
 # Her starter regneprogrammet...
 # ------------------------------------------------------------------------------
-@mtl.command()
+@niv.command()
 @fire.cli.default_options()
 @click.argument(
     "projektnavn", nargs=1, type=str,
@@ -1200,7 +1200,7 @@ def find_alle_løbenumre_i_distrikt(distrikt: str) -> List[str]:
 # ------------------------------------------------------------------------------
 # Her starter punktregistreringsprogrammet...
 # ------------------------------------------------------------------------------
-@mtl.command()
+@niv.command()
 @fire.cli.default_options()
 @click.argument(
     "projektnavn", nargs=1, type=str,
@@ -1436,7 +1436,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 # ------------------------------------------------------------------------------
 # Her starter koteregistreringsprogrammet...
 # ------------------------------------------------------------------------------
-@mtl.command()
+@niv.command()
 @fire.cli.default_options()
 @click.argument(
     "projektnavn", nargs=1, type=str,
@@ -1548,9 +1548,9 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 # ------------------------------------------------------------------------------
 # Her starter punktrevisionsprogrammet
 #
-# fx fire mtl udtræk-revision ost K-07 11-08
+# fx fire niv udtræk-revision ost K-07 11-08
 # ------------------------------------------------------------------------------
-@mtl.command()
+@niv.command()
 @fire.cli.default_options()
 @click.argument(
     "projektnavn", nargs=1, type=str,
@@ -1675,7 +1675,7 @@ def udtræk_revision(
 # ------------------------------------------------------------------------------
 # Her starter sagsoprettelsesprogrammet
 # ------------------------------------------------------------------------------
-@mtl.command()
+@niv.command()
 @fire.cli.default_options()
 @click.argument(
     "projektnavn", nargs=1, type=str,
