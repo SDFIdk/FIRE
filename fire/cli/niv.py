@@ -807,13 +807,8 @@ def gama_beregning(
             f"{projektnavn}-resultat.html",
         ]
     )
-    if 0 != ret.returncode:
-        fire.cli.print(
-            f"ADVARSEL! GNU Gama fandt mistænkelige observationer - check {projektnavn}-resultat.html for detaljer",
-            bg="red",
-            fg="white",
-            err=False,
-        )
+    if ret.returncode:
+        fire.cli.print(f"Check {projektnavn}-resultat.html", bg="red", fg="white")
     webbrowser.open_new_tab(f"{projektnavn}-resultat.html")
 
     # ----------------------------------------------
@@ -996,7 +991,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     # Skriv resultater til resultatregneark
     resultater = {"Sagsgang": sagsgang, "Observationer": observationer}
     skriv_ark(projektnavn, resultater)
-
     fire.cli.print(
         f"Observationer registreret. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
     )
@@ -1234,9 +1228,6 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         fire.cli.print("Ingen nyetablerede punkter at registrere")
         return
 
-    til_registrering = []
-    anvendte_løbenumre = {}
-    sagsevent = None
     landsnummer_pit = firedb.hent_punktinformationtype("IDENT:landsnr")
     beskrivelse_pit = firedb.hent_punktinformationtype("ATTR:beskrivelse")
     h_over_terræn_pit = firedb.hent_punktinformationtype("AFM:højde_over_terræn")
@@ -1248,6 +1239,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     # under et enkelt sagsevent
     genererede_punkter = {}
     genererede_landsnumre = []
+    anvendte_løbenumre = {}
 
     for i in range(n):
         # Et tomt tekstfelt kan repræsenteres på en del forskellige måder...
@@ -1479,7 +1471,6 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     til_registrering = []
     opdaterede_punkter = []
-
     for punktdata in punktoversigt.to_dict(orient="records"):
         # Blanklinje, eller allerede registreret?
         if pd.isna(punktdata["Ny kote"]) or not pd.isna(punktdata["uuid"]):
@@ -1729,7 +1720,7 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
     nyetablerede = pd.DataFrame(columns=tuple(arkdef_nyetablerede_punkter)).astype(
         arkdef_nyetablerede_punkter
     )
-    notater = pd.DataFrame([{"Dato": pd.Timestamp.now(), "Hvem": "", "Tekst": "",}])
+    notater = pd.DataFrame([{"Dato": pd.Timestamp.now(), "Hvem": "", "Tekst": ""}])
     filoversigt = pd.DataFrame(columns=tuple(arkdef_filoversigt))
     version = pd.DataFrame({"Navn": ["Major", "Minor", "Revision"], "Værdi": [0, 0, 0]})
 
