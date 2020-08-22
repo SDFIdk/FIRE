@@ -90,14 +90,16 @@ def niv():
     BEREGN-NYE-KOTER beregner nye koter til alle punkter, og genererer rapporter og
     visualiseringsmateriale.
 
+    ADJ er et synonym for BEREGN-NYE-KOTER, tilegnet nostalgikere og feinschmeckere.
+
     ILÆG-OBSERVATIONER lægger nye observationer i databasen.
 
-    ILÆG-KOTER lægger nyberegnede koter i databasen.
+    ILÆG-NYE-KOTER lægger nyberegnede koter i databasen.
 
     LUK-SAG arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
 
-    (i skrivende stund er ILÆG-REVISION, ILÆG-KOTER og LUK-SAG
-    endnu ikke implementeret, og ILÆG-NYE-PUNKTER står for en større overhaling)
+    (i skrivende stund er ILÆG-REVISION og LUK-SAG endnu ikke implementeret, og
+    ILÆG-NYE-PUNKTER står for en større overhaling)
 
     Eksempel:
 
@@ -757,7 +759,7 @@ def gama_beregning(
             f"<?xml version='1.0' ?><gama-local>\n"
             f"<network angles='left-handed' axes-xy='en' epoch='0.0'>\n"
             f"<parameters\n"
-            f"    algorithm='svd' angles='400' conf-pr='0.95'\n"
+            f"    algorithm='gso' angles='400' conf-pr='0.95'\n"
             f"    cov-band='0' ellipsoid='grs80' latitude='55.7' sigma-act='apriori'\n"
             f"    sigma-apr='1.0' tol-abs='1000.0'\n"
             f"    update-constrained-coordinates='no'\n"
@@ -1057,15 +1059,31 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
 # ------------------------------------------------------------------------------
 # Her starter regneprogrammet...
 # ------------------------------------------------------------------------------
+# Aliaserne 'adj'/'beregn_nye_koter' er synonymer for 'udfør_beregn_nye_koter',
+# som klarer det egentlige hårde arbejde.
+# ------------------------------------------------------------------------------
+
+
 @niv.command()
 @fire.cli.default_options()
-@click.argument(
-    "projektnavn", nargs=1, type=str,
-)
+@click.argument("projektnavn", nargs=1, type=str)
+def adj(projektnavn: str, **kwargs) -> None:
+    """Udfør netanalyse og beregn nye koter"""
+    udfør_beregn_nye_koter(projektnavn)
+
+
+@niv.command()
+@fire.cli.default_options()
+@click.argument("projektnavn", nargs=1, type=str)
 def beregn_nye_koter(projektnavn: str, **kwargs) -> None:
     """Udfør netanalyse og beregn nye koter"""
+    udfør_beregn_nye_koter(projektnavn)
+
+
+def udfør_beregn_nye_koter(projektnavn: str) -> None:
     check_om_resultatregneark_er_lukket(projektnavn)
     fire.cli.print("Så regner vi")
+    return
 
     resultater = {}
 
@@ -1531,8 +1549,6 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         fire.cli.print("Dropper skrivning")
         return
 
-    # Dette virker ikke, og indset_beregning virker heller ikke
-    # trigger en ”ORA-00001: unique constraint (FIRE_ADM.KOOR_UNIQ_001)”
     sagsevent.koordinater = til_registrering
     firedb.indset_sagsevent(sagsevent)
 
