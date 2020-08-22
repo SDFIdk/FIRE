@@ -4,7 +4,9 @@ import os
 import os.path
 import subprocess
 import sys
+import webbrowser
 
+from collections import namedtuple
 from datetime import datetime
 from enum import IntEnum
 from itertools import chain
@@ -109,14 +111,59 @@ def niv():
 
     fire niv beregn-nye-koter andeby_2020
 
-    andeby_2020-resultat.html
-
     fire niv ilæg-observationer andeby_2020
 
     fire niv ilæg-koter andeby_2020
 
     """
     pass
+
+
+# ------------------------------------------------------------------------------
+# Regnearksdefinitioner (søjlenavne og -typer)
+# ------------------------------------------------------------------------------
+
+arkdef_filoversigt = {"Filnavn": str, "Type": str, "σ": float, "δ": float}
+
+arkdef_nyetablerede_punkter = {
+    "Foreløbigt navn": str,
+    "Landsnummer": str,
+    "φ": np.float64,
+    "λ": np.float64,
+    "Etableret dato": "datetime64[ns]",
+    "Hvem": str,
+    "Beskrivelse": str,
+    "Afmærkning": str,
+    "Højde over terræn": np.float64,
+    "uuid": str,
+}
+
+
+arkdef_revision = {
+    "Punkt": str,
+    "Sluk": str,
+    "Attribut": str,
+    "Talværdi": float,
+    "Tekstværdi": str,
+    "id": np.int64,
+    "Ikke besøgt": str,
+}
+
+arkdef_sag = {
+    "Dato": "datetime64[ns]",
+    "Hvem": str,
+    "Hændelse": str,
+    "Tekst": str,
+    "uuid": str,
+}
+
+
+def anvendte(arkdef: Dict) -> str:
+    """Anvendte søjler for given arkdef"""
+    n = len(arkdef)
+    if (n < 1) or (n > 26):
+        return ""
+    return "A:" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[n - 1]
 
 
 # ------------------------------------------------------------------------------
@@ -310,39 +357,11 @@ def get_observation_strings(filinfo: pd.DataFrame, verbose: bool = False) -> Lis
 def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
     """Opbyg oversigt over nyetablerede punkter"""
     fire.cli.print("Finder nyetablerede punkter")
-    datatyper = {
-        "Foreløbigt navn": "string",
-        "Landsnummer": "string",
-        "φ": np.float64,
-        "λ": np.float64,
-        "Foreløbig kote": np.float64,
-        "Etableret dato": "string",
-        "Hvem": "string",
-        "Beskrivelse": "string",
-        "Afmærkning": "string",
-        "Højde over terræn": np.float64,
-        "uuid": "string",
-    }
-
-    søjlenavne = (
-        "Foreløbigt navn",
-        "Landsnummer",
-        "φ",
-        "λ",
-        "Foreløbig kote",
-        "Etableret dato",
-        "Hvem",
-        "Beskrivelse",
-        "Afmærkning",
-        "Højde over terræn",
-        "uuid",
-    )
     nyetablerede = pd.read_excel(
-        f"{projektnavn}.xlsx", sheet_name="Nyetablerede punkter", usecols="A:K",
+        f"{projektnavn}.xlsx",
+        sheet_name="Nyetablerede punkter",
+        usecols=anvendte(arkdef_nyetablerede_punkter),
     )
-
-    # Af uudgrundelige årsager insisterer uuid-søjlen på at være float...
-    nyetablerede["uuid"] = nyetablerede.uuid.astype(str)
 
     # Sæt 'Foreløbigt navn'-søjlen som index, så vi kan adressere
     # som nyetablerede.at[punktnavn, elementnavn]
@@ -536,7 +555,7 @@ def opbyg_punktoversigt(
             "Ny kote",
             "Ny σ",
             "Δ-kote [mm]",
-            "Kommentar",
+            "System",
             "φ",
             "λ",
             "uuid",
@@ -560,8 +579,6 @@ def opbyg_punktoversigt(
         )
         sys.exit(1)
 
-    print(f"ALLE PUNKTER: {alle_punkter}")
-    print(f"NYE PUNKTER: {nye_punkter}")
     for punkt in alle_punkter:
         if not pd.isna(punktoversigt.at[punkt, "Kote"]):
             continue
@@ -591,7 +608,8 @@ def opbyg_punktoversigt(
         punktoversigt.at[punkt, "Kote"] = kote.z
         punktoversigt.at[punkt, "σ"] = kote.sz
         punktoversigt.at[punkt, "År"] = kote.registreringfra.year
-        punktoversigt.at[punkt, "uuid"] = pkt.id
+        punktoversigt.at[punkt, "System"] = "DVR90"
+        punktoversigt.at[punkt, "uuid"] = ""
 
         if pd.isna(punktoversigt.at[punkt, "φ"]):
             punktoversigt.at[punkt, "φ"] = pkt.geometri.koordinater[1]
@@ -601,34 +619,17 @@ def opbyg_punktoversigt(
     # koter og placeringskoordinater i fanebladet 'Nyetablerede punkter'
     for punkt in nye_punkter:
         if pd.isna(punktoversigt.at[punkt, "Kote"]):
-            punktoversigt.at[punkt, "Kote"] = nyetablerede.at[punkt, "Foreløbig kote"]
+            punktoversigt.at[punkt, "Kote"] = 0
         if pd.isna(punktoversigt.at[punkt, "φ"]):
             punktoversigt.at[punkt, "φ"] = nyetablerede.at[punkt, "φ"]
         if pd.isna(punktoversigt.at[punkt, "λ"]):
             punktoversigt.at[punkt, "λ"] = nyetablerede.at[punkt, "λ"]
 
-    # Check op på placeringskoordinaterne. Hvis nogle ligner UTM, så regner vi
-    # om til geografiske koordinater. NaN og 0 flyttes ud i Kattegat, så man kan
-    # få øje på dem
-    utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
-    assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
+    # Check op på placeringskoordinaterne
     for punkt in alle_punkter:
-        phi = punktoversigt.at[punkt, "φ"]
-        lam = punktoversigt.at[punkt, "λ"]
-
-        if pd.isna(phi) or pd.isna(lam) or 0 == phi or 0 == lam:
-            punktoversigt.at[punkt, "φ"] = 56
-            punktoversigt.at[punkt, "λ"] = 11
-            continue
-
-        # Heuristik til at skelne mellem UTM og geografiske koordinater.
-        # Heuristikken fejler kun for UTM-koordinater fra et lille
-        # område på 4 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
-        # Det er langt ude i Atlanterhavet, så det lever vi med.
-        if abs(phi) < 100 and abs(lam) < 100:
-            continue
-
-        (λ, φ) = utm32(lam, phi, inverse=True)
+        (λ, φ) = normaliser_placeringskoordinat(
+            punktoversigt.at[punkt, "λ"], punktoversigt.at[punkt, "φ"]
+        )
         punktoversigt.at[punkt, "φ"] = φ
         punktoversigt.at[punkt, "λ"] = λ
 
@@ -703,17 +704,10 @@ def netanalyse(
 
 # ------------------------------------------------------------------------------
 def find_fastholdte(punktoversigt: pd.DataFrame) -> Dict[str, float]:
-    fastholdte_punkter = tuple(punktoversigt[punktoversigt["Fix"] == 0]["Punkt"])
-    fastholdteKoter = tuple(punktoversigt[punktoversigt["Fix"] == 0]["Kote"])
+    relevante = punktoversigt[punktoversigt["Fix"] == "x"]
+    fastholdte_punkter = tuple(relevante["Punkt"])
+    fastholdteKoter = tuple(relevante["Kote"])
     return dict(zip(fastholdte_punkter, fastholdteKoter))
-
-
-# ------------------------------------------------------------------------------
-def find_holdte(punktoversigt: pd.DataFrame) -> Dict[str, Tuple[float, float]]:
-    holdte_punkter = tuple(punktoversigt[punktoversigt["Fix"] > 0]["Punkt"])
-    holdteKoter = tuple(punktoversigt[punktoversigt["Fix"] > 0]["Kote"])
-    holdteSpredning = tuple(punktoversigt[punktoversigt["Fix"] > 0]["Fix"])
-    return dict(zip(holdte_punkter, zip(holdteKoter, holdteSpredning)))
 
 
 # -----------------------------------------------------------------------------
@@ -814,13 +808,14 @@ def gama_beregning(
             f"{projektnavn}-resultat.html",
         ]
     )
-    if 0 != ret:
+    if 0 != ret.returncode:
         fire.cli.print(
             f"ADVARSEL! GNU Gama fandt mistænkelige observationer - check {projektnavn}-resultat.html for detaljer",
             bg="red",
             fg="white",
             err=False,
         )
+    webbrowser.open_new_tab(f"{projektnavn}-resultat.html")
 
     # ----------------------------------------------
     # Grav resultater frem fra GNU Gamas outputfil
@@ -897,12 +892,13 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     sagsevent.sagseventinfos.append(sagseventinfo)
 
     # Generer dokumentation til fanebladet "Sagsgang"
-    sagsgangslinje = dict()
-    sagsgangslinje["Dato"] = pd.Timestamp.now()
-    sagsgangslinje["Hvem"] = sagsbehandler
-    sagsgangslinje["Hændelse"] = "observationsilægning"
-    sagsgangslinje["Tekst"] = sagseventtekst
-    sagsgangslinje["uuid"] = sagsevent.id
+    sagsgangslinje = {
+        "Dato": pd.Timestamp.now(),
+        "Hvem": sagsbehandler,
+        "Hændelse": "observationsilægning",
+        "Tekst": sagseventtekst,
+        "uuid": sagsevent.id,
+    }
     sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
 
     for i, obs in enumerate(observationer.itertuples(index=False)):
@@ -1083,7 +1079,6 @@ def beregn_nye_koter(projektnavn: str, **kwargs) -> None:
 def udfør_beregn_nye_koter(projektnavn: str) -> None:
     check_om_resultatregneark_er_lukket(projektnavn)
     fire.cli.print("Så regner vi")
-    return
 
     resultater = {}
 
@@ -1143,7 +1138,7 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
         sys.exit(1)
 
     # -----------------------------------------------------
-    # Find fastholdte og holdte ('constrainede')
+    # Find fastholdte
     # -----------------------------------------------------
     fastholdte = find_fastholdte(punktoversigt)
     if len(fastholdte) == 0:
@@ -1151,10 +1146,6 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
         fastholdte = {observerede_punkter[0]: 0}
     # Nem oversigt fordi tuple(fastholdte) er tuple(fastholdte.keys())
     fire.cli.print(f"Fastholdte: {tuple(fastholdte)}")
-
-    holdte = find_holdte(punktoversigt)
-    if len(holdte) > 0:
-        fire.cli.print(f"Holdte: {tuple(holdte)}")
 
     # -----------------------------------------------------
     # Udfør netanalyse
@@ -1418,12 +1409,13 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     sagsevent.sagseventinfos.append(sagseventinfo)
 
     # Generer dokumentation til fanebladet "Sagsgang"
-    sagsgangslinje = {}
-    sagsgangslinje["Dato"] = pd.Timestamp.now()
-    sagsgangslinje["Hvem"] = sagsbehandler
-    sagsgangslinje["Hændelse"] = "punktoprettelse"
-    sagsgangslinje["Tekst"] = sagseventtekst
-    sagsgangslinje["uuid"] = sagsevent.id
+    sagsgangslinje = {
+        "Dato": pd.Timestamp.now(),
+        "Hvem": sagsbehandler,
+        "Hændelse": "punktoprettelse",
+        "Tekst": sagseventtekst,
+        "uuid": sagsevent.id,
+    }
     sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
 
     # Persister punkterne til databasen
@@ -1577,17 +1569,7 @@ def udtræk_revision(
 ) -> None:
     """Gør klar til punktrevision: Udtræk eksisterende information."""
 
-    revisionsinfo = pd.DataFrame(
-        columns=(
-            "Punkt",
-            "Sluk",
-            "Attribut",
-            "Talværdi",
-            "Tekstværdi",
-            "id",
-            "Ikke besøgt",
-        )
-    ).astype({"Talværdi": float, "id": np.int64})
+    revision = pd.DataFrame(columns=tuple(arkdef_revision)).astype(arkdef_revision)
 
     # Punkter med bare EN af disse attributter ignoreres
     uønskede_punkter = {
@@ -1643,7 +1625,23 @@ def udtræk_revision(
                         continue
 
             fire.cli.print(f"Punkt: {ident}")
-            for info in punkt.punktinformationer:
+
+            # Find index for aktuelle punktbeskrivelse, for at kunne vise den først
+            beskrivelse = 0
+            for i, info in enumerate(punkt.punktinformationer):
+                if info.registreringtil is not None:
+                    continue
+                if info.infotype.name != "ATTR:beskrivelse":
+                    continue
+                beskrivelse = i
+                break
+            indices = list(range(len(punkt.punktinformationer)))
+            indices[0] = beskrivelse
+            indices[beskrivelse] = 0
+
+            # Så itererer vi, med aktuelle beskrivelse først
+            for i in indices:
+                info = punkt.punktinformationer[i]
                 if info.registreringtil is not None:
                     continue
                 attributnavn = info.infotype.name
@@ -1656,7 +1654,7 @@ def udtræk_revision(
                 if tekst:
                     tekst = tekst.strip()
                 tal = info.tal
-                revisionsinfo = revisionsinfo.append(
+                revision = revision.append(
                     {
                         "Punkt": ident,
                         "Sluk": "",
@@ -1664,25 +1662,18 @@ def udtræk_revision(
                         "Talværdi": tal,
                         "Tekstværdi": tekst,
                         "id": info.objektid,
+                        "Ikke besøgt": "x" if i == beskrivelse else None,
                     },
                     ignore_index=True,
                 )
 
-            # En besøgslinje og to blanklinjer efter hvert punktoversigt
-            revisionsinfo = revisionsinfo.append(
-                {
-                    "Punkt": ident,
-                    "Attribut": "ATTR:bemærkning",
-                    "Tekstværdi": "",
-                    "Ikke besøgt": "x",
-                },
-                ignore_index=True,
-            )
-            revisionsinfo = revisionsinfo.append({}, ignore_index=True)
-            revisionsinfo = revisionsinfo.append({}, ignore_index=True)
+            # To blanklinjer efter hvert punktoversigt
+            revision = revision.append({}, ignore_index=True)
+            revision = revision.append({}, ignore_index=True)
 
     resultater = {}
-    resultater["Revision"] = revisionsinfo
+    resultater["Revision"] = revision
+    print(revision)
 
     skriv_ark(projektnavn, resultater, "-revision")
     fire.cli.print("Den er Orla Porla!")
@@ -1718,9 +1709,7 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
         "Tekst": f"{projektnavn}: {beskrivelse}",
         "uuid": uuid(),
     }
-    sagsgang = pd.DataFrame(
-        [sag], columns=("Dato", "Hvem", "Hændelse", "Tekst", "uuid"),
-    )
+    sagsgang = pd.DataFrame([sag], columns=tuple(arkdef_sag))
 
     fire.cli.print(
         f" BEKRÆFT: Opretter ny sag i FIRE databasen!!! ", bg="red", fg="white"
@@ -1747,37 +1736,12 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
 
     # Dummyopsætninger til sagsregnearkets sider
     forside = pd.DataFrame()
-    nyetablerede = pd.DataFrame(
-        [
-            {
-                "Foreløbigt navn": "",
-                "Landsnummer": "",
-                "φ": 0.0,
-                "λ": 0.0,
-                "Foreløbig kote": 0.0,
-                "Etableret dato": pd.Timestamp.now(),
-                "Hvem": "",
-                "Beskrivelse": "Denne linje kan slettes",
-                "Afmærkning": "",
-                "Højde over terræn": 0.0,
-                "uuid": "",
-            }
-        ]
+    nyetablerede = pd.DataFrame(columns=tuple(arkdef_nyetablerede_punkter)).astype(
+        arkdef_nyetablerede_punkter
     )
-
     notater = pd.DataFrame([{"Dato": pd.Timestamp.now(), "Hvem": "", "Tekst": "",}])
-    filoversigt = pd.DataFrame(
-        [
-            {
-                "Filnavn": "",
-                "Type": "MTL",
-                "σ": 0.7,
-                "δ": 0.1,
-                "Kommentar": "Denne linje kan slettes",
-            }
-        ]
-    )
-    version = pd.DataFrame([{"Major": 0, "Minor": 0, "Revision": 0,}])
+    filoversigt = pd.DataFrame(columns=tuple(arkdef_filoversigt))
+    version = pd.DataFrame({"Navn": ["Major", "Minor", "Revision"], "Værdi": [0, 0, 0]})
 
     resultater = {}
     resultater["Projektforside"] = forside
