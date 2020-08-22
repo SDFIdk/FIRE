@@ -6,7 +6,6 @@ import subprocess
 import sys
 import webbrowser
 
-from collections import namedtuple
 from datetime import datetime
 from enum import IntEnum
 from itertools import chain
@@ -50,7 +49,7 @@ from fire.api.model import (
 # ------------------------------------------------------------------------------
 @click.group()
 def niv():
-    """Motoriseret trigonometrisk nivellement: Arbejdsflow, beregning og analyse
+    """Nivellement: Arbejdsflow, beregning og analyse
 
     Underkommandoerne:
 
@@ -987,10 +986,11 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     # Persister observationerne til databasen
     try:
         firedb.indset_flere_observationer(sagsevent, til_registrering)
-    except:
+    except Exception as ex:
         fire.cli.print(
             "Skrivning til databasen slog fejl", bg="red", fg="white", bold=True
         )
+        fire.cli.print(f"Mulig årsag: {ex}")
         sys.exit(1)
 
     # Skriv resultater til resultatregneark
@@ -1080,8 +1080,6 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     check_om_resultatregneark_er_lukket(projektnavn)
     fire.cli.print("Så regner vi")
 
-    resultater = {}
-
     # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
     # -----------------------------------------------------
@@ -1151,8 +1149,7 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     # Udfør netanalyse
     # -----------------------------------------------------
     (net, ensomme) = netanalyse(observationer, alle_punkter, tuple(fastholdte))
-    resultater["Netgeometri"] = net
-    resultater["Ensomme"] = ensomme
+    resultater = {"Netgeometri": net, "Ensomme": ensomme}
 
     forbundne_punkter = tuple(sorted(net["Punkt"]))
     ensomme_punkter = tuple(sorted(ensomme["Punkt"]))
@@ -1224,7 +1221,6 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     sagsgang = find_sagsgang(projektnavn)
 
     fire.cli.print("Lægger nye punkter i databasen")
-    resultater = {}
 
     # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
@@ -1430,14 +1426,12 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     # ... og marker i regnearket at det er sket
     for k in genererede_punkter:
         nyetablerede.at[k, "uuid"] = genererede_punkter[k].id
-
-    # Skriv resultater til resultatregneark
-    resultater["Sagsgang"] = sagsgang
     # Drop numerisk index
     nyetablerede = nyetablerede.reset_index(drop=True)
-    resultater["Nyetablerede punkter"] = nyetablerede
-    skriv_ark(projektnavn, resultater)
 
+    # Skriv resultater til resultatregneark
+    resultater = {"Sagsgang": sagsgang, "Nyetablerede punkter": nyetablerede}
+    skriv_ark(projektnavn, resultater)
     fire.cli.print(
         f"Punkter oprettet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
     )
@@ -1666,15 +1660,11 @@ def udtræk_revision(
                     },
                     ignore_index=True,
                 )
-
             # To blanklinjer efter hvert punktoversigt
             revision = revision.append({}, ignore_index=True)
             revision = revision.append({}, ignore_index=True)
 
-    resultater = {}
-    resultater["Revision"] = revision
-    print(revision)
-
+    resultater = {"Revision": revision}
     skriv_ark(projektnavn, resultater, "-revision")
     fire.cli.print("Den er Orla Porla!")
 
@@ -1743,13 +1733,14 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
     filoversigt = pd.DataFrame(columns=tuple(arkdef_filoversigt))
     version = pd.DataFrame({"Navn": ["Major", "Minor", "Revision"], "Værdi": [0, 0, 0]})
 
-    resultater = {}
-    resultater["Projektforside"] = forside
-    resultater["Sagsgang"] = sagsgang
-    resultater["Nyetablerede punkter"] = nyetablerede
-    resultater["Notater"] = notater
-    resultater["Filoversigt"] = filoversigt
-    resultater["Version"] = version
+    resultater = {
+        "Projektforside": forside,
+        "Sagsgang": sagsgang,
+        "Nyetablerede punkter": nyetablerede,
+        "Notater": notater,
+        "Filoversigt": filoversigt,
+        "Version": version,
+    }
 
     skriv_ark(projektnavn, resultater, "")
     fire.cli.print("Den er Orla Porla!")
