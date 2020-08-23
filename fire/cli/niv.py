@@ -16,7 +16,6 @@ from fire import uuid
 
 # Tredjepartsafhængigheder
 import click
-import numpy as np
 import pandas as pd
 import xmltodict
 
@@ -127,13 +126,13 @@ arkdef_filoversigt = {"Filnavn": str, "Type": str, "σ": float, "δ": float}
 arkdef_nyetablerede_punkter = {
     "Foreløbigt navn": str,
     "Landsnummer": str,
-    "φ": np.float64,
-    "λ": np.float64,
+    "φ": float,
+    "λ": float,
     "Etableret dato": "datetime64[ns]",
     "Hvem": str,
     "Beskrivelse": str,
     "Afmærkning": str,
-    "Højde over terræn": np.float64,
+    "Højde over terræn": float,
     "uuid": str,
 }
 
@@ -144,7 +143,7 @@ arkdef_revision = {
     "Attribut": str,
     "Talværdi": float,
     "Tekstværdi": str,
-    "id": np.int64,
+    "id": int,
     "Ikke besøgt": str,
 }
 
@@ -1672,16 +1671,18 @@ def udtræk_revision(
     "sagsbehandler", nargs=1, type=str,
 )
 @click.argument(
-    "beskrivelse", nargs=1, type=str,
+    "beskrivelse", nargs=-1, type=str,
 )
 def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) -> None:
-    """Registrer ny sag i databasen - husk anførelsestegn om argumenterne"""
+    """Registrer ny sag i databasen - husk anførelsestegn om sagsbehandlernavn"""
 
     if os.path.isfile(f"{projektnavn}.xlsx"):
         fire.cli.print(
             f"Filen '{projektnavn}.xlsx' eksisterer - sagen er allerede oprettet"
         )
         sys.exit(1)
+
+    beskrivelse = " ".join(beskrivelse)
 
     sag = {
         "Dato": pd.Timestamp.now(),
@@ -1722,7 +1723,7 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
     )
     notater = pd.DataFrame([{"Dato": pd.Timestamp.now(), "Hvem": "", "Tekst": ""}])
     filoversigt = pd.DataFrame(columns=tuple(arkdef_filoversigt))
-    version = pd.DataFrame({"Navn": ["Major", "Minor", "Revision"], "Værdi": [0, 0, 0]})
+    param = pd.DataFrame({"Navn": ["Major", "Minor", "Revision"], "Værdi": [0, 0, 0]})
 
     resultater = {
         "Projektforside": forside,
@@ -1730,7 +1731,7 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
         "Nyetablerede punkter": nyetablerede,
         "Notater": notater,
         "Filoversigt": filoversigt,
-        "Version": version,
+        "Parametre": param,
     }
 
     skriv_ark(projektnavn, resultater, "")
