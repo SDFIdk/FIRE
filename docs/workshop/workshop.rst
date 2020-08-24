@@ -103,6 +103,14 @@ Vi vil nedenfor gennemgå processen.
 Revision
 ++++++++++++++++
 
+Ved de kommunale opgaver starter vi normalt med at lave et udtræk fra databasen for et 
+specifikt område, hvor tekstbeskrivelsen for hvert relevant fikspunkt fremgår i en 
+såkaldt *rev-fil*. Med "relevant fikspunkt" menes fikspunkter, som vi tilser og som 
+vises i webtjenesten Valdemar. Altså ikke restrictede punkter, kendingspunkter, som 
+skorstene og fyr, jernrør i støbning, og lignende punkter irrelevant for kunden.
+Det script som lavede udtræk hed i det gamle system ``bsk_ud``. 
+I dag kan det gøres via et underkald i ``fire``, som hedder ``udtræk``
+
 
 Opdatering af database
 ++++++++++++++++++++++
