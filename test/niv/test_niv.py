@@ -5,7 +5,7 @@ import click
 import pytest
 
 from click.testing import CliRunner
-from fire.cli.mtl import mtl
+from fire.cli.niv import niv
 
 
 def test_cli():
@@ -16,7 +16,7 @@ def test_cli():
 
     # Lidt bannerlarm
     click.echo("\nTest: " + title)
-    click.echo(" Emulating: fire mtl " + " ".join(args))
+    click.echo(" Emulating: fire niv " + " ".join(args))
 
     # Kildefilerne ligger samme sted som testkodefilen
     source_dir = os.path.dirname(os.path.abspath(__file__))
@@ -27,7 +27,7 @@ def test_cli():
         dest_dir = os.getcwd()
         for filename in ("bananas.xlsx", "bananas.obs", "resultat_canonical.xlsx"):
             copy(source_dir + "/" + filename, dest_dir)
-        result = runner.invoke(mtl, args)
+        result = runner.invoke(niv, args)
 
     # Lav lidt larm om hvorvidt resulatet var succesfuldt
     if result.exit_code != 0:
