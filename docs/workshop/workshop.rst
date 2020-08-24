@@ -50,27 +50,32 @@ Herfra ses fem forskellige kommandoer man kan bruge:
 - ``srid``
 
 Hvis man ønsker at fremsøge et punkt og se hvilke oplysninger, der knytter sig 
-til det (som man før kunne med ``valde``, eller Valdemar i tjenesten), kan man fx taste:
+til det (som man før kunne med ``valde``, eller Valdemar i tjenesten), kan man 
+fx taste:
 
-	> fire info g.i.2010
+	> fire info punkt g.i.2010
 
 .. note:: Det er ligegyldet om der skrives med stort eller småt eller om der benyttes punktummer eller ej i argumentet.
 
-I udtrækket plottes diverse oplysninger om punktet direkte på skærmen, som set på billedet:
+I udtrækket plottes diverse oplysninger om punktet direkte på skærmen, som set 
+på billedet:
 
 .. image:: fireinfopunkt.png
   :width: 800
   :alt: Udtræk fra databasen for punkt G.I.2010
 
-Udtrækket viser den formodede relevante information, der ligger på punktet fra attribut-tabellerne
-og fra koordinattabellerne.
-I eksemplet ses det fx, at punktet er oprettet i databasen 19/3 1985, at det også hedder K-11-09263,
-og i øvrigt er et jessenpunkt til en tidsserie, samt at det har en DVR90-kote fra 3. præc. 
-(indikeret ved EPSG-kode 5799 og beregningstidspunkt 11/2-2000 kl. 13:30), en plankoordinat 
-fra 2011 (med EPSG-koden 4258) og to andre koordinater i andre net. Farven grøn indikerer at koordinaten
-er den gældende for det pågældende net.
+Udtrækket viser den formodede relevante information, der ligger på punktet fra 
+attribut-tabellerne og fra koordinattabellerne.
+I eksemplet ses det fx, at punktet er oprettet i databasen 19/3 1985, at det også 
+hedder K-11-09263, og i øvrigt er et jessenpunkt til en tidsserie, samt at det 
+har en DVR90-kote fra 3. præc. indikeret ved EPSG-kode 5799 og beregningstidspunkt 
+11/2-2000 kl. 13:30), en plankoordinat fra 2011 (med EPSG-koden 4258) og to andre 
+koordinater i andre net. **Farven grøn indikerer at koordinaten er den gældende for 
+det pågældende net.**
 
-På samme måde kan andre elementer slås op i databasen, bl.a. 
+På samme måde kan andre elementer slås op i databasen, bl.a. oplysninger om historiske 
+koter med parameteren *-K*, observationer med parameteren *-O* og andre detaljer med 
+parameteren *-D*.
 
 Øvelse
 ^^^^^^^^^^^^^^^^^^^^

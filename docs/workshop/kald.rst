@@ -3,7 +3,7 @@
 Generelle kommandokald i linjen 
 -----------------------------------------------------
 
-Navigation
+Navigation i terminalen
 +++++++++++++++++++++++++
 
 Her følger en kort liste over hvordan man i Windows navigerer rundt på sin pc 
