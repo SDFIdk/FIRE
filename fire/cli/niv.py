@@ -35,6 +35,7 @@ from fire.api.model import (
     Observation,
     PunktInformation,
     PunktInformationType,
+    PunktInformationTypeAnvendelse,
     Sag,
     Sagsevent,
     SagseventInfo,
@@ -157,10 +158,12 @@ ARKDEF_OBSERVATIONER = {
 
 ARKDEF_REVISION = {
     "Punkt": str,
-    "Sluk": str,
     "Attribut": str,
     "Talværdi": float,
     "Tekstværdi": str,
+    "Sluk": str,
+    "Ret tal": float,
+    "Ret tekst": str,
     "id": int,
     "Ikke besøgt": str,
 }
@@ -1646,6 +1649,137 @@ def udtræk_revision(
     resultater = {"Revision": revision}
     skriv_ark(projektnavn, resultater, "-revision")
     fire.cli.print("Færdig!")
+
+
+
+# ------------------------------------------------------------------------------
+# Her starter revisionsilæggelsesprogrammet
+# ------------------------------------------------------------------------------
+@niv.command()
+@fire.cli.default_options()
+@click.option(
+    "-t",
+    "--test",
+    is_flag=True,
+    default=False,
+    help="Check inputfil, skriv intet til databasen",
+)
+@click.argument(
+    "projektnavn", nargs=1, type=str,
+)
+@click.argument(
+    "sagsbehandler", nargs=1, type=str,
+)
+@click.argument(
+    "bemærkning", nargs=-1, type=str,
+)
+def ilæg_revision(test: bool, projektnavn: str, sagsbehandler: str, bemærkning: str, **kwargs) -> None:
+    """Ilæg revision - husk anførelsestegn om sagsbehandlernavn"""
+    check_om_resultatregneark_er_lukket(projektnavn)
+    sag = check_om_sag_er_korrekt_oprettet(projektnavn)
+    sagsgang = find_sagsgang(projektnavn)
+
+    # Vi skal bruge uuider for sagsevents undervejs, så vi genererer dem her men
+    # Færdiggør dem først efter
+    se_tilføj = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_TILFOEJET)
+    se_slet = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_FJERNET)
+
+    # Generer dokumentation til fanebladet "Sagsgang"
+    # sagsgangslinje = {
+    #     "Dato": registreringstidspunkt,
+    #     "Hvem": sagsbehandler,
+    #     "Hændelse": "Koteberegning",
+    #     "Tekst": sagseventtekst,
+    #     "uuid": sagsevent.id,
+    # }
+    # sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+
+    fire.cli.print("Lægger punktrevisionsarbejde i databasen")
+
+    try:
+        revision = pd.read_excel(
+            f"{projektnavn}-revision.xlsx", sheet_name="Revision", usecols=anvendte(arkdef_revision),
+        )
+    except Exception as ex:
+        fire.cli.print(
+            f"Kan ikke læse revisionsblad fra '{projektnavn}-revision.xlsx'",
+            fg="yellow",
+            bold=True,
+        )
+        fire.cli.print(f"Mulig årsag: {ex}")
+        sys.exit(1)
+    bemærkning = " ".join(bemærkning)
+
+    opdateret = revision[0:0]
+    print(revision)
+
+    # Disse navne er lange at sejle rundt med, så vi laver en kort form
+    TEKST = PunktInformationTypeAnvendelse.TEKST
+    FLAG = PunktInformationTypeAnvendelse.FLAG
+    TAL = PunktInformationTypeAnvendelse.TAL
+
+    # Find identer for alle punkter, der indgår i revisionen
+    identer = tuple(sorted(set(revision["Punkt"].dropna().astype(str))))
+    fire.cli.print(f"Behandler {len(identer)} punkter")
+
+    # Så itererer vi over alle punkter
+    for ident in identer[0:3]:
+        fire.cli.print(ident, fg="yellow", bold=True)
+
+        # Hent punkt og alle relevante punktinformationer i databasen
+        punkt = firedb.hent_punkt(ident)
+        infotypenavne = [i.infotype.name for i in punkt.punktinformationer]
+        infonøgler = {info.objektid: i for i, info in enumerate(punkt.punktinformationer)}
+
+        # Hent alle revisionselementer for punktet fra revisionsarket
+        rev = revision[revision["Punkt"]==ident] #.astype(arkdef_revision)
+
+        for r in rev.to_dict('records'):
+            pitnavn = r['Attribut']
+            if pitnavn is None:
+                fire.cli.print(f"    * Ignorerer uanført punktinformationstype", fg="red", bold=True)
+                continue
+
+            # Nyt punktinfo-element?
+            if pd.isna(r['id']):
+                pit = firedb.hent_punktinformationtype(pitnavn)
+                if (pit is None):
+                    fire.cli.print(f"    * Ignorerer ukendt punktinformationstype '{pitnavn}'", fg="red", bold=True)
+                    continue
+                fire.cli.print(f"    Opretter nyt punktinfo-element: {pitnavn}")
+
+            # Herfra kan vi bruge id som heltal (ovenfor havde vi brug for NaN-egenskaben)
+            oid = int(r['id'])
+
+            # Ingen ændringer?
+            if pd.isna(r['Sluk']) and pd.isna(r["Ret tal"]) and pd.isna(r["Ret tekst"]):
+                continue
+
+            # Find det tilsvarende persisterede element
+            try:
+                pinfo = punkt.punktinformationer[infonøgler[r['id']]]
+            except KeyError:
+                print(f"Ukendt id - ignorerer element {r}")
+                continue
+            anvendelse = pinfo.infotype.anvendelse
+            # print(f"anvendelse={anvendelse}, tekst={r['Ret tekst']}")
+
+            if r["Sluk"]=='x':
+                fire.cli.print(f"    Slukker: {pitnavn}")
+
+
+            # Sammenlign med det, der allerede ligger i databasen
+
+            #for k, v in r.items():
+            #    print(f"{k} = {v}")
+    # Drop sagsevents etc.
+    if test:
+        firedb.session.rollback()
+        sys.exit(0)
+
+    sagseventtekst = "bla bla bla"
+    sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
+    se_tilføj.sagseventinfos.append(sagseventinfo)
 
 
 # ------------------------------------------------------------------------------
