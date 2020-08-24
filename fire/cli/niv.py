@@ -9,7 +9,7 @@ import webbrowser
 from datetime import datetime
 from enum import IntEnum
 from itertools import chain
-from math import sqrt
+from math import hypot, sqrt
 from typing import Dict, List, Set, Tuple
 from fire import uuid
 
@@ -133,6 +133,27 @@ ARKDEF_NYETABLEREDE_PUNKTER = {
     "uuid": str,
 }
 
+ARKDEF_OBSERVATIONER = {
+    "Journal": str,
+    "Sluk": str,
+    "Fra": str,
+    "Til": str,
+    "ΔH": float,
+    "L": float,
+    "Opst": int,
+    "σ": float,
+    "δ": float,
+    "Kommentar": str,
+    "Hvornår": "datetime64[ns]",
+    "T": float,
+    "Sky": int,
+    "Sol": int,
+    "Vind": int,
+    "Sigt": int,
+    "Kilde": str,
+    "Type": str,
+    "uuid": str,
+}
 
 ARKDEF_REVISION = {
     "Punkt": str,
@@ -191,10 +212,35 @@ def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
 
 # ------------------------------------------------------------------------------
 def spredning(
-    afstand_i_m: float, slope_i_mm_pr_sqrt_km: float = 0.6, bias: float = 0.0005
+    observationstype: str,
+    afstand_i_m: float,
+    antal_opstillinger: float,
+    afstandsafhængig_spredning_i_mm: float,
+    centreringsspredning_i_mm: float,
 ) -> float:
-    """Apriorispredning for nivellementsobservation"""
-    return (slope_i_mm_pr_sqrt_km * sqrt(afstand_i_m / 1000.0) + bias) * 1.0
+    """Apriorispredning for nivellementsobservation
+
+    Fx.  MTL: spredning("mtl", 500, 3, 2, 0.5) = 1.25
+         MGL: spredning("MGL", 500, 3, 0.6, 0.01) = 0.4243
+
+    Rejser ValueError ved ukendt observationstype eller
+    (via math.sqrt) ved negativ afstand_i_m.
+
+    Negativ afstandsafhængig- eller centreringsspredning
+    behandles som positive.
+    """
+
+    opstillingsafhængig = antal_opstillinger * (centreringsspredning_i_mm ** 2)
+
+    if "MTL" == observationstype.upper():
+        afstandsafhængig = afstandsafhængig_spredning_i_mm * afstand_i_m / 1000
+        return hypot(afstandsafhængig, opstillingsafhængig)
+
+    if "MGL" == observationstype.upper():
+        afstandsafhængig = afstandsafhængig_spredning_i_mm * sqrt(afstand_i_m / 1000)
+        return hypot(afstandsafhængig, opstillingsafhængig)
+
+    raise ValueError(f"Ukendt observationstype: {observationstype}")
 
 
 # -----------------------------------------------------------------------------
@@ -273,14 +319,11 @@ def path_to_origin(
 
 
 # ------------------------------------------------------------------------------
-def læs_observationsstrenge(filinfo: pd.DataFrame, verbose: bool = False) -> List[str]:
+def læs_observationsstrenge(
+    filinfo: pd.DataFrame, verbose: bool = False
+) -> pd.DataFrame:
     """Pil observationsstrengene ud fra en række råfiler"""
-    kol = IntEnum(
-        "kol",
-        "Fra Til dato tid L ΔH Journal T setups Sky Sol Vind Sigt Kommentar",
-        start=0,
-    )
-    observationer = []
+    observationer = pd.DataFrame(columns=list(ARKDEF_OBSERVATIONER))
     for fil in filinfo.itertuples(index=False):
         if fil.Type not in ["MTL", "MGL"]:
             continue
@@ -311,7 +354,7 @@ def læs_observationsstrenge(filinfo: pd.DataFrame, verbose: bool = False) -> Li
                     tokens[13] = tokens[13].lstrip('"').strip().rstrip('"')
 
                     # Korriger de rædsomme dato/tidsformater
-                    tid = " ".join((tokens[kol.dato], tokens[kol.tid]))
+                    tid = " ".join((tokens[2], tokens[3]))
                     try:
                         isotid = datetime.strptime(tid, "%d.%m.%Y %H.%M")
                     except ValueError:
@@ -319,35 +362,34 @@ def læs_observationsstrenge(filinfo: pd.DataFrame, verbose: bool = False) -> Li
                             f"Argh - ikke-understøttet datoformat: '{tid}' i fil: '{fil.Filnavn}'"
                         )
 
-                    # Reorganiser søjler og omsæt numeriske data fra strengrepræsentation til tal
-                    # NB: reordered bør rettes til dict og observationer til DataFrame
-                    reordered = [
+                    # Opbyg række-som-dict: Omsæt numeriske data fra strengrepræsentation til tal
+                    obs = {
+                        "Fra": tokens[0],
+                        "Til": tokens[1],
+                        "L": float(tokens[4]),
+                        "ΔH": float(tokens[5]),
                         # Undgå journalside fortolkes som tal: Erstat decimalseparator
-                        tokens[kol.Journal].replace(".", ":"),
-                        # "sluk"-søjle
-                        "",
-                        tokens[kol.Fra],
-                        tokens[kol.Til],
-                        float(tokens[kol.ΔH]),
-                        float(tokens[kol.L]),
-                        int(tokens[kol.setups]),
-                        fil.σ,
-                        fil.δ,
-                        tokens[kol.Kommentar],
-                        isotid,
-                        float(tokens[kol.T]),
-                        int(tokens[kol.Sky]),
-                        int(tokens[kol.Sol]),
-                        int(tokens[kol.Vind]),
-                        int(tokens[kol.Sigt]),
-                        fil.Filnavn,
-                        fil.Type,
-                        # tom uuid-søjle
-                        "",
-                    ]
-                    observationer.append(reordered)
+                        "Journal": tokens[6].replace(".", ":"),
+                        "T": float(tokens[7]),
+                        "Opst": int(tokens[8]),
+                        "Sky": int(tokens[9]),
+                        "Sol": int(tokens[10]),
+                        "Vind": int(tokens[11]),
+                        "Sigt": int(tokens[12]),
+                        "σ": fil.σ,
+                        "δ": fil.δ,
+                        "Kommentar": tokens[13],
+                        "Sluk": "",
+                        "Hvornår": isotid,
+                        "Kilde": fil.Filnavn,
+                        "Type": fil.Type,
+                        "uuid": "",
+                    }
+                    print(obs)
+                    observationer = observationer.append(obs, ignore_index=True)
         except FileNotFoundError:
             fire.cli.print(f"Kunne ikke læse filen '{fil.Filnavn}''")
+    print(observationer)
     return observationer
 
 
@@ -382,30 +424,7 @@ def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
 def importer_observationer(projektnavn: str) -> pd.DataFrame:
     """Opbyg dataframe med observationer importeret fra rådatafil"""
     fire.cli.print("Importerer observationer")
-    observationer = pd.DataFrame(
-        læs_observationsstrenge(find_inputfiler(projektnavn)),
-        columns=[
-            "Journal",
-            "Sluk",
-            "Fra",
-            "Til",
-            "ΔH",
-            "L",
-            "Opst",
-            "σ",
-            "δ",
-            "Kommentar",
-            "Hvornår",
-            "T",
-            "Sky",
-            "Sol",
-            "Vind",
-            "Sigt",
-            "Kilde",
-            "Type",
-            "uuid",
-        ],
-    )
+    observationer = læs_observationsstrenge(find_inputfiler(projektnavn))
 
     # Sorter efter journalside, så frem- og tilbageobservationer følges ad.
     # Den sære index-gymnastik sikrer at vi har fortløbende nummerering
@@ -728,6 +747,7 @@ def gama_beregning(
     estimerede_punkter: Tuple[str, ...],
 ) -> pd.DataFrame:
     fastholdte = find_fastholdte(punktoversigt)
+    print(observationer)
 
     # Skriv Gama-inputfil i XML-format
     with open(f"{projektnavn}.xml", "wt") as gamafil:
@@ -766,7 +786,7 @@ def gama_beregning(
             gamafil.write(
                 f"<dh from='{obs.Fra}' to='{obs.Til}' "
                 f"val='{obs.ΔH:+.6f}' "
-                f"dist='{obs.L:.5f}' stdev='{spredning(obs.L, obs.σ, obs.δ):.5f}' "
+                f"dist='{obs.L:.5f}' stdev='{spredning(obs.Type, obs.L, obs.Opst, obs.σ, obs.δ):.5f}' "
                 f"extern='{obs.Journal}'/>\n"
             )
 
@@ -1054,7 +1074,9 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     # Opbyg oversigt over alle observationer
     try:
         observationer = pd.read_excel(
-            f"{projektnavn}.xlsx", sheet_name="Observationer", usecols="A:Q"
+            f"{projektnavn}.xlsx",
+            sheet_name="Observationer",
+            usecols=anvendte(ARKDEF_OBSERVATIONER),
         )
     except:
         fire.cli.print(f"Der er ingen observationsoversigt i '{projektnavn}.xlsx'")
