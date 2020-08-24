@@ -1,7 +1,7 @@
 .. _kommandolinjeprogrammer_niv:
 
-.. click:: fire.cli.mtl:mtl
-  :prog: fire mtl
+.. click:: fire.cli.niv:niv
+  :prog: fire niv
   :show-nested:
 
 

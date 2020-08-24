@@ -29,8 +29,8 @@ Derfor er det altså stadig kommandolinjekald, som er vejen frem! Men dermed bli
 overgangen til ny database og beregningssoftware nok ikke så slem alligevel.
 
 Nedenfor uddybes de funktionaliteter vi på nuværende tidspunkt har udviklet. Det er 
-alle underprogrammer (og under-underprogrammer) under ``fire`` og køres derfor ved først at kalde ``fire`` efterfulgt 
-af underkommandoens navn.
+alle underprogrammer (og under-underprogrammer) under ``fire`` og køres derfor ved 
+først at kalde ``fire`` efterfulgt af underkommandoens navn.
 
 fire info
 ++++++++++++++++++++
@@ -55,7 +55,8 @@ fx taste:
 
 	> fire info punkt g.i.2010
 
-.. note:: Det er ligegyldet om der skrives med stort eller småt eller om der benyttes punktummer eller ej i argumentet.
+.. note:: Det er ligegyldet om der skrives med stort eller småt eller om der 
+   benyttes punktummer eller ej i argumentet.
 
 I udtrækket plottes diverse oplysninger om punktet direkte på skærmen, som set 
 på billedet:
@@ -95,29 +96,110 @@ fire niv
 Der er blevet udviklet et kommandolinjeprogram til udjævningsberegning kaldet ``niv``. 
 Læs om hvordan programmet kaldes :ref:`her <kommandolinjeprogrammer_niv>`
 
-Fra dette kald kan hele produktionslinjen køres; fra dataudtræk, revision, beregning, til 
-ilægning af resultat og generering af afsluttende rapport til kunde.
+Fra dette kald kan hele produktionslinjen køres; fra dataudtræk, revision, beregning, 
+til ilægning af resultat og generering af afsluttende rapport til kunde. Se mere ved 
+at køre kaldet::
 
+	> fire niv --help
+
+Alt datahåndtering foregår på Windows og i Excelregneark med diverse faneblade. 
 Vi vil nedenfor gennemgå processen.
 
-Revision
-++++++++++++++++
+Step 1) opret-sag
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-Ved de kommunale opgaver starter vi normalt med at lave et udtræk fra databasen for et 
-specifikt område, hvor tekstbeskrivelsen for hvert relevant fikspunkt fremgår i en 
+I ``fire`` har vi valgt at knytte al beregning og punkthpndtering op på såkaldte 
+*sagsevents*. Det vil sige at når man går igang med et nyt projekt, fx. en opgave 
+omhandlende opmåling og beregning af lokal vandstand i Havnebyen, så opretter man 
+en sag til denne opgave, hvori alt ens dataudtræk, observationer, beregninger og 
+endelige resultater bliver registreret på. Kaldet, der skal køres under ``fire niv`` 
+for at oprette en ny sag, hedder, passende nok, ``opret-sag``. Lad os prøve at få 
+mere hjælp::
+
+	> fire niv opret-sag --help
+
+Her kommer en beskrivelse af hvad der forventes af input:
+
+- Options: Valgfrit. Valgmuligheder ses i hjælpeteksten.
+- Projektnavn: Obligatorisk. Kan fx være *Fjernkontrol af SULD*. Dette bliver navnet 
+  på dit regneark. 
+- Sagsbehandler: Obligatorisk. Skal være opretters FULDE NAVN.
+- Beskrivelse: Valgfrit, men en god idé at beskrive nærmere hvad sagen indeholder, 
+  fx "Nivellement af skruepløkke samt lodrette bolte ved SULD samt fjernkontrol til 
+  5D-punktet GRAV. Antenne IKKE opført." 
+
+I terminalen vil det se ud som dette, når der oprettes en sag:
+
+.. image:: firenivopretsag.png
+  :width: 800
+  :alt: Opret sag, step 1
+  
+Det ses, at der kommer en advarsel op. Da alt hvad der oprettes i databasen ikke 
+kan slettes, er det en god idé at dobbelttjekke alt info man skriver til databasen.
+Hvis man er sikker på sit input, kan man svare *"ja"* til spørgsmålet. Hvis der svares
+alt andet, vil der ikke blive oprettet en sag i databasen.
+
+.. image:: firenivopretsag2.png
+  :width: 800
+  :alt: Opret sag, step 2
+
+
+Skrives der alt andet end *"ja"*, får man valget om der alligevel skal oprettes 
+sagsregneark. Hertil kan der svares *"ja"*, og et excel-ark med filnavn som projektnavn 
+oprettes i den mappe man kører kaldet i.
+
+.. image:: firenivopretsag3.png
+  :width: 800
+  :alt: Opret sag, step 3
+
+Excel-arket åbnes, og der ses seks faneblade:
+
+- Projektside: Her kan man løbende indtaste relevant info for projektet.
+- Sagsgang: Her vil sagens hændelser fremgå, efterhånden som de forekommer.
+- Nyetablerede punkter: Her kan man indtaste de nye punkter, som er oprettet til 
+  projektet.
+- Notater
+- Filoversigt: Her kan man indtaste filnavnene på opmålingsfilerne.
+- Parametre
+
+Hvert faneblad kan nu redigeres til det formål man ønsker.
+
+Step 2) udtræk-revision
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Ved de kommunale opgaver starter vi normalt med at lave et udtræk fra databasen for 
+et specifikt område, hvor tekstbeskrivelsen for hvert relevant fikspunkt fremgår i en 
 såkaldt *rev-fil*. Med "relevant fikspunkt" menes fikspunkter, som vi tilser og som 
 vises i webtjenesten Valdemar. Altså ikke restrictede punkter, kendingspunkter, som 
 skorstene og fyr, jernrør i støbning, og lignende punkter irrelevant for kunden.
 Det script som lavede udtræk hed i det gamle system ``bsk_ud``. 
-I dag kan det gøres via et underkald i ``fire``, som hedder ``udtræk``
+I dag kan det gøres via et underkald i ``fire niv``, som hedder ``udtræk-revision``
 
+	> fire niv udtræk-revision
+	
+Step 3) udtræk-revision
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-Opdatering af database
-++++++++++++++++++++++
+Step 4) ilæg-revision
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-Beregning
-++++++++++++++++
+Step 5) ilæg-nye-punkter
+^^^^^^^^^^^^^^^^^^^^^^^^
 
+Step 6) læs-observationer
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Step 7) beregn-nye-koter (eller adj)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Step 8) ilæg-observationer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Step 9) ilæg-nye-koter 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Step 10) luk-sag
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 
