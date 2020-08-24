@@ -10,7 +10,6 @@ from datetime import datetime
 from enum import IntEnum
 from itertools import chain
 from math import sqrt
-from pprint import pprint
 from typing import Dict, List, Set, Tuple
 from fire import uuid
 
@@ -20,7 +19,6 @@ import pandas as pd
 import xmltodict
 
 from pyproj import Proj
-from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
 
 # FIRE herself
@@ -29,7 +27,6 @@ from fire.cli import firedb
 
 # Typingelementer fra databaseAPIet.
 from fire.api.model import (
-    Beregning,
     EventType,
     GeometriObjekt,
     Point,
@@ -121,9 +118,9 @@ def niv():
 # Regnearksdefinitioner (søjlenavne og -typer)
 # ------------------------------------------------------------------------------
 
-arkdef_filoversigt = {"Filnavn": str, "Type": str, "σ": float, "δ": float}
+ARKDEF_FILOVERSIGT = {"Filnavn": str, "Type": str, "σ": float, "δ": float}
 
-arkdef_nyetablerede_punkter = {
+ARKDEF_NYETABLEREDE_PUNKTER = {
     "Foreløbigt navn": str,
     "Landsnummer": str,
     "φ": float,
@@ -137,7 +134,7 @@ arkdef_nyetablerede_punkter = {
 }
 
 
-arkdef_revision = {
+ARKDEF_REVISION = {
     "Punkt": str,
     "Sluk": str,
     "Attribut": str,
@@ -147,7 +144,7 @@ arkdef_revision = {
     "Ikke besøgt": str,
 }
 
-arkdef_sag = {
+ARKDEF_SAG = {
     "Dato": "datetime64[ns]",
     "Hvem": str,
     "Hændelse": str,
@@ -156,6 +153,12 @@ arkdef_sag = {
 }
 
 
+# ------------------------------------------------------------------------------
+# Hjælpefunktioner
+# ------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------
 def anvendte(arkdef: Dict) -> str:
     """Anvendte søjler for given arkdef"""
     n = len(arkdef)
@@ -163,10 +166,6 @@ def anvendte(arkdef: Dict) -> str:
         return ""
     return "A:" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[n - 1]
 
-
-# ------------------------------------------------------------------------------
-# Hjælpefunktioner
-# ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
@@ -255,9 +254,10 @@ def path_to_origin(
 ):
     """
     Mikroskopisk backtracking netkonnektivitetstest. Baseret på et
-    essay af GvR fra https://www.python.org/doc/essays/graphs/, men
-    her moderniseret fra Python 1.5 til 3.7 og modificeret til
-    at arbejde på dict-over-set (originalen brugte dict-over-list)
+    essay af Pythonstifteren Guido van Rossum, publiceret 1998 på
+    https://www.python.org/doc/essays/graphs/. Koden er her
+    moderniseret fra Python 1.5 til 3.7 og modificeret til at
+    arbejde på dict-over-set (originalen brugte dict-over-list)
     """
     path = path + [start]
     if start == origin:
@@ -273,7 +273,7 @@ def path_to_origin(
 
 
 # ------------------------------------------------------------------------------
-def get_observation_strings(filinfo: pd.DataFrame, verbose: bool = False) -> List[str]:
+def læs_observationsstrenge(filinfo: pd.DataFrame, verbose: bool = False) -> List[str]:
     """Pil observationsstrengene ud fra en række råfiler"""
     kol = IntEnum(
         "kol",
@@ -299,7 +299,7 @@ def get_observation_strings(filinfo: pd.DataFrame, verbose: bool = False) -> Lis
                         9,
                         13,
                         14,
-                    ), f"Deform input linje: {line} i fil: {filnavn}"
+                    ), f"Deform input linje: {line} i fil: {fil.Filnavn}"
 
                     # Bring observationen på kanonisk 14-feltform.
                     for i in range(len(tokens), 13):
@@ -316,7 +316,7 @@ def get_observation_strings(filinfo: pd.DataFrame, verbose: bool = False) -> Lis
                         isotid = datetime.strptime(tid, "%d.%m.%Y %H.%M")
                     except ValueError:
                         sys.exit(
-                            f"Argh - ikke-understøttet datoformat: '{tid}' i fil: '{filnavn}'"
+                            f"Argh - ikke-understøttet datoformat: '{tid}' i fil: '{fil.Filnavn}'"
                         )
 
                     # Reorganiser søjler og omsæt numeriske data fra strengrepræsentation til tal
@@ -347,7 +347,7 @@ def get_observation_strings(filinfo: pd.DataFrame, verbose: bool = False) -> Lis
                     ]
                     observationer.append(reordered)
         except FileNotFoundError:
-            fire.cli.print(f"Kunne ikke læse filen '{filnavn}''")
+            fire.cli.print(f"Kunne ikke læse filen '{fil.Filnavn}''")
     return observationer
 
 
@@ -358,7 +358,7 @@ def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
     nyetablerede = pd.read_excel(
         f"{projektnavn}.xlsx",
         sheet_name="Nyetablerede punkter",
-        usecols=anvendte(arkdef_nyetablerede_punkter),
+        usecols=anvendte(ARKDEF_NYETABLEREDE_PUNKTER),
     )
 
     # Sæt 'Foreløbigt navn'-søjlen som index, så vi kan adressere
@@ -383,7 +383,7 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     """Opbyg dataframe med observationer importeret fra rådatafil"""
     fire.cli.print("Importerer observationer")
     observationer = pd.DataFrame(
-        get_observation_strings(find_inputfiler(projektnavn)),
+        læs_observationsstrenge(find_inputfiler(projektnavn)),
         columns=[
             "Journal",
             "Sluk",
@@ -413,9 +413,7 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     observationer.sort_values(by="Journal", inplace=True)
     observationer.reset_index(drop=True, inplace=True)
 
-    # -------------------------------------------------
     # Oversæt alle anvendte identer til kanonisk form
-    # -------------------------------------------------
     fra = tuple(observationer["Fra"])
     til = tuple(observationer["Til"])
     observerede_punkter = tuple(set(fra + til))
@@ -442,7 +440,6 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
 # ------------------------------------------------------------------------------
 def obs_feature(punkter: pd.DataFrame, observationer: pd.DataFrame) -> Dict[str, str]:
     """Omsæt observationsinformationer til JSON-egnet dict"""
-    # TODO: for obs in observationer.itertuples(index=False):
     for i in range(observationer.shape[0]):
         fra = observationer.at[i, "Fra"]
         til = observationer.at[i, "Til"]
@@ -684,13 +681,14 @@ def netanalyse(
 
     # Nu kommer der noget grimt...
     # Tving alle rækker til at være lige lange, så vi kan lave en dataframe af dem
-    maxAntalNaboer = max([len(net[e]) for e in net])
+    max_antal_naboer = max([len(net[e]) for e in net])
     nyt = {}
     for punkt in net:
-        naboer = list(sorted(net[punkt])) + maxAntalNaboer * [""]
-        nyt[punkt] = tuple(naboer[0:maxAntalNaboer])
+        naboer = list(sorted(net[punkt])) + max_antal_naboer * [""]
+        nyt[punkt] = tuple(naboer[0:max_antal_naboer])
 
-    # Ombyg og omdøb søjler med smart trick fra @piRSquared, https://stackoverflow.com/users/2336654/pirsquared
+    # Ombyg og omdøb søjler med smart "add_prefix"-trick fra
+    # @piRSquared, https://stackoverflow.com/users/2336654/pirsquared
     # Se https://stackoverflow.com/questions/46078034/python-dict-with-values-as-tuples-to-pandas-dataframe
     netf = pd.DataFrame(nyt).T.rename_axis("Punkt").add_prefix("Nabo ").reset_index()
     netf.sort_values(by="Punkt", inplace=True)
@@ -708,17 +706,6 @@ def find_fastholdte(punktoversigt: pd.DataFrame) -> Dict[str, float]:
     return dict(zip(fastholdte_punkter, fastholdteKoter))
 
 
-# -----------------------------------------------------------------------------
-# Skriv resultatfil
-# -----------------------------------------------------------------------------
-# Så kan vi skrive. Med lidt hjælp fra:
-# https://www.marsja.se/pandas-excel-tutorial-how-to-read-and-write-excel-files
-# https://pypi.org/project/XlsxWriter/
-# -----------------------------------------------------------------------------
-# NB: et sted undervejs i eksporten af instrument-rådata bliver utf-8 tegn
-# tilsyneladende erstattet af sekvensen "EF BF BD (character place keeper)".
-# Så det er ikke en fejl i niv.py, når kommentaren "tæt trafik"
-# bliver repræsenteret som "t�t trafik". Fejlen må rettes opstrøms.
 # -----------------------------------------------------------------------------
 def skriv_ark(
     projektnavn: str, resultater: Dict[str, pd.DataFrame], suffix: str = "-resultat"
@@ -742,9 +729,7 @@ def gama_beregning(
 ) -> pd.DataFrame:
     fastholdte = find_fastholdte(punktoversigt)
 
-    # -----------------------------------------------------
     # Skriv Gama-inputfil i XML-format
-    # -----------------------------------------------------
     with open(f"{projektnavn}.xml", "wt") as gamafil:
         # Preambel
         gamafil.write(
@@ -793,9 +778,7 @@ def gama_beregning(
             "</gama-local>\n"
         )
 
-    # ----------------------------------------------
     # Lad GNU Gama om at køre udjævningen
-    # ----------------------------------------------
     ret = subprocess.run(
         [
             "gama-local",
@@ -810,11 +793,10 @@ def gama_beregning(
         fire.cli.print(f"Check {projektnavn}-resultat.html", bg="red", fg="white")
     webbrowser.open_new_tab(f"{projektnavn}-resultat.html")
 
-    # ----------------------------------------------
     # Grav resultater frem fra GNU Gamas outputfil
-    # ----------------------------------------------
     with open(f"{projektnavn}-resultat.xml") as resultat:
         doc = xmltodict.parse(resultat.read())
+
     # Sammenhængen mellem rækkefølgen af elementer i Gamas punktliste (koteliste
     # herunder) og varianserne i covariansmatricens diagonal er uklart beskrevet:
     # I Gamas xml-resultatfil antydes at der skal foretages en ombytning.
@@ -827,9 +809,7 @@ def gama_beregning(
     varianser = [float(var) for var in varliste]
     assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
 
-    # ----------------------------------------------
     # Skriv resultaterne til punktoversigten
-    # ----------------------------------------------
     punktoversigt = punktoversigt.set_index("Punkt")
     for index in range(len(punkter)):
         punktoversigt.at[punkter[index], "Ny kote"] = koter[index]
@@ -940,8 +920,8 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
                 antal=1,
                 observationstype=obstype_geom,
                 observationstidspunkt=obs.Hvornår,
-                opstillingspunkt=id_fra,
-                sigtepunkt=id_til,
+                opstillingspunkt=punkt_fra,
+                sigtepunkt=punkt_til,
                 gruppe=gruppe,
                 id=uuid(),
                 value1=obs.ΔH,
@@ -1009,15 +989,11 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     fire.cli.print("Så kører vi")
     resultater = {}
 
-    # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
-    # -----------------------------------------------------
     nyetablerede = find_nyetablerede(projektnavn)
     nye_punkter = set(nyetablerede.index)
 
-    # -----------------------------------------------------
     # Opbyg oversigt over alle observationer
-    # -----------------------------------------------------
     observationer = importer_observationer(projektnavn)
     resultater["Observationer"] = observationer
     observerede_punkter = set(list(observationer["Fra"]) + list(observationer["Til"]))
@@ -1028,9 +1004,7 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     nye_punkter = tuple(sorted(nye_punkter))
     alle_punkter = nye_punkter + tuple(sorted(alle_gamle_punkter))
 
-    # ------------------------------------------------------
     # Opbyg oversigt over alle punkter m. kote og placering
-    # ------------------------------------------------------
     punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
     resultater["Punktoversigt"] = punktoversigt
     skriv_ark(projektnavn, resultater)
@@ -1073,15 +1047,11 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     check_om_resultatregneark_er_lukket(projektnavn)
     fire.cli.print("Så regner vi")
 
-    # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
-    # -----------------------------------------------------
     nyetablerede = find_nyetablerede(projektnavn)
     nye_punkter = set(nyetablerede.index)
 
-    # -----------------------------------------------------
     # Opbyg oversigt over alle observationer
-    # -----------------------------------------------------
     try:
         observationer = pd.read_excel(
             f"{projektnavn}.xlsx", sheet_name="Observationer", usecols="A:Q"
@@ -1102,9 +1072,7 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     alle_punkter = nye_punkter + tuple(sorted(alle_gamle_punkter))
     observerede_punkter = tuple(sorted(observerede_punkter))
 
-    # ------------------------------------------------------
     # Opbyg oversigt over alle punkter m. kote og placering
-    # ------------------------------------------------------
     try:
         punktoversigt = pd.read_excel(
             f"{projektnavn}.xlsx", sheet_name="Punktoversigt", usecols="A:M"
@@ -1128,19 +1096,14 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
         )
         sys.exit(1)
 
-    # -----------------------------------------------------
     # Find fastholdte
-    # -----------------------------------------------------
     fastholdte = find_fastholdte(punktoversigt)
     if len(fastholdte) == 0:
         fire.cli.print("Vælger arbitrært punkt til fastholdelse")
         fastholdte = {observerede_punkter[0]: 0}
-    # Nem oversigt fordi tuple(fastholdte) er tuple(fastholdte.keys())
     fire.cli.print(f"Fastholdte: {tuple(fastholdte)}")
 
-    # -----------------------------------------------------
     # Udfør netanalyse
-    # -----------------------------------------------------
     (net, ensomme) = netanalyse(observationer, alle_punkter, tuple(fastholdte))
     resultater = {"Netgeometri": net, "Ensomme": ensomme}
 
@@ -1150,9 +1113,7 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     fire.cli.print(f"Fandt {len(ensomme_punkter)} ensomme punkter: {ensomme_punkter}")
     fire.cli.print(f"Beregner nye koter for {len(estimerede_punkter)} punkter")
 
-    # -----------------------------------------------------
     # Udfør beregning
-    # -----------------------------------------------------
     resultater["Punktoversigt"] = gama_beregning(
         projektnavn, observationer, punktoversigt, estimerede_punkter
     )
@@ -1163,7 +1124,7 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
 
 # ------------------------------------------------------------------------------
 def find_sagsgang(projektnavn: str) -> pd.DataFrame:
-    """Opbyg oversigt over sagsforløb"""
+    """Udtræk sagsgangsregneark fra Excelmappe"""
     return pd.read_excel(f"{projektnavn}.xlsx", sheet_name="Sagsgang")
 
 
@@ -1215,11 +1176,8 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     fire.cli.print("Lægger nye punkter i databasen")
 
-    # -----------------------------------------------------
     # Opbyg oversigt over nyetablerede punkter
-    # -----------------------------------------------------
     nyetablerede = find_nyetablerede(projektnavn)
-    nye_punkter = set(nyetablerede.index)
     nyetablerede = nyetablerede.reset_index()
     n = nyetablerede.shape[0]
 
@@ -1317,7 +1275,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         # Tilføj punktets højde over terræn som punktinformation, hvis anført
         try:
             ΔH = float(nyetablerede["Højde over terræn"][i])
-        except:
+        except (TypeError, ValueError):
             ΔH = 0
         if ΔH != ΔH:
             ΔH = 0.0
@@ -1351,7 +1309,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             afmærkning_pit = firedb.hent_punktinformationtype(f"AFM:{afm_id}")
             if afmærkning_pit is None:
                 afm_id = 4999
-                afmærkning_pit = firedb.hent_punktinformationtype(f"AFM:4999")
+                afmærkning_pit = firedb.hent_punktinformationtype("AFM:4999")
             beskrivelse = (
                 afmærkning_pit.beskrivelse.replace("-\n", "")
                 .replace("\n", " ")
@@ -1540,7 +1498,6 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 # ------------------------------------------------------------------------------
 # Her starter punktrevisionsprogrammet
 #
-# fx fire niv udtræk-revision ost K-07 11-08
 # ------------------------------------------------------------------------------
 @niv.command()
 @fire.cli.default_options()
@@ -1551,9 +1508,12 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 def udtræk_revision(
     projektnavn: str, opmålingsdistrikter: Tuple[str], **kwargs
 ) -> None:
-    """Gør klar til punktrevision: Udtræk eksisterende information."""
+    """Gør klar til punktrevision: Udtræk eksisterende information.
 
-    revision = pd.DataFrame(columns=tuple(arkdef_revision)).astype(arkdef_revision)
+        fire niv udtræk-revision projektnavn distrikts-eller-punktnavn(e)
+    """
+
+    revision = pd.DataFrame(columns=tuple(ARKDEF_REVISION)).astype(ARKDEF_REVISION)
 
     # Punkter med bare EN af disse attributter ignoreres
     uønskede_punkter = {
@@ -1565,6 +1525,7 @@ def udtræk_revision(
     }
 
     # Disse attributter indgår ikke i punktrevisionen
+    # (men det diskvalificerer ikke et punkt at have dem)
     ignorerede_attributter = {
         "REGION:DK",
         "IDENT:refgeo_id",
@@ -1628,12 +1589,15 @@ def udtræk_revision(
                 info = punkt.punktinformationer[i]
                 if info.registreringtil is not None:
                     continue
+
                 attributnavn = info.infotype.name
                 if attributnavn in ignorerede_attributter:
                     continue
+
                 # Vis kun landsnr for punkter med GM/GI/GNSS-primærident
                 if attributnavn == "IDENT:landsnr" and info.tekst == ident:
                     continue
+
                 tekst = info.tekst
                 if tekst:
                     tekst = tekst.strip()
@@ -1650,13 +1614,14 @@ def udtræk_revision(
                     },
                     ignore_index=True,
                 )
+
             # To blanklinjer efter hvert punktoversigt
             revision = revision.append({}, ignore_index=True)
             revision = revision.append({}, ignore_index=True)
 
     resultater = {"Revision": revision}
     skriv_ark(projektnavn, resultater, "-revision")
-    fire.cli.print("Den er Orla Porla!")
+    fire.cli.print("Færdig!")
 
 
 # ------------------------------------------------------------------------------
@@ -1691,10 +1656,10 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
         "Tekst": f"{projektnavn}: {beskrivelse}",
         "uuid": uuid(),
     }
-    sagsgang = pd.DataFrame([sag], columns=tuple(arkdef_sag))
+    sagsgang = pd.DataFrame([sag], columns=tuple(ARKDEF_SAG))
 
     fire.cli.print(
-        f" BEKRÆFT: Opretter ny sag i FIRE databasen!!! ", bg="red", fg="white"
+        " BEKRÆFT: Opretter ny sag i FIRE databasen!!! ", bg="red", fg="white"
     )
     fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag['uuid']})")
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
@@ -1718,11 +1683,11 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
 
     # Dummyopsætninger til sagsregnearkets sider
     forside = pd.DataFrame()
-    nyetablerede = pd.DataFrame(columns=tuple(arkdef_nyetablerede_punkter)).astype(
-        arkdef_nyetablerede_punkter
+    nyetablerede = pd.DataFrame(columns=tuple(ARKDEF_NYETABLEREDE_PUNKTER)).astype(
+        ARKDEF_NYETABLEREDE_PUNKTER
     )
     notater = pd.DataFrame([{"Dato": pd.Timestamp.now(), "Hvem": "", "Tekst": ""}])
-    filoversigt = pd.DataFrame(columns=tuple(arkdef_filoversigt))
+    filoversigt = pd.DataFrame(columns=tuple(ARKDEF_FILOVERSIGT))
     param = pd.DataFrame({"Navn": ["Major", "Minor", "Revision"], "Værdi": [0, 0, 0]})
 
     resultater = {
@@ -1735,4 +1700,4 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
     }
 
     skriv_ark(projektnavn, resultater, "")
-    fire.cli.print("Den er Orla Porla!")
+    fire.cli.print("Færdig!")
