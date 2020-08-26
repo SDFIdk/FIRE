@@ -1644,10 +1644,7 @@ def udtræk_revision(
                 )
                 anvendte_attributter.append(attributnavn)
 
-            # En blanklinje mellem attributter og revisionsovervejelser
-            revision = revision.append({}, ignore_index=True)
-
-            # Revisionsovervejelser er p.t. geometri og datumstabilitet
+            # Revisionsovervejelser: p.t. geometri og datumstabilitet
             if "ATTR:muligt_datumstabil" not in anvendte_attributter:
                 revision = revision.append(
                     {
@@ -1658,14 +1655,17 @@ def udtræk_revision(
                     },
                     ignore_index=True,
                 )
+            lokation = punkt.geometri.koordinater
             revision = revision.append(
                 {
                     "Punkt": ident,
                     "Attribut": "OVERVEJ:lokation",
-                    "Tekstværdi": str(punkt.geometri.geometri),
+                    # Centimeterafrunding for lokationskoordinaten er rigeligt
+                    "Tekstværdi": f"{lokation[1]:.7f} N   {lokation[0]:.7f} Ø",
                 },
                 ignore_index=True,
             )
+
             # To blanklinjer efter hvert punktoversigt
             revision = revision.append({}, ignore_index=True)
             revision = revision.append({}, ignore_index=True)
@@ -1717,19 +1717,9 @@ def ilæg_revision(
     sagsgang = find_sagsgang(projektnavn)
 
     # Vi skal bruge uuider for sagsevents undervejs, så vi genererer dem her men
-    # Færdiggør dem først efter
+    # Færdiggør dem først når vi er klar til registrering
     se_tilføj = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_TILFOEJET)
     se_slet = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_FJERNET)
-
-    # Generer dokumentation til fanebladet "Sagsgang"
-    # sagsgangslinje = {
-    #     "Dato": registreringstidspunkt,
-    #     "Hvem": sagsbehandler,
-    #     "Hændelse": "Koteberegning",
-    #     "Tekst": sagseventtekst,
-    #     "uuid": sagsevent.id,
-    # }
-    # sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
 
     fire.cli.print("Lægger punktrevisionsarbejde i databasen")
 
@@ -1859,6 +1849,16 @@ def ilæg_revision(
     sagseventtekst = "bla bla bla"
     sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
     se_tilføj.sagseventinfos.append(sagseventinfo)
+
+    # Generer dokumentation til fanebladet "Sagsgang"
+    sagsgangslinje = {
+        "Dato": registreringstidspunkt,
+        "Hvem": sagsbehandler,
+        "Hændelse": "Koteberegning",
+        "Tekst": sagseventtekst,
+        "uuid": sagsevent.id,
+    }
+    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
 
 
 # ------------------------------------------------------------------------------
