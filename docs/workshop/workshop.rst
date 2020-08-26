@@ -105,7 +105,7 @@ at køre kaldet::
 Alt datahåndtering foregår på Windows og i Excelregneark med diverse faneblade. 
 Vi vil nedenfor gennemgå processen.
 
-.. note:: Sørg for at bruge små bogstaver. Kald parametre genkendes ikke med versaler.
+.. note:: Sørg for at bruge små bogstaver. Kald og parametre genkendes ikke med versaler.
    Undtagelsen er ved punktnumre; her kan både store og små bogstaver benyttes.
 
 Step 1) opret-sag
@@ -124,7 +124,7 @@ mere hjælp::
 Her kommer en beskrivelse af hvad der forventes af input:
 
 - Options: Valgfrit. Valgmuligheder ses i hjælpeteksten.
-- Projektnavn: Obligatorisk. Kan fx være *Fjernkontrol af SULD*. Dette bliver navnet 
+- Projektnavn: Obligatorisk. Kan fx være *Fjernkontrol_af_SULD*. Dette bliver navnet 
   på dit regneark. 
 - Sagsbehandler: Obligatorisk. Skal altid være opretters B-NUMMER (af GDPR-årsager).
 - Beskrivelse: Valgfrit, men en god idé at beskrive nærmere hvad sagen indeholder, 
@@ -132,7 +132,8 @@ Her kommer en beskrivelse af hvad der forventes af input:
   5D-punktet GRAV. Antenne IKKE opført." 
 
 .. note:: Hvis input består af flere ord, fx i projektnavn eller beskrivelse, skal 
-   disse indkaples i citationstegn (\" \").
+   disse indkaples i citationstegn (\" \"). Det anbefales dog IKKE at lave mellemrum
+   i projektnavne.
 
 I terminalen vil det se ud som dette, når der oprettes en sag:
 
@@ -178,12 +179,12 @@ Ang. nyetablerede punkter:
 Hertil findes et faneblad, som skal udfyldes med mindst tre oplysninger:
 
 1. Et foreløbigt navn
-2. En længdegrad, /lambda
-3. En breddegrad, /phi
+2. En længdegrad/Y, Nord (UTM eller grader)
+3. En breddegrad/X, Øst (UTM eller grader)
 
 De resterende kolonner må meget gerne også fyldes ud, men den videre proces er ikke 
 afhængig af dem. Det man ikke kan udfylde, er *Landsnummer* og *uuid*, da det først 
-genereres det øjeblik punktet ilægges databasen nede i step 4).
+genereres det øjeblik punktet ilægges databasen nede i :ref:`step 4) <step4>`.
 
 .. image:: firenivopretsag4.png
   :width: 800
@@ -222,9 +223,10 @@ I dette ark kan man nu rette attributterne til efter behov. Nedenfor er vist:
 
 1. rettelser for punkt K-63-09930 i attributterne *ATTR:beskrivelse* og 
    *AFM:højde_over_terræn*
-2. ændring i lokationskoordinaten (*OVERVEJ:lokation*) samt
+2. ændring i lokationskoordinaten (*OVERVEJ:lokation*)
 3. tilføjelse af og om punktet kunne være muligt datumstabilt 
-   (*OVERVEJ:muligt_datumstabil*) og dens GNSS-egnetheden, *ATTR:gnss_egnet*.
+   (*OVERVEJ:muligt_datumstabil*) og dens GNSS-egnetheden, *ATTR:gnss_egnet*
+4. at punktet er besøgt ved at fjerne kryds i kolonnen *Ikke besøgt*
 
 .. image:: firenivudtrækrevision3.png
   :width: 800
@@ -235,15 +237,18 @@ I dette ark kan man nu rette attributterne til efter behov. Nedenfor er vist:
 
 Ved revision af mange punkter, er der oprettet en overblikskolonne, *Ikke besøgt*. 
 Denne er født med et kryds ud for punktbeskrivelsen, da man derved kan tilføje excels 
-filterfunktion, og filtrere de rækker væk uden et kryds. Derved kan man let se 
-hvilke punkter man endnu ikke har været forbi... såfremt man husker at slette 
-krydset fra de punkter man allerede HAR besøgt.
+filterfunktion, og filtrere de rækker væk uden et kryds. Pas på med ikke at *sortere*, 
+da rækkerne så vil blive blandet. Efter filtrering kan man let se hvilke punkter man 
+endnu ikke har været forbi... såfremt man husker at slette krydset fra de punkter man 
+allerede HAR besøgt.
  
 
 Step 3) ilæg-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 *ENDNU IKKE IMPLEMENTERET*
+
+.. _step4:
 
 Step 4) ilæg-nye-punkter
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -255,8 +260,8 @@ Step 5) læs-observationer
 
 Når man har lavet sin opmåling færdig, ender man med en råfil eller mere, som skal 
 beregnes. Disse filnavne (og tilhørende sti) skal tastes ind i excel-arket under 
-fanen *Filoversigt* med en opmålingstype, en apriori-spredning (/sigma) med det 
-afstandsuafhængige led (/delta). 
+fanen *Filoversigt* med en opmålingstype (mgl eller mtl), en apriori-spredning (\sigma) 
+og centreringsfejl(\delta). 
 
 Herefter **GEMMES OG LUKKES EXCEL-ARKET** og man vender tilbage til terminalen for 
 at lave kaldet ``læs-observationer``. Lad os se hvilke parametre det har brug for:
@@ -270,6 +275,10 @@ vil se således ud:
   :width: 800
   :alt: Netopbygning ud fra inputfiler
 
+.. image:: firenivlæsobservationer2.png
+  :width: 800
+  :alt: Netopbygning ud fra inputfiler - bund
+  
 Efter kaldet er færdigkørt, vil der være dannet tre nye filer;
 
 - en *projektnavn*-resultat.xlsx
@@ -278,29 +287,52 @@ Efter kaldet er færdigkørt, vil der være dannet tre nye filer;
 
 De to .geojson-filer er til indlæsning i QGIS til visualisering af nettet. Se 
 :ref:`her <visualiseringQGIS>` for mere.
+
+Når resultatfilen åbnes, ses to faneblade; et med observationerne og et med en 
+punktoversigt:
+
+.. image:: firenivlæsobservationer3.png
+  :width: 800
+  :alt: Netopbygning ud fra inputfiler - observationsliste
+
+Bemærk kolonnen *Sluk*, som indikerer en mulighed for at udelade enkelte observationer 
+i den videre beregning.
  
-Derudover står der i terminalen hvad man skal gøre som det næste: *Kopiér nu 
-faneblade fra '*Projektnavn*-resultat.xlsx' til '*Projektsnavn*.xlsx', og vælg 
+.. image:: firenivlæsobservationer4.png
+  :width: 800
+  :alt: Netopbygning ud fra inputfiler - punktoversigt
+
+Bemærk at nyetablerede punkter fra faneblad i projektfil fremgår med *År* lig 1800, 
+*Kote* lig 0 og *Middelfejl* lig 1000000. I tilfældet her er et punkt etableret, men 
+findes ikke i observationsfilen (Hjortholmvej 19), og det fremgår så også uden 
+yderligere information.
+  
+Slutteligt står der i terminalen hvad man skal gøre som det næste: *Kopiér nu 
+faneblade fra 'Projektnavn-resultat.xlsx' til 'Projektsnavn.xlsx', og vælg 
 fastholdte punkter i punktoversigten.* Så det gør vi.
 
-.. image:: firenivlæsobservationer2.png
-  :width: 800
-  :alt: Netopbygning ud fra inputfiler
+(højreklik på fanebladet, vælg *Flyt eller kopier*, og vælg hvor du vil have arket 
+kopieret hen)
 
-(højreklik på fanebladet, vælg *Flyt eller kopier*)
-
-I sin projektfil kan man nu notere hvilke punkter skal fastholdes, ved at, i fanebladet 
-*Punktoversigt*, skrive *0* ud for punktet i *Fix*-kolonnen.
- 
-.. image:: firenivlæsobservationer2.png
-  :width: 800
-  :alt: Netopbygning ud fra inputfiler
-  
-Herefter kan vi gå videre til næste step og beregne nye koter til eksisterende og 
-nyetablerede punkter, som nu fremgår i projekt-filen. 
   
 Step 6) beregn-nye-koter (eller adj)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Vi skal nu til at beregne nye koter til de observerede punkter.
+
+I ens projektfil kan man notere hvilke punkter skal fastholdes, ved at, i fanebladet 
+*Punktoversigt*, skrive **0** ud for punktet i *Fasthold*-kolonnen. Gem derefter filen, 
+luk projektet ned og vend tilbage til terminalen, hvor kaldet ``beregn-nye-koter`` skal 
+køres:
+
+	> fire niv beregn-nye-koter --help
+
+
+
+.. note:: Det er vigtigt at det er tallet *0*, der skrives ud for de ønskede fastholdte
+   punkter. Det er udtryk for den fejl beregningen må lægge på punktet; i de fastholdtes 
+   tilfælde skal den altså være nul.
+
 
 Step 7) ilæg-observationer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
