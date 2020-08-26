@@ -255,6 +255,8 @@ Step 4) ilæg-nye-punkter
 
 *ENDNU IKKE IMPLEMENTERET*
 
+.. _step5:
+
 Step 5) læs-observationer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -309,10 +311,11 @@ yderligere information.
   
 Slutteligt står der i terminalen hvad man skal gøre som det næste: *Kopiér nu 
 faneblade fra 'Projektnavn-resultat.xlsx' til 'Projektsnavn.xlsx', og vælg 
-fastholdte punkter i punktoversigten.* Så det gør vi.
+fastholdte punkter i punktoversigten.* Så det gør vi!
 
-(højreklik på fanebladet, vælg *Flyt eller kopier*, og vælg hvor du vil have arket 
-kopieret hen)
+.. note:: For at flytte eller kopiere et faneblad til en anden excel-fil:
+   Åbn filen du ønsker at flytte faner til. Højreklik på fanebladet der skal 
+   flyttes, vælg *Flyt eller kopier*, og udvælg hvor du vil have arket flyttet hen.
 
   
 Step 6) beregn-nye-koter (eller adj)
@@ -321,18 +324,29 @@ Step 6) beregn-nye-koter (eller adj)
 Vi skal nu til at beregne nye koter til de observerede punkter.
 
 I ens projektfil kan man notere hvilke punkter skal fastholdes, ved at, i fanebladet 
-*Punktoversigt*, skrive **0** ud for punktet i *Fasthold*-kolonnen. Gem derefter filen, 
+*Punktoversigt*, skrive *x* ud for punktet i *Fasthold*-kolonnen. Gem derefter filen, 
 luk projektet ned og vend tilbage til terminalen, hvor kaldet ``beregn-nye-koter`` skal 
 køres:
 
 	> fire niv beregn-nye-koter --help
 
+Herfra ses at man igen skal bruge *Projektnavn* som parameter, og i terminalen vil det 
+se således ud:
 
+.. image:: firenivadj.png
+  :width: 800
+  :alt: Beregn nye koter
 
-.. note:: Det er vigtigt at det er tallet *0*, der skrives ud for de ønskede fastholdte
-   punkter. Det er udtryk for den fejl beregningen må lægge på punktet; i de fastholdtes 
-   tilfælde skal den altså være nul.
+Det ses at der er valgt to punkter som fastholdt (G.I.1832 og G.I.1833), og et enkelt 
+punkt er ikke med i nivellementslinjen (Hjortholmvej 19).
 
+Der er også genereret flere resultatfiler, bl.a.
+
+- en *projektnavn*-resultat.xlsx (eller nye faner i eksisterende fil)
+- en *projektnavn*-resultat.xml
+- en *projektnavn*-resultat.html
+
+samt nye oplysninger i projektfilens faneblade. 
 
 Step 7) ilæg-observationer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -350,3 +364,20 @@ Step 9) luk-sag
 
 Visualisering i QGIS
 ------------------------
+
+For at få en grafisk visning af sit opmålte net, bruges QGIS. Man kan åbne QGIS enten 
+via startmenuen i Windows eller ved at taste 
+	
+	> qgis
+
+i sin terminal (såfremt det miljø man arbejder i har QGIS tilknyttet). 
+
+I :ref:`step 5) <step5>` blev der genereret to .geojson-filer, en punktfil og en 
+observationslinjefil. Disse to kan direkte indlæses i QGIS, fx vha. *drag-and-drop*.
+Nedenfor ses hvordan nettet i eksemplet ovenfor ser ud. Der er en række punkter 
+der er målt imellem, samt et ensomt punkt; det nyetablerede ved Hjortholmvej 19.
+
+.. image:: QGIS.png
+  :width: 800
+  :alt: Netopbygning vist i QGIS
+
