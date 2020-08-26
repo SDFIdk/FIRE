@@ -156,6 +156,23 @@ ARKDEF_OBSERVATIONER = {
     "uuid": str,
 }
 
+ARKDEF_PUNKTOVERSIGT = {
+    "Punkt": str,
+    "Fasthold": str,
+    "År": int,
+    "Kote": float,
+    "σ": float,
+    "Ny kote": float,
+    "Ny σ": float,
+    "Δ-kote [mm]": float,
+    "Opløft [mm/år]": float,
+    "System": str,
+    "Nord": float,
+    "Øst": float,
+    "uuid": str,
+    "Udelad publikation": str,
+}
+
 ARKDEF_REVISION = {
     "Punkt": str,
     "Attribut": str,
@@ -225,13 +242,22 @@ def spredning(
 
     Fx.  MTL: spredning("mtl", 500, 3, 2, 0.5) = 1.25
          MGL: spredning("MGL", 500, 3, 0.6, 0.01) = 0.4243
+         NUL: spredning("NUL", .....) = 0
 
     Rejser ValueError ved ukendt observationstype eller
     (via math.sqrt) ved negativ afstand_i_m.
 
     Negativ afstandsafhængig- eller centreringsspredning
     behandles som positive.
+
+    Observationstypen NUL benyttes til at sammenbinde disjunkte
+    undernet - det er en observation med forsvindende apriorifejl,
+    der eksakt reproducerer koteforskellen mellem to fastholdte
+    punkter
     """
+
+    if "NUL" == observationstype.upper():
+        return 0
 
     opstillingsafhængig = antal_opstillinger * (centreringsspredning_i_mm ** 2)
 
@@ -260,7 +286,7 @@ def check_om_resultatregneark_er_lukket(navn: str) -> None:
 
 
 # -----------------------------------------------------------------------------
-def check_om_sag_er_korrekt_oprettet(projektnavn: str) -> Sag:
+def find_sag(projektnavn: str) -> Sag:
     """Bomb hvis sag for projektnavn ikke er oprettet. Ellers returnér sagen"""
     sagsgang = find_sagsgang(projektnavn)
     sagsid = find_sagsid(sagsgang)
@@ -280,6 +306,24 @@ def check_om_sag_er_korrekt_oprettet(projektnavn: str) -> Sag:
         sys.exit(1)
 
     return sag
+
+
+# ------------------------------------------------------------------------------
+def find_sagsgang(projektnavn: str) -> pd.DataFrame:
+    """Udtræk sagsgangsregneark fra Excelmappe"""
+    return pd.read_excel(f"{projektnavn}.xlsx", sheet_name="Sagsgang")
+
+
+# ------------------------------------------------------------------------------
+def find_sagsid(sagsgang: pd.DataFrame) -> str:
+    sag = sagsgang.index[sagsgang["Hændelse"] == "sagsoprettelse"].tolist()
+    assert (
+        len(sag) == 1
+    ), "Der skal være præcis 1 hændelse af type sagsoprettelse i arket"
+    i = sag[0]
+    if not pd.isna(sagsgang.uuid[i]):
+        return str(sagsgang.uuid[i])
+    return ""
 
 
 # ------------------------------------------------------------------------------
@@ -328,7 +372,7 @@ def læs_observationsstrenge(
     """Pil observationsstrengene ud fra en række råfiler"""
     observationer = pd.DataFrame(columns=list(ARKDEF_OBSERVATIONER))
     for fil in filinfo.itertuples(index=False):
-        if fil.Type not in ["MTL", "MGL"]:
+        if fil.Type.upper() not in ["MGL", "MTL", "NUL"]:
             continue
         if verbose:
             fire.cli.print(f"Læser {fil.Filnavn} med σ={fil.σ} og δ={fil.δ}")
@@ -385,7 +429,7 @@ def læs_observationsstrenge(
                         "Sluk": "",
                         "Hvornår": isotid,
                         "Kilde": fil.Filnavn,
-                        "Type": fil.Type,
+                        "Type": fil.Type.upper(),
                         "uuid": "",
                     }
                     observationer = observationer.append(obs, ignore_index=True)
@@ -414,7 +458,9 @@ def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning og centreringsfejl"""
     try:
         inputfiler = pd.read_excel(
-            f"{navn}.xlsx", sheet_name="Filoversigt", usecols="A:D"
+            f"{navn}.xlsx",
+            sheet_name="Filoversigt",
+            usecols=anvendte(ARKDEF_FILOVERSIGT),
         )
     except:
         sys.exit("Kan ikke finde filoversigt i projektfil")
@@ -506,7 +552,7 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
         punkt = punkter.at[i, "Punkt"]
 
         # Fastholdte punkter har ingen ny kote, så vi viser den gamle
-        if punkter.at[i, "Fix"] == 0:
+        if punkter.at[i, "Fasthold"] == "x":
             fastholdt = True
             delta = 0.0
             kote = float(punkter.at[i, "Kote"])
@@ -559,23 +605,7 @@ def punkter_geojson(projektnavn: str, punkter: pd.DataFrame,) -> None:
 def opbyg_punktoversigt(
     navn: str, nyetablerede: pd.DataFrame, alle_punkter: Tuple[str, ...],
 ) -> pd.DataFrame:
-    punktoversigt = pd.DataFrame(
-        columns=[
-            "Punkt",
-            "Fix",
-            "Hold",
-            "År",
-            "Kote",
-            "σ",
-            "Ny kote",
-            "Ny σ",
-            "Δ-kote [mm]",
-            "System",
-            "Nord",
-            "Øst",
-            "uuid",
-        ]
-    )
+    punktoversigt = pd.DataFrame(columns=list(ARKDEF_PUNKTOVERSIGT))
     fire.cli.print("Opbygger punktoversigt")
 
     # Forlæng punktoversigt, så der er plads til alle punkter
@@ -724,7 +754,7 @@ def netanalyse(
 
 # ------------------------------------------------------------------------------
 def find_fastholdte(punktoversigt: pd.DataFrame) -> Dict[str, float]:
-    relevante = punktoversigt[punktoversigt["Fix"] == "x"]
+    relevante = punktoversigt[punktoversigt["Fasthold"] == "x"]
     fastholdte_punkter = tuple(relevante["Punkt"])
     fastholdteKoter = tuple(relevante["Kote"])
     return dict(zip(fastholdte_punkter, fastholdteKoter))
@@ -752,7 +782,6 @@ def gama_beregning(
     estimerede_punkter: Tuple[str, ...],
 ) -> pd.DataFrame:
     fastholdte = find_fastholdte(punktoversigt)
-    print(observationer)
 
     # Skriv Gama-inputfil i XML-format
     with open(f"{projektnavn}.xml", "wt") as gamafil:
@@ -863,7 +892,7 @@ def gama_beregning(
 def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyoprettede punkter i databasen"""
     check_om_resultatregneark_er_lukket(projektnavn)
-    sag = check_om_sag_er_korrekt_oprettet(projektnavn)
+    sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
     fire.cli.print("Lægger nye observationer i databasen")
@@ -872,7 +901,9 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     til_registrering = []
     observationer = pd.read_excel(
-        f"{projektnavn}.xlsx", sheet_name="Observationer", usecols="A:S",
+        f"{projektnavn}.xlsx",
+        sheet_name="Observationer",
+        usecols=anvendte(ARKDEF_OBSERVATIONER),
     )
     # Fjern blanklinjer
     observationer = observationer[observationer["Fra"] == observationer["Fra"]]
@@ -923,7 +954,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         else:
             gruppe = None
 
-        if obs.Type == "MTL":
+        if obs.Type.upper() == "MTL":
             observation = Observation(
                 antal=1,
                 observationstype=obstype_trig,
@@ -940,7 +971,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             )
             observation.sagsevent = sagsevent
 
-        elif obs.Type == "MGL":
+        elif obs.Type.upper() == "MGL":
             observation = Observation(
                 antal=1,
                 observationstype=obstype_geom,
@@ -1102,7 +1133,9 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     # Opbyg oversigt over alle punkter m. kote og placering
     try:
         punktoversigt = pd.read_excel(
-            f"{projektnavn}.xlsx", sheet_name="Punktoversigt", usecols="A:M"
+            f"{projektnavn}.xlsx",
+            sheet_name="Punktoversigt",
+            usecols=anvendte(ARKDEF_PUNKTOVERSIGT),
         )
     except:
         fire.cli.print(f"Der er ingen punktoversigt i '{projektnavn}.xlsx'")
@@ -1149,24 +1182,6 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     skriv_ark(projektnavn, resultater)
 
 
-# ------------------------------------------------------------------------------
-def find_sagsgang(projektnavn: str) -> pd.DataFrame:
-    """Udtræk sagsgangsregneark fra Excelmappe"""
-    return pd.read_excel(f"{projektnavn}.xlsx", sheet_name="Sagsgang")
-
-
-# ------------------------------------------------------------------------------
-def find_sagsid(sagsgang: pd.DataFrame) -> str:
-    sag = sagsgang.index[sagsgang["Hændelse"] == "sagsoprettelse"].tolist()
-    assert (
-        len(sag) == 1
-    ), "Der skal være præcis 1 hændelse af type sagsoprettelse i arket"
-    i = sag[0]
-    if not pd.isna(sagsgang.uuid[i]):
-        return str(sagsgang.uuid[i])
-    return ""
-
-
 def find_alle_løbenumre_i_distrikt(distrikt: str) -> List[str]:
     pit = firedb.hent_punktinformationtype("IDENT:landsnr")
     landsnumre = (
@@ -1198,7 +1213,7 @@ def find_alle_løbenumre_i_distrikt(distrikt: str) -> List[str]:
 def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyoprettede punkter i databasen"""
     check_om_resultatregneark_er_lukket(projektnavn)
-    sag = check_om_sag_er_korrekt_oprettet(projektnavn)
+    sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
     fire.cli.print("Lægger nye punkter i databasen")
@@ -1427,14 +1442,16 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyberegnede koter i databasen"""
     check_om_resultatregneark_er_lukket(projektnavn)
-    sag = check_om_sag_er_korrekt_oprettet(projektnavn)
+    sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
     fire.cli.print("Lægger nye koter i databasen")
 
     try:
         punktoversigt = pd.read_excel(
-            f"{projektnavn}.xlsx", sheet_name="Punktoversigt", usecols="A:M",
+            f"{projektnavn}.xlsx",
+            sheet_name="Punktoversigt",
+            usecols=anvendte(ARKDEF_PUNKTOVERSIGT),
         )
     except Exception as ex:
         fire.cli.print(
@@ -1713,7 +1730,7 @@ def ilæg_revision(
 ) -> None:
     """Ilæg reviderede punktdata"""
     check_om_resultatregneark_er_lukket(projektnavn)
-    sag = check_om_sag_er_korrekt_oprettet(projektnavn)
+    sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
     # Vi skal bruge uuider for sagsevents undervejs, så vi genererer dem her men
