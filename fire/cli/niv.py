@@ -308,7 +308,6 @@ def find_sag(projektnavn: str) -> Sag:
     return sag
 
 
-
 # ------------------------------------------------------------------------------
 def find_sagsgang(projektnavn: str) -> pd.DataFrame:
     """Udtræk sagsgangsregneark fra Excelmappe"""
@@ -459,7 +458,9 @@ def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning og centreringsfejl"""
     try:
         inputfiler = pd.read_excel(
-            f"{navn}.xlsx", sheet_name="Filoversigt", usecols="A:D"
+            f"{navn}.xlsx",
+            sheet_name="Filoversigt",
+            usecols=anvendte(ARKDEF_FILOVERSIGT),
         )
     except:
         sys.exit("Kan ikke finde filoversigt i projektfil")
@@ -900,7 +901,9 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     til_registrering = []
     observationer = pd.read_excel(
-        f"{projektnavn}.xlsx", sheet_name="Observationer", usecols="A:S",
+        f"{projektnavn}.xlsx",
+        sheet_name="Observationer",
+        usecols=anvendte(ARKDEF_OBSERVATIONER),
     )
     # Fjern blanklinjer
     observationer = observationer[observationer["Fra"] == observationer["Fra"]]
@@ -1130,7 +1133,9 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     # Opbyg oversigt over alle punkter m. kote og placering
     try:
         punktoversigt = pd.read_excel(
-            f"{projektnavn}.xlsx", sheet_name="Punktoversigt", usecols="A:M"
+            f"{projektnavn}.xlsx",
+            sheet_name="Punktoversigt",
+            usecols=anvendte(ARKDEF_PUNKTOVERSIGT),
         )
     except:
         fire.cli.print(f"Der er ingen punktoversigt i '{projektnavn}.xlsx'")
@@ -1444,7 +1449,9 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     try:
         punktoversigt = pd.read_excel(
-            f"{projektnavn}.xlsx", sheet_name="Punktoversigt", usecols="A:M",
+            f"{projektnavn}.xlsx",
+            sheet_name="Punktoversigt",
+            usecols=anvendte(ARKDEF_PUNKTOVERSIGT),
         )
     except Exception as ex:
         fire.cli.print(
