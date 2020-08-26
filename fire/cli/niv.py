@@ -123,8 +123,8 @@ ARKDEF_FILOVERSIGT = {"Filnavn": str, "Type": str, "σ": float, "δ": float}
 ARKDEF_NYETABLEREDE_PUNKTER = {
     "Foreløbigt navn": str,
     "Landsnummer": str,
-    "φ": float,
-    "λ": float,
+    "Nord": float,
+    "Øst": float,
     "Etableret dato": "datetime64[ns]",
     "Hvem": str,
     "Beskrivelse": str,
@@ -385,11 +385,9 @@ def læs_observationsstrenge(
                         "Type": fil.Type,
                         "uuid": "",
                     }
-                    print(obs)
                     observationer = observationer.append(obs, ignore_index=True)
         except FileNotFoundError:
-            fire.cli.print(f"Kunne ikke læse filen '{fil.Filnavn}''")
-    print(observationer)
+            fire.cli.print(f"Kunne ikke læse filen '{fil.Filnavn}'")
     return observationer
 
 
@@ -476,8 +474,8 @@ def obs_feature(punkter: pd.DataFrame, observationer: pd.DataFrame) -> Dict[str,
             "geometry": {
                 "type": "LineString",
                 "coordinates": [
-                    [punkter.at[fra, "λ"], punkter.at[fra, "φ"]],
-                    [punkter.at[til, "λ"], punkter.at[til, "φ"]],
+                    [punkter.at[fra, "Øst"], punkter.at[fra, "Nord"]],
+                    [punkter.at[til, "Øst"], punkter.at[til, "Nord"]],
                 ],
             },
         }
@@ -537,7 +535,7 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
             },
             "geometry": {
                 "type": "Point",
-                "coordinates": [punkter.at[i, "λ"], punkter.at[i, "φ"]],
+                "coordinates": [punkter.at[i, "Øst"], punkter.at[i, "Nord"]],
             },
         }
         yield feature
@@ -570,8 +568,8 @@ def opbyg_punktoversigt(
             "Ny σ",
             "Δ-kote [mm]",
             "System",
-            "φ",
-            "λ",
+            "Nord",
+            "Øst",
             "uuid",
         ]
     )
@@ -617,35 +615,39 @@ def opbyg_punktoversigt(
                 fg="white",
                 err=True,
             )
-            sys.exit(1)
+            punktoversigt.at[punkt, "Kote"] = 0
+            punktoversigt.at[punkt, "σ"] = 1e6
+            punktoversigt.at[punkt, "År"] = 1800
+            punktoversigt.at[punkt, "System"] = "DVR90"
+            punktoversigt.at[punkt, "uuid"] = ""
+        else:
+            punktoversigt.at[punkt, "Kote"] = kote.z
+            punktoversigt.at[punkt, "σ"] = kote.sz
+            punktoversigt.at[punkt, "År"] = kote.registreringfra.year
+            punktoversigt.at[punkt, "System"] = "DVR90"
+            punktoversigt.at[punkt, "uuid"] = ""
 
-        punktoversigt.at[punkt, "Kote"] = kote.z
-        punktoversigt.at[punkt, "σ"] = kote.sz
-        punktoversigt.at[punkt, "År"] = kote.registreringfra.year
-        punktoversigt.at[punkt, "System"] = "DVR90"
-        punktoversigt.at[punkt, "uuid"] = ""
-
-        if pd.isna(punktoversigt.at[punkt, "φ"]):
-            punktoversigt.at[punkt, "φ"] = pkt.geometri.koordinater[1]
-            punktoversigt.at[punkt, "λ"] = pkt.geometri.koordinater[0]
+        if pd.isna(punktoversigt.at[punkt, "Nord"]):
+            punktoversigt.at[punkt, "Nord"] = pkt.geometri.koordinater[1]
+            punktoversigt.at[punkt, "Øst"] = pkt.geometri.koordinater[0]
 
     # Nyetablerede punkter er ikke i databasen, så hent eventuelle manglende
     # koter og placeringskoordinater i fanebladet 'Nyetablerede punkter'
     for punkt in nye_punkter:
         if pd.isna(punktoversigt.at[punkt, "Kote"]):
             punktoversigt.at[punkt, "Kote"] = 0
-        if pd.isna(punktoversigt.at[punkt, "φ"]):
-            punktoversigt.at[punkt, "φ"] = nyetablerede.at[punkt, "φ"]
-        if pd.isna(punktoversigt.at[punkt, "λ"]):
-            punktoversigt.at[punkt, "λ"] = nyetablerede.at[punkt, "λ"]
+        if pd.isna(punktoversigt.at[punkt, "Nord"]):
+            punktoversigt.at[punkt, "Nord"] = nyetablerede.at[punkt, "Nord"]
+        if pd.isna(punktoversigt.at[punkt, "Øst"]):
+            punktoversigt.at[punkt, "Øst"] = nyetablerede.at[punkt, "Øst"]
 
     # Check op på placeringskoordinaterne
     for punkt in alle_punkter:
         (λ, φ) = normaliser_placeringskoordinat(
-            punktoversigt.at[punkt, "λ"], punktoversigt.at[punkt, "φ"]
+            punktoversigt.at[punkt, "Øst"], punktoversigt.at[punkt, "Nord"]
         )
-        punktoversigt.at[punkt, "φ"] = φ
-        punktoversigt.at[punkt, "λ"] = λ
+        punktoversigt.at[punkt, "Nord"] = φ
+        punktoversigt.at[punkt, "Øst"] = λ
 
     # Reformater datarammen så den egner sig til output
     return punktoversigt.reset_index()
@@ -1229,7 +1231,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         print(f"Behandler punkt {nyetablerede['Foreløbigt navn'][i]}")
 
         lokation = normaliser_placeringskoordinat(
-            nyetablerede["λ"][i], nyetablerede["φ"][i]
+            nyetablerede["Øst"][i], nyetablerede["Nord"][i]
         )
         distrikt = nyetablerede["Landsnummer"][i]
 
@@ -1284,8 +1286,8 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         geo.geometri = Point(lokation)
         nyt_punkt.geometriobjekter.append(geo)
         # Hvis lokationen i regnearket var UTM32, så bliver den nu længde/bredde
-        nyetablerede.at[i, "λ"] = lokation[0]
-        nyetablerede.at[i, "φ"] = lokation[1]
+        nyetablerede.at[i, "Øst"] = lokation[0]
+        nyetablerede.at[i, "Nord"] = lokation[1]
 
         # Tilføj punktets landsnummer som punktinformation
         pi_l = PunktInformation(
