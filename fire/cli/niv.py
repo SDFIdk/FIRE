@@ -1754,8 +1754,7 @@ def ilæg_revision(
         )
         fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag['uuid']})")
         fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
-        svar = input("OK (ja/nej)? ")
-        if svar != "ja":
+        if "ja" != input("OK (ja/nej)? "):
             fire.cli.print("Dropper skrivning til FIRE-databasen")
             return
 
@@ -1918,8 +1917,7 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
     fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag['uuid']})")
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
     fire.cli.print(f"Beskrivelse:       {beskrivelse}")
-    svar = input("OK (ja/nej)? ")
-    if svar == "ja":
+    if "ja" == input("OK (ja/nej)? "):
         sagsinfo = Sagsinfo(
             aktiv="true", behandler=sagsbehandler, beskrivelse=beskrivelse
         )
@@ -1929,8 +1927,7 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
         fire.cli.print("Opretter IKKE sag")
         # Ved demonstration af systemet er det nyttigt at kunne oprette
         # et sagsregneark, uden at oprette en tilhørende sag
-        svar = input("Opret sagsregneark alligevel (ja/nej)? ")
-        if svar != "ja":
+        if "ja" != input("Opret sagsregneark alligevel (ja/nej)? "):
             return
 
     fire.cli.print(f"Skriver sagsregneark '{projektnavn}.xlsx'")
