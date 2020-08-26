@@ -24,7 +24,7 @@ kasser, der kan hakkes af og en knap med *beregn* til til at lave en udjævning,
 som derefter bliver vist i QGIS, så må vi skuffe. 
 Det er ikke der vi er; vi er slet ikke nok folk til at kunne retfærdiggøre at 
 bruge tid og penge på at udvikle sådan noget, og desuden vil det være et hejs at 
-vedligeholde og videudvikle kode til, hvilket vi helst vil gøre selv.
+vedligeholde og videreudvikle kode til, hvilket vi helst vil gøre selv.
 Derfor er det altså stadig kommandolinjekald, som er vejen frem! Men dermed bliver 
 overgangen til ny database og beregningssoftware nok ikke så slem alligevel.
 
@@ -67,12 +67,16 @@ på billedet:
 
 Udtrækket viser den formodede relevante information, der ligger på punktet fra 
 attribut-tabellerne og fra koordinattabellerne.
-I eksemplet ses det fx, at punktet er oprettet i databasen 19/3 1985, at det også 
-hedder K-11-09263, og i øvrigt er et jessenpunkt til en tidsserie, samt at det 
-har en DVR90-kote fra 3. præc. indikeret ved EPSG-kode 5799 og beregningstidspunkt 
-11/2-2000 kl. 13:30), en plankoordinat fra 2011 (med EPSG-koden 4258) og to andre 
-koordinater i andre net. **Farven grøn indikerer at koordinaten er den gældende for 
-det pågældende net.**
+I eksemplet ses det fx, at punktet 
+
+- er oprettet i databasen 19/3 1985, 
+- også hedder K-11-09263, 
+- i øvrigt er et jessenpunkt til en tidsserie, 
+- har en DVR90-kote fra 3. præc. indikeret ved EPSG-kode 5799 og beregningstidspunkt 
+  11/2-2000 kl. 13:30), 
+- har en plankoordinat fra 2011 (med EPSG-koden 4258) og to andre 
+  koordinater i andre net. 
+  **Farven grøn indikerer at koordinaten er den gældende for det pågældende net.**
 
 På samme måde kan andre elementer slås op i databasen, bl.a. oplysninger om historiske 
 koter med parameteren *-K*, observationer med parameteren *-O* og andre detaljer med 
@@ -190,6 +194,10 @@ genereres det øjeblik punktet ilægges databasen nede i :ref:`step 4) <step4>`.
   :width: 800
   :alt: Opret nye punkter, excel-visning
 
+.. note:: Koordinater kan skrives både med UTM-format og med gradetal. ``fire`` genkender 
+   selv formatet og transformerer til geografiske koordinater, som er standard i ``fire``.
+
+
 Step 2) udtræk-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -225,7 +233,8 @@ I dette ark kan man nu rette attributterne til efter behov. Nedenfor er vist:
    *AFM:højde_over_terræn*
 2. ændring i lokationskoordinaten (*OVERVEJ:lokation*)
 3. tilføjelse af og om punktet kunne være muligt datumstabilt 
-   (*OVERVEJ:muligt_datumstabil*) og dens GNSS-egnetheden, *ATTR:gnss_egnet*
+   (*OVERVEJ:muligt_datumstabil*), at punktet nu er et restricted punkt 
+   (*ATTR:restricted*) og dens GNSS-egnetheden (*ATTR:gnss_egnet*)
 4. at punktet er besøgt ved at fjerne kryds i kolonnen *Ikke besøgt*
 
 .. image:: firenivudtrækrevision3.png
@@ -251,6 +260,13 @@ Step 3) ilæg-revision
 	> fire niv ilæg-revision --help
 
 .. image:: firenivilægrevision.png
+  :width: 800
+  :alt: Ilæg data fra punktrevision
+
+*Der findes dog pt. en testfunktion (parameteren* --test *), som kan vise dig hvor der er registreret nye 
+attributter på punkterne, men som ikke lægger noget i databasen.*
+
+.. image:: firenivilægrevision2.png
   :width: 800
   :alt: Ilæg data fra punktrevision
   
@@ -380,9 +396,39 @@ endelige vurdering af beregningen.
 Step 7) ilæg-observationer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+*ENDNU IKKE FÆRDIGIMPLEMENTERET*
+
+	> fire niv ilæg-observationer --help
+
+.. image:: firenivilægobs.png
+  :width: 800
+  :alt: Ilæg observationer i database
+  
+
 Step 8) ilæg-nye-koter 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+*ENDNU IKKE FÆRDIGIMPLEMENTERET*
+
+	> fire niv ilæg-nye-koter --help
+
+.. image:: firenivilægkoter.png
+  :width: 800
+  :alt: Ilæg nye koter i database
+
+
+Punktoversigten fra resultatarket indeholder den info, som skal lægges i databasen: 
+Koter, middelfejl osv. Hvis der er punkter, som man ikke ønsker skal have ny kote, 
+kan man sætte *x* i kolonnen *Udelad publikation*, som vist nedenfor:
+
+.. image:: firenivilægkoter2.png
+  :width: 800
+  :alt: Ilæg nye koter i database
+
+På den måde fremgår punktet stadig i projektfilen og det er tydeligt at punktet 
+er valgt fra ved koteopdateringen.
+
+  
 Step 9) luk-sag
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

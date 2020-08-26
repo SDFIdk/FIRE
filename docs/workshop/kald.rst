@@ -7,7 +7,7 @@ Navigation i terminalen
 +++++++++++++++++++++++++
 
 Her følger en kort liste over hvordan man i Windows navigerer rundt på sin pc 
-vha. en terminal (fx miniconda) og kommandoer på linjen her. 
+vha. en terminal (fx miniconda eller Cmder) og kommandoer på linjen her. 
 
 ===================  ===========================================  ===========================================
 **Kommando**         **Beskrivelse**                              **Eksempel på brug**
@@ -69,6 +69,7 @@ cat            Sammensæt flere filer til en samlet og vis på skærm         > 
 echo           Gentag input på skærmen, som kan pipes videre, fx til proj  > echo 12.4 55.8 36 | cct +proj=cart 
 grep           Søg efter bestemte udtryk i asciitekst og print til skærm   > grep -n DK test1
 vim            Tekstbehandlingsprogram, som notesblok, Notepad++ osv.      > vim test1
+less           Vis indholdet i en ascii-fil (ikke til redigering)          > less test1
 =============  ==========================================================  ===========================================
 
 Alle programmer kan yderligere udforskes ved at bruge parameteren *--help*, fx::
