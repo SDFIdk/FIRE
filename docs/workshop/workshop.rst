@@ -246,15 +246,29 @@ allerede HAR besøgt.
 Step 3) ilæg-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-*ENDNU IKKE IMPLEMENTERET*
+*ENDNU IKKE FÆRDIGIMPLEMENTERET*
 
+	> fire niv ilæg-revision --help
+
+.. image:: firenivilægrevision.png
+  :width: 800
+  :alt: Ilæg data fra punktrevision
+  
+  
 .. _step4:
 
 Step 4) ilæg-nye-punkter
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-*ENDNU IKKE IMPLEMENTERET*
+*ENDNU IKKE FÆRDIGIMPLEMENTERET*
 
+	> fire niv ilæg-nye-punkter --help
+
+.. image:: firenivilægpunkt.png
+  :width: 800
+  :alt: Ilæg nye punkter
+  
+  
 .. _step5:
 
 Step 5) læs-observationer
@@ -318,7 +332,7 @@ fastholdte punkter i punktoversigten.* Så det gør vi!
    flyttes, vælg *Flyt eller kopier*, og udvælg hvor du vil have arket flyttet hen.
 
   
-Step 6) beregn-nye-koter (eller adj)
+Step 6) beregn-nye-koter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Vi skal nu til at beregne nye koter til de observerede punkter.
@@ -343,10 +357,25 @@ punkt er ikke med i nivellementslinjen (Hjortholmvej 19).
 Der er også genereret flere resultatfiler, bl.a.
 
 - en *projektnavn*-resultat.xlsx (eller nye faner i eksisterende fil)
-- en *projektnavn*-resultat.xml
+- en *projektnavn*-resultat.xml (til intern brug for ``fire``)
 - en *projektnavn*-resultat.html
 
-samt nye oplysninger i projektfilens faneblade. 
+I .html-filen findes diverse statistik over udjævningsberegningen, som det underliggende 
+kode (GnuGama) genererer. Filen åbnes også default efter kørslen. 
+
+I resultatfilen er der nu tre faner; *Netgeometri*, *Ensomme* og *Punktoversigt*. 
+Netgeometrien viser hvilke punkter er naboer til hvilke punkter, og man kan herfra 
+se om der er blinde linjer (punkter med kun én nabo). Ensomme punkter er punkter uden 
+en nabo, og som der dermed ikke er målt til. 
+
+Punktoversigten viser det egentlige beregningsresultat. Kolonner er nu fyldt ud med 
+nyberegnede koter, middelfejl og differencen fra gældende kote, og man kan lave sin 
+endelige vurdering af beregningen.
+
+.. note:: Da kaldet ``beregn-nye-koter`` er langt at skrive, er der oprettet et 
+   alias, ``adj``, som kan bruges i stedet for (forkortelse for *adjustment*).  
+
+
 
 Step 7) ilæg-observationer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -357,8 +386,7 @@ Step 8) ilæg-nye-koter
 Step 9) luk-sag
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-*ENDNU IKKE IMPLEMENTERET*
-
+*ENDNU IKKE FÆRDIGIMPLEMENTERET*
 
 .. _visualiseringQGIS:
 
