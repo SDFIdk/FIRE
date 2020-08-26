@@ -1730,7 +1730,11 @@ def ilæg_revision(
 ) -> None:
     """Ilæg reviderede punktdata"""
     check_om_resultatregneark_er_lukket(projektnavn)
-    sag = find_sag(projektnavn)
+    if alvor:
+        sag = find_sag(projektnavn)
+    else:
+        sag = Sag()
+
     sagsgang = find_sagsgang(projektnavn)
 
     # Vi skal bruge uuider for sagsevents undervejs, så vi genererer dem her men
@@ -1806,12 +1810,19 @@ def ilæg_revision(
         rev = revision[revision["Punkt"] == ident]
 
         for r in rev.to_dict("records"):
+            if r["Attribut"].startswith("OVERVEJ:"):
+                fire.cli.print(
+                    f"    * Overvejelser endnu ikke implementeret",
+                    fg="red",
+                    bold=False,
+                )
+                continue
             pitnavn = r["Attribut"]
             if pitnavn is None:
                 fire.cli.print(
                     f"    * Ignorerer uanført punktinformationstype",
                     fg="red",
-                    bold=True,
+                    bold=False,
                 )
                 continue
 
