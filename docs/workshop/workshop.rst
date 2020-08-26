@@ -156,8 +156,8 @@ alt andet, vil der ikke blive oprettet en sag i databasen.
 
 
 Skrives der alt andet end *"ja"*, får man valget om der alligevel skal oprettes 
-sagsregneark. Hertil kan der svares *"ja"*, og et excel-ark med filnavn som projektnavn 
-oprettes i den mappe man kører kaldet i.
+sagsregneark (også kaldet projektfil). Hertil kan der svares *"ja"*, og et excel-ark 
+med filnavn som projektnavn oprettes i den mappe man kører kaldet i.
 
 .. image:: firenivopretsag3.png
   :width: 800
@@ -170,7 +170,8 @@ Excel-arket åbnes, og der ses seks faneblade:
 - Nyetablerede punkter: Her kan man indtaste de nye punkter, som er oprettet til 
   projektet.
 - Notater
-- Filoversigt: Her kan man indtaste filnavnene på opmålingsfilerne.
+- Filoversigt: Her kan man indtaste filnavnene på opmålingsfilerne. husk at definere 
+  stien, hvis ikke filen ligger samme sted som projektfilen.
 - Parametre
 
 Hvert faneblad kan nu redigeres til det formål man ønsker.
@@ -295,8 +296,10 @@ beregnes. Disse filnavne (og tilhørende sti) skal tastes ind i excel-arket unde
 fanen *Filoversigt* med en opmålingstype (mgl eller mtl), en apriori-spredning (\sigma) 
 og centreringsfejl(\delta). 
 
-Herefter **GEMMES OG LUKKES EXCEL-ARKET** og man vender tilbage til terminalen for 
-at lave kaldet ``læs-observationer``. Lad os se hvilke parametre det har brug for:
+Herefter **GEMMES EXCEL-ARKET** og man vender tilbage til terminalen for 
+at lave kaldet ``læs-observationer`` (man behøver ikke at lukke sin projektfil, 
+da der ikke skrives til denne i kaldet, men blot læses herfra). Lad os se hvilke 
+parametre det har brug for:
 
 	> fire niv læs-observationer --help.
 
@@ -379,7 +382,12 @@ Der er også genereret flere resultatfiler, bl.a.
 I .html-filen findes diverse statistik over udjævningsberegningen, som det underliggende 
 kode (GnuGama) genererer. Filen åbnes også default efter kørslen. 
 
-I resultatfilen er der nu tre faner; *Netgeometri*, *Ensomme* og *Punktoversigt*. 
+I resultatfilen er der nu tre faner; 
+
+- *Netgeometri*, 
+- *Ensomme* og 
+- *Punktoversigt*
+
 Netgeometrien viser hvilke punkter er naboer til hvilke punkter, og man kan herfra 
 se om der er blinde linjer (punkter med kun én nabo). Ensomme punkter er punkter uden 
 en nabo, og som der dermed ikke er målt til. 
