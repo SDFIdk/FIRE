@@ -61,7 +61,7 @@ fx taste:
 I udtrækket plottes diverse oplysninger om punktet direkte på skærmen, som set 
 på billedet:
 
-.. image:: fireinfopunkt.png
+.. image:: figures_ws\\fireinfopunkt.PNG
   :width: 800
   :alt: Udtræk fra databasen for punkt G.I.2010
 
@@ -141,7 +141,7 @@ Her kommer en beskrivelse af hvad der forventes af input:
 
 I terminalen vil det se ud som dette, når der oprettes en sag:
 
-.. image:: firenivopretsag.png
+.. image:: figures_ws\\firenivopretsag.PNG
   :width: 800
   :alt: Opret sag, step 1
   
@@ -150,7 +150,7 @@ kan slettes, er det en god idé at dobbelttjekke alt info man skriver til databa
 Hvis man er sikker på sit input, kan man svare *"ja"* til spørgsmålet. Hvis der svares
 alt andet, vil der ikke blive oprettet en sag i databasen.
 
-.. image:: firenivopretsag2.png
+.. image:: figures_ws\\firenivopretsag2.PNG
   :width: 800
   :alt: Opret sag, step 2
 
@@ -159,7 +159,7 @@ Skrives der alt andet end *"ja"*, får man valget om der alligevel skal oprettes
 sagsregneark (også kaldet projektfil). Hertil kan der svares *"ja"*, og et excel-ark 
 med filnavn som projektnavn oprettes i den mappe man kører kaldet i.
 
-.. image:: firenivopretsag3.png
+.. image:: figures_ws\\firenivopretsag3.PNG
   :width: 800
   :alt: Opret sag, step 3
 
@@ -191,7 +191,7 @@ De resterende kolonner må meget gerne også fyldes ud, men den videre proces er
 afhængig af dem. Det man ikke kan udfylde, er *Landsnummer* og *uuid*, da det først 
 genereres det øjeblik punktet ilægges databasen nede i :ref:`step 4) <step4>`.
 
-.. image:: firenivopretsag4.png
+.. image:: figures_ws\\firenivopretsag4.PNG
   :width: 800
   :alt: Opret nye punkter, excel-visning
 
@@ -217,14 +217,14 @@ Det ses man skal definere to parametre:
 
 I terminalen vil det se ud som følger:
 
-.. image:: firenivudtrækrevision.png
+.. image:: figures_ws\\firenivudtrækrevision.PNG
   :width: 800
   :alt: Udtræk data til punktrevision
 
 hvorefter punkterne udtrækkes og lægges i en ny excel-fil navngivet med 
 "projektnavn"-revision.xlsx. Format er som vist nedenfor:
 
-.. image:: firenivudtrækrevision2.png
+.. image:: figures_ws\\firenivudtrækrevision2.PNG
   :width: 800
   :alt: Udtræk data til punktrevision, excelvisning
 
@@ -238,7 +238,7 @@ I dette ark kan man nu rette attributterne til efter behov. Nedenfor er vist:
    (*ATTR:restricted*) og dens GNSS-egnetheden (*ATTR:gnss_egnet*)
 4. at punktet er besøgt ved at fjerne kryds i kolonnen *Ikke besøgt*
 
-.. image:: firenivudtrækrevision3.png
+.. image:: figures_ws\\firenivudtrækrevision3.PNG
   :width: 800
   :alt: Udtræk data til punktrevision, excelvisning
 
@@ -260,14 +260,14 @@ Step 3) ilæg-revision
 
 	> fire niv ilæg-revision --help
 
-.. image:: firenivilægrevision.png
+.. image:: figures_ws\\firenivilægrevision.PNG
   :width: 800
   :alt: Ilæg data fra punktrevision
 
 *Der findes dog pt. en testfunktion (parameteren* --test *), som kan vise dig hvor der er registreret nye 
 attributter på punkterne, men som ikke lægger noget i databasen.*
 
-.. image:: firenivilægrevision2.png
+.. image:: figures_ws\\firenivilægrevision2.PNG
   :width: 800
   :alt: Ilæg data fra punktrevision
   
@@ -281,7 +281,7 @@ Step 4) ilæg-nye-punkter
 
 	> fire niv ilæg-nye-punkter --help
 
-.. image:: firenivilægpunkt.png
+.. image:: figures_ws\\firenivilægpunkt.PNG
   :width: 800
   :alt: Ilæg nye punkter
   
@@ -306,11 +306,11 @@ parametre det har brug for:
 Her vises at den obligatoriske parameter er *Projektnavn*, hvilket i vores eksempel 
 vil se således ud:
 
-.. image:: firenivlæsobservationer.png
+.. image:: figures_ws\\firenivlæsobservationer.PNG
   :width: 800
   :alt: Netopbygning ud fra inputfiler
 
-.. image:: firenivlæsobservationer2.png
+.. image:: figures_ws\\firenivlæsobservationer2.PNG
   :width: 800
   :alt: Netopbygning ud fra inputfiler - bund
   
@@ -326,14 +326,14 @@ De to .geojson-filer er til indlæsning i QGIS til visualisering af nettet. Se
 Når resultatfilen åbnes, ses to faneblade; et med observationerne og et med en 
 punktoversigt:
 
-.. image:: firenivlæsobservationer3.png
+.. image:: figures_ws\\firenivlæsobservationer3.PNG
   :width: 800
   :alt: Netopbygning ud fra inputfiler - observationsliste
 
 Bemærk kolonnen *Sluk*, som indikerer en mulighed for at udelade enkelte observationer 
 i den videre beregning.
  
-.. image:: firenivlæsobservationer4.png
+.. image:: figures_ws\\firenivlæsobservationer4.PNG
   :width: 800
   :alt: Netopbygning ud fra inputfiler - punktoversigt
 
@@ -366,7 +366,7 @@ køres:
 Herfra ses at man igen skal bruge *Projektnavn* som parameter, og i terminalen vil det 
 se således ud:
 
-.. image:: firenivadj.png
+.. image:: figures_ws\\firenivadj.PNG
   :width: 800
   :alt: Beregn nye koter
 
@@ -408,7 +408,7 @@ Step 7) ilæg-observationer
 
 	> fire niv ilæg-observationer --help
 
-.. image:: firenivilægobs.png
+.. image:: figures_ws\\firenivilægobs.PNG
   :width: 800
   :alt: Ilæg observationer i database
   
@@ -420,7 +420,7 @@ Step 8) ilæg-nye-koter
 
 	> fire niv ilæg-nye-koter --help
 
-.. image:: firenivilægkoter.png
+.. image:: figures_ws\\firenivilægkoter.PNG
   :width: 800
   :alt: Ilæg nye koter i database
 
@@ -429,7 +429,7 @@ Punktoversigten fra resultatarket indeholder den info, som skal lægges i databa
 Koter, middelfejl osv. Hvis der er punkter, som man ikke ønsker skal have ny kote, 
 kan man sætte *x* i kolonnen *Udelad publikation*, som vist nedenfor:
 
-.. image:: firenivilægkoter2.png
+.. image:: figures_ws\\firenivilægkoter2.PNG
   :width: 800
   :alt: Ilæg nye koter i database
 
@@ -459,7 +459,15 @@ observationslinjefil. Disse to kan direkte indlæses i QGIS, fx vha. *drag-and-d
 Nedenfor ses hvordan nettet i eksemplet ovenfor ser ud. Der er en række punkter 
 der er målt imellem, samt et ensomt punkt; det nyetablerede ved Hjortholmvej 19.
 
-.. image:: QGIS.png
+.. image:: figures_ws\\QGIS.PNG
   :width: 800
   :alt: Netopbygning vist i QGIS
+  
+
+Der er blevet udviklet et plugin til QGIS, der hedder ``flame``. Med dette bør det 
+være muligt let at få vist punkter fra databasen i et brugbart regi. Fx kan man fremsøge 
+alle punkter inden for en given kommune, et givent distrikt osv. 
+
+Pluginet er endnu ikke færdigudviklet og testet af, derfor afventer en nærmere gennemgang 
+af det. Men der bliver udviklet på funktionaliteterne løbende og som behovet opstår.
 
