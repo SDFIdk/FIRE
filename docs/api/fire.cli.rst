@@ -23,13 +23,7 @@ Submodules
    :show-inheritance:
 
 
-.. automodule:: fire.cli.mark
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-.. automodule:: fire.cli.mtl
+.. automodule:: fire.cli.niv
    :members:
    :undoc-members:
    :show-inheritance:

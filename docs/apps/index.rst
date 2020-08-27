@@ -5,5 +5,6 @@ Kommandolinjeprogrammer
     :maxdepth: 2
 
     info
-    mark
+    niv
     gama
+    
