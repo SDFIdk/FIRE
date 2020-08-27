@@ -9,6 +9,7 @@ dependencies:
   - pyproj
   - qgis=3.10
   - click
+  - colorama
   - pandas
   - statsmodels
   - xlsxwriter
