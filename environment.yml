@@ -7,6 +7,7 @@ dependencies:
   - sqlalchemy=1.2.13
   - qgis=3.10
   - click
+  - colorama
   - pyproj
   - pandas
   - statsmodels
