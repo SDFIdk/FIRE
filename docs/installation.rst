@@ -26,11 +26,11 @@ Git
 Installer Git fra Software Centeret. Åbn "Software Center" via Startmenuen. Søg
 efter "git" og installer det.
 
-.. image:: figures\\gitfrasoftwarecenter.PNG
+.. image:: figures/gitfrasoftwarecenter.PNG
   :width: 800
   :alt: Git i softwarecenter
 
-  
+
 Oracle Instantclient
 ++++++++++++++++++++
 
@@ -39,7 +39,7 @@ Søg efter "Oracle", der dukker flere muligheder op. Den korrekte er
 "Oracle 12.1.0.1 Client 64bit - Install" (versionsnummeret er muligvis anderledes). Følg
 instruktionerne på skærmen.
 
-.. image:: figures\\oraclefrasoftwarecenter.png
+.. image:: figures/oraclefrasoftwarecenter.PNG
    :width: 800
    :alt: Oracle i softwarecenter
 
@@ -49,26 +49,26 @@ Conda
 Download og kør `Miniconda3-latest-Windows-x86_64.exe
 <https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe>`_.
 
-.. image:: figures\\miniconda_start.PNG
+.. image:: figures/miniconda_start.PNG
   :width: 400
   :alt: Miniconda
-  
+
 Installationen er forholdsvis triviel, og man kan trykke "next" i alle trin og
 slutte af med "install". Det indbefatter at Conda kun installeres til den
 lokale bruger ("just me") og at ingen af de avancerede muligheder slås til.
 
-.. image:: figures\\miniconda_just_me.PNG
+.. image:: figures/miniconda_just_me.PNG
   :width: 400
   :alt: Miniconda - just me
-  
-.. image:: figures\\miniconda_bibliotek.PNG
+
+.. image:: figures/miniconda_bibliotek.PNG
   :width: 400
   :alt: Miniconda bibliotek
 
-.. image:: figures\\miniconda_advanced.PNG
+.. image:: figures/miniconda_advanced.PNG
   :width: 400
   :alt: Miniconda advanced
-  
+
 Når Conda er installeret kan du nu i start menuen finde "Anaconda Prompt
 (miniconda3)" Alle efterfølgende kommandoer i denne installationsvejledning skal
 afvikles i denne terminal. Det anbefales at lave en genvej til "Anaconda Prompt"
@@ -90,10 +90,10 @@ den med git::
     > cd C:\fire
     > git clone https://github.com/Kortforsyningen/FIRE.git
 
-.. image:: figures\\anacondaprompt-hent-fire.PNG
+.. image:: figures/anacondaprompt-hent-fire.PNG
   :width: 800
   :alt: FIRE i anacondaprompt
-  
+
 Initialiser et "conda environment" til FIRE::
 
     > cd FIRE
@@ -102,22 +102,22 @@ Initialiser et "conda environment" til FIRE::
 Vær tålmodig, det kan godt tage lang tid.
 
 
-.. image:: figures\\anacondaprompt-conda-env-create.PNG
+.. image:: figures/anacondaprompt-conda-env-create.PNG
   :width: 800
   :alt: FIRE i anacondaprompt - environment
 
 Undervejs ser det således ud:
 
-.. image:: figures\\anacondaprompt-undervejs-i-installation-af-fire-env.PNG
+.. image:: figures/anacondaprompt-undervejs-i-installation-af-fire-env.PNG
   :width: 800
   :alt: FIRE i anacondaprompt - undervejs
-  
-  
+
+
 Gør som ``conda`` siger og aktiver dit nye "fire environment"::
 
     > conda activate fire
 
-.. image:: figures\\anacondaprompt-færdig.PNG
+.. image:: figures/anacondaprompt-færdig.PNG
   :width: 800
   :alt: FIRE i anacondaprompt - færdig
 
