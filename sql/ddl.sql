@@ -486,6 +486,22 @@ FOREIGN KEY (INFOTYPEID)
 REFERENCES PUNKTINFOTYPE (INFOTYPEID)
 ENABLE VALIDATE;
 
+-- Diverse index
+
+CREATE INDEX idx_punktinfo_pid ON punktinfo(punktid);
+CREATE INDEX idx_koordinat_pid ON koordinat(punktid);
+CREATE INDEX idx_geomobj_pid ON geometriobjekt(punktid);
+
+CREATE INDEX idx_observ_opid ON observation(opstillingspunktid);
+CREATE INDEX idx_observ_spid ON observation(sigtepunktid);
+
+CREATE INDEX idx_punktinfotyp_anv ON punktinfotype(anvendelse);
+CREATE INDEX idx_punktinfotyp_typ ON punktinfotype(infotype);
+
+
+--- --  Dette bør lægges på ifm indlæsning fra REFGEO
+create unique index geomobj_datopid on geometriobjekt(punktid, registreringfra);
+
 -- Constraint der tjekker at registreringtil er større end registreringfra
 ALTER TABLE BEREGNING ADD
 CONSTRAINT BEREGNING_CON_0001
