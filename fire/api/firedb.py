@@ -427,7 +427,7 @@ class FireDb(object):
         username = self.config.get("connection", "username")
         password = self.config.get("connection", "password")
         hostname = self.config.get("connection", "hostname")
-        database = self.config.get("connection", "database")
+        service = self.config.get("connection", "service")
         port = self.config.get("connection", "port", fallback=1521)
 
-        return f"{username}:{password}@{hostname}:{port}/{database}"
+        return f"{username}:{password}@{hostname}:{port}/?service_name={service}"
