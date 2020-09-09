@@ -429,7 +429,25 @@ class FireDb(object):
         username = self.config.get("connection", "username")
         password = self.config.get("connection", "password")
         hostname = self.config.get("connection", "hostname")
-        database = self.config.get("connection", "database")
+        database = self.config.get("connection", "database", fallback="")
+        service = self.config.get("connection", "service", fallback="")
+        method = self.config.get("connection", "method", fallback="service")
         port = self.config.get("connection", "port", fallback=1521)
 
+        if method not in {"service", "database"}:
+            raise ValueError(
+                "fire.ini/method skal være enten 'database' eller 'service'"
+            )
+
+        if method == "service":
+            if service == "":
+                raise ValueError(
+                    "fire.ini/service skal defineres når method er 'service'"
+                )
+            return f"{username}:{password}@{hostname}:{port}/?service_name={service}"
+
+        if database == "":
+            raise ValueError(
+                "fire.ini/database skal defineres når method er 'database'"
+            )
         return f"{username}:{password}@{hostname}:{port}/{database}"
