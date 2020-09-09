@@ -188,7 +188,8 @@ def test_unit_tilknyt_landsnumre_flere_typer(dummydb, mocker):
     )
     mocker.patch("fire.api.FireDb._opmålingsdistrikt_fra_punktid", return_value=se)
     mocker.patch(
-        "fire.api.FireDb._løbenumre_i_distrikt", return_value=[],
+        "fire.api.FireDb._løbenumre_i_distrikt",
+        return_value=[],
     )
 
     punkter = [

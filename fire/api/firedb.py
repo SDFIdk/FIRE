@@ -144,7 +144,9 @@ class FireDb(object):
         return result
 
     def tilknyt_landsnumre(
-        self, punkter: List[Punkt], fikspunktstyper: List[FikspunktsType],
+        self,
+        punkter: List[Punkt],
+        fikspunktstyper: List[FikspunktsType],
     ) -> List[PunktInformation]:
         """
         Tilknytter et landsnummer til punktet hvis der ikke findes et i forvejen.

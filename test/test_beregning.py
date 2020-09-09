@@ -54,7 +54,16 @@ def test_indset_beregning_invalidates_existing_koordinat(
     # new beregning of the same observation with a new koordinat
     beregning2 = Beregning()
     beregning2.observationer.append(observation)
-    koordinat2 = Koordinat(srid=srid, punkt=punkt, x=1, y=0, z=0, sx=0, sy=0, sz=0,)
+    koordinat2 = Koordinat(
+        srid=srid,
+        punkt=punkt,
+        x=1,
+        y=0,
+        z=0,
+        sx=0,
+        sy=0,
+        sz=0,
+    )
     beregning2.koordinater.append(koordinat2)
     firedb.indset_beregning(Sagsevent(sag=sag), beregning2)
 

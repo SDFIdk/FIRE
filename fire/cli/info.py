@@ -306,7 +306,11 @@ def punkt_fuld_rapport(
     help="ts: Udskriv også tidsserier; alle: Udskriv også historiske koordinater; ingen: Udelad alle",
 )
 @click.option(
-    "-O", "--obs", is_flag=False, default="", help="niv/alle: Udskriv observationer",
+    "-O",
+    "--obs",
+    is_flag=False,
+    default="",
+    help="niv/alle: Udskriv observationer",
 )
 @click.option(
     "-D",
