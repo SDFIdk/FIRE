@@ -533,7 +533,9 @@ def obs_feature(punkter: pd.DataFrame, observationer: pd.DataFrame) -> Dict[str,
 
 # ------------------------------------------------------------------------------
 def observationer_geojson(
-    projektnavn: str, punkter: pd.DataFrame, observationer: pd.DataFrame,
+    projektnavn: str,
+    punkter: pd.DataFrame,
+    observationer: pd.DataFrame,
 ) -> None:
     """Skriv observationer til geojson-fil"""
 
@@ -591,7 +593,10 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
 
 
 # ------------------------------------------------------------------------------
-def punkter_geojson(projektnavn: str, punkter: pd.DataFrame,) -> None:
+def punkter_geojson(
+    projektnavn: str,
+    punkter: pd.DataFrame,
+) -> None:
     """Skriv punkter/koordinater i geojson-format"""
     with open(f"{projektnavn}-punkter.geojson", "wt") as punktfil:
         til_json = {
@@ -603,7 +608,9 @@ def punkter_geojson(projektnavn: str, punkter: pd.DataFrame,) -> None:
 
 # ------------------------------------------------------------------------------
 def opbyg_punktoversigt(
-    navn: str, nyetablerede: pd.DataFrame, alle_punkter: Tuple[str, ...],
+    navn: str,
+    nyetablerede: pd.DataFrame,
+    alle_punkter: Tuple[str, ...],
 ) -> pd.DataFrame:
     punktoversigt = pd.DataFrame(columns=list(ARKDEF_PUNKTOVERSIGT))
     fire.cli.print("Opbygger punktoversigt")
@@ -884,10 +891,14 @@ def gama_beregning(
 @niv.command()
 @fire.cli.default_options()
 @click.argument(
-    "projektnavn", nargs=1, type=str,
+    "projektnavn",
+    nargs=1,
+    type=str,
 )
 @click.argument(
-    "sagsbehandler", nargs=1, type=str,
+    "sagsbehandler",
+    nargs=1,
+    type=str,
 )
 def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyoprettede punkter i databasen"""
@@ -1037,7 +1048,9 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 @niv.command()
 @fire.cli.default_options()
 @click.argument(
-    "projektnavn", nargs=1, type=str,
+    "projektnavn",
+    nargs=1,
+    type=str,
 )
 def læs_observationer(projektnavn: str, **kwargs) -> None:
     """Importer data fra observationsfiler og opbyg punktoversigt"""
@@ -1205,10 +1218,14 @@ def find_alle_løbenumre_i_distrikt(distrikt: str) -> List[str]:
 @niv.command()
 @fire.cli.default_options()
 @click.argument(
-    "projektnavn", nargs=1, type=str,
+    "projektnavn",
+    nargs=1,
+    type=str,
 )
 @click.argument(
-    "sagsbehandler", nargs=1, type=str,
+    "sagsbehandler",
+    nargs=1,
+    type=str,
 )
 def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyoprettede punkter i databasen"""
@@ -1323,7 +1340,9 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             ΔH = 0.0
         if not pd.isna(nyetablerede["Højde over terræn"][i]):
             pi_h = PunktInformation(
-                infotype=h_over_terræn_pit, punkt=nyt_punkt, tal=ΔH,
+                infotype=h_over_terræn_pit,
+                punkt=nyt_punkt,
+                tal=ΔH,
             )
             nyt_punkt.punktinformationer.append(pi_h)
 
@@ -1434,10 +1453,14 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 @niv.command()
 @fire.cli.default_options()
 @click.argument(
-    "projektnavn", nargs=1, type=str,
+    "projektnavn",
+    nargs=1,
+    type=str,
 )
 @click.argument(
-    "sagsbehandler", nargs=1, type=str,
+    "sagsbehandler",
+    nargs=1,
+    type=str,
 )
 def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyberegnede koter i databasen"""
@@ -1545,7 +1568,9 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 @niv.command()
 @fire.cli.default_options()
 @click.argument(
-    "projektnavn", nargs=1, type=str,
+    "projektnavn",
+    nargs=1,
+    type=str,
 )
 @click.argument("opmålingsdistrikter", nargs=-1)
 def udtræk_revision(
@@ -1553,7 +1578,7 @@ def udtræk_revision(
 ) -> None:
     """Gør klar til punktrevision: Udtræk eksisterende information.
 
-        fire niv udtræk-revision projektnavn distrikts-eller-punktnavn(e)
+    fire niv udtræk-revision projektnavn distrikts-eller-punktnavn(e)
     """
 
     revision = pd.DataFrame(columns=tuple(ARKDEF_REVISION)).astype(ARKDEF_REVISION)
@@ -1712,13 +1737,19 @@ def udtræk_revision(
     help="Skriv aftestet materiale til databasen",
 )
 @click.argument(
-    "projektnavn", nargs=1, type=str,
+    "projektnavn",
+    nargs=1,
+    type=str,
 )
 @click.argument(
-    "sagsbehandler", nargs=1, type=str,
+    "sagsbehandler",
+    nargs=1,
+    type=str,
 )
 @click.argument(
-    "bemærkning", nargs=-1, type=str,
+    "bemærkning",
+    nargs=-1,
+    type=str,
 )
 def ilæg_revision(
     alvor: bool,
@@ -1894,13 +1925,19 @@ def ilæg_revision(
 @niv.command()
 @fire.cli.default_options()
 @click.argument(
-    "projektnavn", nargs=1, type=str,
+    "projektnavn",
+    nargs=1,
+    type=str,
 )
 @click.argument(
-    "sagsbehandler", nargs=1, type=str,
+    "sagsbehandler",
+    nargs=1,
+    type=str,
 )
 @click.argument(
-    "beskrivelse", nargs=-1, type=str,
+    "beskrivelse",
+    nargs=-1,
+    type=str,
 )
 def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) -> None:
     """Registrer ny sag i databasen - husk anførelsestegn om sagsbehandlernavn"""

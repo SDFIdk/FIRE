@@ -225,10 +225,14 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
         # return dict of {punktid: geometriobjekt}
 
         # Get geometriobjekter
-        gos: List[GeometriObjekt] = fireDb.session.query(GeometriObjekt).filter(
-            GeometriObjekt.punktid.in_(pid_list),
-            GeometriObjekt._registreringtil == None,
-        ).all()
+        gos: List[GeometriObjekt] = (
+            fireDb.session.query(GeometriObjekt)
+            .filter(
+                GeometriObjekt.punktid.in_(pid_list),
+                GeometriObjekt._registreringtil == None,
+            )
+            .all()
+        )
         go_by_pid = {}
         for go in gos:
             go_by_pid[go.punktid] = go
@@ -239,10 +243,15 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
 
         # GI(346)->GNSS(343)->landsnr(342)->refgeo_id(344)->uuid
         info_type_list = [346, 343, 342, 344]
-        infos: List[PunktInformation] = fireDb.session.query(PunktInformation).filter(
-            PunktInformation.punktid.in_(pid_list),
-            PunktInformation.infotypeid.in_(info_type_list),
-        ).order_by(PunktInformation.punktid, PunktInformation.infotypeid).all()
+        infos: List[PunktInformation] = (
+            fireDb.session.query(PunktInformation)
+            .filter(
+                PunktInformation.punktid.in_(pid_list),
+                PunktInformation.infotypeid.in_(info_type_list),
+            )
+            .order_by(PunktInformation.punktid, PunktInformation.infotypeid)
+            .all()
+        )
 
         ident_by_pid = {}
         if len(infos) > 0:

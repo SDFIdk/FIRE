@@ -24,7 +24,9 @@ def test_indset_sagsevent(firedb: FireDb, sag: Sag):
     sagseventinfo = SagseventInfo(beskrivelse="Testing testing")
     firedb.indset_sagsevent(
         Sagsevent(
-            sag=sag, eventtype=EventType.KOMMENTAR, sagseventinfos=[sagseventinfo],
+            sag=sag,
+            eventtype=EventType.KOMMENTAR,
+            sagseventinfos=[sagseventinfo],
         )
     )
 

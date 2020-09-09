@@ -75,7 +75,14 @@ def gama():
     type=click.File(mode="r"),
 )
 def write(
-    output, geometri, geometrifil, buffer, fra, til, fixpunkter, fixpunkterfil,
+    output,
+    geometri,
+    geometrifil,
+    buffer,
+    fra,
+    til,
+    fixpunkter,
+    fixpunkterfil,
 ):
     """Skriv en gama input fil"""
     writer = GamaWriter(firedb, output)

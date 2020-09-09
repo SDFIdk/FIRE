@@ -93,7 +93,15 @@ def punkt(firedb, sagsevent):
 def koordinat(firedb, sagsevent, punkt, srid):
     sagsevent.eventtype = EventType.KOORDINAT_BEREGNET
     k0 = Koordinat(
-        sagsevent=sagsevent, punkt=punkt, srid=srid, x=0, y=0, z=0, sx=0, sy=0, sz=0,
+        sagsevent=sagsevent,
+        punkt=punkt,
+        srid=srid,
+        x=0,
+        y=0,
+        z=0,
+        sx=0,
+        sy=0,
+        sz=0,
     )
     firedb.session.add(k0)
     return k0
