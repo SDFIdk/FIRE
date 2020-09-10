@@ -9,25 +9,20 @@ import pandas as pd
 import xmltodict
 
 import fire.cli
-from fire import uuid
 from fire.cli import firedb
 
-# Typingelementer fra databaseAPIet.
 from fire.api.model import (
     Punkt,
     Observation,
-    PunktInformation,
 )
 
 from . import (
-    ARKDEF_FILOVERSIGT,
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
     check_om_resultatregneark_er_lukket,
     find_nyetablerede,
     niv,
-    normaliser_placeringskoordinat,
     punkter_geojson,
     skriv_ark,
 )

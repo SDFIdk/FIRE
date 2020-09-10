@@ -1,6 +1,5 @@
 import sys
 from datetime import datetime
-from typing import Tuple
 
 import click
 import pandas as pd
@@ -12,18 +11,11 @@ from fire import uuid
 # Typingelementer fra databaseAPIet.
 from fire.api.model import (
     EventType,
-    GeometriObjekt,
-    Point,
     Punkt,
     Koordinat,
-    Observation,
-    PunktInformation,
-    PunktInformationType,
-    PunktInformationTypeAnvendelse,
     Sag,
     Sagsevent,
     SagseventInfo,
-    Sagsinfo,
 )
 
 

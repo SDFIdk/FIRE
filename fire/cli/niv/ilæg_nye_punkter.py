@@ -1,7 +1,5 @@
-import sys
-from datetime import datetime
 from itertools import chain
-from typing import List, Tuple
+from typing import List
 
 import click
 import pandas as pd

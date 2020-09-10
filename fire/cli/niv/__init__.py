@@ -1,39 +1,19 @@
-# Python infrastrukturelementer
 import json
 import os
 import os.path
 import sys
+from typing import Dict, Tuple
 
-from math import hypot, sqrt
-from typing import Dict, List, Set, Tuple
-from fire import uuid
-
-# Tredjepartsafhængigheder
 import click
 import pandas as pd
-
 from pyproj import Proj
-from sqlalchemy.orm.exc import NoResultFound
 
-# FIRE herself
 import fire.cli
 from fire.cli import firedb
-
-# Typingelementer fra databaseAPIet.
 from fire.api.model import (
-    EventType,
-    GeometriObjekt,
     Point,
     Punkt,
-    Koordinat,
-    Observation,
-    PunktInformation,
-    PunktInformationType,
-    PunktInformationTypeAnvendelse,
     Sag,
-    Sagsevent,
-    SagseventInfo,
-    Sagsinfo,
 )
 
 
@@ -285,7 +265,6 @@ def find_sag(projektnavn: str) -> Sag:
             f"Sag {sagsid} for {projektnavn} er markeret inaktiv. Genåbn for at gå videre."
         )
         sys.exit(1)
-
     return sag
 
 
