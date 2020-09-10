@@ -1,39 +1,28 @@
 import os
 import os.path
-from typing import Dict, List, Set, Tuple
-from fire import uuid
 
 import click
 import pandas as pd
 import sys
 
+from fire import uuid
 import fire.cli
 from fire.cli import firedb
-from . import niv
-from . import skriv_ark
-from . import ARKDEF_FILOVERSIGT, ARKDEF_NYETABLEREDE_PUNKTER, ARKDEF_SAG
 
+from . import (
+    ARKDEF_FILOVERSIGT,
+    ARKDEF_NYETABLEREDE_PUNKTER,
+    ARKDEF_SAG,
+    niv,
+    skriv_ark,
+)
 
 from fire.api.model import (
-    EventType,
-    GeometriObjekt,
-    Point,
-    Punkt,
-    Koordinat,
-    Observation,
-    PunktInformation,
-    PunktInformationType,
-    PunktInformationTypeAnvendelse,
     Sag,
-    Sagsevent,
-    SagseventInfo,
     Sagsinfo,
 )
 
 
-# ------------------------------------------------------------------------------
-# Her starter sagsoprettelsesprogrammet
-# ------------------------------------------------------------------------------
 @niv.command()
 @fire.cli.default_options()
 @click.argument(

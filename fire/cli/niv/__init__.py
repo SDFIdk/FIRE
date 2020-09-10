@@ -2,13 +2,8 @@
 import json
 import os
 import os.path
-import subprocess
 import sys
-import webbrowser
 
-from datetime import datetime
-from enum import IntEnum
-from itertools import chain
 from math import hypot, sqrt
 from typing import Dict, List, Set, Tuple
 from fire import uuid
@@ -16,7 +11,6 @@ from fire import uuid
 # Tredjepartsafhængigheder
 import click
 import pandas as pd
-import xmltodict
 
 from pyproj import Proj
 from sqlalchemy.orm.exc import NoResultFound
@@ -115,9 +109,6 @@ def niv():
 
     """
     pass
-
-
-from .opret_sag import opret_sag
 
 
 
@@ -237,48 +228,6 @@ def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
     return utm32(λ, φ, inverse=True)
 
 
-# ------------------------------------------------------------------------------
-def spredning(
-    observationstype: str,
-    afstand_i_m: float,
-    antal_opstillinger: float,
-    afstandsafhængig_spredning_i_mm: float,
-    centreringsspredning_i_mm: float,
-) -> float:
-    """Apriorispredning for nivellementsobservation
-
-    Fx.  MTL: spredning("mtl", 500, 3, 2, 0.5) = 1.25
-         MGL: spredning("MGL", 500, 3, 0.6, 0.01) = 0.4243
-         NUL: spredning("NUL", .....) = 0
-
-    Rejser ValueError ved ukendt observationstype eller
-    (via math.sqrt) ved negativ afstand_i_m.
-
-    Negativ afstandsafhængig- eller centreringsspredning
-    behandles som positive.
-
-    Observationstypen NUL benyttes til at sammenbinde disjunkte
-    undernet - det er en observation med forsvindende apriorifejl,
-    der eksakt reproducerer koteforskellen mellem to fastholdte
-    punkter
-    """
-
-    if "NUL" == observationstype.upper():
-        return 0
-
-    opstillingsafhængig = antal_opstillinger * (centreringsspredning_i_mm ** 2)
-
-    if "MTL" == observationstype.upper():
-        afstandsafhængig = afstandsafhængig_spredning_i_mm * afstand_i_m / 1000
-        return hypot(afstandsafhængig, opstillingsafhængig)
-
-    if "MGL" == observationstype.upper():
-        afstandsafhængig = afstandsafhængig_spredning_i_mm * sqrt(afstand_i_m / 1000)
-        return hypot(afstandsafhængig, opstillingsafhængig)
-
-    raise ValueError(f"Ukendt observationstype: {observationstype}")
-
-
 
 
 # -----------------------------------------------------------------------------
@@ -306,6 +255,21 @@ def check_om_resultatregneark_er_lukket(navn: str) -> None:
         except OSError:
             fire.cli.print(f"Luk {rf} og prøv igen")
             sys.exit(1)
+
+
+# ------------------------------------------------------------------------------
+def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
+    """Opbyg oversigt over nyetablerede punkter"""
+    fire.cli.print("Finder nyetablerede punkter")
+    nyetablerede = pd.read_excel(
+        f"{projektnavn}.xlsx",
+        sheet_name="Nyetablerede punkter",
+        usecols=anvendte(ARKDEF_NYETABLEREDE_PUNKTER),
+    )
+
+    # Sæt 'Foreløbigt navn'-søjlen som index, så vi kan adressere
+    # som nyetablerede.at[punktnavn, elementnavn]
+    return nyetablerede.set_index("Foreløbigt navn")
 
 
 # -----------------------------------------------------------------------------
@@ -350,39 +314,70 @@ def find_sagsid(sagsgang: pd.DataFrame) -> str:
 
 
 # ------------------------------------------------------------------------------
-# path_to_origin - eksempel:
-#
-# graph = {
-#     'A': {'B', 'C'},
-#     'B': {'C', 'D'},
-#     'C': {'D'},
-#     'D': {'C'},
-#     'E': {'F'},
-#     'F': {'C'},
-#     'G': {}
-# }
-#
-# print (path_to_origin (graph, 'A', 'C'))
-# print (path_to_origin (graph, 'A', 'G'))
+def punkter_geojson(
+    projektnavn: str,
+    punkter: pd.DataFrame,
+) -> None:
+    """Skriv punkter/koordinater i geojson-format"""
+    with open(f"{projektnavn}-punkter.geojson", "wt") as punktfil:
+        til_json = {
+            "type": "FeatureCollection",
+            "Features": list(punkt_feature(punkter)),
+        }
+        json.dump(til_json, punktfil, indent=4)
+
+
 # ------------------------------------------------------------------------------
-def path_to_origin(
-    graph: Dict[str, Set[str]], start: str, origin: str, path: List[str] = []
-):
-    """
-    Mikroskopisk backtracking netkonnektivitetstest. Baseret på et
-    essay af Pythonstifteren Guido van Rossum, publiceret 1998 på
-    https://www.python.org/doc/essays/graphs/. Koden er her
-    moderniseret fra Python 1.5 til 3.7 og modificeret til at
-    arbejde på dict-over-set (originalen brugte dict-over-list)
-    """
-    path = path + [start]
-    if start == origin:
-        return path
-    if start not in graph:
-        return None
-    for node in graph[start]:
-        if node not in path:
-            newpath = path_to_origin(graph, node, origin, path)
-            if newpath:
-                return newpath
-    return None
+def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
+    """Omsæt punktinformationer til JSON-egnet dict"""
+    for i in range(punkter.shape[0]):
+        punkt = punkter.at[i, "Punkt"]
+
+        # Fastholdte punkter har ingen ny kote, så vi viser den gamle
+        if punkter.at[i, "Fasthold"] == "x":
+            fastholdt = True
+            delta = 0.0
+            kote = float(punkter.at[i, "Kote"])
+            sigma = float(punkter.at[i, "σ"])
+        else:
+            fastholdt = False
+            delta = float(punkter.at[i, "Δ-kote [mm]"])
+            kote = float(punkter.at[i, "Ny kote"])
+            sigma = float(punkter.at[i, "Ny σ"])
+
+        # Endnu uberegnede punkter
+        if kote is None:
+            kote = 0.0
+            delta = 0.0
+            sigma = 0.0
+
+        # Ignorerede ændringer (under 1 um)
+        if delta is None:
+            delta = 0.0
+
+        feature = {
+            "type": "Feature",
+            "properties": {
+                "id": punkt,
+                "H": kote,
+                "sH": sigma,
+                "Δ": delta,
+                "fastholdt": fastholdt,
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [punkter.at[i, "Øst"], punkter.at[i, "Nord"]],
+            },
+        }
+        yield feature
+
+
+
+
+from .opret_sag import opret_sag
+from .læs_observationer import læs_observationer
+from .udtræk_revision import udtræk_revision
+from .ilæg_revision import ilæg_revision
+from .regn import adj, beregn_nye_koter
+from .ilæg_nye_koter import ilæg_nye_koter
+from .ilæg_nye_punkter import ilæg_nye_punkter
