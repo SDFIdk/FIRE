@@ -1,6 +1,5 @@
 import sys
 from datetime import datetime
-from typing import Tuple
 
 import click
 import pandas as pd

@@ -6,7 +6,6 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
 from fire.cli import firedb
-from fire import uuid
 
 from . import (
     ARKDEF_REVISION,
