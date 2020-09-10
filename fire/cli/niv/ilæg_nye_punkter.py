@@ -27,8 +27,9 @@ from . import (
     find_sagsgang,
     niv,
     normaliser_placeringskoordinat,
-    skriv_ark
+    skriv_ark,
 )
+
 
 @niv.command()
 @fire.cli.default_options()
@@ -277,4 +278,3 @@ def find_alle_løbenumre_i_distrikt(distrikt: str) -> List[str]:
     # men numeriske vil vi gerne have gjort til tal
     numre = [int(n) if str(n).isnumeric() else n for n in løbenumre]
     return set(numre)
-

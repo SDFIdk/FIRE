@@ -37,8 +37,6 @@ from fire.api.model import (
 )
 
 
-
-
 # ------------------------------------------------------------------------------
 @click.group()
 def niv():
@@ -109,8 +107,6 @@ def niv():
 
     """
     pass
-
-
 
 
 # ------------------------------------------------------------------------------
@@ -226,8 +222,6 @@ def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
     utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
     assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
     return utm32(λ, φ, inverse=True)
-
-
 
 
 # -----------------------------------------------------------------------------
@@ -370,8 +364,6 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
             },
         }
         yield feature
-
-
 
 
 from .opret_sag import opret_sag

@@ -24,6 +24,7 @@ from . import (
     skriv_ark,
 )
 
+
 @niv.command()
 @fire.cli.default_options()
 @click.argument(

@@ -34,7 +34,7 @@ from . import (
     find_sag,
     find_sagsgang,
     niv,
-    skriv_ark
+    skriv_ark,
 )
 
 

@@ -203,7 +203,6 @@ def netanalyse(
     return netf, ensomme
 
 
-
 # ------------------------------------------------------------------------------
 # path_to_origin - eksempel:
 #
