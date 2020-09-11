@@ -17,11 +17,12 @@ from fire.api.model import (
 )
 
 from . import (
+    ARKDEF_NYETABLEREDE_PUNKTER,
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
     check_om_resultatregneark_er_lukket,
-    find_nyetablerede,
+    find_faneblad,
     niv,
     punkter_geojson,
     skriv_ark,
@@ -54,22 +55,22 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     fire.cli.print("Så regner vi")
 
     # Opbyg oversigt over nyetablerede punkter
-    nyetablerede = find_nyetablerede(projektnavn)
+    nyetablerede = find_faneblad(
+        projektnavn, "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
+    )
+    try:
+        nyetablerede = nyetablerede.set_index("Landsnummer")
+    except:
+        fire.cli.print("Der mangler landsnumre til nyetablerede punkter.")
+        fire.cli.print(
+            "Har du husket at lægge dem i databasen - og at kopiere fanebladet fra resultatfilen?"
+        )
+        fire.cli.print("Fortsætter beregningen med brug af de foreløbige navne")
+        nyetablerede = nyetablerede.set_index("Foreløbigt navn")
     nye_punkter = set(nyetablerede.index)
 
     # Opbyg oversigt over alle observationer
-    try:
-        observationer = pd.read_excel(
-            f"{projektnavn}.xlsx",
-            sheet_name="Observationer",
-            usecols=anvendte(ARKDEF_OBSERVATIONER),
-        )
-    except:
-        fire.cli.print(f"Der er ingen observationsoversigt i '{projektnavn}.xlsx'")
-        fire.cli.print(
-            f"- har du glemt at kopiere den fra '{projektnavn}-resultat.xlsx'?"
-        )
-        sys.exit(1)
+    observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
 
     observerede_punkter = set(list(observationer["Fra"]) + list(observationer["Til"]))
     alle_gamle_punkter = observerede_punkter - nye_punkter
@@ -81,18 +82,7 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
     observerede_punkter = tuple(sorted(observerede_punkter))
 
     # Opbyg oversigt over alle punkter m. kote og placering
-    try:
-        punktoversigt = pd.read_excel(
-            f"{projektnavn}.xlsx",
-            sheet_name="Punktoversigt",
-            usecols=anvendte(ARKDEF_PUNKTOVERSIGT),
-        )
-    except:
-        fire.cli.print(f"Der er ingen punktoversigt i '{projektnavn}.xlsx'")
-        fire.cli.print(
-            f"- har du glemt at kopiere den fra '{projektnavn}-resultat.xlsx'?"
-        )
-        sys.exit(1)
+    punktoversigt = find_faneblad(projektnavn, "Punktoversigt", ARKDEF_PUNKTOVERSIGT)
     punktoversigt["uuid"] = ""
 
     # Har vi alle punkter med i punktoversigten?
