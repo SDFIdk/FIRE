@@ -21,12 +21,15 @@ from . import (
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
-    check_om_resultatregneark_er_lukket,
+    check_om_regneark_er_lukket,
     find_faneblad,
     niv,
     punkter_geojson,
     skriv_ark,
 )
+
+from .netoversigt import netanalyse
+
 
 # ------------------------------------------------------------------------------
 # Aliaserne 'adj'/'beregn_nye_koter' er synonymer for 'udfør_beregn_nye_koter',
@@ -35,26 +38,54 @@ from . import (
 
 
 @niv.command()
+@click.option(
+    "-K",
+    "--kontrol",
+    is_flag=True,
+    default=False,
+    help="Foretag minimalt fastholdt kontrolberegning",
+)
+@click.option(
+    "-E",
+    "--endelig",
+    is_flag=True,
+    default=False,
+    help="Foretag optimalt fastholdt endelig beregning. hvis hverken -E eller -K vælges gættes ud fra antal fastholdte.",
+)
 @fire.cli.default_options()
 @click.argument("projektnavn", nargs=1, type=str)
-def adj(projektnavn: str, **kwargs) -> None:
+def adj(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
     """Udfør netanalyse og beregn nye koter"""
-    udfør_beregn_nye_koter(projektnavn)
+    udfør_beregn_nye_koter(projektnavn, kontrol, endelig)
 
 
 @niv.command()
+@click.option(
+    "-K",
+    "--kontrol",
+    is_flag=True,
+    default=False,
+    help="Foretag minimalt fastholdt kontrolberegning",
+)
+@click.option(
+    "-E",
+    "--endelig",
+    is_flag=True,
+    default=False,
+    help="Foretag optimalt fastholdt endelig beregning. Hvis hverken -E eller -K vælges gættes ud fra antal fastholdte.",
+)
 @fire.cli.default_options()
 @click.argument("projektnavn", nargs=1, type=str)
-def beregn_nye_koter(projektnavn: str, **kwargs) -> None:
+def beregn_nye_koter(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
     """Udfør netanalyse og beregn nye koter"""
-    udfør_beregn_nye_koter(projektnavn)
+    udfør_beregn_nye_koter(projektnavn, kontrol, endelig)
 
 
-def udfør_beregn_nye_koter(projektnavn: str) -> None:
-    check_om_resultatregneark_er_lukket(projektnavn)
+def udfør_beregn_nye_koter(projektnavn: str, kontrol: bool, endelig: bool) -> None:
+    check_om_regneark_er_lukket(projektnavn)
     fire.cli.print("Så regner vi")
 
-    # Opbyg oversigt over nyetablerede punkter
+    # Find oversigten over nyetablerede punkter
     nyetablerede = find_faneblad(
         projektnavn, "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
     )
@@ -69,162 +100,37 @@ def udfør_beregn_nye_koter(projektnavn: str) -> None:
         nyetablerede = nyetablerede.set_index("Foreløbigt navn")
     nye_punkter = set(nyetablerede.index)
 
-    # Opbyg oversigt over alle observationer
+    # Find oversigten over alle observationer - og fjern dem der er markeret slukkede
     observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
+    observationer = observationer[observationer["Sluk"].isnull()]
 
     observerede_punkter = set(list(observationer["Fra"]) + list(observationer["Til"]))
-    alle_gamle_punkter = observerede_punkter - nye_punkter
+    gamle_punkter = observerede_punkter - nye_punkter
 
-    # Vi vil gerne have de nye punkter først i listen, så vi sorterer gamle
-    # og nye hver for sig
+    # For at få nye punkter først i listen, sorterer vi gamle og nye hver for sig
     nye_punkter = tuple(sorted(nye_punkter))
-    alle_punkter = nye_punkter + tuple(sorted(alle_gamle_punkter))
+    # alle_punkter = nye_punkter + tuple(sorted(gamle_punkter))
     observerede_punkter = tuple(sorted(observerede_punkter))
 
-    # Opbyg oversigt over alle punkter m. kote og placering
     punktoversigt = find_faneblad(projektnavn, "Punktoversigt", ARKDEF_PUNKTOVERSIGT)
     punktoversigt["uuid"] = ""
 
-    # Har vi alle punkter med i punktoversigten?
-    punkter_i_oversigt = set(punktoversigt["Punkt"])
-    manglende_punkter_i_oversigt = set(alle_punkter) - punkter_i_oversigt
-    if len(manglende_punkter_i_oversigt) > 0:
-        fire.cli.print(f"Punktoversigten i '{projektnavn}.xlsx' mangler punkterne:")
-        fire.cli.print(f"{manglende_punkter_i_oversigt}")
-        fire.cli.print(
-            f"- har du glemt at kopiere den fra '{projektnavn}-resultat.xlsx'?"
-        )
-        sys.exit(1)
-
-    # Find fastholdte
     fastholdte = find_fastholdte(punktoversigt)
-    if len(fastholdte) == 0:
-        fire.cli.print("Vælger arbitrært punkt til fastholdelse")
-        fastholdte = {observerede_punkter[0]: 0}
-    fire.cli.print(f"Fastholdte: {tuple(fastholdte)}")
+    if 0 == len(fastholdte):
+        fire.cli.print("Der skal fastholdes mindst et punkt i en kontrolberegning")
+        sys.exit(1)
+    resultater = netanalyse(projektnavn)
 
-    # Udfør netanalyse
-    (net, ensomme) = netanalyse(observationer, alle_punkter, tuple(fastholdte))
-    resultater = {"Netgeometri": net, "Ensomme": ensomme}
-
-    forbundne_punkter = tuple(sorted(net["Punkt"]))
-    ensomme_punkter = tuple(sorted(ensomme["Punkt"]))
+    # Beregn nye koter for de ikke-fastholdte punkter
+    forbundne_punkter = tuple(sorted(resultater["Netgeometri"]["Punkt"]))
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
-    fire.cli.print(f"Fandt {len(ensomme_punkter)} ensomme punkter: {ensomme_punkter}")
     fire.cli.print(f"Beregner nye koter for {len(estimerede_punkter)} punkter")
-
-    # Udfør beregning
-    resultater["Punktoversigt"] = gama_beregning(
+    resultater["Kontrolberegning"] = gama_beregning(
         projektnavn, observationer, punktoversigt, estimerede_punkter
     )
 
-    punkter_geojson(projektnavn, resultater["Punktoversigt"])
+    punkter_geojson(projektnavn, resultater["Kontrolberegning"])
     skriv_ark(projektnavn, resultater)
-
-
-# ------------------------------------------------------------------------------
-def netanalyse(
-    observationer: pd.DataFrame,
-    alle_punkter: Tuple[str, ...],
-    fastholdte_punkter: Tuple[str, ...],
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    fire.cli.print("Analyserer net")
-    assert len(fastholdte_punkter) > 0, "Netanalyse kræver mindst et fastholdt punkt"
-    # Initialiser
-    net = {}
-    for punkt in alle_punkter:
-        net[punkt] = set()
-
-    # Tilføj forbindelser alle steder hvor der er observationer
-    for fra, til in zip(observationer["Fra"], observationer["Til"]):
-        net[fra].add(til)
-        net[til].add(fra)
-
-    # Tilføj forbindelser fra alle fastholdte punkter til det første fastholdte punkt
-    udgangspunkt = fastholdte_punkter[0]
-    for punkt in fastholdte_punkter:
-        if punkt != udgangspunkt:
-            net[udgangspunkt].add(punkt)
-            net[punkt].add(udgangspunkt)
-
-    # Analysér netgraf
-    forbundne_punkter = set()
-    ensomme_punkter = set()
-    for punkt in alle_punkter:
-        if path_to_origin(net, udgangspunkt, punkt) is None:
-            ensomme_punkter.add(punkt)
-        else:
-            forbundne_punkter.add(punkt)
-
-    # Vi vil ikke have de kunstige forbindelser mellem fastholdte punkter med
-    # i output, så nu genopbygger vi nettet uden dem
-    net = {}
-    for punkt in alle_punkter:
-        net[punkt] = set()
-    for fra, til in zip(observationer["Fra"], observationer["Til"]):
-        net[fra].add(til)
-        net[til].add(fra)
-
-    # De ensomme punkter skal heller ikke med i netgrafen
-    for punkt in ensomme_punkter:
-        net.pop(punkt, None)
-
-    # Nu kommer der noget grimt...
-    # Tving alle rækker til at være lige lange, så vi kan lave en dataframe af dem
-    max_antal_naboer = max([len(net[e]) for e in net])
-    nyt = {}
-    for punkt in net:
-        naboer = list(sorted(net[punkt])) + max_antal_naboer * [""]
-        nyt[punkt] = tuple(naboer[0:max_antal_naboer])
-
-    # Ombyg og omdøb søjler med smart "add_prefix"-trick fra
-    # @piRSquared, https://stackoverflow.com/users/2336654/pirsquared
-    # Se https://stackoverflow.com/questions/46078034/python-dict-with-values-as-tuples-to-pandas-dataframe
-    netf = pd.DataFrame(nyt).T.rename_axis("Punkt").add_prefix("Nabo ").reset_index()
-    netf.sort_values(by="Punkt", inplace=True)
-    netf.reset_index(drop=True, inplace=True)
-
-    ensomme = pd.DataFrame(sorted(ensomme_punkter), columns=["Punkt"])
-    return netf, ensomme
-
-
-# ------------------------------------------------------------------------------
-# path_to_origin - eksempel:
-#
-# graph = {
-#     'A': {'B', 'C'},
-#     'B': {'C', 'D'},
-#     'C': {'D'},
-#     'D': {'C'},
-#     'E': {'F'},
-#     'F': {'C'},
-#     'G': {}
-# }
-#
-# print (path_to_origin (graph, 'A', 'C'))
-# print (path_to_origin (graph, 'A', 'G'))
-# ------------------------------------------------------------------------------
-def path_to_origin(
-    graph: Dict[str, Set[str]], start: str, origin: str, path: List[str] = []
-):
-    """
-    Mikroskopisk backtracking netkonnektivitetstest. Baseret på et
-    essay af Pythonstifteren Guido van Rossum, publiceret 1998 på
-    https://www.python.org/doc/essays/graphs/. Koden er her
-    moderniseret fra Python 1.5 til 3.7 og modificeret til at
-    arbejde på dict-over-set (originalen brugte dict-over-list)
-    """
-    path = path + [start]
-    if start == origin:
-        return path
-    if start not in graph:
-        return None
-    for node in graph[start]:
-        if node not in path:
-            newpath = path_to_origin(graph, node, origin, path)
-            if newpath:
-                return newpath
-    return None
 
 
 # ------------------------------------------------------------------------------

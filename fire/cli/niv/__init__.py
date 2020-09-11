@@ -209,7 +209,7 @@ def skriv_ark(
     projektnavn: str, resultater: Dict[str, pd.DataFrame], suffix: str = "-resultat"
 ) -> None:
     """Skriv resultater til excel-fil"""
-    if suffix == "-resultater":
+    if suffix != "":
         fire.cli.print(f"Skriver: {tuple(resultater)}")
         fire.cli.print(f"Til filen '{projektnavn}{suffix}.xlsx'")
     writer = pd.ExcelWriter(f"{projektnavn}{suffix}.xlsx", engine="xlsxwriter")
@@ -219,16 +219,21 @@ def skriv_ark(
 
 
 # -----------------------------------------------------------------------------
-def check_om_resultatregneark_er_lukket(navn: str) -> None:
+def check_om_regneark_er_lukket(projektnavn: str, suffix: str = "-resultat") -> None:
     """Lam check for om resultatregneark stadig er åbent"""
-    rf = f"{navn}-resultat.xlsx"
-    if os.path.isfile(rf):
+    navn = f"{projektnavn}-{suffix}.xlsx"
+    if os.path.isfile(navn):
         try:
-            os.rename(rf, "tempfile" + rf)
-            os.rename("tempfile" + rf, rf)
+            os.rename(navn, "tempfile" + navn)
+            os.rename("tempfile" + navn, navn)
         except OSError:
-            fire.cli.print(f"Luk {rf} og prøv igen")
+            fire.cli.print(f"Luk {navn} og prøv igen")
             sys.exit(1)
+
+
+# -----------------------------------------------------------------------------
+def check_om_resultatregneark_er_lukket(navn: str) -> None:
+    check_om_regneark_er_lukket(navn)
 
 
 # ------------------------------------------------------------------------------
@@ -357,3 +362,4 @@ from .ilæg_revision import ilæg_revision
 from .regn import adj, beregn_nye_koter
 from .ilæg_nye_koter import ilæg_nye_koter
 from .ilæg_nye_punkter import ilæg_nye_punkter
+from .netoversigt import netoversigt
