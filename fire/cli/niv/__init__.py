@@ -232,18 +232,23 @@ def check_om_resultatregneark_er_lukket(navn: str) -> None:
 
 
 # ------------------------------------------------------------------------------
-def find_nyetablerede(projektnavn: str) -> pd.DataFrame:
-    """Opbyg oversigt over nyetablerede punkter"""
-    fire.cli.print("Finder nyetablerede punkter")
-    nyetablerede = pd.read_excel(
-        f"{projektnavn}.xlsx",
-        sheet_name="Nyetablerede punkter",
-        usecols=anvendte(ARKDEF_NYETABLEREDE_PUNKTER),
-    )
-
-    # Sæt 'Foreløbigt navn'-søjlen som index, så vi kan adressere
-    # som nyetablerede.at[punktnavn, elementnavn]
-    return nyetablerede.set_index("Foreløbigt navn")
+def find_faneblad(
+    projektnavn: str, faneblad: str, arkdef: Dict, ignore_failure: bool = False
+) -> pd.DataFrame:
+    try:
+        return pd.read_excel(
+            f"{projektnavn}.xlsx",
+            sheet_name=faneblad,
+            usecols=anvendte(arkdef),
+        )
+    except:
+        if ignore_failure:
+            return None
+        fire.cli.print(f"Der er ingen {faneblad} i '{projektnavn}.xlsx'")
+        fire.cli.print(
+            f"- har du glemt at kopiere den fra '{projektnavn}-resultat.xlsx'?"
+        )
+        sys.exit(1)
 
 
 # -----------------------------------------------------------------------------

@@ -12,11 +12,12 @@ from fire.cli import firedb
 
 from . import (
     ARKDEF_FILOVERSIGT,
+    ARKDEF_NYETABLEREDE_PUNKTER,
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
     check_om_resultatregneark_er_lukket,
-    find_nyetablerede,
+    find_faneblad,
     niv,
     normaliser_placeringskoordinat,
     punkter_geojson,
@@ -38,7 +39,18 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     resultater = {}
 
     # Opbyg oversigt over nyetablerede punkter
-    nyetablerede = find_nyetablerede(projektnavn)
+    nyetablerede = find_faneblad(
+        projektnavn, "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
+    )
+    try:
+        nyetablerede = nyetablerede.set_index("Landsnummer")
+    except:
+        fire.cli.print("Der mangler landsnumre til nyetablerede punkter.")
+        fire.cli.print(
+            "Har du husket at lægge dem i databasen - og at kopiere fanebladet fra resultatfilen?"
+        )
+        fire.cli.print("Fortsætter beregningen med brug af de foreløbige navne")
+        nyetablerede = nyetablerede.set_index("Foreløbigt navn")
     nye_punkter = set(nyetablerede.index)
 
     # Opbyg oversigt over alle observationer
@@ -308,7 +320,7 @@ def læs_observationsstrenge(
 
 
 # ------------------------------------------------------------------------------
-def find_inputfiler(navn: str) -> List[Tuple[str, float]]:
+def find_inputfiler(navn: str) -> pd.DataFrame:
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning og centreringsfejl"""
     try:
         inputfiler = pd.read_excel(

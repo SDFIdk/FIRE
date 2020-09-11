@@ -18,9 +18,9 @@ from fire.api.model import (
 )
 
 from . import (
-    anvendte,
+    ARKDEF_NYETABLEREDE_PUNKTER,
+    find_faneblad,
     check_om_resultatregneark_er_lukket,
-    find_nyetablerede,
     find_sag,
     find_sagsgang,
     niv,
@@ -50,8 +50,9 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     fire.cli.print("Lægger nye punkter i databasen")
 
     # Opbyg oversigt over nyetablerede punkter
-    nyetablerede = find_nyetablerede(projektnavn)
-    nyetablerede = nyetablerede.reset_index()
+    nyetablerede = find_faneblad(
+        projektnavn, "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
+    )
     n = nyetablerede.shape[0]
 
     if n == 0:
