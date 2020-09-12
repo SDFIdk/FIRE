@@ -16,7 +16,6 @@ from . import (
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
-    check_om_resultatregneark_er_lukket,
     find_faneblad,
     niv,
     normaliser_placeringskoordinat,
@@ -34,7 +33,6 @@ from . import (
 )
 def læs_observationer(projektnavn: str, **kwargs) -> None:
     """Importer data fra observationsfiler og opbyg punktoversigt"""
-    check_om_resultatregneark_er_lukket(projektnavn)
     fire.cli.print("Så kører vi")
     resultater = {}
 
@@ -57,12 +55,12 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     observationer = importer_observationer(projektnavn)
     resultater["Observationer"] = observationer
     observerede_punkter = set(list(observationer["Fra"]) + list(observationer["Til"]))
-    alle_gamle_punkter = observerede_punkter - nye_punkter
+    gamle_punkter = observerede_punkter - nye_punkter
 
     # Vi vil gerne have de nye punkter først i punktoversigten,
     # så vi sorterer gamle og nye hver for sig
     nye_punkter = tuple(sorted(nye_punkter))
-    alle_punkter = nye_punkter + tuple(sorted(alle_gamle_punkter))
+    alle_punkter = nye_punkter + tuple(sorted(gamle_punkter))
 
     # Opbyg oversigt over alle punkter m. kote og placering
     punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)

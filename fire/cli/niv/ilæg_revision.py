@@ -24,7 +24,6 @@ from fire.api.model import (
 from . import (
     ARKDEF_REVISION,
     anvendte,
-    check_om_resultatregneark_er_lukket,
     find_sag,
     find_sagsgang,
     niv,
@@ -74,7 +73,6 @@ def ilæg_revision(
     **kwargs,
 ) -> None:
     """Læg reviderede punktdata i databasen"""
-    check_om_resultatregneark_er_lukket(projektnavn)
     if alvor:
         sag = find_sag(projektnavn)
     else:

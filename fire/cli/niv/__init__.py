@@ -209,26 +209,31 @@ def skriv_ark(
     projektnavn: str, resultater: Dict[str, pd.DataFrame], suffix: str = "-resultat"
 ) -> None:
     """Skriv resultater til excel-fil"""
-    if suffix == "-resultater":
+
+    filnavn = f"{projektnavn}{suffix}.xlsx"
+    if suffix != "":
         fire.cli.print(f"Skriver: {tuple(resultater)}")
-        fire.cli.print(f"Til filen '{projektnavn}{suffix}.xlsx'")
-    writer = pd.ExcelWriter(f"{projektnavn}{suffix}.xlsx", engine="xlsxwriter")
+        fire.cli.print(f"Til filen '{filnavn}'")
+
+    writer = pd.ExcelWriter(filnavn, engine="xlsxwriter")
     for r in resultater:
         resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
-    writer.save()
 
-
-# -----------------------------------------------------------------------------
-def check_om_resultatregneark_er_lukket(navn: str) -> None:
-    """Lam check for om resultatregneark stadig er åbent"""
-    rf = f"{navn}-resultat.xlsx"
-    if os.path.isfile(rf):
+    # Giv brugeren en chance for at lukke et åbent regneark
+    while True:
         try:
-            os.rename(rf, "tempfile" + rf)
-            os.rename("tempfile" + rf, rf)
-        except OSError:
-            fire.cli.print(f"Luk {rf} og prøv igen")
-            sys.exit(1)
+            writer.save()
+            return
+        except:
+            fire.cli.print(
+                f"Kan ikke skrive til '{filnavn}' - måske fordi den er åben.",
+                fg="yellow",
+                bold=True,
+            )
+            if input("Prøv igen ([j]/n)? ") in ["j", "J", "ja", ""]:
+                continue
+            fire.cli.print("Dropper skrivning")
+            return
 
 
 # ------------------------------------------------------------------------------
@@ -354,6 +359,7 @@ from .opret_sag import opret_sag
 from .læs_observationer import læs_observationer
 from .udtræk_revision import udtræk_revision
 from .ilæg_revision import ilæg_revision
-from .regn import adj, beregn_nye_koter
+from .regn import regn
 from .ilæg_nye_koter import ilæg_nye_koter
 from .ilæg_nye_punkter import ilæg_nye_punkter
+from .netoversigt import netoversigt
