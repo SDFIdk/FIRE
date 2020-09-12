@@ -30,34 +30,6 @@ from . import (
 from .netoversigt import netanalyse
 
 
-# ------------------------------------------------------------------------------
-# Aliaserne 'adj'/'beregn_nye_koter' er synonymer for 'udfør_beregn_nye_koter',
-# som klarer det egentlige hårde arbejde.
-# ------------------------------------------------------------------------------
-
-
-@niv.command()
-@click.option(
-    "-K",
-    "--kontrol",
-    is_flag=True,
-    default=False,
-    help="Foretag minimalt fastholdt kontrolberegning",
-)
-@click.option(
-    "-E",
-    "--endelig",
-    is_flag=True,
-    default=False,
-    help="Foretag optimalt fastholdt endelig beregning. hvis hverken -E eller -K vælges gættes ud fra antal fastholdte.",
-)
-@fire.cli.default_options()
-@click.argument("projektnavn", nargs=1, type=str)
-def adj(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
-    """Udfør netanalyse og beregn nye koter"""
-    udfør_beregn_nye_koter(projektnavn, kontrol, endelig)
-
-
 @niv.command()
 @click.option(
     "-K",
@@ -75,59 +47,60 @@ def adj(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
 )
 @fire.cli.default_options()
 @click.argument("projektnavn", nargs=1, type=str)
-def beregn_nye_koter(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
-    """Udfør netanalyse og beregn nye koter"""
-    udfør_beregn_nye_koter(projektnavn, kontrol, endelig)
+def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
+    """Beregn nye koter.
 
-
-def udfør_beregn_nye_koter(projektnavn: str, kontrol: bool, endelig: bool) -> None:
+    Hvis der allerede er foretaget kontrolberegning udfører vi en endelig
+    beregning, med mindre flagene -K og -E siger andet. Valget styres via
+    navnet på punktoversigtsfanebladet, som går fra "Punktoversigt" (skabt
+    af 'læs_observationer'), via 'Kontrolberegning' (der skrives ved første
+    kald til denne funktion), til 'Endelig beregning' (der skrives
+    ved efterfølgende kald).
+    """
     fire.cli.print("Så regner vi")
 
-    # Find oversigten over nyetablerede punkter
-    nyetablerede = find_faneblad(
-        projektnavn, "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
-    )
-    try:
-        nyetablerede = nyetablerede.set_index("Landsnummer")
-    except:
-        fire.cli.print("Der mangler landsnumre til nyetablerede punkter.")
-        fire.cli.print(
-            "Har du husket at lægge dem i databasen - og at kopiere fanebladet fra resultatfilen?"
-        )
-        fire.cli.print("Fortsætter beregningen med brug af de foreløbige navne")
-        nyetablerede = nyetablerede.set_index("Foreløbigt navn")
-    nye_punkter = set(nyetablerede.index)
+    # En beregning kan ikke både være 'kontrol' og 'endelig'.
+    if kontrol and endelig:
+        fire.cli.print("Kun en af -K og -E må specificeres")
+        sys.exit(1)
 
-    # Find oversigten over alle observationer - og fjern dem der er markeret slukkede
+    # Hvis ingen flag er sat (begge er False) checker vi for kontrolberegningsfaneblad...
+    if kontrol == endelig:
+        kontrol = None == find_faneblad(
+            projektnavn, "Kontrolberegning", ARKDEF_PUNKTOVERSIGT, True
+        )
+
+    # ...og så kan vi vælge den korrekte fanebladsprogression
+    if kontrol:
+        faneblad = "Punktoversigt"
+        næste_faneblad = "Kontrolberegning"
+    else:
+        endelig = True
+        faneblad = "Kontrolberegning"
+        næste_faneblad = "Endelig beregning"
+
+    # Håndter fastholdte punkter og slukkede observationer.
     observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
     observationer = observationer[observationer["Sluk"].isnull()]
-
-    observerede_punkter = set(list(observationer["Fra"]) + list(observationer["Til"]))
-    gamle_punkter = observerede_punkter - nye_punkter
-
-    # For at få nye punkter først i listen, sorterer vi gamle og nye hver for sig
-    nye_punkter = tuple(sorted(nye_punkter))
-    # alle_punkter = nye_punkter + tuple(sorted(gamle_punkter))
-    observerede_punkter = tuple(sorted(observerede_punkter))
-
-    punktoversigt = find_faneblad(projektnavn, "Punktoversigt", ARKDEF_PUNKTOVERSIGT)
-    punktoversigt["uuid"] = ""
-
+    punktoversigt = find_faneblad(projektnavn, faneblad, ARKDEF_PUNKTOVERSIGT)
     fastholdte = find_fastholdte(punktoversigt)
     if 0 == len(fastholdte):
-        fire.cli.print("Der skal fastholdes mindst et punkt i en kontrolberegning")
+        fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
         sys.exit(1)
+
+    # Ny netanalyse: Tag højde for slukkede observationer og fastholdte punkter.
     resultater = netanalyse(projektnavn)
 
-    # Beregn nye koter for de ikke-fastholdte punkter
+    # Beregn nye koter for de ikke-fastholdte punkter...
     forbundne_punkter = tuple(sorted(resultater["Netgeometri"]["Punkt"]))
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
     fire.cli.print(f"Beregner nye koter for {len(estimerede_punkter)} punkter")
-    resultater["Kontrolberegning"] = gama_beregning(
+    resultater[næste_faneblad] = gama_beregning(
         projektnavn, observationer, punktoversigt, estimerede_punkter
     )
 
-    punkter_geojson(projektnavn, resultater["Kontrolberegning"])
+    # ...og beret om resultaterne
+    punkter_geojson(projektnavn, resultater[næste_faneblad])
     skriv_ark(projektnavn, resultater)
 
 
@@ -148,7 +121,7 @@ def spredning(
     Rejser ValueError ved ukendt observationstype eller
     (via math.sqrt) ved negativ afstand_i_m.
 
-    Negativ afstandsafhængig- eller centreringsspredning
+    Negative afstandsafhængig- eller centreringsspredninger
     behandles som positive.
 
     Observationstypen NUL benyttes til at sammenbinde disjunkte

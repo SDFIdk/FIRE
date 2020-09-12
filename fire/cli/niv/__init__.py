@@ -359,7 +359,7 @@ from .opret_sag import opret_sag
 from .læs_observationer import læs_observationer
 from .udtræk_revision import udtræk_revision
 from .ilæg_revision import ilæg_revision
-from .regn import adj, beregn_nye_koter
+from .regn import regn
 from .ilæg_nye_koter import ilæg_nye_koter
 from .ilæg_nye_punkter import ilæg_nye_punkter
 from .netoversigt import netoversigt

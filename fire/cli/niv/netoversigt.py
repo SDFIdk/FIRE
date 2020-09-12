@@ -27,6 +27,7 @@ from . import (
 def netoversigt(projektnavn: str, **kwargs) -> None:
     """Opbyg netoversigt"""
     fire.cli.print("Så kører vi")
+
     resultater = netanalyse(projektnavn)
     skriv_ark(projektnavn, resultater, "-netoversigt")
     singulære_punkter = tuple(sorted(resultater["Singulære"]["Punkt"]))
@@ -66,8 +67,8 @@ def netanalyse(
     # umiddelbart efter indlæsning af observationer)
     fastholdte = tuple(punktoversigt[punktoversigt["Fasthold"].notnull()]["Punkt"])
     if 0 == len(fastholdte):
-        alle = list(observationer["Fra"]) + list(observationer["Til"])
-        c = Counter(alle)
+        alle_obs = list(observationer["Fra"]) + list(observationer["Til"])
+        c = Counter(alle_obs)
         fastholdte = tuple([c.most_common(1)[0][0]])
 
     # Udfør netanalyse
