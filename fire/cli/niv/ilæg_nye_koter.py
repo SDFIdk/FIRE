@@ -22,7 +22,6 @@ from fire.api.model import (
 from . import (
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
-    check_om_resultatregneark_er_lukket,
     find_sag,
     find_sagsgang,
     niv,
@@ -44,7 +43,6 @@ from . import (
 )
 def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyberegnede koter i databasen"""
-    check_om_resultatregneark_er_lukket(projektnavn)
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 

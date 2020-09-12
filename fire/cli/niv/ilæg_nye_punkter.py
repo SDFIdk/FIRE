@@ -20,7 +20,6 @@ from fire.api.model import (
 from . import (
     ARKDEF_NYETABLEREDE_PUNKTER,
     find_faneblad,
-    check_om_resultatregneark_er_lukket,
     find_sag,
     find_sagsgang,
     niv,
@@ -43,7 +42,6 @@ from . import (
 )
 def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyoprettede punkter i databasen"""
-    check_om_resultatregneark_er_lukket(projektnavn)
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 

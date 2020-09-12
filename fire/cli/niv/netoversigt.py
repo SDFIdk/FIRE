@@ -11,7 +11,6 @@ from . import (
     ARKDEF_NYETABLEREDE_PUNKTER,
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
-    check_om_regneark_er_lukket,
     find_faneblad,
     niv,
     skriv_ark,
@@ -27,7 +26,6 @@ from . import (
 )
 def netoversigt(projektnavn: str, **kwargs) -> None:
     """Opbyg netoversigt"""
-    check_om_regneark_er_lukket(projektnavn, "-netoversigt")
     fire.cli.print("Så kører vi")
     resultater = netanalyse(projektnavn)
     skriv_ark(projektnavn, resultater, "-netoversigt")

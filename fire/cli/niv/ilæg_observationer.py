@@ -21,7 +21,6 @@ from fire.api.model import (
 from . import (
     ARKDEF_OBSERVATIONER,
     anvendte,
-    check_om_resultatregneark_er_lukket,
     find_sag,
     find_sagsgang,
     niv,
@@ -43,7 +42,6 @@ from . import (
 )
 def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyoprettede punkter i databasen"""
-    check_om_resultatregneark_er_lukket(projektnavn)
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 

@@ -21,7 +21,6 @@ from . import (
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
-    check_om_regneark_er_lukket,
     find_faneblad,
     niv,
     punkter_geojson,
@@ -82,7 +81,6 @@ def beregn_nye_koter(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -
 
 
 def udfør_beregn_nye_koter(projektnavn: str, kontrol: bool, endelig: bool) -> None:
-    check_om_regneark_er_lukket(projektnavn)
     fire.cli.print("Så regner vi")
 
     # Find oversigten over nyetablerede punkter

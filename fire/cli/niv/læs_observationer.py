@@ -16,7 +16,6 @@ from . import (
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
-    check_om_regneark_er_lukket,
     find_faneblad,
     niv,
     normaliser_placeringskoordinat,
@@ -34,7 +33,6 @@ from . import (
 )
 def læs_observationer(projektnavn: str, **kwargs) -> None:
     """Importer data fra observationsfiler og opbyg punktoversigt"""
-    check_om_regneark_er_lukket(projektnavn)
     fire.cli.print("Så kører vi")
     resultater = {}
 
