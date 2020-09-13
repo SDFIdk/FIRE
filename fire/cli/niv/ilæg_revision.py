@@ -7,8 +7,6 @@ import pandas as pd
 import fire.cli
 from fire.cli import firedb
 from fire import uuid
-
-# Typingelementer fra databaseAPIet.
 from fire.api.model import (
     EventType,
     Punkt,
@@ -20,10 +18,10 @@ from fire.api.model import (
     SagseventInfo,
 )
 
-
 from . import (
     ARKDEF_REVISION,
-    anvendte,
+    bekræft,
+    find_faneblad,
     find_sag,
     find_sagsgang,
     niv,
@@ -91,43 +89,16 @@ def ilæg_revision(
     test = True
     alvor = False
 
-    # Påtving konsistens mellem alvor/test flag
-    if alvor:
-        test = False
-        fire.cli.print(
-            " BEKRÆFT: Skriver reviderede punktdata til FIRE-databasen!!! ",
-            bg="red",
-            fg="white",
-        )
-        fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag['uuid']})")
-        fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
-        if "ja" != input("OK (ja/nej)? "):
-            fire.cli.print("Dropper skrivning til FIRE-databasen")
-            return
+    fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
+    fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
+    alvor, test = bekræft("Skriv punktrevisionsdata til databasen", alvor, test)
+    # Fortrød de?
+    if alvor and test:
+        return
 
-    if test:
-        fire.cli.print(
-            f" TESTER punktrevision for {projektnavn} ", bg="red", fg="white"
-        )
-
-    try:
-        revision = pd.read_excel(
-            f"{projektnavn}-revision.xlsx",
-            sheet_name="Revision",
-            usecols=anvendte(ARKDEF_REVISION),
-        )
-    except Exception as ex:
-        fire.cli.print(
-            f"Kan ikke læse revisionsblad fra '{projektnavn}-revision.xlsx'",
-            fg="yellow",
-            bold=True,
-        )
-        fire.cli.print(f"Mulig årsag: {ex}")
-        sys.exit(1)
+    revision = find_faneblad(f"{projektnavn}-revision", "Revision", ARKDEF_REVISION)
     bemærkning = " ".join(bemærkning)
-
     opdateret = pd.DataFrame(columns=list(ARKDEF_REVISION))
-    print(opdateret)
 
     # Disse navne er lange at sejle rundt med, så vi laver en kort form
     TEKST = PunktInformationTypeAnvendelse.TEKST

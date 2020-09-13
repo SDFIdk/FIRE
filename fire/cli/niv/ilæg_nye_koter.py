@@ -7,8 +7,6 @@ import pandas as pd
 import fire.cli
 from fire.cli import firedb
 from fire import uuid
-
-# Typingelementer fra databaseAPIet.
 from fire.api.model import (
     EventType,
     Punkt,
@@ -22,6 +20,8 @@ from fire.api.model import (
 from . import (
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
+    bekræft,
+    find_faneblad,
     find_sag,
     find_sagsgang,
     niv,
@@ -31,6 +31,20 @@ from . import (
 
 @niv.command()
 @fire.cli.default_options()
+@click.option(
+    "-t",
+    "--test",
+    is_flag=True,
+    default=True,
+    help="Check inputfil, skriv intet til databasen",
+)
+@click.option(
+    "-a",
+    "--alvor",
+    is_flag=True,
+    default=False,
+    help="Skriv aftestet materiale til databasen",
+)
 @click.argument(
     "projektnavn",
     nargs=1,
@@ -41,28 +55,26 @@ from . import (
     nargs=1,
     type=str,
 )
-def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
+def ilæg_nye_koter(
+    projektnavn: str, sagsbehandler: str, alvor: bool, test: bool, **kwargs
+) -> None:
     """Registrer nyberegnede koter i databasen"""
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
-    fire.cli.print("Lægger nye koter i databasen")
+    sag = find_sag(projektnavn)
+    sagsgang = find_sagsgang(projektnavn)
 
-    try:
-        punktoversigt = pd.read_excel(
-            f"{projektnavn}.xlsx",
-            sheet_name="Punktoversigt",
-            usecols=anvendte(ARKDEF_PUNKTOVERSIGT),
-        )
-    except Exception as ex:
-        fire.cli.print(
-            f"Kan ikke læse punktoversigt fra '{projektnavn}.xlsx'",
-            fg="yellow",
-            bold=True,
-        )
-        fire.cli.print(f"Mulig årsag: {ex}")
-        sys.exit(1)
+    fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
+    fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
+    alvor, test = bekræft("Læg nye koter i databasen", alvor, test)
+    # Fortrød de?
+    if alvor and test:
+        return
 
+    punktoversigt = find_faneblad(
+        projektnavn, "Endelig beregning", ARKDEF_PUNKTOVERSIGT
+    )
     ny_punktoversigt = punktoversigt[0:0]
 
     DVR90 = firedb.hent_srid("EPSG:5799")
@@ -106,6 +118,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     if n > 10:
         punktnavne[9] = "..."
         punktnavne[10] = punktnavne[-1]
+        punktnavne = punktnavne[0:10]
     sagseventtekst = f"Opdatering af DVR90 kote til {', '.join(punktnavne)}"
     sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
     sagsevent.sagseventinfos.append(sagseventinfo)
@@ -122,19 +135,18 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     # Persister koterne til databasen
     fire.cli.print(sagseventtekst, fg="yellow", bold=True)
-    if "ja" != input(
-        f"-->  HELT sikker på at du vil skrive {n} koter til databasen (ja/nej)? "
-    ):
-        fire.cli.print("Dropper skrivning")
+    fire.cli.print(f"Ialt {n} koter")
+    if test:
+        fire.cli.print("Testkørsel. Intet skrevet til databasen")
         return
 
     sagsevent.koordinater = til_registrering
     firedb.indset_sagsevent(sagsevent)
 
     # Skriv resultater til resultatregneark
-    resultater = {"Sagsgang": sagsgang, "Punktoversigt": ny_punktoversigt}
+    resultater = {"Sagsgang": sagsgang, "Resultat": ny_punktoversigt}
     skriv_ark(projektnavn, resultater)
 
     fire.cli.print(
-        f"Koter registreret. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
+        f"Koter registreret. Flyt nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
     )
