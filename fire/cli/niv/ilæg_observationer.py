@@ -7,8 +7,6 @@ from sqlalchemy.orm.exc import NoResultFound
 import fire.cli
 from fire.cli import firedb
 from fire import uuid
-
-# Typingelementer fra databaseAPIet.
 from fire.api.model import (
     EventType,
     Observation,
@@ -20,7 +18,8 @@ from fire.api.model import (
 
 from . import (
     ARKDEF_OBSERVATIONER,
-    anvendte,
+    bekræft,
+    find_faneblad,
     find_sag,
     find_sagsgang,
     niv,
@@ -30,6 +29,20 @@ from . import (
 
 @niv.command()
 @fire.cli.default_options()
+@click.option(
+    "-t",
+    "--test",
+    is_flag=True,
+    default=True,
+    help="Check inputfil, skriv intet til databasen",
+)
+@click.option(
+    "-a",
+    "--alvor",
+    is_flag=True,
+    default=False,
+    help="Skriv aftestet materiale til databasen",
+)
 @click.argument(
     "projektnavn",
     nargs=1,
@@ -40,21 +53,25 @@ from . import (
     nargs=1,
     type=str,
 )
-def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
+def ilæg_observationer(
+    projektnavn: str, sagsbehandler: str, alvor: bool, test: bool, **kwargs
+) -> None:
     """Registrer nyoprettede punkter i databasen"""
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
-    fire.cli.print("Lægger nye observationer i databasen")
+    fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
+    fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
+    alvor, test = bekræft("Ilæg observationer i databasen", alvor, test)
+    # Fortrød de?
+    if alvor and test:
+        return
+
     obstype_trig = firedb.hent_observationstype("trigonometrisk_koteforskel")
     obstype_geom = firedb.hent_observationstype("geometrisk_koteforskel")
-
     til_registrering = []
-    observationer = pd.read_excel(
-        f"{projektnavn}.xlsx",
-        sheet_name="Observationer",
-        usecols=anvendte(ARKDEF_OBSERVATIONER),
-    )
+
+    observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
     # Fjern blanklinjer
     observationer = observationer[observationer["Fra"] == observationer["Fra"]]
     # Fjern allerede gemte
@@ -148,22 +165,15 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     # Gør klar til at persistere
     observationer["uuid"] = alle_uuider
 
-    # En lidt omstændelig dialog, for at fortælle at dette er en alvorlig ting.
     fire.cli.print(sagseventtekst, fg="yellow", bold=True)
     print(observationer[["Journal", "Fra", "Til", "uuid"]])
-    fire.cli.print(f"Skriver {len(til_registrering)} observationer")
-    fire.cli.print(
-        "-->  HELT sikker på at du vil skrive observationerne til databasen (ja/nej)? ",
-        bg="red",
-        fg="white",
-        bold=True,
-        nl=False,
-    )
-    if input() != "ja":
-        fire.cli.print("Dropper skrivning til database")
+    if test:
+        fire.cli.print(f"Har {len(til_registrering)} observationer")
+        fire.cli.print("Testkørsel. Intet skrevet til databasen")
         return
 
     # Persister observationerne til databasen
+    fire.cli.print(f"Skriver {len(til_registrering)} observationer")
     try:
         firedb.indset_flere_observationer(sagsevent, til_registrering)
     except Exception as ex:

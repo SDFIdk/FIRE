@@ -246,13 +246,14 @@ def find_faneblad(
             sheet_name=faneblad,
             usecols=anvendte(arkdef),
         )
-    except:
+    except Exception as ex:
         if ignore_failure:
             return None
-        fire.cli.print(f"Der er ingen {faneblad} i '{projektnavn}.xlsx'")
+        fire.cli.print(f"Kan ikke læse {faneblad} fra '{projektnavn}.xlsx'")
         fire.cli.print(
             f"- har du glemt at kopiere den fra '{projektnavn}-resultat.xlsx'?"
         )
+        fire.cli.print(f"Anden mulig årsag: {ex}")
         sys.exit(1)
 
 
@@ -355,8 +356,30 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
         yield feature
 
 
+def bekræft(spørgsmål: str, alvor: bool, test: bool) -> Tuple[bool, bool]:
+    """Sikkerhedsdialog: Undgå uønsket skrivning til databasen"""
+    # Påtving konsistens mellem alvor/test flag
+    if not alvor:
+        test = True
+        fire.cli.print(f"TESTER '{spørgsmål}'", fg="yellow", bold=True)
+        return alvor, test
+    else:
+        test = False
+
+    # Fortrydelse?: returner inkonsistent tilstand, alvor = test = True
+    fire.cli.print(f" BEKRÆFT: {spørgsmål}? ", bg="red", fg="white")
+    if "ja" != input("OK (ja/nej)? "):
+        fire.cli.print(f"DROPPER '{spørgsmål}'")
+        return True, True
+
+    # Bekræftelse
+    fire.cli.print(f"UDFØRER '{spørgsmål}'")
+    return alvor, test
+
+
 from .opret_sag import opret_sag
 from .læs_observationer import læs_observationer
+from .ilæg_observationer import ilæg_observationer
 from .udtræk_revision import udtræk_revision
 from .ilæg_revision import ilæg_revision
 from .regn import regn

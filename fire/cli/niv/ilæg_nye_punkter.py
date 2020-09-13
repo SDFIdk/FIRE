@@ -19,6 +19,7 @@ from fire.api.model import (
 
 from . import (
     ARKDEF_NYETABLEREDE_PUNKTER,
+    bekræft,
     find_faneblad,
     find_sag,
     find_sagsgang,
@@ -30,6 +31,20 @@ from . import (
 
 @niv.command()
 @fire.cli.default_options()
+@click.option(
+    "-t",
+    "--test",
+    is_flag=True,
+    default=True,
+    help="Check inputfil, skriv intet til databasen",
+)
+@click.option(
+    "-a",
+    "--alvor",
+    is_flag=True,
+    default=False,
+    help="Skriv aftestet materiale til databasen",
+)
 @click.argument(
     "projektnavn",
     nargs=1,
@@ -40,12 +55,19 @@ from . import (
     nargs=1,
     type=str,
 )
-def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
+def ilæg_nye_punkter(
+    projektnavn: str, sagsbehandler: str, alvor: bool, test: bool, **kwargs
+) -> None:
     """Registrer nyoprettede punkter i databasen"""
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
-    fire.cli.print("Lægger nye punkter i databasen")
+    fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
+    fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
+    alvor, test = bekræft("Opret nye punkter i databasen", alvor, test)
+    # Fortrød de?
+    if alvor and test:
+        return
 
     # Opbyg oversigt over nyetablerede punkter
     nyetablerede = find_faneblad(
@@ -237,27 +259,27 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     }
     sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
 
-    # Persister punkterne til databasen
-    fire.cli.print(sagseventtekst, fg="yellow", bold=True)
-    if "ja" != input(
-        "-->  HELT sikker på at du vil skrive punkterne til databasen (ja/nej)? "
-    ):
-        fire.cli.print("Dropper skrivning")
-        return
-    firedb.indset_flere_punkter(sagsevent, list(genererede_punkter.values()))
+    if alvor:
+        # Persister punkterne til databasen
+        firedb.indset_flere_punkter(sagsevent, list(genererede_punkter.values()))
+        # ... og marker i regnearket at det er sket
+        for k in genererede_punkter:
+            nyetablerede.at[k, "uuid"] = genererede_punkter[k].id
 
-    # ... og marker i regnearket at det er sket
-    for k in genererede_punkter:
-        nyetablerede.at[k, "uuid"] = genererede_punkter[k].id
     # Drop numerisk index
     nyetablerede = nyetablerede.reset_index(drop=True)
 
     # Skriv resultater til resultatregneark
     resultater = {"Sagsgang": sagsgang, "Nyetablerede punkter": nyetablerede}
     skriv_ark(projektnavn, resultater)
-    fire.cli.print(
-        f"Punkter oprettet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
-    )
+    if test:
+        fire.cli.print("Testkørsel. Intet skrevet til databasen")
+        return
+
+    if alvor:
+        fire.cli.print(
+            f"Punkter oprettet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
+        )
 
 
 def find_alle_løbenumre_i_distrikt(distrikt: str) -> List[str]:
