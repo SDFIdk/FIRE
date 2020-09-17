@@ -130,6 +130,7 @@ i separate afsnit længere nede i teksten.
                     + sz : Float\l
                     + transformeret : Boolean\l
                     + artskode : Integer\l
+                    + fejlmeldt : Boolean\l
 
             }"
             fillcolor = lightskyblue
