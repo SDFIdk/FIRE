@@ -22,6 +22,7 @@ from . import (
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
     find_faneblad,
+    gyldighedstidspunkt,
     niv,
     punkter_geojson,
     skriv_ark,
@@ -66,9 +67,7 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
 
     # Hvis ingen flag er sat (begge er False) checker vi for kontrolberegningsfaneblad...
     if kontrol == endelig:
-        kontrol = None == find_faneblad(
-            projektnavn, "Kontrolberegning", ARKDEF_PUNKTOVERSIGT, True
-        )
+        kontrol = (find_faneblad(projektnavn, "Kontrolberegning", ARKDEF_PUNKTOVERSIGT, True) is None)
 
     # ...og så kan vi vælge den korrekte fanebladsprogression
     if kontrol:
@@ -81,7 +80,6 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
 
     # Håndter fastholdte punkter og slukkede observationer.
     observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
-    observationer = observationer[observationer["Sluk"].isnull()]
     punktoversigt = find_faneblad(projektnavn, faneblad, ARKDEF_PUNKTOVERSIGT)
     fastholdte = find_fastholdte(punktoversigt)
     if 0 == len(fastholdte):
@@ -95,10 +93,17 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
     forbundne_punkter = tuple(sorted(resultater["Netgeometri"]["Punkt"]))
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
     fire.cli.print(f"Beregner nye koter for {len(estimerede_punkter)} punkter")
-    resultater[næste_faneblad] = gama_beregning(
+    beregning = gama_beregning(
         projektnavn, observationer, punktoversigt, estimerede_punkter
     )
 
+    dH = beregning["Δ-kote [mm]"]
+    Tg = gyldighedstidspunkt(projektnavn)
+    dt = beregning["Hvornår"] - Tg
+    for i, t in enumerate(dt):
+        beregning.at[i, "Opløft [mm/år]"] = dH[i]/(t.total_seconds()/(365.25*86400))
+
+    resultater[næste_faneblad] = beregning
     # ...og beret om resultaterne
     punkter_geojson(projektnavn, resultater[næste_faneblad])
     skriv_ark(projektnavn, resultater)
@@ -194,7 +199,7 @@ def gama_beregning(
         # Observationer
         gamafil.write("<height-differences>\n")
         for obs in observationer.itertuples(index=False):
-            if not pd.isna(obs.Sluk):
+            if obs.Sluk=='x':
                 fire.cli.print(f"Slukket {obs}")
                 continue
             gamafil.write(
@@ -245,9 +250,15 @@ def gama_beregning(
 
     # Skriv resultaterne til punktoversigten
     punktoversigt = punktoversigt.set_index("Punkt")
-    for index in range(len(punkter)):
-        punktoversigt.at[punkter[index], "Ny kote"] = koter[index]
-        punktoversigt.at[punkter[index], "Ny σ"] = sqrt(varianser[index])
+    punktoversigt["uuid"] = ""
+    punktoversigt["Udelad publikation"] = ""
+    for index, punkt in enumerate(punkter):
+        punktoversigt.at[punkt, "Ny kote"] = koter[index]
+        punktoversigt.at[punkt, "Ny σ"] = sqrt(varianser[index])
+        punktoversigt.at[punkt, "Fasthold"] = ""
+        punktoversigt.at[punkt, "System"] = "DVR90"
+        punktoversigt.at[punkt, "uuid"] = ""
+        punktoversigt.at[punkt, "Udelad publikation"] = ""
     punktoversigt = punktoversigt.reset_index()
 
     # Ændring i millimeter...

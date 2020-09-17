@@ -56,7 +56,7 @@ from . import (
 def ilæg_observationer(
     projektnavn: str, sagsbehandler: str, alvor: bool, test: bool, **kwargs
 ) -> None:
-    """Registrer nyoprettede punkter i databasen"""
+    """Registrer nye observationer i databasen"""
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
@@ -73,9 +73,9 @@ def ilæg_observationer(
 
     observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
     # Fjern blanklinjer
-    observationer = observationer[observationer["Fra"] == observationer["Fra"]]
+    observationer = observationer[observationer["Fra"] != ""]
     # Fjern allerede gemte
-    observationer = observationer[observationer["uuid"] != observationer["uuid"]]
+    observationer = observationer[observationer["uuid"] != ""]
     observationer = observationer.reset_index(drop=True)
 
     alle_kilder = ", ".join(sorted(list(set(observationer.Kilde))))
@@ -184,6 +184,7 @@ def ilæg_observationer(
         sys.exit(1)
 
     # Skriv resultater til resultatregneark
+    observationer = observationer.replace("nan", "")
     resultater = {"Sagsgang": sagsgang, "Observationer": observationer}
     skriv_ark(projektnavn, resultater)
     fire.cli.print(

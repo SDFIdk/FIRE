@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import os.path
@@ -34,11 +35,11 @@ def niv():
 
         læs-observationer
 
-        beregn-nye-koter
+        regn
 
         ilæg-observationer
 
-        ilæg-koter
+        ilæg-nye-koter
 
         luk-sag
 
@@ -59,10 +60,8 @@ def niv():
     LÆS-OBSERVATIONER læser råfilerne og skriver observationerne til regnearket så de
     er klar til brug i beregninger.
 
-    BEREGN-NYE-KOTER beregner nye koter til alle punkter, og genererer rapporter og
+    REGN beregner nye koter til alle punkter, og genererer rapporter og
     visualiseringsmateriale.
-
-    ADJ er et synonym for BEREGN-NYE-KOTER, tilegnet nostalgikere og feinschmeckere.
 
     ILÆG-OBSERVATIONER lægger nye observationer i databasen.
 
@@ -75,15 +74,19 @@ def niv():
 
     Eksempel:
 
-    fire niv opret-sag andeby_2020 "Thomas Knudsen" "Testsag: Nyopmåling af Andeby"
+    fire niv opret-sag andeby_2020 Bxxxxxx Testsag: Nyopmåling af Andeby
+
+    fire niv ilæg-nye-punkter andeby_2020 Bxxxxxx
 
     fire niv læs-observationer andeby_2020
 
-    fire niv beregn-nye-koter andeby_2020
+    fire niv regn andeby_2020     <- kontrolberegning
 
-    fire niv ilæg-observationer andeby_2020
+    fire niv regn andeby_2020     <- endelig beregning
 
-    fire niv ilæg-koter andeby_2020
+    fire niv ilæg-observationer andeby_2020 Bxxxxxx
+
+    fire niv ilæg-nye-koter andeby_2020 Bxxxxxx
 
     """
     pass
@@ -133,7 +136,7 @@ ARKDEF_OBSERVATIONER = {
 ARKDEF_PUNKTOVERSIGT = {
     "Punkt": str,
     "Fasthold": str,
-    "År": int,
+    "Hvornår": "datetime64[ns]",
     "Kote": float,
     "σ": float,
     "Ny kote": float,
@@ -245,7 +248,7 @@ def find_faneblad(
             f"{projektnavn}.xlsx",
             sheet_name=faneblad,
             usecols=anvendte(arkdef),
-        )
+        ).astype(arkdef)
     except Exception as ex:
         if ignore_failure:
             return None
@@ -255,6 +258,13 @@ def find_faneblad(
         )
         fire.cli.print(f"Anden mulig årsag: {ex}")
         sys.exit(1)
+
+# ------------------------------------------------------------------------------
+def gyldighedstidspunkt(projektnavn: str) -> datetime.datetime:
+    """Tid for sidste observation der har været brugt i beregningen"""
+    obs = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
+    obs = obs[obs["Sluk"]!="x"]
+    return max(obs["Hvornår"])
 
 
 # -----------------------------------------------------------------------------
