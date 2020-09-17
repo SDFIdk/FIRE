@@ -77,7 +77,7 @@ def ilæg_nye_koter(
     punktoversigt = find_faneblad(
         projektnavn, "Endelig beregning", ARKDEF_PUNKTOVERSIGT
     )
-    punktoversigt = punktoversigt.replace('nan', '')
+    punktoversigt = punktoversigt.replace("nan", "")
     ny_punktoversigt = punktoversigt[0:0]
 
     DVR90 = firedb.hent_srid("EPSG:5799")
@@ -91,7 +91,11 @@ def ilæg_nye_koter(
     opdaterede_punkter = []
     for punktdata in punktoversigt.to_dict(orient="records"):
         # Blanklinje, tilbageholdt, eller allerede registreret?
-        if pd.isna(punktdata["Ny kote"]) or punktdata["uuid"] != "" or punktdata["Udelad publikation"] == "x":
+        if (
+            pd.isna(punktdata["Ny kote"])
+            or punktdata["uuid"] != ""
+            or punktdata["Udelad publikation"] == "x"
+        ):
             ny_punktoversigt = ny_punktoversigt.append(punktdata, ignore_index=True)
             continue
 
@@ -148,7 +152,7 @@ def ilæg_nye_koter(
     firedb.indset_sagsevent(sagsevent)
 
     # Skriv resultater til resultatregneark
-    ny_punktoversigt = ny_punktoversigt.replace('nan', '')
+    ny_punktoversigt = ny_punktoversigt.replace("nan", "")
     resultater = {"Sagsgang": sagsgang, "Resultat": ny_punktoversigt}
     skriv_ark(projektnavn, resultater)
 

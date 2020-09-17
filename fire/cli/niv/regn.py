@@ -67,7 +67,10 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
 
     # Hvis ingen flag er sat (begge er False) checker vi for kontrolberegningsfaneblad...
     if kontrol == endelig:
-        kontrol = (find_faneblad(projektnavn, "Kontrolberegning", ARKDEF_PUNKTOVERSIGT, True) is None)
+        kontrol = (
+            find_faneblad(projektnavn, "Kontrolberegning", ARKDEF_PUNKTOVERSIGT, True)
+            is None
+        )
 
     # ...og så kan vi vælge den korrekte fanebladsprogression
     if kontrol:
@@ -98,10 +101,12 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
     )
 
     dH = beregning["Δ-kote [mm]"]
-    Tg = gyldighedstidspunkt(projektnavn)
-    dt = beregning["Hvornår"] - Tg
+    tg = gyldighedstidspunkt(projektnavn)
+    dt = beregning["Hvornår"] - tg
     for i, t in enumerate(dt):
-        beregning.at[i, "Opløft [mm/år]"] = dH[i]/(t.total_seconds()/(365.25*86400))
+        beregning.at[i, "Opløft [mm/år]"] = dH[i] / (
+            t.total_seconds() / (365.25 * 86400)
+        )
 
     resultater[næste_faneblad] = beregning
     # ...og beret om resultaterne
@@ -199,7 +204,7 @@ def gama_beregning(
         # Observationer
         gamafil.write("<height-differences>\n")
         for obs in observationer.itertuples(index=False):
-            if obs.Sluk=='x':
+            if obs.Sluk == "x":
                 fire.cli.print(f"Slukket {obs}")
                 continue
             gamafil.write(

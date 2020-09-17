@@ -254,7 +254,9 @@ def læs_observationsstrenge(
 ) -> pd.DataFrame:
     """Pil observationsstrengene ud fra en række råfiler"""
 
-    observationer = pd.DataFrame(columns=list(ARKDEF_OBSERVATIONER)).astype(ARKDEF_OBSERVATIONER)
+    observationer = pd.DataFrame(columns=list(ARKDEF_OBSERVATIONER)).astype(
+        ARKDEF_OBSERVATIONER
+    )
     for fil in filinfo.itertuples(index=False):
         if fil.Type.upper() not in ["MGL", "MTL", "NUL"]:
             continue
@@ -266,7 +268,7 @@ def læs_observationsstrenge(
                     if "#" != line[0]:
                         continue
                     # Fjern luft i begge ender, havelågen i starten og kollaps gentagen luft
-                    line = re.sub(r'[ \t]+', ' ', line.lstrip("# ").strip())
+                    line = re.sub(r"[ \t]+", " ", line.lstrip("# ").strip())
 
                     # Check at observationen er i et af de kendte formater
                     tokens = line.split(" ", 13)

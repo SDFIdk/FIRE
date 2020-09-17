@@ -259,11 +259,12 @@ def find_faneblad(
         fire.cli.print(f"Anden mulig årsag: {ex}")
         sys.exit(1)
 
+
 # ------------------------------------------------------------------------------
 def gyldighedstidspunkt(projektnavn: str) -> datetime.datetime:
     """Tid for sidste observation der har været brugt i beregningen"""
     obs = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
-    obs = obs[obs["Sluk"]!="x"]
+    obs = obs[obs["Sluk"] != "x"]
     return max(obs["Hvornår"])
 
 
