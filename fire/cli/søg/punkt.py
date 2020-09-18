@@ -17,7 +17,7 @@ from . import søg
     type=int,
     help="Begræns antallet af fundne søgeresultater",
 )
-def punkt(ident: str, antal: int):
+def punkt(ident: str, antal: int, **kwargs):
     """
     Søg efter et punkt ud fra dets ident
 
