@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 from datetime import datetime
 from typing import Dict, List, Tuple
@@ -92,7 +93,7 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     # Oversæt alle anvendte identer til kanonisk form
     fra = tuple(observationer["Fra"])
     til = tuple(observationer["Til"])
-    observerede_punkter = tuple(set(fra + til))
+    observerede_punkter = sorted(tuple(set(fra + til)))
     kanonisk_ident = {}
 
     for punktnavn in observerede_punkter:
@@ -199,6 +200,12 @@ def opbyg_punktoversigt(
             if koord.registreringtil is None:
                 kote = koord
                 break
+
+        punktoversigt.at[punkt, "Fasthold"] = ""
+        punktoversigt.at[punkt, "System"] = "DVR90"
+        punktoversigt.at[punkt, "uuid"] = ""
+        punktoversigt.at[punkt, "Udelad publikation"] = ""
+
         if kote is None:
             fire.cli.print(
                 f"Ingen aktuel DVR90-kote fundet for {punkt}",
@@ -206,17 +213,14 @@ def opbyg_punktoversigt(
                 fg="white",
                 err=True,
             )
-            punktoversigt.at[punkt, "Kote"] = 0
-            punktoversigt.at[punkt, "σ"] = 1e6
-            punktoversigt.at[punkt, "År"] = 1800
-            punktoversigt.at[punkt, "System"] = "DVR90"
-            punktoversigt.at[punkt, "uuid"] = ""
+            punktoversigt.at[punkt, "Kote"] = None
+            punktoversigt.at[punkt, "σ"] = None
+            punktoversigt.at[punkt, "Hvornår"] = None
+
         else:
             punktoversigt.at[punkt, "Kote"] = kote.z
             punktoversigt.at[punkt, "σ"] = kote.sz
-            punktoversigt.at[punkt, "År"] = kote.registreringfra.year
-            punktoversigt.at[punkt, "System"] = "DVR90"
-            punktoversigt.at[punkt, "uuid"] = ""
+            punktoversigt.at[punkt, "Hvornår"] = kote.t
 
         if pd.isna(punktoversigt.at[punkt, "Nord"]):
             punktoversigt.at[punkt, "Nord"] = pkt.geometri.koordinater[1]
@@ -226,7 +230,7 @@ def opbyg_punktoversigt(
     # koter og placeringskoordinater i fanebladet 'Nyetablerede punkter'
     for punkt in nye_punkter:
         if pd.isna(punktoversigt.at[punkt, "Kote"]):
-            punktoversigt.at[punkt, "Kote"] = 0
+            punktoversigt.at[punkt, "Kote"] = None
         if pd.isna(punktoversigt.at[punkt, "Nord"]):
             punktoversigt.at[punkt, "Nord"] = nyetablerede.at[punkt, "Nord"]
         if pd.isna(punktoversigt.at[punkt, "Øst"]):
@@ -249,7 +253,10 @@ def læs_observationsstrenge(
     filinfo: pd.DataFrame, verbose: bool = False
 ) -> pd.DataFrame:
     """Pil observationsstrengene ud fra en række råfiler"""
-    observationer = pd.DataFrame(columns=list(ARKDEF_OBSERVATIONER))
+
+    observationer = pd.DataFrame(columns=list(ARKDEF_OBSERVATIONER)).astype(
+        ARKDEF_OBSERVATIONER
+    )
     for fil in filinfo.itertuples(index=False):
         if fil.Type.upper() not in ["MGL", "MTL", "NUL"]:
             continue
@@ -260,7 +267,8 @@ def læs_observationsstrenge(
                 for line in obsfil:
                     if "#" != line[0]:
                         continue
-                    line = line.lstrip("#").strip()
+                    # Fjern luft i begge ender, havelågen i starten og kollaps gentagen luft
+                    line = re.sub(r"[ \t]+", " ", line.lstrip("# ").strip())
 
                     # Check at observationen er i et af de kendte formater
                     tokens = line.split(" ", 13)
@@ -320,12 +328,5 @@ def læs_observationsstrenge(
 # ------------------------------------------------------------------------------
 def find_inputfiler(navn: str) -> pd.DataFrame:
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning og centreringsfejl"""
-    try:
-        inputfiler = pd.read_excel(
-            f"{navn}.xlsx",
-            sheet_name="Filoversigt",
-            usecols=anvendte(ARKDEF_FILOVERSIGT),
-        )
-    except:
-        sys.exit("Kan ikke finde filoversigt i projektfil")
+    inputfiler = find_faneblad(navn, "Filoversigt", ARKDEF_FILOVERSIGT)
     return inputfiler[inputfiler["Filnavn"].notnull()]  # Fjern blanklinjer

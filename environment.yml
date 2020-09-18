@@ -9,8 +9,7 @@ dependencies:
   - click
   - colorama
   - pyproj
-  - pandas
-  - statsmodels
+  - pandas=1.1.2
   - xlsxwriter
   - xlrd
   - xmltodict

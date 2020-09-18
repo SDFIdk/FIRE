@@ -263,7 +263,7 @@ def ilæg_nye_punkter(
         # Persister punkterne til databasen
         firedb.indset_flere_punkter(sagsevent, list(genererede_punkter.values()))
         # ... og marker i regnearket at det er sket
-        for k in genererede_punkter:
+        for k in genererede_punkter.keys():
             nyetablerede.at[k, "uuid"] = genererede_punkter[k].id
 
     # Drop numerisk index

@@ -19,11 +19,13 @@ from fire.api.model import (
 
 from . import (
     ARKDEF_PUNKTOVERSIGT,
+    ARKDEF_OBSERVATIONER,
     anvendte,
     bekræft,
     find_faneblad,
     find_sag,
     find_sagsgang,
+    gyldighedstidspunkt,
     niv,
     skriv_ark,
 )
@@ -75,10 +77,12 @@ def ilæg_nye_koter(
     punktoversigt = find_faneblad(
         projektnavn, "Endelig beregning", ARKDEF_PUNKTOVERSIGT
     )
+    punktoversigt = punktoversigt.replace("nan", "")
     ny_punktoversigt = punktoversigt[0:0]
 
     DVR90 = firedb.hent_srid("EPSG:5799")
     registreringstidspunkt = datetime.now()
+    tid = gyldighedstidspunkt(projektnavn)
 
     # Generer sagsevent
     sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.KOORDINAT_BEREGNET)
@@ -86,8 +90,12 @@ def ilæg_nye_koter(
     til_registrering = []
     opdaterede_punkter = []
     for punktdata in punktoversigt.to_dict(orient="records"):
-        # Blanklinje, eller allerede registreret?
-        if pd.isna(punktdata["Ny kote"]) or not pd.isna(punktdata["uuid"]):
+        # Blanklinje, tilbageholdt, eller allerede registreret?
+        if (
+            pd.isna(punktdata["Ny kote"])
+            or punktdata["uuid"] != ""
+            or punktdata["Udelad publikation"] == "x"
+        ):
             ny_punktoversigt = ny_punktoversigt.append(punktdata, ignore_index=True)
             continue
 
@@ -98,7 +106,7 @@ def ilæg_nye_koter(
         kote = Koordinat(
             srid=DVR90,
             punkt=punkt,
-            t=registreringstidspunkt,
+            t=tid,
             z=punktdata["Ny kote"],
             sz=punktdata["Ny σ"],
         )
@@ -144,6 +152,7 @@ def ilæg_nye_koter(
     firedb.indset_sagsevent(sagsevent)
 
     # Skriv resultater til resultatregneark
+    ny_punktoversigt = ny_punktoversigt.replace("nan", "")
     resultater = {"Sagsgang": sagsgang, "Resultat": ny_punktoversigt}
     skriv_ark(projektnavn, resultater)
 

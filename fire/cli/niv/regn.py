@@ -22,6 +22,7 @@ from . import (
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
     find_faneblad,
+    gyldighedstidspunkt,
     niv,
     punkter_geojson,
     skriv_ark,
@@ -66,8 +67,9 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
 
     # Hvis ingen flag er sat (begge er False) checker vi for kontrolberegningsfaneblad...
     if kontrol == endelig:
-        kontrol = None == find_faneblad(
-            projektnavn, "Kontrolberegning", ARKDEF_PUNKTOVERSIGT, True
+        kontrol = (
+            find_faneblad(projektnavn, "Kontrolberegning", ARKDEF_PUNKTOVERSIGT, True)
+            is None
         )
 
     # ...og så kan vi vælge den korrekte fanebladsprogression
@@ -81,7 +83,6 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
 
     # Håndter fastholdte punkter og slukkede observationer.
     observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
-    observationer = observationer[observationer["Sluk"].isnull()]
     punktoversigt = find_faneblad(projektnavn, faneblad, ARKDEF_PUNKTOVERSIGT)
     fastholdte = find_fastholdte(punktoversigt)
     if 0 == len(fastholdte):
@@ -94,11 +95,14 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
     # Beregn nye koter for de ikke-fastholdte punkter...
     forbundne_punkter = tuple(sorted(resultater["Netgeometri"]["Punkt"]))
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
-    fire.cli.print(f"Beregner nye koter for {len(estimerede_punkter)} punkter")
-    resultater[næste_faneblad] = gama_beregning(
+    fire.cli.print(
+        f"Fastholder {len(fastholdte)} og beregner nye koter for {len(estimerede_punkter)} punkter"
+    )
+    beregning = gama_beregning(
         projektnavn, observationer, punktoversigt, estimerede_punkter
     )
 
+    resultater[næste_faneblad] = beregning
     # ...og beret om resultaterne
     punkter_geojson(projektnavn, resultater[næste_faneblad])
     skriv_ark(projektnavn, resultater)
@@ -194,7 +198,7 @@ def gama_beregning(
         # Observationer
         gamafil.write("<height-differences>\n")
         for obs in observationer.itertuples(index=False):
-            if not pd.isna(obs.Sluk):
+            if obs.Sluk == "x":
                 fire.cli.print(f"Slukket {obs}")
                 continue
             gamafil.write(
@@ -244,15 +248,31 @@ def gama_beregning(
     assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
 
     # Skriv resultaterne til punktoversigten
+    punktoversigt["uuid"] = ""
+    punktoversigt["Udelad publikation"] = ""
+    punktoversigt["Fasthold"] = "x"
+    punktoversigt["Δ-kote [mm]"] = None
+    punktoversigt["Opløft [mm/år]"] = float("NaN")
+    punktoversigt["System"] = "DVR90"
+    tg = gyldighedstidspunkt(projektnavn)
     punktoversigt = punktoversigt.set_index("Punkt")
-    for index in range(len(punkter)):
-        punktoversigt.at[punkter[index], "Ny kote"] = koter[index]
-        punktoversigt.at[punkter[index], "Ny σ"] = sqrt(varianser[index])
-    punktoversigt = punktoversigt.reset_index()
 
-    # Ændring i millimeter...
-    d = list(abs(punktoversigt["Kote"] - punktoversigt["Ny kote"]) * 1000)
-    # ...men vi ignorerer ændringer under mikrometerniveau
-    dd = [e if e > 0.001 else None for e in d]
-    punktoversigt["Δ-kote [mm]"] = dd
+    for punkt, ny_kote, var in zip(punkter, koter, varianser):
+        punktoversigt.at[punkt, "Ny kote"] = ny_kote
+        punktoversigt.at[punkt, "Ny σ"] = sqrt(var)
+        punktoversigt.at[punkt, "Fasthold"] = ""
+
+        # Ændring i millimeter...
+        Δ = ny_kote - punktoversigt.at[punkt, "Kote"]
+        # ...men vi ignorerer ændringer under mikrometerniveau
+        if abs(Δ) < 0.001:
+            Δ = 0
+        punktoversigt.at[punkt, "Δ-kote [mm]"] = Δ
+        dt = punktoversigt.at[punkt, "Hvornår"] - tg
+        dt = dt.total_seconds() / (365.25 * 86400)
+        # t = 0 forekommer ved genberegning af allerede registrerede koter
+        if dt == 0:
+            continue
+        punktoversigt.at[punkt, "Opløft [mm/år]"] = Δ / dt
+    punktoversigt = punktoversigt.reset_index()
     return punktoversigt

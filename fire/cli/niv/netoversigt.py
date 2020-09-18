@@ -46,7 +46,7 @@ def netanalyse(
         projektnavn, "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
     )
 
-    observationer = observationer[observationer["Sluk"].isnull()]
+    observationer = observationer[observationer["Sluk"] != "x"]
     observerede_punkter = set(list(observationer["Fra"]) + list(observationer["Til"]))
 
     # Brug foreløbige navne hvis det ser ud som om der ikke er tildelt landsnumre endnu
