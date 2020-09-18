@@ -10,8 +10,7 @@ dependencies:
   - qgis=3.10
   - click
   - colorama
-  - pandas
-  - statsmodels
+  - pandas=1.1.2
   - xlsxwriter
   - xlrd
   - xmltodict
