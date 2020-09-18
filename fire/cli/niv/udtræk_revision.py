@@ -141,8 +141,7 @@ def udtræk_revision(
                     {
                         "Punkt": ident,
                         "Attribut": "OVERVEJ:muligt_datumstabil",
-                        "Tekstværdi": "ukendt",
-                        "Ret tekst": "ja/nej",
+                        "Tekstværdi": "Hvis ja: Ret 'OVERVEJ:' til 'ATTR:'",
                     },
                     ignore_index=True,
                 )
