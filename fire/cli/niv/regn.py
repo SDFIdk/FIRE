@@ -95,18 +95,12 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
     # Beregn nye koter for de ikke-fastholdte punkter...
     forbundne_punkter = tuple(sorted(resultater["Netgeometri"]["Punkt"]))
     estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
-    fire.cli.print(f"Beregner nye koter for {len(estimerede_punkter)} punkter")
+    fire.cli.print(
+        f"Fastholder {len(fastholdte)} og beregner nye koter for {len(estimerede_punkter)} punkter"
+    )
     beregning = gama_beregning(
         projektnavn, observationer, punktoversigt, estimerede_punkter
     )
-
-    dH = beregning["Δ-kote [mm]"]
-    tg = gyldighedstidspunkt(projektnavn)
-    dt = beregning["Hvornår"] - tg
-    for i, t in enumerate(dt):
-        beregning.at[i, "Opløft [mm/år]"] = dH[i] / (
-            t.total_seconds() / (365.25 * 86400)
-        )
 
     resultater[næste_faneblad] = beregning
     # ...og beret om resultaterne
@@ -254,21 +248,31 @@ def gama_beregning(
     assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
 
     # Skriv resultaterne til punktoversigten
-    punktoversigt = punktoversigt.set_index("Punkt")
     punktoversigt["uuid"] = ""
     punktoversigt["Udelad publikation"] = ""
-    for index, punkt in enumerate(punkter):
-        punktoversigt.at[punkt, "Ny kote"] = koter[index]
-        punktoversigt.at[punkt, "Ny σ"] = sqrt(varianser[index])
-        punktoversigt.at[punkt, "Fasthold"] = ""
-        punktoversigt.at[punkt, "System"] = "DVR90"
-        punktoversigt.at[punkt, "uuid"] = ""
-        punktoversigt.at[punkt, "Udelad publikation"] = ""
-    punktoversigt = punktoversigt.reset_index()
+    punktoversigt["Fasthold"] = "x"
+    punktoversigt["Δ-kote [mm]"] = None
+    punktoversigt["Opløft [mm/år]"] = float("NaN")
+    punktoversigt["System"] = "DVR90"
+    tg = gyldighedstidspunkt(projektnavn)
+    punktoversigt = punktoversigt.set_index("Punkt")
 
-    # Ændring i millimeter...
-    d = list(abs(punktoversigt["Kote"] - punktoversigt["Ny kote"]) * 1000)
-    # ...men vi ignorerer ændringer under mikrometerniveau
-    dd = [e if e > 0.001 else None for e in d]
-    punktoversigt["Δ-kote [mm]"] = dd
+    for punkt, ny_kote, var in zip(punkter, koter, varianser):
+        punktoversigt.at[punkt, "Ny kote"] = ny_kote
+        punktoversigt.at[punkt, "Ny σ"] = sqrt(var)
+        punktoversigt.at[punkt, "Fasthold"] = ""
+
+        # Ændring i millimeter...
+        Δ = ny_kote - punktoversigt.at[punkt, "Kote"]
+        # ...men vi ignorerer ændringer under mikrometerniveau
+        if abs(Δ) < 0.001:
+            Δ = 0
+        punktoversigt.at[punkt, "Δ-kote [mm]"] = Δ
+        dt = punktoversigt.at[punkt, "Hvornår"] - tg
+        dt = dt.total_seconds() / (365.25 * 86400)
+        # t = 0 forekommer ved genberegning af allerede registrerede koter
+        if dt == 0:
+            continue
+        punktoversigt.at[punkt, "Opløft [mm/år]"] = Δ / dt
+    punktoversigt = punktoversigt.reset_index()
     return punktoversigt
