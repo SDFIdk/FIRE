@@ -360,14 +360,8 @@ Step 6) regn
 Vi skal nu til at beregne nye koter til de observerede punkter.
 
 I ens projektfil kan man notere hvilke punkter skal fastholdes, ved at, i fanebladet
-<<<<<<< HEAD
-*Punktoversigt*, skrive *x* ud for punktet i *Fasthold*-kolonnen. Gem derefter filen,
-luk projektet ned og vend tilbage til terminalen, hvor kaldet ``regn`` skal
-køres:
-=======
 *Punktoversigt*, skrive *x* ud for punktet i *Fasthold*-kolonnen. Gem derefter filen 
 og vend tilbage til terminalen, hvor kaldet ``regn`` skal køres:
->>>>>>> 9838251... Opdatering af materiale
 
 	> fire niv regn --help
 
@@ -407,8 +401,6 @@ Kontrolberegningen viser det egentlige beregningsresultat. Kolonner er nu fyldt 
 nyberegnede koter, middelfejl og differencen fra gældende kote, og man kan lave sin
 endelige vurdering af beregningen.
 
-<<<<<<< HEAD
-=======
 Fanebladet *Kontrolberegning* flyttes nu over i projektfilen på samme måde som før, og i 
 *Punktoversigt*-fanen kan man nu udvælge de fastholdte punkter til den endelige beregning.
 Derefter køres ``regn`` igen (husk at lukke resultatfilen), og en ny beregning udføres; 
@@ -416,7 +408,6 @@ denne gang vil det resulterende faneblad hedde *Endelig beregning*, som også ka
 over i projektfilen, såfremt man er tilfreds med beregningsresultatet.
 
 
->>>>>>> 9838251... Opdatering af materiale
 
 Step 7) ilæg-observationer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
