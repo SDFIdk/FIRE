@@ -226,7 +226,8 @@ def skriv_ark(
     while True:
         try:
             writer.save()
-            os.startfile(f"{projektnavn}-resultat.xlsx")
+            if suffix == "-resultat":
+                os.startfile(f"{projektnavn}-resultat.xlsx")
             return
         except:
             fire.cli.print(
