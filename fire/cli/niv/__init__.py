@@ -226,7 +226,7 @@ def skriv_ark(
     while True:
         try:
             writer.save()
-            if suffix=="-resultat":
+            if suffix == "-resultat":
                 os.startfile(f"{projektnavn}-resultat.xlsx")
             return
         except:
