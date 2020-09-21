@@ -70,8 +70,9 @@ og derefter ``conda install``:
 -------------  ----------------------------------------------------------  -------------------------------------------
 echo           Gentag input på skærmen, som kan pipes videre, fx til proj  > echo 12.4 55.8 36 | cct +proj=cart 
 grep           Søg efter bestemte udtryk i asciitekst og print til skærm   > grep -n DK test1
-vim            Tekstbehandlingsprogram, som notesblok, Notepad++ osv.      > vim test1
 less           Vis indholdet i en ascii-fil (ikke til redigering)          > less test1
+type           Sammensæt flere filer til en                                > type test1 test2>test3
+vim            Tekstbehandlingsprogram, som notesblok, Notepad++ osv.      > vim test1
 =============  ==========================================================  ===========================================
 
 Alle programmer kan yderligere udforskes ved at bruge parameteren *--help*, fx:
