@@ -129,7 +129,11 @@ def punktinforapport(punktinformationer: List[PunktInformation]) -> None:
         # attributteksten
         tekst = tekst.replace("\n", "\n" + " " * 30).replace("\r", "").rstrip(" \n")
         tal = info.tal or ""
-        fire.cli.print(f"  {info.infotype.name:27} {tekst}{tal}")
+        # marker slukkede punktinformationer med rød tekst og et minus tv for linjen
+        if info.sagseventtilid:
+            fire.cli.print(f" -{info.infotype.name:27} {tekst}{tal}", fg="red")
+        else:
+            fire.cli.print(f"  {info.infotype.name:27} {tekst}{tal}")
 
 
 def koordinatrapport(koordinater: List[Koordinat], options: str) -> None:
