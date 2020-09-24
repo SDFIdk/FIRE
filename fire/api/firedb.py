@@ -302,7 +302,7 @@ class FireDb(object):
     def _luk_fikspunkregisterobjekt(
         self, objekt: FikspunktregisterObjekt, sagsevent: Sagsevent, commit: bool = True
     ):
-        objekt._registreringtil = datetime.now(tz=timezone.utc)
+        objekt._registreringtil = func.sysdate()
         objekt.sagseventtilid = sagsevent.id
 
         self.session.add(objekt)
