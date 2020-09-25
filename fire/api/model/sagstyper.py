@@ -8,6 +8,8 @@ from fire.api.model import (
     RegisteringFraObjekt,
     DeclarativeBase,
     IntEnum,
+    StringEnum,
+    Boolean,
 )
 
 
@@ -35,7 +37,7 @@ class Sag(RegisteringFraObjekt):
 
     @property
     def aktiv(self) -> bool:
-        return self.sagsinfos[-1].aktiv != "false"
+        return self.sagsinfos[-1].aktiv == Boolean.TRUE
 
     @property
     def journalnummer(self) -> str:
@@ -54,7 +56,7 @@ class Sag(RegisteringFraObjekt):
 
 class Sagsinfo(RegisteringTidObjekt):
     __tablename__ = "sagsinfo"
-    aktiv = Column(String(5), nullable=False)
+    aktiv = Column(StringEnum(Boolean), nullable=False, default=Boolean.TRUE)
     journalnummer = Column(String)
     behandler = Column(String, nullable=False)
     beskrivelse = Column(String)

@@ -17,7 +17,10 @@ class BetterBehavedEnum(sqlalchemy.types.TypeDecorator):
         self._enumtype = enumtype
 
     def process_bind_param(self, value, dialect):
-        return value.value
+        try:
+            return value.value
+        except AttributeError:
+            return value
 
     def process_result_value(self, value, dialect):
         return self._enumtype(value)
