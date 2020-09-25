@@ -17,6 +17,7 @@ from fire.api.model import (
     Srid,
     PunktInformationType,
     PunktInformationTypeAnvendelse,
+    Boolean,
 )
 
 
@@ -67,7 +68,7 @@ def dummydb():
 @pytest.fixture()
 def sag(firedb):
     s0 = Sag()
-    si0 = Sagsinfo(sag=s0, aktiv="true", behandler="yyy")
+    si0 = Sagsinfo(sag=s0, aktiv=Boolean.TRUE, behandler="yyy")
     firedb.session.add(si0)
     firedb.session.add(s0)
     firedb.session.flush()
