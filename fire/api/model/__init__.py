@@ -39,20 +39,17 @@ class ReprBase(object):
     """
     Udvid SQLAlchemys Base klasse.
 
-    Giver pænere repr() output. Fundet på SQLAlchemys wiki.
+    Giver pænere repr() output. Modificeret fra StackOverflow:
+    https://stackoverflow.com/a/54034962
     """
 
     def __repr__(self):
-        return "%s(%s)" % (
-            (self.__class__.__name__),
-            ", ".join(
-                [
-                    "%s=%r" % (key, getattr(self, key))
-                    for key in sorted(self.__dict__.keys())
-                    if not key.startswith("_")
-                ]
-            ),
+        class_ = self.__class__.__name__
+        attrs = sorted(
+            (col.name, getattr(self, col.name)) for col in self.__table__.columns
         )
+        sattrs = ", ".join("{}={!r}".format(*x) for x in attrs)
+        return f"{class_}({sattrs})"
 
 
 # base class for SQLAlchemy declarative models. Inherits ReprBase to get nicer __repr__ behaviour

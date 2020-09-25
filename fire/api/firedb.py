@@ -15,6 +15,7 @@ from fire.api.model import (
     RegisteringTidObjekt,
     FikspunktregisterObjekt,
     Punkt,
+    Koordinat,
     PunktInformation,
     PunktInformationType,
     GeometriObjekt,
@@ -203,6 +204,63 @@ class FireDb(object):
             punktinfo.append(pi)
 
         return punktinfo
+
+    def fejlmeld_koordinat(self, sagsevent: Sagsevent, koordinat: Koordinat):
+        """
+        Fejlmeld en allerede eksisterende koordinat.
+
+        Hvis koordinaten er den eneste af sin slags på det tilknyttede punkt fejlmeldes
+        og afregistreres den. Hvis koordinaten indgår i en tidsserie sker en af to ting:
+
+        1. Hvis koordinaten forekommer midt i en tidsserie fejlmeldes den uden videre.
+        2. Hvis koordinaten er den seneste i tidsserien fejlmeldes den, den foregående
+           koordinat fejlmeldes og en ny koordinat indsættes med den foregåendes værdier.
+           Denne fremgangsmåde sikrer at der er en aktuel og gyldig koordinat, samt at
+           den samme koordinat ikke fremtræder to gange i en tidsserie.
+        """
+        punkt = koordinat.punkt
+        srid = koordinat.srid
+        ny_koordinat = None
+
+        if len(punkt.koordinater) == 1:
+            self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
+
+        # Er koordinaten den sidste i tidsserien?
+        if koordinat.registreringtil is None:
+            # Find seneste ikke-fejlmeldte koordinat så den
+            # bruges som den seneste gyldige koordinat
+            for forrige_koordinat in reversed(punkt.koordinater[0:-1]):
+                if forrige_koordinat.srid != srid:
+                    continue
+                if not forrige_koordinat.fejlmeldt:
+                    break
+
+            if not forrige_koordinat.fejlmeldt:
+                ny_koordinat = Koordinat(
+                    punktid=forrige_koordinat.punktid,
+                    sridid=forrige_koordinat.sridid,
+                    x=forrige_koordinat.x,
+                    y=forrige_koordinat.y,
+                    z=forrige_koordinat.z,
+                    t=forrige_koordinat.t,
+                    sx=forrige_koordinat.sx,
+                    sy=forrige_koordinat.sy,
+                    sz=forrige_koordinat.sz,
+                    transformeret=forrige_koordinat.transformeret,
+                    artskode=forrige_koordinat.artskode,
+                    _registreringfra=func.sysdate(),
+                )
+
+                sagsevent.koordinater = [ny_koordinat]
+
+                self.session.add(sagsevent)
+
+        koordinat.fejlmeldt = True
+        if ny_koordinat:
+            koordinat._registreringtil = ny_koordinat._registreringfra
+
+        self.session.add(koordinat)
+        self.session.commit()
 
     @property
     def basedir_skitser(self):
