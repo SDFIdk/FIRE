@@ -85,8 +85,8 @@ def hent_punkter(self, ident: str) -> List[Punkt]:
                 PunktInformationType.name.startswith("IDENT:"),
                 or_(
                     PunktInformation.tekst == ident,
-                    PunktInformation.tekst.like(f"FO  %{ident}"),
-                    PunktInformation.tekst.like(f"GL  %{ident}"),
+                    PunktInformation.tekst == f"FO  {ident}",
+                    PunktInformation.tekst == f"GL  {ident}",
                 ),
                 Punkt._registreringtil == None,  # NOQA
             )

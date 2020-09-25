@@ -6,6 +6,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
 from fire.cli import firedb
+from fire.cli.utils import klargør_ident_til_søgning
 from . import søg
 
 
@@ -29,6 +30,7 @@ def punkt(ident: str, antal: int, **kwargs):
 
     Antallet af søgeresultater begrænses som standard til 20.
     """
+    ident = klargør_ident_til_søgning(ident)
     if "%" not in ident:
         ident = f"%{ident}%"
 
