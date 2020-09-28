@@ -1,10 +1,16 @@
-CREATE TABLE BEREGNING (
+-----------------------------------------------------------------------------------------
+--                                TABLE CREATION
+-----------------------------------------------------------------------------------------
 
-   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
-   REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
-   REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
-   SAGSEVENTFRAID VARCHAR2(36) NOT NULL,
-   SAGSEVENTTILID VARCHAR2(36)
+CREATE TABLE BEREGNING (
+  OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (
+    START WITH
+      1 INCREMENT BY 1 ORDER NOCACHE
+  ) PRIMARY KEY,
+  REGISTRERINGFRA TIMESTAMP WITH TIME ZONE NOT NULL,
+  REGISTRERINGTIL TIMESTAMP WITH TIME ZONE,
+  SAGSEVENTFRAID VARCHAR2(36) NOT NULL,
+  SAGSEVENTTILID VARCHAR2(36)
 );
 
 CREATE TABLE BEREGNING_KOORDINAT (
@@ -39,12 +45,15 @@ CREATE TABLE GEOMETRIOBJEKT (
    GEOMETRI SDO_GEOMETRY NOT NULL,
    PUNKTID VARCHAR2(36) NOT NULL
 );
+INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID) VALUES ('GEOMETRIOBJEKT', 'GEOMETRI', MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('Longitude', -180.0000, 180.0000, 0.005), MDSYS.SDO_DIM_ELEMENT('Latitude', -90.0000, 90.0000, 0.005)), 4326);
 
 CREATE TABLE HERREDSOGN (
   OBJEKTID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1 ORDER NOCACHE) PRIMARY KEY,
   KODE VARCHAR2(6) NOT NULL,
   GEOMETRI SDO_GEOMETRY NOT NULL
 );
+INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID) VALUES ('HERREDSOGN', 'GEOMETRI', MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('Longitude', -180.0000, 180.0000, 0.005), MDSYS.SDO_DIM_ELEMENT('Latitude', -90.0000, 90.0000, 0.005)), 4326);
+
 
 CREATE TABLE KOORDINAT (
 
@@ -227,6 +236,10 @@ CREATE TABLE SRIDTYPE (
    BESKRIVELSE VARCHAR2(4000) NOT NULL
 );
 
+-----------------------------------------------------------------------------------------
+--                                  CONSTRAINTS & INDEX
+-----------------------------------------------------------------------------------------
+
 
 ALTER TABLE KOORDINAT ADD CONSTRAINT CK_KOORDINAT_TRANSFORMER248 CHECK (TRANSFORMERET IN ('true', 'false'));
 ALTER TABLE KOORDINAT ADD CONSTRAINT CK_KOORDINAT_FEJLMELDT CHECK (FEJLMELDT IN ('true', 'false'));
@@ -234,160 +247,12 @@ ALTER TABLE OBSERVATIONSTYPE ADD CONSTRAINT CK_OBSERVATION_SIGTEPUNKT085 CHECK (
 ALTER TABLE PUNKTINFOTYPE ADD CONSTRAINT CK_PUNKTINFOTY_ANVENDELSE138 CHECK (ANVENDELSE IN ('FLAG', 'TAL', 'TEKST'));
 ALTER TABLE SAGSINFO ADD CONSTRAINT CK_SAGSINFO_AKTIV060 CHECK (AKTIV IN ('true', 'false'));
 
-INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID) VALUES ('GEOMETRIOBJEKT', 'GEOMETRI', MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('Longitude', -180.0000, 180.0000, 0.005), MDSYS.SDO_DIM_ELEMENT('Latitude', -90.0000, 90.0000, 0.005)), 4326);
-INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID) VALUES ('HERREDSOGN', 'GEOMETRI', MDSYS.SDO_DIM_ARRAY(MDSYS.SDO_DIM_ELEMENT('Longitude', -180.0000, 180.0000, 0.005), MDSYS.SDO_DIM_ELEMENT('Latitude', -90.0000, 90.0000, 0.005)), 4326);
+
 
 CREATE INDEX IDX_GEOMETRIOBJEKT_GEOMETRI ON GEOMETRIOBJEKT (GEOMETRI) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
 CREATE INDEX IDX_HERREDSOGN_GEOMETRI ON HERREDSOGN (GEOMETRI) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS ('layer_gtype=polygon');
 
-COMMENT ON TABLE BEREGNING IS 'Sammenknytter beregnede koordinater med de anvendte observationer.';
-COMMENT ON COLUMN BEREGNING.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN BEREGNING.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN BEREGNING.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
-COMMENT ON COLUMN BEREGNING.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
-COMMENT ON COLUMN BEREGNING_KOORDINAT.KOORDINATOBJEKTID IS 'Udpegning af de koordinater der er indgået i en beregning.';
-COMMENT ON COLUMN BEREGNING_OBSERVATION.OBSERVATIONOBJEKTID IS 'Udpegning af de observationer der er brugt i en beregning.';
-COMMENT ON TABLE EVENTTYPE IS 'Objekt til at holde en liste over lovlige typer af events i fikspunktsforvaltningssystemet, samt en beskrivelse hvad eventtypen dækker over.';
-COMMENT ON COLUMN EVENTTYPE.BESKRIVELSE IS 'Kort beskrivelse af en eventtype.';
-COMMENT ON COLUMN EVENTTYPE.EVENT IS 'Navngivning af en eventtype.';
-COMMENT ON COLUMN EVENTTYPE.EVENTTYPEID IS 'Identifikation af typen af en sagsevent.';
-COMMENT ON TABLE GEOMETRIOBJEKT IS 'Objekt indeholdende et punkts placeringsgeometri.';
-COMMENT ON COLUMN GEOMETRIOBJEKT.GEOMETRI IS 'Geometri til brug for visning i f.eks et GIS system.';
-COMMENT ON COLUMN GEOMETRIOBJEKT.PUNKTID IS 'Punkt som har en placeringsgeometri tilknyttet.';
-COMMENT ON COLUMN GEOMETRIOBJEKT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN GEOMETRIOBJEKT.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN GEOMETRIOBJEKT.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
-COMMENT ON COLUMN GEOMETRIOBJEKT.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
-COMMENT ON TABLE KOORDINAT IS 'Generisk 4D koordinat.';
-COMMENT ON COLUMN KOORDINAT.PUNKTID IS 'Punkt som koordinaten hører til.';
-COMMENT ON COLUMN KOORDINAT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN KOORDINAT.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN KOORDINAT.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
-COMMENT ON COLUMN KOORDINAT.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
-COMMENT ON COLUMN KOORDINAT.SRIDID IS 'Unik ID i fikspunktsforvaltningssystemet for et et koordinatsystem.';
-COMMENT ON COLUMN KOORDINAT.SX IS 'A posteriori spredning på førstekoordinaten.';
-COMMENT ON COLUMN KOORDINAT.SY IS 'A posteriori spredning på andenkoordinaten.';
-COMMENT ON COLUMN KOORDINAT.SZ IS 'A posteriori spredning på tredjekoordinaten.';
-COMMENT ON COLUMN KOORDINAT.T IS 'Observationstidspunktet.';
-COMMENT ON COLUMN KOORDINAT.FEJLMELDT IS 'Markering af at en koordinat er udgået fordi den er fejlbehæftet';
-COMMENT ON COLUMN KOORDINAT.TRANSFORMERET IS 'Angivelse om positionen er målt, eller transformeret fra et andet koordinatsystem';
-COMMENT ON COLUMN KOORDINAT.ARTSKODE IS 'Fra REFGEO. Værdierne skal forstås som følger:
 
- artskode = 1 control point in fundamental network, first order.
- artskode = 2 control point in superior plane network.
- artskode = 2 control point in superior height network.
- artskode = 3 control point in network of high quality.
- artskode = 4 control point in network of lower or unknown quality.
- artskode = 5 coordinate computed on just a few measurements.
- artskode = 6 coordinate transformed from local or an not valid coordinate system.
- artskode = 7 coordinate computed on an not valid coordinate system, or system of unknown origin.
- artskode = 8 coordinate computed on few measurements, and on an not valid coordinate system.
- artskode = 9 location coordinate or location height.
-
- Artskode er kun tilgængelig for koordinater der stammer fra REFGEO.';
-COMMENT ON COLUMN KOORDINAT.X IS 'Førstekoordinat.';
-COMMENT ON COLUMN KOORDINAT.Y IS 'Andenkoordinat.';
-COMMENT ON COLUMN KOORDINAT.Z IS 'Tredjekoordinat.';
-COMMENT ON TABLE OBSERVATION IS 'Generisk observationsobjekt indeholdende informationer om en observation.';
-COMMENT ON COLUMN OBSERVATION.ANTAL IS 'Antal gentagne observationer hvoraf en middelobservationen er fremkommet.';
-COMMENT ON COLUMN OBSERVATION.GRUPPE IS 'ID der angiver observationsgruppen for en observation der indgår i en gruppe.';
-COMMENT ON COLUMN OBSERVATION.OBSERVATIONSTIDSPUNKT IS 'Tidspunktet hvor observationen er foretaget';
-COMMENT ON COLUMN OBSERVATION.OBSERVATIONSTYPEID IS 'Identifikation af en observations type.';
-COMMENT ON COLUMN OBSERVATION.OPSTILLINGSPUNKTID IS 'Udpegning af det punkt der er anvendt ved opstilling ved en observation.';
-COMMENT ON COLUMN OBSERVATION.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN OBSERVATION.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN OBSERVATION.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
-COMMENT ON COLUMN OBSERVATION.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
-COMMENT ON COLUMN OBSERVATION.SIGTEPUNKTID IS 'Udpegning af punkt der er sigtet til ved en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE1 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE10 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE11 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE12 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE13 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE14 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE15 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE2 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE3 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE4 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE5 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE6 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE7 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE8 IS 'En værdi for en observation.';
-COMMENT ON COLUMN OBSERVATION.VALUE9 IS 'En værdi for en observation.';
-COMMENT ON TABLE OBSERVATIONSTYPE IS 'Objekttype til beskrivelse af hvorledes en Observation skal læses, ud fra typen af observation.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.BESKRIVELSE IS 'Overordnet beskrivelse af denne observationstype.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.OBSERVATIONSTYPE IS 'Kortnavn for observationstypen, fx dH';
-COMMENT ON COLUMN OBSERVATIONSTYPE.OBSERVATIONSTYPEID IS 'Identifikation af observationenst type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.SIGTEPUNKT IS 'Indikator for om Sigtepunkt anvendes for denne observationstype.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE1 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE10 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE11 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE12 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE13 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE14 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE15 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE2 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE3 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE4 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE5 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE6 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE7 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE8 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE9 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
-COMMENT ON TABLE PUNKT IS 'Abstrakt repræsentation af et fysisk punkt. Knytter alle punktinformationer sammen.';
-COMMENT ON COLUMN PUNKT.ID IS 'Persistent unik nøgle.';
-COMMENT ON COLUMN PUNKT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN PUNKT.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN PUNKT.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
-COMMENT ON COLUMN PUNKT.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
-COMMENT ON TABLE PUNKTINFO IS 'Generisk information om et punkt.';
-COMMENT ON COLUMN PUNKTINFO.INFOTYPEID IS 'Unik ID for typen af Punktinfo.';
-COMMENT ON COLUMN PUNKTINFO.PUNKTID IS 'Punktet som punktinfo er holder information om.';
-COMMENT ON COLUMN PUNKTINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN PUNKTINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN PUNKTINFO.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
-COMMENT ON COLUMN PUNKTINFO.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
-COMMENT ON COLUMN PUNKTINFO.TAL IS 'Værdien for numeriske informationselementer';
-COMMENT ON COLUMN PUNKTINFO.TEKST IS 'Værdien for tekstinformationselementer';
-COMMENT ON TABLE PUNKTINFOTYPE IS 'Udfaldsrum for punktinforobjekter med definition af hvordan PunktInfo skal læses og beskrivelse af typen af punktinfo.';
-COMMENT ON COLUMN PUNKTINFOTYPE.ANVENDELSE IS 'Er det reelTal, tekst, eller ingen af disse, der angiver værdien';
-COMMENT ON COLUMN PUNKTINFOTYPE.BESKRIVELSE IS 'Beskrivelse af denne informationstypes art.';
-COMMENT ON COLUMN PUNKTINFOTYPE.INFOTYPE IS 'Arten af dette informationselement';
-COMMENT ON COLUMN PUNKTINFOTYPE.INFOTYPEID IS 'Unik ID for typen af Punktinfo.';
-COMMENT ON TABLE SAG IS 'Samling af administrativt relaterede sagshændelser.';
-COMMENT ON COLUMN SAG.ID IS 'Persistent unik nøgle.';
-COMMENT ON COLUMN SAG.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON TABLE SAGSEVENT IS 'Udvikling i sag som kan, men ikke behøver, medføre opdateringer af fikspunktregisterobjekter.';
-COMMENT ON COLUMN SAGSEVENT.EVENTTYPEID IS 'Identifikation af typen af en sagsevent.';
-COMMENT ON COLUMN SAGSEVENT.ID IS 'Persistent unik nøgle.';
-COMMENT ON COLUMN SAGSEVENT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN SAGSEVENT.SAGSID IS 'Udpegning af den sag i fikspunktsforvalningssystemet som en event er foretaget i.';
-COMMENT ON TABLE SAGSEVENTINFO IS 'Informationer der knytter sig til en et sagsevent.';
-COMMENT ON COLUMN SAGSEVENTINFO.BESKRIVELSE IS 'Specifik beskrivelse af den aktuelle fremdrift.';
-COMMENT ON COLUMN SAGSEVENTINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN SAGSEVENTINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN SAGSEVENTINFO.SAGSEVENTID IS 'Den sagsevent som sagseventinfo har information om.';
-COMMENT ON COLUMN SAGSEVENTINFO_HTML.HTML IS 'Generisk operatørlæsbart orienterende rapportmateriale.';
-COMMENT ON TABLE SAGSEVENTINFO_MATERIALE IS 'Eksternt placeret materiale knyttet til en event';
-COMMENT ON COLUMN SAGSEVENTINFO_MATERIALE.MD5SUM IS 'Sum brugt til at kontrollere materialets integritet.';
-COMMENT ON COLUMN SAGSEVENTINFO_MATERIALE.STI IS 'Placering af materialet.';
-COMMENT ON TABLE SAGSINFO IS 'Samling af administrativt relaterede sagshændelser.';
-COMMENT ON COLUMN SAGSINFO.AKTIV IS 'Markerer om sagen er åben eller lukket.';
-COMMENT ON COLUMN SAGSINFO.BEHANDLER IS 'Angivelse af en sagsbehandler.';
-COMMENT ON COLUMN SAGSINFO.BESKRIVELSE IS 'Kort beskrivelse af en fikspunktssag.';
-COMMENT ON COLUMN SAGSINFO.JOURNALNUMMER IS 'Sagsmappeidentifikation i opmålings- og beregningssagsregistret.';
-COMMENT ON COLUMN SAGSINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
-COMMENT ON COLUMN SAGSINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
-COMMENT ON COLUMN SAGSINFO.SAGSID IS 'Den sag som sagsinfo holder information for.';
-COMMENT ON TABLE SRIDTYPE IS 'Udfaldsrum for SRID-koordinatbeskrivelser.';
-COMMENT ON COLUMN SRIDTYPE.BESKRIVELSE IS 'Generel beskrivelse af systemet.';
-COMMENT ON COLUMN SRIDTYPE.SRID IS 'Den egentlige referencesystemindikator.';
-COMMENT ON COLUMN SRIDTYPE.SRIDID IS 'Unik ID i fikspunktsforvaltningssystemet for et et koordinatsystem.';
-COMMENT ON COLUMN SRIDTYPE.X IS 'Beskrivelse af x-koordinatens indhold';
-COMMENT ON COLUMN SRIDTYPE.Y IS 'Beskrivelse af y-koordinatens indhold.';
-COMMENT ON COLUMN SRIDTYPE.Z IS 'Beskrivelse af z-koordinatens indhold.';
-
--- Constraints og triggers ikke defineret i modellen
 -- Constraint der tjekker at PUNKTID eksisterer i PUNKT tabellen inden en række
 -- sættes ind i KOORDINAT-, OBSERVATION- og PUNKTINFO-tabellen
 CREATE UNIQUE INDEX ID_IDX_0001 ON PUNKT (ID);
@@ -584,6 +449,163 @@ FOREIGN KEY (SAGSEVENTID)
 REFERENCES SAGSEVENT (ID)
 ENABLE VALIDATE);
 
+
+-----------------------------------------------------------------------------------------
+--                                     COMMENTS
+-----------------------------------------------------------------------------------------
+
+
+COMMENT ON TABLE BEREGNING IS 'Sammenknytter beregnede koordinater med de anvendte observationer.';
+COMMENT ON COLUMN BEREGNING.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN BEREGNING.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+COMMENT ON COLUMN BEREGNING.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
+COMMENT ON COLUMN BEREGNING.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
+COMMENT ON COLUMN BEREGNING_KOORDINAT.KOORDINATOBJEKTID IS 'Udpegning af de koordinater der er indgået i en beregning.';
+COMMENT ON COLUMN BEREGNING_OBSERVATION.OBSERVATIONOBJEKTID IS 'Udpegning af de observationer der er brugt i en beregning.';
+COMMENT ON TABLE EVENTTYPE IS 'Objekt til at holde en liste over lovlige typer af events i fikspunktsforvaltningssystemet, samt en beskrivelse hvad eventtypen dækker over.';
+COMMENT ON COLUMN EVENTTYPE.BESKRIVELSE IS 'Kort beskrivelse af en eventtype.';
+COMMENT ON COLUMN EVENTTYPE.EVENT IS 'Navngivning af en eventtype.';
+COMMENT ON COLUMN EVENTTYPE.EVENTTYPEID IS 'Identifikation af typen af en sagsevent.';
+COMMENT ON TABLE GEOMETRIOBJEKT IS 'Objekt indeholdende et punkts placeringsgeometri.';
+COMMENT ON COLUMN GEOMETRIOBJEKT.GEOMETRI IS 'Geometri til brug for visning i f.eks et GIS system.';
+COMMENT ON COLUMN GEOMETRIOBJEKT.PUNKTID IS 'Punkt som har en placeringsgeometri tilknyttet.';
+COMMENT ON COLUMN GEOMETRIOBJEKT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN GEOMETRIOBJEKT.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+COMMENT ON COLUMN GEOMETRIOBJEKT.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
+COMMENT ON COLUMN GEOMETRIOBJEKT.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
+COMMENT ON TABLE KOORDINAT IS 'Generisk 4D koordinat.';
+COMMENT ON COLUMN KOORDINAT.PUNKTID IS 'Punkt som koordinaten hører til.';
+COMMENT ON COLUMN KOORDINAT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN KOORDINAT.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+COMMENT ON COLUMN KOORDINAT.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
+COMMENT ON COLUMN KOORDINAT.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
+COMMENT ON COLUMN KOORDINAT.SRIDID IS 'Unik ID i fikspunktsforvaltningssystemet for et et koordinatsystem.';
+COMMENT ON COLUMN KOORDINAT.SX IS 'A posteriori spredning på førstekoordinaten.';
+COMMENT ON COLUMN KOORDINAT.SY IS 'A posteriori spredning på andenkoordinaten.';
+COMMENT ON COLUMN KOORDINAT.SZ IS 'A posteriori spredning på tredjekoordinaten.';
+COMMENT ON COLUMN KOORDINAT.T IS 'Observationstidspunktet.';
+COMMENT ON COLUMN KOORDINAT.FEJLMELDT IS 'Markering af at en koordinat er udgået fordi den er fejlbehæftet';
+COMMENT ON COLUMN KOORDINAT.TRANSFORMERET IS 'Angivelse om positionen er målt, eller transformeret fra et andet koordinatsystem';
+COMMENT ON COLUMN KOORDINAT.ARTSKODE IS 'Fra REFGEO. Værdierne skal forstås som følger:
+
+ artskode = 1 control point in fundamental network, first order.
+ artskode = 2 control point in superior plane network.
+ artskode = 2 control point in superior height network.
+ artskode = 3 control point in network of high quality.
+ artskode = 4 control point in network of lower or unknown quality.
+ artskode = 5 coordinate computed on just a few measurements.
+ artskode = 6 coordinate transformed from local or an not valid coordinate system.
+ artskode = 7 coordinate computed on an not valid coordinate system, or system of unknown origin.
+ artskode = 8 coordinate computed on few measurements, and on an not valid coordinate system.
+ artskode = 9 location coordinate or location height.
+
+ Artskode er kun tilgængelig for koordinater der stammer fra REFGEO.';
+COMMENT ON COLUMN KOORDINAT.X IS 'Førstekoordinat.';
+COMMENT ON COLUMN KOORDINAT.Y IS 'Andenkoordinat.';
+COMMENT ON COLUMN KOORDINAT.Z IS 'Tredjekoordinat.';
+COMMENT ON TABLE OBSERVATION IS 'Generisk observationsobjekt indeholdende informationer om en observation.';
+COMMENT ON COLUMN OBSERVATION.ANTAL IS 'Antal gentagne observationer hvoraf en middelobservationen er fremkommet.';
+COMMENT ON COLUMN OBSERVATION.GRUPPE IS 'ID der angiver observationsgruppen for en observation der indgår i en gruppe.';
+COMMENT ON COLUMN OBSERVATION.OBSERVATIONSTIDSPUNKT IS 'Tidspunktet hvor observationen er foretaget';
+COMMENT ON COLUMN OBSERVATION.OBSERVATIONSTYPEID IS 'Identifikation af en observations type.';
+COMMENT ON COLUMN OBSERVATION.OPSTILLINGSPUNKTID IS 'Udpegning af det punkt der er anvendt ved opstilling ved en observation.';
+COMMENT ON COLUMN OBSERVATION.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN OBSERVATION.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+COMMENT ON COLUMN OBSERVATION.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
+COMMENT ON COLUMN OBSERVATION.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
+COMMENT ON COLUMN OBSERVATION.SIGTEPUNKTID IS 'Udpegning af punkt der er sigtet til ved en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE1 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE10 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE11 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE12 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE13 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE14 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE15 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE2 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE3 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE4 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE5 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE6 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE7 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE8 IS 'En værdi for en observation.';
+COMMENT ON COLUMN OBSERVATION.VALUE9 IS 'En værdi for en observation.';
+COMMENT ON TABLE OBSERVATIONSTYPE IS 'Objekttype til beskrivelse af hvorledes en Observation skal læses, ud fra typen af observation.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.BESKRIVELSE IS 'Overordnet beskrivelse af denne observationstype.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.OBSERVATIONSTYPE IS 'Kortnavn for observationstypen, fx dH';
+COMMENT ON COLUMN OBSERVATIONSTYPE.OBSERVATIONSTYPEID IS 'Identifikation af observationenst type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.SIGTEPUNKT IS 'Indikator for om Sigtepunkt anvendes for denne observationstype.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE1 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE10 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE11 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE12 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE13 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE14 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE15 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE2 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE3 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE4 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE5 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE6 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE7 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE8 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON COLUMN OBSERVATIONSTYPE.VALUE9 IS 'Beskrivelse af en observations værdis betydning for afhænging af observationens type.';
+COMMENT ON TABLE PUNKT IS 'Abstrakt repræsentation af et fysisk punkt. Knytter alle punktinformationer sammen.';
+COMMENT ON COLUMN PUNKT.ID IS 'Persistent unik nøgle.';
+COMMENT ON COLUMN PUNKT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN PUNKT.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+COMMENT ON COLUMN PUNKT.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
+COMMENT ON COLUMN PUNKT.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
+COMMENT ON TABLE PUNKTINFO IS 'Generisk information om et punkt.';
+COMMENT ON COLUMN PUNKTINFO.INFOTYPEID IS 'Unik ID for typen af Punktinfo.';
+COMMENT ON COLUMN PUNKTINFO.PUNKTID IS 'Punktet som punktinfo er holder information om.';
+COMMENT ON COLUMN PUNKTINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN PUNKTINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+COMMENT ON COLUMN PUNKTINFO.SAGSEVENTFRAID IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
+COMMENT ON COLUMN PUNKTINFO.SAGSEVENTTILID IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
+COMMENT ON COLUMN PUNKTINFO.TAL IS 'Værdien for numeriske informationselementer';
+COMMENT ON COLUMN PUNKTINFO.TEKST IS 'Værdien for tekstinformationselementer';
+COMMENT ON TABLE PUNKTINFOTYPE IS 'Udfaldsrum for punktinforobjekter med definition af hvordan PunktInfo skal læses og beskrivelse af typen af punktinfo.';
+COMMENT ON COLUMN PUNKTINFOTYPE.ANVENDELSE IS 'Er det reelTal, tekst, eller ingen af disse, der angiver værdien';
+COMMENT ON COLUMN PUNKTINFOTYPE.BESKRIVELSE IS 'Beskrivelse af denne informationstypes art.';
+COMMENT ON COLUMN PUNKTINFOTYPE.INFOTYPE IS 'Arten af dette informationselement';
+COMMENT ON COLUMN PUNKTINFOTYPE.INFOTYPEID IS 'Unik ID for typen af Punktinfo.';
+COMMENT ON TABLE SAG IS 'Samling af administrativt relaterede sagshændelser.';
+COMMENT ON COLUMN SAG.ID IS 'Persistent unik nøgle.';
+COMMENT ON COLUMN SAG.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON TABLE SAGSEVENT IS 'Udvikling i sag som kan, men ikke behøver, medføre opdateringer af fikspunktregisterobjekter.';
+COMMENT ON COLUMN SAGSEVENT.EVENTTYPEID IS 'Identifikation af typen af en sagsevent.';
+COMMENT ON COLUMN SAGSEVENT.ID IS 'Persistent unik nøgle.';
+COMMENT ON COLUMN SAGSEVENT.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN SAGSEVENT.SAGSID IS 'Udpegning af den sag i fikspunktsforvalningssystemet som en event er foretaget i.';
+COMMENT ON TABLE SAGSEVENTINFO IS 'Informationer der knytter sig til en et sagsevent.';
+COMMENT ON COLUMN SAGSEVENTINFO.BESKRIVELSE IS 'Specifik beskrivelse af den aktuelle fremdrift.';
+COMMENT ON COLUMN SAGSEVENTINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN SAGSEVENTINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+COMMENT ON COLUMN SAGSEVENTINFO.SAGSEVENTID IS 'Den sagsevent som sagseventinfo har information om.';
+COMMENT ON COLUMN SAGSEVENTINFO_HTML.HTML IS 'Generisk operatørlæsbart orienterende rapportmateriale.';
+COMMENT ON TABLE SAGSEVENTINFO_MATERIALE IS 'Eksternt placeret materiale knyttet til en event';
+COMMENT ON COLUMN SAGSEVENTINFO_MATERIALE.MD5SUM IS 'Sum brugt til at kontrollere materialets integritet.';
+COMMENT ON COLUMN SAGSEVENTINFO_MATERIALE.STI IS 'Placering af materialet.';
+COMMENT ON TABLE SAGSINFO IS 'Samling af administrativt relaterede sagshændelser.';
+COMMENT ON COLUMN SAGSINFO.AKTIV IS 'Markerer om sagen er åben eller lukket.';
+COMMENT ON COLUMN SAGSINFO.BEHANDLER IS 'Angivelse af en sagsbehandler.';
+COMMENT ON COLUMN SAGSINFO.BESKRIVELSE IS 'Kort beskrivelse af en fikspunktssag.';
+COMMENT ON COLUMN SAGSINFO.JOURNALNUMMER IS 'Sagsmappeidentifikation i opmålings- og beregningssagsregistret.';
+COMMENT ON COLUMN SAGSINFO.REGISTRERINGFRA IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN SAGSINFO.REGISTRERINGTIL IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+COMMENT ON COLUMN SAGSINFO.SAGSID IS 'Den sag som sagsinfo holder information for.';
+COMMENT ON TABLE SRIDTYPE IS 'Udfaldsrum for SRID-koordinatbeskrivelser.';
+COMMENT ON COLUMN SRIDTYPE.BESKRIVELSE IS 'Generel beskrivelse af systemet.';
+COMMENT ON COLUMN SRIDTYPE.SRID IS 'Den egentlige referencesystemindikator.';
+COMMENT ON COLUMN SRIDTYPE.SRIDID IS 'Unik ID i fikspunktsforvaltningssystemet for et et koordinatsystem.';
+COMMENT ON COLUMN SRIDTYPE.X IS 'Beskrivelse af x-koordinatens indhold';
+COMMENT ON COLUMN SRIDTYPE.Y IS 'Beskrivelse af y-koordinatens indhold.';
+COMMENT ON COLUMN SRIDTYPE.Z IS 'Beskrivelse af z-koordinatens indhold.';
+
+
+-----------------------------------------------------------------------------------------
+--                                      TRIGGERS
+-----------------------------------------------------------------------------------------
 
 -- Triggere der sikrer at kun registreringtil kan opdateres i en tabel
 CREATE OR REPLACE TRIGGER AUD#BEREGNING
@@ -1130,14 +1152,14 @@ END IF;
 END;
 /
 
--------------------------------------------------------------------------------
--- Indhold til observationtype
--------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+--                            PRÆDEFINERET TABELINDHOLD
+-----------------------------------------------------------------------------------------
 
 --
 -- Geometrisk nivellement
 --
-
 INSERT INTO observationstype (
     -- Overordnet beskrivelse
     beskrivelse,
@@ -1184,7 +1206,6 @@ VALUES (
 --
 -- Trigonometrisk nivellement
 --
-
 INSERT INTO observationstype (
     -- Overordnet beskrivelse
     beskrivelse,
