@@ -21,7 +21,7 @@ from fire.api.model import (
 
 def test_afregistrering_koordinat(firedb: FireDb, sag: Sag, punkt: Punkt, srid: Srid):
     """
-    Test trigger BID#KOORDINAT - Automatisk afrestrering af tidligere koordinat.
+    Test trigger koordinat_au_trg - Automatisk afrestrering af tidligere koordinat.
     """
     k1 = Koordinat(
         punkt=punkt,
@@ -62,7 +62,7 @@ def test_afregistrering_koordinat(firedb: FireDb, sag: Sag, punkt: Punkt, srid: 
 
 def test_indlæsning_af_lukket_koordinat(firedb: FireDb, koordinat: Koordinat):
     """
-    Test trigger BID#KOORDINAT.
+    Test trigger koordinat_bi_trg.
 
     Direkte indlæsning af en lukket koordinat er ikke tilladt, tjek at databasen
     brokker sig over det.
@@ -79,7 +79,7 @@ def test_indlæsning_af_lukket_koordinat(firedb: FireDb, koordinat: Koordinat):
 
 def test_indlæsning_af_lukket_punkt(firedb: FireDb, punkt: Punkt):
     """
-    Test trigger BID#PUNKT.
+    Test trigger punkt_bi_trg.
 
     Direkte indlæsning af et lukket punkt er ikke tilladt, tjek at databasen
     brokker sig over det.
@@ -98,7 +98,7 @@ def test_afregistrering_punktinfo(
     firedb: FireDb, sag: Sag, punkt: Punkt, punktinformationtype: PunktInformationType
 ):
     """
-    Test trigger PUNKTINFO_TYPE_VALID_TRG - Automatisk afrestrering af tidligere punktinfo.
+    Test trigger punktinfo_biu_trg - Automatisk afrestrering af tidligere punktinfo.
     """
     p1 = PunktInformation(
         punkt=punkt,
@@ -128,7 +128,7 @@ def test_afregistrering_punktinfo(
 
 def test_afregistrering_sagsinfo(firedb: FireDb, sag: Sag):
     """
-    Test trigger BID#SAGSINFO - Automatisk afrestrering af tidligere sagsinfo.
+    Test trigger sagsinfo_bi_trg - Automatisk afrestrering af tidligere sagsinfo.
     """
     si1 = Sagsinfo(
         sag=sag, behandler="B00001", beskrivelse="Første udgave", aktiv=Boolean.TRUE
@@ -149,7 +149,7 @@ def test_afregistrering_sagsinfo(firedb: FireDb, sag: Sag):
 
 def test_afregistrering_sagseventinfo(firedb: FireDb, sagsevent: Sagsevent):
     """
-    Test trigger BID#SAGSEVENTINFO - Automatisk afrestrering af tidligere sagseventinfo.
+    Test trigger sagseventinfo_bi_trg - Automatisk afrestrering af tidligere sagseventinfo.
     """
     si1 = SagseventInfo(sagsevent=sagsevent, beskrivelse="Første udgave")
 

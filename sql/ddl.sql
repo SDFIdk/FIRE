@@ -316,33 +316,33 @@ CREATE TABLE sridtype (
 ALTER TABLE
   koordinat
 ADD
-  CONSTRAINT ck_koordinat_transformer248 CHECK (transformeret IN ('true', 'false'));
+  CONSTRAINT koordinat_transformeret_chk CHECK (transformeret IN ('true', 'false'));
 
 ALTER TABLE
   koordinat
 ADD
-  CONSTRAINT ck_koordinat_fejlmeldt CHECK (fejlmeldt IN ('true', 'false'));
+  CONSTRAINT koordinat_fejlmeldt_chk CHECK (fejlmeldt IN ('true', 'false'));
 
 ALTER TABLE
   observationstype
 ADD
-  CONSTRAINT ck_observation_sigtepunkt085 CHECK (sigtepunkt IN ('true', 'false'));
+  CONSTRAINT observation_sigtepunkt_chk CHECK (sigtepunkt IN ('true', 'false'));
 
 ALTER TABLE
   punktinfotype
 ADD
-  CONSTRAINT ck_punktinfoty_anvendelse138 CHECK (anvendelse IN ('FLAG', 'TAL', 'TEKST'));
+  CONSTRAINT punktinfotype_anvendelse_chk CHECK (anvendelse IN ('FLAG', 'TAL', 'TEKST'));
 
 ALTER TABLE
   sagsinfo
 ADD
-  CONSTRAINT ck_sagsinfo_aktiv060 CHECK (aktiv IN ('true', 'false'));
+  CONSTRAINT sagsinfo_aktiv_chk CHECK (aktiv IN ('true', 'false'));
 
 -- Constraints der sikrer at namespacedelen er korrekt i PUNKTINFOTYPE
 ALTER TABLE
   punktinfotype
 ADD
-  CONSTRAINT punktinfotype_con_0001 CHECK (
+  CONSTRAINT punktinfotype_namespace_chk CHECK (
     substr(infotype, 1, instr(infotype, ':') -1) IN ('AFM', 'ATTR', 'IDENT', 'NET', 'REGION', 'SKITSE')
   ) ENABLE VALIDATE;
 
@@ -350,79 +350,80 @@ ADD
 ALTER TABLE
   sridtype
 ADD
-  CONSTRAINT ot_srid_0001 CHECK (
+  CONSTRAINT sridtype_namespace_chk CHECK (
     substr(SRID, 1, instr(SRID, ':') -1) IN ('DK', 'EPSG', 'GL', 'TS')
   ) ENABLE VALIDATE;
 
 
 -- Index sikrer at der kun kan indsættes een række i tabellen
-CREATE UNIQUE INDEX only_one_row ON konfiguration ('1');
+CREATE UNIQUE INDEX konfiguration_only_one_row_idx ON konfiguration ('1');
 
 -- Index der skal sikre at der til samme punkt ikke tilføjes en koordinat
 -- med samme SRIDID, hvis denne ikke er afregistreret
-CREATE UNIQUE INDEX koor_uniq_001 ON koordinat (sridid, punktid, registreringtil);
+CREATE UNIQUE INDEX koordinat_uniq_idx ON koordinat (sridid, punktid, registreringtil);
 
 -- Spatiale index
-CREATE INDEX idx_geometriobjekt_geometri ON geometriobjekt (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
-CREATE INDEX idx_herredsogn_geometri ON herredsogn (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS ('layer_gtype=polygon');
+CREATE INDEX geometriobjekt_geometri_idx ON geometriobjekt (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
+CREATE INDEX herredsogn_geometri_idx ON herredsogn (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS ('layer_gtype=polygon');
 
 
 -- Unique index på alle kolonner med ID'er.
-CREATE UNIQUE INDEX id_idx_0001 ON punkt (id);
+CREATE UNIQUE INDEX punkt_id_idx ON punkt (id);
 
 ALTER TABLE
   punkt
 ADD
   (
-    CONSTRAINT punkt_r01 UNIQUE (id) USING INDEX id_idx_0001 ENABLE VALIDATE
+    CONSTRAINT punkt_id_uk UNIQUE (id) USING INDEX punkt_id_idx ENABLE VALIDATE
   );
 
-CREATE UNIQUE INDEX id_idx_0002 ON observation (id);
+CREATE UNIQUE INDEX observation_id_idx ON observation (id);
 
 ALTER TABLE
   observation
 ADD
+
   (
-    CONSTRAINT observation_r02 UNIQUE (id) USING INDEX id_idx_0002 ENABLE VALIDATE
+    CONSTRAINT observation_id_uk UNIQUE (id) USING INDEX observation_id_idx ENABLE VALIDATE
   );
 
-CREATE UNIQUE INDEX sridtype_u01 ON sridtype (sridid);
+CREATE UNIQUE INDEX sridtype_sridid_idx ON sridtype (sridid);
 
 ALTER TABLE
   sridtype
 ADD
-  CONSTRAINT sridtype_u01 UNIQUE (sridid) USING INDEX sridtype_u01 ENABLE VALIDATE;
+  CONSTRAINT sridtype_sridid_uk UNIQUE (sridid) USING INDEX sridtype_sridid_idx ENABLE VALIDATE;
 
-CREATE UNIQUE INDEX eventtype_u01 ON eventtype (eventtypeid);
+CREATE UNIQUE INDEX eventtype_eventtypeid_idx ON eventtype (eventtypeid);
 
 ALTER TABLE
   eventtype
 ADD
-  CONSTRAINT eventtype_u01 UNIQUE (eventtypeid) USING INDEX eventtype_u01 ENABLE VALIDATE;
+  CONSTRAINT eventtype_eventtypeid_uk UNIQUE (eventtypeid) USING INDEX eventtype_eventtypeid_idx ENABLE VALIDATE;
 
-CREATE UNIQUE INDEX punktinfotype_idx_01 ON punktinfotype (infotypeid);
+CREATE UNIQUE INDEX punktinfotype_infotypeid_idx ON punktinfotype (infotypeid);
 
 ALTER TABLE
   punktinfotype
 ADD
-  CONSTRAINT punktinfotype_u01 UNIQUE (infotypeid) USING INDEX punktinfotype_idx_01 ENABLE VALIDATE;
+  CONSTRAINT punktinfotype_infotypeid_uk UNIQUE (infotypeid) USING INDEX punktinfotype_infotypeid_idx ENABLE VALIDATE;
 
-CREATE UNIQUE INDEX observationstype_idx_001 ON observationstype (observationstypeid);
+CREATE UNIQUE INDEX observationstype_obstypeid_idx ON observationstype (observationstypeid);
 
 ALTER TABLE
   observationstype
 ADD
-  CONSTRAINT observationstype_u01 UNIQUE (observationstypeid) USING INDEX observationstype_idx_001 ENABLE VALIDATE;
+  CONSTRAINT observationstype_obstypeid_uk UNIQUE (observationstypeid) USING INDEX observationstype_obstypeid_idx ENABLE VALIDATE;
 
 ALTER TABLE
   sag
 ADD
-  CONSTRAINT sag_u01 UNIQUE (id) ENABLE VALIDATE;
+  CONSTRAINT sag_id_uk UNIQUE (id) ENABLE VALIDATE;
 
 ALTER TABLE
   sagsevent
 ADD
-  CONSTRAINT sagsevent_u01 UNIQUE (id) ENABLE VALIDATE;
+  CONSTRAINT sagsevent_id_uk UNIQUE (id) ENABLE VALIDATE;
 
 
 -- Foreign keys til punktid, sridid og infotypeid, der sikrer at der ikke
@@ -430,84 +431,84 @@ ADD
 ALTER TABLE
   koordinat
 ADD
-  CONSTRAINT koordinat_r01 FOREIGN KEY (sridid) REFERENCES sridtype (sridid) ENABLE VALIDATE;
+  CONSTRAINT koordinat_sridid_fk FOREIGN KEY (sridid) REFERENCES sridtype (sridid) ENABLE VALIDATE;
 
 ALTER TABLE
   koordinat
 ADD
-  CONSTRAINT punktid_con_0001 FOREIGN KEY (punktid) REFERENCES punkt (id) ENABLE VALIDATE;
+  CONSTRAINT koordinat_punktid_fk FOREIGN KEY (punktid) REFERENCES punkt (id) ENABLE VALIDATE;
 
 ALTER TABLE
   observation
 ADD
-  CONSTRAINT Observation_sp_con_0001 FOREIGN KEY (sigtepunktid) REFERENCES punkt (id) ENABLE VALIDATE;
+  CONSTRAINT observation_spunktid_fk FOREIGN KEY (sigtepunktid) REFERENCES punkt (id) ENABLE VALIDATE;
 
 ALTER TABLE
   observation
 ADD
-  CONSTRAINT observation_op1_con_0001 FOREIGN KEY (opstillingspunktid) REFERENCES punkt (id) ENABLE VALIDATE;
+  CONSTRAINT observation_opunktid_fk FOREIGN KEY (opstillingspunktid) REFERENCES punkt (id) ENABLE VALIDATE;
 
 ALTER TABLE
   observation
 ADD
-  CONSTRAINT observation_r01 FOREIGN KEY (observationstypeid) REFERENCES observationstype (observationstypeid) ENABLE VALIDATE;
+  CONSTRAINT observation_obstypeid_fk FOREIGN KEY (observationstypeid) REFERENCES observationstype (observationstypeid) ENABLE VALIDATE;
 
 ALTER TABLE
   punktinfo
 ADD
-  CONSTRAINT punktinfo_con_001 FOREIGN KEY (punktid) REFERENCES punkt (id) ENABLE VALIDATE;
+  CONSTRAINT punktinfo_punktid_fk FOREIGN KEY (punktid) REFERENCES punkt (id) ENABLE VALIDATE;
 
 ALTER TABLE
   punktinfo
 ADD
-  CONSTRAINT punktinfo_r01 FOREIGN KEY (infotypeid) REFERENCES punktinfotype (infotypeid) ENABLE VALIDATE;
+  CONSTRAINT punktinfo_infotypeid_fk FOREIGN KEY (infotypeid) REFERENCES punktinfotype (infotypeid) ENABLE VALIDATE;
 
 ALTER TABLE
   sagsinfo
 ADD
-  CONSTRAINT sagsinfo_r01 FOREIGN KEY (sagsid) REFERENCES sag (id) ENABLE VALIDATE;
+  CONSTRAINT sagsinfo_sagsid_fk FOREIGN KEY (sagsid) REFERENCES sag (id) ENABLE VALIDATE;
 
 ALTER TABLE
   sagsevent
 ADD
-  CONSTRAINT sagsevent_r01 FOREIGN KEY (sagsid) REFERENCES sag (id) ENABLE VALIDATE;
+  CONSTRAINT sagsevent_sagsid_fk FOREIGN KEY (sagsid) REFERENCES sag (id) ENABLE VALIDATE;
 
 ALTER TABLE
   sagsevent
 ADD
-  CONSTRAINT sagsevent_r02 FOREIGN KEY (eventtypeid) REFERENCES eventtype (eventtypeid) ENABLE VALIDATE;
+  CONSTRAINT sagsevent_eventtypeid_fk FOREIGN KEY (eventtypeid) REFERENCES eventtype (eventtypeid) ENABLE VALIDATE;
 
 ALTER TABLE
   sagseventinfo
 ADD
-  CONSTRAINT sagseventinfo_r01 FOREIGN KEY (sagseventid) REFERENCES sagsevent (id) ENABLE VALIDATE;
+  CONSTRAINT sagseventinfo_sagseventid_fk FOREIGN KEY (sagseventid) REFERENCES sagsevent (id) ENABLE VALIDATE;
 
 
 -- Diverse index
 
-CREATE INDEX idx_punktinfo_pid ON punktinfo(punktid);
+CREATE INDEX punktinfo_punktid_idx ON punktinfo(punktid);
 
-CREATE INDEX idx_koordinat_pid ON koordinat(punktid);
+CREATE INDEX koordinat_punktid_idx ON koordinat(punktid);
 
-CREATE INDEX idx_geomobj_pid ON geometriobjekt(punktid);
+CREATE INDEX geometriobjekt_punktid_idx ON geometriobjekt(punktid);
 
-CREATE INDEX idx_observ_opid ON observation(opstillingspunktid);
+CREATE INDEX observation_opunktid_idx ON observation(opstillingspunktid);
 
-CREATE INDEX idx_observ_spid ON observation(sigtepunktid);
+CREATE INDEX observation_spunktid_idx ON observation(sigtepunktid);
 
-CREATE INDEX idx_punktinfotyp_anv ON punktinfotype(anvendelse);
+CREATE INDEX punktinfotype_anvendelse_idx ON punktinfotype(anvendelse);
 
-CREATE INDEX idx_punktinfotyp_typ ON punktinfotype(infotype);
+CREATE INDEX punktinfotype_infotype_idx ON punktinfotype(infotype);
 
 
 --- --  Dette bør lægges på ifm indlæsning fra REFGEO
-CREATE UNIQUE INDEX geomobj_datopid ON geometriobjekt(punktid, registreringfra);
+CREATE UNIQUE INDEX geometriobjekt_unique_idx ON geometriobjekt(punktid, registreringfra);
 
 -- Constraint der tjekker at registreringtil er større end registreringfra
 ALTER TABLE
   beregning
 ADD
-  CONSTRAINT beregning_con_0001 CHECK (
+  CONSTRAINT beregning_registeringtil_ck CHECK (
     nvl(
       registreringtil,
       to_timestamp_tz(
@@ -520,7 +521,7 @@ ADD
 ALTER TABLE
   geometriobjekt
 ADD
-  CONSTRAINT geometriobjekt_con_0001 CHECK (
+  CONSTRAINT geometriobjekt_regtil_ck CHECK (
     nvl(
       registreringtil,
       to_timestamp_tz(
@@ -533,7 +534,7 @@ ADD
 ALTER TABLE
   koordinat
 ADD
-  CONSTRAINT koordinat_con_0001 CHECK (
+  CONSTRAINT koordinat_regtil_ck CHECK (
     nvl(
       registreringtil,
       to_timestamp_tz(
@@ -546,7 +547,7 @@ ADD
 ALTER TABLE
   observation
 ADD
-  CONSTRAINT observation_con_0001 CHECK (
+  CONSTRAINT observation_regtil_ck CHECK (
     nvl(
       registreringtil,
       to_timestamp_tz(
@@ -559,7 +560,7 @@ ADD
 ALTER TABLE
   punkt
 ADD
-  CONSTRAINT punkt_con_0001 CHECK (
+  CONSTRAINT punkt_regtil_ck CHECK (
     nvl(
       registreringtil,
       to_timestamp_tz(
@@ -572,7 +573,7 @@ ADD
 ALTER TABLE
   punktinfo
 ADD
-  CONSTRAINT punktinfo_con_0001 CHECK (
+  CONSTRAINT punktinfo_regtil_ck CHECK (
     nvl(
       registreringtil,
       to_timestamp_tz(
@@ -585,7 +586,7 @@ ADD
 ALTER TABLE
   sagsinfo
 ADD
-  CONSTRAINT sagsinfo_con_0001 CHECK (
+  CONSTRAINT sagsinfo_regtil_ck CHECK (
     nvl(
       registreringtil,
       to_timestamp_tz(
@@ -598,7 +599,7 @@ ADD
 ALTER TABLE
   sagseventinfo
 ADD
-  CONSTRAINT sagseventinfo_con_0001 CHECK (
+  CONSTRAINT sagseventinfo_regtil_ck CHECK (
     nvl(
       registreringtil,
       to_timestamp_tz(
@@ -782,7 +783,7 @@ COMMENT ON COLUMN sridtype.z IS 'Beskrivelse af z-koordinatens indhold.';
 -----------------------------------------------------------------------------------------
 
 -- Triggere der sikrer at kun registreringtil kan opdateres i en tabel
-CREATE OR REPLACE TRIGGER aud#beregning
+CREATE OR REPLACE TRIGGER beregning_au_trg
 AFTER UPDATE ON beregning FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
@@ -800,7 +801,7 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER aud#geometriobjekt
+CREATE OR REPLACE TRIGGER geometriobjekt_au_trg
 AFTER UPDATE ON geometriobjekt FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
@@ -821,7 +822,7 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE TRIGGER aud#koordinat
+CREATE OR REPLACE TRIGGER koordinat_au_trg
 AFTER UPDATE ON koordinat
 FOR EACH ROW
 BEGIN
@@ -884,7 +885,7 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE TRIGGER aud#observation
+CREATE OR REPLACE TRIGGER observation_au_trg
 AFTER UPDATE ON observation
 FOR EACH ROW
 BEGIN
@@ -984,7 +985,7 @@ END;
 
 -- Trigger der sikrer at indeholdet i tabellen KOORDINAT matcher hvad der er
 -- specificeret omkring SRID i SRIDTYPE tabellen
-CREATE OR REPLACE TRIGGER aiu#koordinat
+CREATE OR REPLACE TRIGGER koordinat_aiu_trg
 AFTER INSERT OR UPDATE ON koordinat
 FOR EACH ROW
 DECLARE
@@ -1013,7 +1014,7 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE TRIGGER aud#punkt
+CREATE OR REPLACE TRIGGER punkt_au_trg
 AFTER UPDATE ON punkt
 FOR EACH ROW
 BEGIN
@@ -1036,7 +1037,7 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER aud#sag
+CREATE OR REPLACE TRIGGER sag_bu_trg
 BEFORE UPDATE ON sag
 FOR EACH ROW
 BEGIN
@@ -1055,7 +1056,7 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER aud#sagsevent
+CREATE OR REPLACE TRIGGER sagsevent_au_trg
 AFTER UPDATE ON sagsevent
 FOR EACH ROW
 BEGIN
@@ -1080,7 +1081,7 @@ end;
 
 
 
-CREATE OR REPLACE TRIGGER aud#sagseventinfo
+CREATE OR REPLACE TRIGGER sagseventinfo_bu_trg
 BEFORE UPDATE ON sagseventinfo
 FOR EACH ROW
 BEGIN
@@ -1103,7 +1104,7 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER aud#sagsinfo
+CREATE OR REPLACE TRIGGER sagsinfo_bu_trg
 BEFORE UPDATE ON sagsinfo
 FOR EACH ROW
 BEGIN
@@ -1139,7 +1140,7 @@ END;
 
 
 -- Trigger der sikrer at sageevents kun knyttes til en aktiv sag
-CREATE OR REPLACE TRIGGER aid#sagsevent
+CREATE OR REPLACE TRIGGER sagsevent_ai_trg
 AFTER INSERT ON sagsevent
 FOR EACH ROW
 DECLARE
@@ -1167,7 +1168,7 @@ END;
 
 -- Trigger der skal sikre at inholdet i Observation-tabellen matcher hvad
 -- der er defineret observationstype-tabellen
-CREATE OR REPLACE TRIGGER aid#observation
+CREATE OR REPLACE TRIGGER observation_aiu_trg
 AFTER INSERT OR UPDATE ON observation
 FOR EACH ROW
 DECLARE
@@ -1265,7 +1266,7 @@ END;
 
 -- Sikrer at infotype i PUNKTINFO eksisterer i PUNKTINFOTYPE, og at data i PUNKTINFO matcher definition i PUNKTINFOTYPE
 -- og at tidligere version af punktinfo afregistreres korrekt ved indsættelse af ny
-CREATE OR REPLACE TRIGGER punktinfo_type_valid_trg
+CREATE OR REPLACE TRIGGER punktinfo_biu_trg
 BEFORE INSERT OR UPDATE ON punktinfo
 FOR EACH ROW
 DECLARE
@@ -1327,7 +1328,7 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER bid#punkt
+CREATE OR REPLACE TRIGGER punkt_bi_trg
 BEFORE INSERT ON punkt
 FOR EACH ROW
 DECLARE
@@ -1348,7 +1349,7 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE TRIGGER bid#koordinat
+CREATE OR REPLACE TRIGGER koordinat_bi_trg
 BEFORE INSERT ON koordinat
 FOR EACH ROW
 DECLARE
@@ -1403,7 +1404,7 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE TRIGGER bid#sagsinfo
+CREATE OR REPLACE TRIGGER sagsinfo_bi_trg
 BEFORE INSERT ON sagsinfo
 FOR EACH ROW
 DECLARE
@@ -1439,7 +1440,7 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER bid#sagseventinfo
+CREATE OR REPLACE TRIGGER sagseventinfo_bi_trg
 BEFORE INSERT ON sagseventinfo
 FOR EACH ROW
 DECLARE
