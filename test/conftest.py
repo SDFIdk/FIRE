@@ -119,7 +119,7 @@ def observation(firedb, sagsevent, observationstype, punkt):
     sagsevent.eventtype = EventType.OBSERVATION_INDSAT
     o0 = Observation(
         sagsevent=sagsevent,
-        observationstidspunkt=func.sysdate(),
+        observationstidspunkt=func.current_timestamp(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
         antal=1,
@@ -133,13 +133,13 @@ def observationer(firedb, sagsevent, observationstype, punkt):
     sagsevent.eventtype = EventType.OBSERVATION_INDSAT
     o0 = Observation(
         sagsevent=sagsevent,
-        observationstidspunkt=func.sysdate(),
+        observationstidspunkt=func.current_timestamp(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
     )
     o1 = Observation(
         sagsevent=sagsevent,
-        observationstidspunkt=func.sysdate(),
+        observationstidspunkt=func.current_timestamp(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
     )

@@ -120,6 +120,9 @@ def test_afregistrering_punktinfo(
     firedb.session.add(se)
     firedb.session.commit()
 
+    firedb.session.refresh(p1)
+    firedb.session.refresh(p2)
+
     assert p1.registreringtil == p2.registreringfra
     assert p1.sagseventtilid == p2.sagseventfraid
     assert p2.registreringtil is None
@@ -162,3 +165,18 @@ def test_afregistrering_sagseventinfo(firedb: FireDb, sagsevent: Sagsevent):
 
     assert si1.registreringtil == si2.registreringfra
     assert si2.registreringtil is None
+
+
+def test_timestamps(firedb: FireDb, koordinat: Koordinat):
+    """
+    Test at TIMESTAMPs kan opløse mikrosekunder.
+    """
+
+    timestamp = dt.datetime(2020, 9, 22, 13, 37, 12, 345)
+    koordinat.t = timestamp
+    firedb.session.add(koordinat)
+    firedb.session.commit()
+
+    firedb.session.refresh(koordinat)
+
+    assert koordinat.t == dt.datetime(2020, 9, 22, 13, 37, 12, 345)
