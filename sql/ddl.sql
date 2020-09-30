@@ -512,8 +512,8 @@ ADD
     nvl(
       registreringtil,
       to_timestamp_tz(
-        '31/12/2099 00:00:00.000000 +1:00',
-        'dd/mm/yyyy hh24:mi:ss.ff tzh:tzm'
+        '2099-12-31T00:00.0000000+01:00',
+        'YYYY-MM-DD"t"HH24:MI:SS.FF7TZR'
       )
     ) >= registreringfra
   ) ENABLE VALIDATE;
@@ -525,8 +525,8 @@ ADD
     nvl(
       registreringtil,
       to_timestamp_tz(
-        '31/12/2099 00:00:00.000000 +1:00',
-        'dd/mm/yyyy hh24:mi:ss.ff tzh:tzm'
+        '2099-12-31T00:00.0000000+01:00',
+        'YYYY-MM-DD"t"HH24:MI:SS.FF7TZR'
       )
     ) >= registreringfra
   ) ENABLE VALIDATE;
@@ -538,8 +538,8 @@ ADD
     nvl(
       registreringtil,
       to_timestamp_tz(
-        '31/12/2099 00:00:00.000000 +1:00',
-        'dd/mm/yyyy hh24:mi:ss.ff tzh:tzm'
+        '2099-12-31T00:00.0000000+01:00',
+        'YYYY-MM-DD"t"HH24:MI:SS.FF7TZR'
       )
     ) >= registreringfra
   ) ENABLE VALIDATE;
@@ -551,8 +551,8 @@ ADD
     nvl(
       registreringtil,
       to_timestamp_tz(
-        '31/12/2099 00:00:00.000000 +1:00',
-        'dd/mm/yyyy hh24:mi:ss.ff tzh:tzm'
+        '2099-12-31T00:00.0000000+01:00',
+        'YYYY-MM-DD"t"HH24:MI:SS.FF7TZR'
       )
     ) >= registreringfra
   ) ENABLE VALIDATE;
@@ -564,8 +564,8 @@ ADD
     nvl(
       registreringtil,
       to_timestamp_tz(
-        '31/12/2099 00:00:00.000000 +1:00',
-        'dd/mm/yyyy hh24:mi:ss.ff tzh:tzm'
+        '2099-12-31T00:00.0000000+01:00',
+        'YYYY-MM-DD"t"HH24:MI:SS.FF7TZR'
       )
     ) >= registreringfra
   ) ENABLE VALIDATE;
@@ -577,8 +577,8 @@ ADD
     nvl(
       registreringtil,
       to_timestamp_tz(
-        '31/12/2099 00:00:00.000000 +1:00',
-        'dd/mm/yyyy hh24:mi:ss.ff tzh:tzm'
+        '2099-12-31T00:00.0000000+01:00',
+        'YYYY-MM-DD"t"HH24:MI:SS.FF7TZR'
       )
     ) >= registreringfra
   ) ENABLE VALIDATE;
@@ -590,8 +590,8 @@ ADD
     nvl(
       registreringtil,
       to_timestamp_tz(
-        '31/12/2099 00:00:00.000000 +1:00',
-        'dd/mm/yyyy hh24:mi:ss.ff tzh:tzm'
+        '2099-12-31T00:00.0000000+01:00',
+        'YYYY-MM-DD"t"HH24:MI:SS.FF7TZR'
       )
     ) >= registreringfra
   ) ENABLE VALIDATE;
@@ -603,8 +603,8 @@ ADD
     nvl(
       registreringtil,
       to_timestamp_tz(
-        '31/12/2099 00:00:00.000000 +1:00',
-        'dd/mm/yyyy hh24:mi:ss.ff tzh:tzm'
+        '2099-12-31T00:00.0000000+01:00',
+        'YYYY-MM-DD"t"HH24:MI:SS.FF7TZR'
       )
     ) >= registreringfra
   ) ENABLE VALIDATE;
