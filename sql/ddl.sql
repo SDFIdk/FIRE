@@ -787,15 +787,15 @@ CREATE OR REPLACE TRIGGER beregning_au_trg
 AFTER UPDATE ON beregning FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'beregning.objektid må ikke opdateres ');
   END IF;
 
   IF :new.registreringfra != :old.registreringfra THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'beregning.registreringfra må ikke opdateres ');
   END IF;
 
   IF :new.sagseventfraid != :old.sagseventfraid THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'beregning.sagseventfraid må ikke opdateres ');
   END IF;
 END;
 /
@@ -805,19 +805,19 @@ CREATE OR REPLACE TRIGGER geometriobjekt_au_trg
 AFTER UPDATE ON geometriobjekt FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'geometriobjekt.objektid må ikke opdateres ');
   END IF;
 
   IF :new.registreringfra != :old.registreringfra THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'geometriobjekt.registreringfra må ikke opdateres ');
   END IF;
 
   IF :new.sagseventfraid != :old.sagseventfraid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'geometriobjket.sagseventfraid  må ikke opdateres ');
   END IF;
 
   IF :new.punktid != :old.punktid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'geometriobjekt.punktid må ikke opdateres ');
   END IF;
 END;
 /
@@ -827,59 +827,59 @@ AFTER UPDATE ON koordinat
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.objektid må ikke opdateres ');
   END IF;
 
   IF :new.registreringfra != :old.registreringfra THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.registreringfra må ikke opdateres ');
   END IF;
 
   IF :new.sridid != :old.sridid THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.sridid må ikke opdateres ');
   END IF;
 
   IF :new.sx != :old.sx THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.sx må ikke opdateres ');
   END IF;
 
   IF :new.sy != :old.sy THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.sy må ikke opdateres ');
   END IF;
 
   IF :new.sz != :old.sz THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.sz må ikke opdateres ');
   END IF;
 
   IF :new.t != :old.t THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.t må ikke opdateres ');
   END IF;
 
   IF :new.transformeret != :old.transformeret THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.transformeret må ikke opdateres ');
   END IF;
 
   IF :new.x != :old.x THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.x må ikke opdateres ');
   END IF;
 
   IF :new.y != :old.y THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.y må ikke opdateres ');
   END IF;
 
   IF :new.z != :old.z THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.z må ikke opdateres ');
   END IF;
 
   IF :new.sagseventfraid != :old.sagseventfraid THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.sagseventfraid må ikke opdateres ');
   END IF;
 
   IF :new.punktid != :old.punktid THEN
-    RAISE_APPLICATION_ERROR(-20000, 'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.punktid må ikke opdateres ');
   END IF;
 
   IF :new.fejlmeldt != :old.fejlmeldt AND :new.registreringtil IS NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Registreringtil skal sættes når en koordinat fejlmeldes');
+    RAISE_APPLICATION_ERROR(-20001, 'Registreringtil skal sættes når en koordinat fejlmeldes');
   END IF;
 
 END;
@@ -890,95 +890,95 @@ AFTER UPDATE ON observation
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.objektid må ikke opdateres ');
   END IF;
 
   IF :new.registreringfra != :old.registreringfra THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.registreringfra må ikke opdateres ');
   END IF;
 
   IF :new.antal != :old.antal THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.antal må ikke opdateres ');
   END IF;
 
   IF :new.gruppe != :old.gruppe THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.gruppe må ikke opdateres ');
   END IF;
 
   IF :new.observationstypeid != :old.observationstypeid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.observationstypeid må ikke opdateres ');
   END IF;
 
   IF :new.value1 != :old.value1 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value1 må ikke opdateres ');
   END IF;
 
   IF :new.value2 != :old.value2 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value2 må ikke opdateres ');
   END IF;
 
   IF :new.value3 != :old.value3 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value3 må ikke opdateres ');
   END IF;
 
   IF :new.value4 != :old.value4 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value4 må ikke opdateres ');
   END IF;
 
   IF :new.value5 != :old.value5 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value5 må ikke opdateres ');
   END IF;
 
   IF :new.value6 != :old.value6 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value6 må ikke opdateres ');
   END IF;
 
   IF :new.value7 != :old.value7 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value7 må ikke opdateres ');
   END IF;
 
   IF :new.value8 != :old.value8 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value8 må ikke opdateres ');
   END IF;
 
   IF :new.value9 != :old.value9 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value9 må ikke opdateres ');
   END IF;
 
   IF :new.value10 != :old.value10 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value10 må ikke opdateres ');
   END IF;
 
   IF :new.value11 != :old.value11 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value11 må ikke opdateres ');
   END IF;
 
   IF :new.value12 != :old.value12 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value12 må ikke opdateres ');
   END IF;
 
   IF :new.value13 != :old.value13 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value13 må ikke opdateres ');
   END IF;
 
   IF :new.value14 != :old.value14 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value14 må ikke opdateres ');
   END IF;
 
   IF :new.value15 != :old.value15 THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.value15 må ikke opdateres ');
   END IF;
 
   IF :new.sagseventfraid != :old.sagseventfraid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.sagseventfraid må ikke opdateres ');
   END IF;
 
   IF :new.opstillingspunktid != :old.opstillingspunktid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.opstillingspunktid må ikke opdateres ');
   END IF;
 
   IF :new.sigtepunktid != :old.sigtepunktid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'observation.sigtepunktid må ikke opdateres ');
   END IF;
 END;
 /
@@ -1001,15 +1001,15 @@ BEGIN
     a.sridid = :new.sridid;
 
   IF (:new.x IS NULL OR :new.sx IS NULL) AND valX IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Hverken X eller SX må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Hverken X eller SX må ikke være NULL');
   END IF;
 
   IF (:new.y IS NULL OR :new.sy IS NULL) AND valY IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Hverken Y eller SY må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Hverken Y eller SY må ikke være NULL');
   END IF;
 
   IF (:new.Z IS NULL OR :new.SZ IS NULL) AND valZ IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Hverken Z eller SZ må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Hverken Z eller SZ må ikke være NULL');
   END IF;
 END;
 /
@@ -1019,19 +1019,19 @@ AFTER UPDATE ON punkt
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'punkt.objektid må ikke opdateres ');
   END IF;
 
   IF :new.registreringfra != :old.registreringfra THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'punkt.registreringfra må ikke opdateres ');
   END IF;
 
   IF :new.id != :old.id THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'punkt.id må ikke opdateres ');
   END IF;
 
   IF :new.sagseventfraid != :old.sagseventfraid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'punkt.sagseventfraid må ikke opdateres ');
   END IF;
 END;
 /
@@ -1042,15 +1042,15 @@ BEFORE UPDATE ON sag
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sag.objektid må ikke opdateres ');
   END IF;
 
   IF :new.id != :old.id THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sag.id må ikke opdateres ');
   END IF;
 
   IF :new.registreringfra != :old.registreringfra THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sag.registreringfra må ikke opdateres ');
   END IF;
 END;
 /
@@ -1061,19 +1061,19 @@ AFTER UPDATE ON sagsevent
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(a) ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsevent.objektid må ikke opdateres ');
   END IF;
 
   IF :new.id != :old.id THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(b) ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsevent.id må ikke opdateres ');
   END IF;
 
   IF :new.registreringfra != :old.registreringfra THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(c) ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsevent.registreringfra må ikke opdateres ');
   END IF;
 
   IF :new.sagsid != :old.sagsid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column(d) ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsevent.sagsid må ikke opdateres ');
   END IF;
 
 end;
@@ -1086,19 +1086,19 @@ BEFORE UPDATE ON sagseventinfo
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagseventinfo.objektid må ikke opdateres ');
   END IF;
 
   IF :new.sagseventid != :old.sagseventid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagseventinfo.sagseventid må ikke opdateres ');
   END IF;
 
   IF :new.registreringfra != :old.registreringfra THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagseventinfo.registreringfra må ikke opdateres ');
   END IF;
 
   IF :new.beskrivelse != :old.beskrivelse THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagseventinfo.beskrivelse må ikke opdateres ');
   END IF;
 END;
 /
@@ -1109,31 +1109,31 @@ BEFORE UPDATE ON sagsinfo
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsinfo.objektid må ikke opdateres ');
   END IF;
 
   IF :new.sagsid != :old.sagsid THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsinfo.sagsid må ikke opdateres ');
   END IF;
 
   IF :new.registreringfra != :old.registreringfra THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsinfo.registreringfra må ikke opdateres ');
   END IF;
 
   IF :new.aktiv != :old.aktiv THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsinfo.aktiv må ikke opdateres ');
   END IF;
 
   IF :new.journalnummer != :old.journalnummer THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsinfo.journalnummer må ikke opdateres ');
   END IF;
 
   IF :new.behandler != :old.behandler THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsinfo.behandler må ikke opdateres ');
   END IF;
 
   IF :new.beskrivelse != :old.beskrivelse THEN
-    RAISE_APPLICATION_ERROR(-20000,'You cannot update this column ');
+    RAISE_APPLICATION_ERROR(-20000,'sagsinfo.beskrivelse må ikke opdateres ');
   END IF;
 END;
 /
@@ -1160,7 +1160,7 @@ BEGIN
   END;
 
   IF cnt = 0 THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Ingen aktiv sag fundet paa sagsid ' || :new.sagsid);
+    RAISE_APPLICATION_ERROR(-20003, 'Ingen aktiv sag fundet paa sagsid ' || :new.sagsid);
   END IF;
 END;
 /
@@ -1202,63 +1202,63 @@ BEGIN
     a.observationstypeid = :new.observationstypeid;
 
   IF :new.value1 IS NULL AND val1 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value1 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value1 må ikke være NULL');
   END IF;
 
   IF :new.value2 IS NULL AND val2 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value2 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value2 må ikke være NULL');
   END IF;
 
   IF :new.value3 IS NULL AND val3 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value3 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value3 må ikke være NULL');
   END IF;
 
   IF :new.value4 IS NULL AND val4 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value4 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value4 må ikke være NULL');
   END IF;
 
   IF :new.value5 IS NULL AND val5 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value5 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value5 må ikke være NULL');
   END IF;
 
   IF :new.value6 IS NULL AND val6 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value6 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value6 må ikke være NULL');
   END IF;
 
   IF :new.value7 IS NULL AND val7 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value7 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value7 må ikke være NULL');
   END IF;
 
   IF :new.value8 IS NULL AND val8 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value8 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value8 må ikke være NULL');
   END IF;
 
   IF :new.value9 IS NULL AND val9 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value9 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value9 må ikke være NULL');
   END IF;
 
   IF :new.value10 IS NULL AND val10 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value10 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value10 må ikke være NULL');
   END IF;
 
   IF :new.value11 IS NULL AND val11 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value11 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value11 må ikke være NULL');
   END IF;
 
   IF :new.value12 IS NULL AND val12 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value12 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value12 må ikke være NULL');
   END IF;
 
   IF :new.value13 IS NULL AND val13 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value13 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value13 må ikke være NULL');
   END IF;
 
   IF :new.value14 IS NULL AND val14 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value14 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value14 må ikke være NULL');
   END IF;
 
   IF :new.value15 IS NULL AND val15 IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Value15 må ikke være NULL');
+    RAISE_APPLICATION_ERROR(-20002, 'Value15 må ikke være NULL');
   END IF;
 END;
 /
@@ -1281,19 +1281,19 @@ BEGIN
     WHERE
       infotypeid = :new.infotypeid;
   EXCEPTION
-    WHEN no_data_found THEN RAISE_APPLICATION_ERROR(-20000, 'No infotype found(!)');
+    WHEN no_data_found THEN RAISE_APPLICATION_ERROR(-20004, 'Punktinfotype ikke fundet!');
   END;
 
   IF this_andv = 'FLAG' AND (:new.tekst IS NOT NULL OR :new.tal IS NOT NULL) THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Incorrect data (A)(!)');
+    RAISE_APPLICATION_ERROR(-20005, 'punktinfo.tekst og punktinfo.tal skal være NULL ved anvendelsestypen "FLAG"');
   END IF;
 
   IF this_andv = 'TEKST' AND :new.tal IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Incorrect data (B)(!)');
+    RAISE_APPLICATION_ERROR(-20005, 'punktinfo.tal skal være NULL ved anvendelsestypen "TEKST"');
   END IF;
 
   IF this_andv = 'TAL' AND :new.tekst IS NOT NULL THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Incorrect data (C)(!)');
+    RAISE_APPLICATION_ERROR(-20005, 'punktinfo.tekst skal være NULL ved anvendelsestypen "TAL"');
   END IF;
 
   -- afregistrer forrige version af punktinfo når nyt indsættes
@@ -1343,7 +1343,7 @@ BEGIN
       registreringtil = :new.registreringfra;
 
     IF cnt1 = 0 THEN
-      RAISE_APPLICATION_ERROR(-20000,'No parent record found (!) ');
+      RAISE_APPLICATION_ERROR(-20006, 'Manglende forudgående punkt');
     END IF;
   END IF;
 END;
@@ -1364,7 +1364,7 @@ BEGIN
       registreringtil = :new.registreringfra;
 
     if cnt = 0 THEN
-      RAISE_APPLICATION_ERROR(-20000,'No parent record found (!) ');
+      RAISE_APPLICATION_ERROR(-20006,'Manglende forudgående koordinat');
     END IF;
   END IF;
 
@@ -1399,7 +1399,7 @@ BEGIN
   END IF;
 
   IF :new.fejlmeldt = 'true' THEN
-    RAISE_APPLICATION_ERROR(-20000, 'Indsættelse af fejlmeldt koordinat ikke tilladt');
+    RAISE_APPLICATION_ERROR(-20007, 'Indsættelse af fejlmeldt koordinat ikke tilladt');
   END IF;
 END;
 /
