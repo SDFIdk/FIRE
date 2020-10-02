@@ -1292,8 +1292,16 @@ BEGIN
     RAISE_APPLICATION_ERROR(-20005, 'punktinfo.tal skal være NULL ved anvendelsestypen "TEKST"');
   END IF;
 
+  IF this_andv = 'TEKST' AND :new.tekst IS NULL THEN
+    RAISE_APPLICATION_ERROR(-20005, 'punktinfo.tekst må ikke være NULL ved anvendelsestypen "TEKST"');
+  END IF;
+
   IF this_andv = 'TAL' AND :new.tekst IS NOT NULL THEN
     RAISE_APPLICATION_ERROR(-20005, 'punktinfo.tekst skal være NULL ved anvendelsestypen "TAL"');
+  END IF;
+
+  IF this_andv = 'TAL' AND :new.tal IS NULL THEN
+    RAISE_APPLICATION_ERROR(-20005, 'punktinfo.tal må ikke være NULL ved anvendelsestypen "TAL"');
   END IF;
 
   -- afregistrer forrige version af punktinfo når nyt indsættes

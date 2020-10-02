@@ -15,6 +15,7 @@ from fire.api.model import (
     Koordinat,
     PunktInformation,
     PunktInformationType,
+    PunktInformationTypeAnvendelse,
     Boolean,
 )
 
@@ -180,3 +181,55 @@ def test_timestamps(firedb: FireDb, koordinat: Koordinat):
     firedb.session.refresh(koordinat)
 
     assert koordinat.t == dt.datetime(2020, 9, 22, 13, 37, 12, 345)
+
+
+def test_punktinfoanvendelsestype(firedb: FireDb, sagsevent: Sagsevent, punkt: Punkt):
+    """
+    Tester validering af anvendelsestype i triggeren punktinfo_biu_trg
+    """
+    infotype_flag = firedb.hent_punktinformationtype("ATTR:tabtgået")
+    flaginfo = PunktInformation(
+        infotype=infotype_flag,
+        punkt=punkt,
+        tekst="tekst",
+        tal=999,
+    )
+    sagsevent.punktinformationer = [flaginfo]
+    firedb.session.add(sagsevent)
+
+    with pytest.raises(DatabaseError):
+        firedb.session.commit()
+    firedb.session.rollback()
+
+    infotype_tekst = firedb.hent_punktinformationtype("IDENT:GNSS")
+    tekstinfo = PunktInformation(
+        infotype=infotype_tekst,
+        punkt=punkt,
+        tekst=None,
+        tal=None,
+    )
+    sagsevent.punktinformationer = [tekstinfo]
+    firedb.session.add(sagsevent)
+
+    with pytest.raises(DatabaseError):
+        firedb.session.commit()
+    firedb.session.rollback()
+
+    infotype_tal = PunktInformationType(
+        name="ATTR:tal",
+        anvendelse=PunktInformationTypeAnvendelse.TAL,
+        beskrivelse="Test",
+        infotypeid=999,
+    )
+    talinfo = PunktInformation(
+        infotype=infotype_tal,
+        punkt=punkt,
+        tekst=None,
+        tal=None,
+    )
+    sagsevent.punktinformationer = [talinfo]
+    firedb.session.add(sagsevent)
+
+    with pytest.raises(DatabaseError):
+        firedb.session.commit()
+    firedb.session.rollback()

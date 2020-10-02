@@ -178,15 +178,6 @@ def srid(firedb):
 
 @pytest.fixture()
 def punktinformationtype(firedb):
-    try:
-        pi = firedb.hent_punktinformationtyper()[0]
-    except IndexError:
-        firedb.indset_punktinformationtype(
-            PunktInformationType(
-                name="ATTR:fixture",
-                anvendelse=PunktInformationTypeAnvendelse.FLAG,
-                beskrivelse="Punktinfotype oprettet af test fixture",
-            )
-        )
-        pi = firedb.hent_punktinformationtyper()[0]
+    pi = firedb.hent_punktinformationtype("ATTR:test")
+
     return pi
