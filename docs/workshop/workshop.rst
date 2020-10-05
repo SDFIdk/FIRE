@@ -351,17 +351,17 @@ fastholdte punkter i punktoversigten.* Så det gør vi!
    flyttes, vælg *Flyt eller kopier*, og udvælg hvor du vil have arket flyttet hen.
 
 
-Step 6) beregn-nye-koter
+Step 6) regn
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Vi skal nu til at beregne nye koter til de observerede punkter.
 
 I ens projektfil kan man notere hvilke punkter skal fastholdes, ved at, i fanebladet
 *Punktoversigt*, skrive *x* ud for punktet i *Fasthold*-kolonnen. Gem derefter filen,
-luk projektet ned og vend tilbage til terminalen, hvor kaldet ``beregn-nye-koter`` skal
+luk projektet ned og vend tilbage til terminalen, hvor kaldet ``regn`` skal
 køres:
 
-	> fire niv beregn-nye-koter --help
+	> fire niv regn --help
 
 Herfra ses at man igen skal bruge *Projektnavn* som parameter, og i terminalen vil det
 se således ud:
@@ -395,10 +395,6 @@ en nabo, og som der dermed ikke er målt til.
 Punktoversigten viser det egentlige beregningsresultat. Kolonner er nu fyldt ud med
 nyberegnede koter, middelfejl og differencen fra gældende kote, og man kan lave sin
 endelige vurdering af beregningen.
-
-.. note:: Da kaldet ``beregn-nye-koter`` er langt at skrive, er der oprettet et
-   alias, ``adj``, som kan bruges i stedet for (forkortelse for *adjustment*).
-
 
 
 Step 7) ilæg-observationer
@@ -441,6 +437,8 @@ Step 9) luk-sag
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 *ENDNU IKKE FÆRDIGIMPLEMENTERET*
+
+
 
 .. _visualiseringQGIS:
 
