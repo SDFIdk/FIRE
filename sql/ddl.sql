@@ -58,6 +58,7 @@ CREATE TABLE KOORDINAT (
    SY NUMBER,
    SZ NUMBER,
    T TIMESTAMP WITH TIME ZONE NOT NULL,
+   FEJLMELDT VARCHAR2(5) NOT NULL,
    TRANSFORMERET VARCHAR2(5) NOT NULL,
    ARTSKODE INTEGER,
    X NUMBER,
@@ -228,6 +229,7 @@ CREATE TABLE SRIDTYPE (
 
 
 ALTER TABLE KOORDINAT ADD CONSTRAINT CK_KOORDINAT_TRANSFORMER248 CHECK (TRANSFORMERET IN ('true', 'false'));
+ALTER TABLE KOORDINAT ADD CONSTRAINT CK_KOORDINAT_FEJLMELDT CHECK (FEJLMELDT IN ('true', 'false'));
 ALTER TABLE OBSERVATIONSTYPE ADD CONSTRAINT CK_OBSERVATION_SIGTEPUNKT085 CHECK (SIGTEPUNKT IN ('true', 'false'));
 ALTER TABLE PUNKTINFOTYPE ADD CONSTRAINT CK_PUNKTINFOTY_ANVENDELSE138 CHECK (ANVENDELSE IN ('FLAG', 'TAL', 'TEKST'));
 ALTER TABLE SAGSINFO ADD CONSTRAINT CK_SAGSINFO_AKTIV060 CHECK (AKTIV IN ('true', 'false'));
@@ -267,6 +269,7 @@ COMMENT ON COLUMN KOORDINAT.SX IS 'A posteriori spredning på førstekoordinaten
 COMMENT ON COLUMN KOORDINAT.SY IS 'A posteriori spredning på andenkoordinaten.';
 COMMENT ON COLUMN KOORDINAT.SZ IS 'A posteriori spredning på tredjekoordinaten.';
 COMMENT ON COLUMN KOORDINAT.T IS 'Observationstidspunktet.';
+COMMENT ON COLUMN KOORDINAT.FEJLMELDT IS 'Markering af at en koordinat er udgået fordi den er fejlbehæftet';
 COMMENT ON COLUMN KOORDINAT.TRANSFORMERET IS 'Angivelse om positionen er målt, eller transformeret fra et andet koordinatsystem';
 COMMENT ON COLUMN KOORDINAT.ARTSKODE IS 'Fra REFGEO. Værdierne skal forstås som følger:
 
@@ -644,6 +647,10 @@ IF :new.Z != :old.Z THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this 
 IF :new.SAGSEVENTFRAID != :old.SAGSEVENTFRAID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
 
 IF :new.PUNKTID != :old.PUNKTID THEN RAISE_APPLICATION_ERROR(-20000,'You cannot update this column '); END IF;
+
+IF :new.FEJLMELDT != :old.FEJLMELDT AND :new.REGISTRERINGTIL IS NULL THEN
+    RAISE_APPLICATION_ERROR(-20000, 'Registreringtil skal sættes når en koordinat fejlmeldes');
+END IF;
 
 end;
 /
@@ -1064,6 +1071,10 @@ IF :new.REGISTRERINGTIL IS NULL THEN
     SET registreringtil = :new.registreringfra, sagseventtilid = :new.sagseventfraid
     WHERE objektid = (SELECT objektid FROM koordinat WHERE punktid = :new.punktid AND sridid = :new.sridid AND registreringtil IS NULL);
   END IF;
+END IF;
+
+IF :new.FEJLMELDT = 'true' THEN
+  RAISE_APPLICATION_ERROR(-20000, 'Indsættelse af fejlmeldt koordinat ikke tilladt');
 END IF;
 
 end;

@@ -311,6 +311,9 @@ class Koordinat(FikspunktregisterObjekt):
     sz = Column(Float)
     t = Column(DateTime(timezone=True), default=func.sysdate())
     transformeret = Column(StringEnum(Boolean), nullable=False, default=Boolean.FALSE)
+    _fejlmeldt = Column(
+        "fejlmeldt", StringEnum(Boolean), nullable=False, default=Boolean.FALSE
+    )
     artskode = Column(IntEnum(Artskode), nullable=True, default=Artskode.NULL)
     x = Column(Float)
     y = Column(Float)
@@ -325,11 +328,23 @@ class Koordinat(FikspunktregisterObjekt):
         foreign_keys=[sagseventtilid],
         back_populates="koordinater_slettede",
     )
+
     punktid = Column(String(36), ForeignKey("punkt.id"), nullable=False)
     punkt = relationship("Punkt", back_populates="koordinater")
     beregninger = relationship(
         "Beregning", secondary=beregning_koordinat, back_populates="koordinater"
     )
+
+    @property
+    def fejlmeldt(self):
+        return self._fejlmeldt == Boolean.TRUE
+
+    @fejlmeldt.setter
+    def fejlmeldt(self, value: Boolean):
+        if value:
+            self._fejlmeldt = Boolean.TRUE
+        else:
+            self._fejlmeldt = Boolean.FALSE
 
 
 class GeometriObjekt(FikspunktregisterObjekt):

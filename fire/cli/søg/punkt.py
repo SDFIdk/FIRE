@@ -1,9 +1,12 @@
 import re
+import sys
 
 import click
+from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
 from fire.cli import firedb
+from fire.cli.utils import klargør_ident_til_søgning
 from . import søg
 
 
@@ -27,12 +30,20 @@ def punkt(ident: str, antal: int, **kwargs):
 
     Antallet af søgeresultater begrænses som standard til 20.
     """
+    ident = klargør_ident_til_søgning(ident)
     if "%" not in ident:
         ident = f"%{ident}%"
 
     ident_pattern = ident.replace("%", ".*")
 
-    punkter = firedb.soeg_punkter(ident, antal)
+    try:
+        punkter = firedb.soeg_punkter(ident, antal)
+    except NoResultFound:
+        fire.cli.print(
+            f"Fejl: Kunne ikke finde {ident.replace('%', '')}.", fg="red", err=True
+        )
+        sys.exit(1)
+
     for punkt in punkter:
         for ident in punkt.identer:
             if re.match(ident_pattern, ident):
