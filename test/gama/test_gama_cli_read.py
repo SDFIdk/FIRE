@@ -1,11 +1,9 @@
 import traceback
-import time
 
 import click
 from click.testing import CliRunner
 from pytest import approx
 
-import fire
 from fire.cli.gama import gama
 from fire.api import FireDb
 from fire.api.model import Sag
@@ -56,13 +54,3 @@ def test_cli(firedb: FireDb, sag: Sag):
 
         if koordinat.punkt.ident == "RDO1":
             assert koordinat.z == approx(86.1778)
-
-    # Hold en pause for at undgå opdatering af samme koordinater
-    # på samme tidspunkt i en senere test. Dette er nødvendigt da
-    # Oracles DATETIME type kun kan opløse et tidspunkt til nærmeste
-    # sekund. Da UNIQUE CONSTRAINT på koordinattabellen forbyder
-    # indsættelse af en ny koordinat på samme tidspunkt som den
-    # foregående holder vi altså en lille pause for at omgås den
-    # begrænsning i test-suiten. I praksis vil det aldrig være et
-    # problem.
-    time.sleep(1)
