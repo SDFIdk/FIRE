@@ -58,6 +58,7 @@ class FireDb(object):
             f"{self.dialect}://{self.connectionstring}",
             connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
             echo=debug,
+            execution_options={"schema_translate_map": {None: "fire_adm"}},
         )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.session = self.sessionmaker(autoflush=False)
