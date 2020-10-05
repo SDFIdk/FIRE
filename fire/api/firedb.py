@@ -55,7 +55,7 @@ class FireDb(object):
             self.connectionstring = self._build_connection_string()
 
         # Kører vi under test setup?
-        if self.connectionstring.startswith("fire.fire@localhost"):
+        if self.connectionstring.startswith("fire:fire@localhost"):
             exe_opt = {}
         else:
             exe_opt = {"schema_translate_map": {None: "fire_adm"}}
