@@ -158,7 +158,7 @@ class Punkt(FikspunktregisterObjekt):
         if not self._identer:
             temp = []
             for punktinfo in self.punktinformationer:
-                if punktinfo.infotype.name.startswith("IDENT:"):
+                if punktinfo.infotype.name.startswith("IDENT:") and punktinfo.tekst:
                     temp.append(Ident(punktinfo))
 
             self._identer = sorted(temp)
@@ -176,7 +176,9 @@ class Punkt(FikspunktregisterObjekt):
         Returner liste over alle identer der er tilknyttet Punktet
         """
         self._populer_identer()
-        return [str(ident) for ident in self._identer]
+        if self._identer:
+            return [str(ident) for ident in self._identer if ident]
+        return []
 
     @property
     def ident(self) -> str:
@@ -200,7 +202,7 @@ class Punkt(FikspunktregisterObjekt):
 
         try:
             return str(self._identer[0])
-        except IndexError:
+        except (IndexError, TypeError):
             return self.id
 
 
