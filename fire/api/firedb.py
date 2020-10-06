@@ -54,10 +54,17 @@ class FireDb(object):
         else:
             self.connectionstring = self._build_connection_string()
 
+        # Kører vi under test setup?
+        if self.connectionstring.startswith("fire:fire@localhost"):
+            exe_opt = {}
+        else:
+            exe_opt = {"schema_translate_map": {None: "fire_adm"}}
+
         self.engine = create_engine(
             f"{self.dialect}://{self.connectionstring}",
             connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
             echo=debug,
+            execution_options=exe_opt,
         )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.session = self.sessionmaker(autoflush=False)
