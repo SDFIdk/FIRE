@@ -26,7 +26,7 @@ def test_indset_beregning(
 ):
     o0 = Observation(
         sagsevent=sagsevent,
-        observationstidspunkt=func.sysdate(),
+        observationstidspunkt=func.current_timestamp(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
     )

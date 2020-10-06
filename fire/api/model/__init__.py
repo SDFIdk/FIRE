@@ -2,6 +2,7 @@
 """
 import sqlalchemy.ext.declarative
 from sqlalchemy import Column, Integer, DateTime, String, func
+from sqlalchemy.dialects.oracle import TIMESTAMP
 
 
 class BetterBehavedEnum(sqlalchemy.types.TypeDecorator):
@@ -66,9 +67,9 @@ class RegisteringFraObjekt(DeclarativeBase):
     objektid = Column(Integer, primary_key=True)
     _registreringfra = Column(
         "registreringfra",
-        DateTime(timezone=True),
+        TIMESTAMP(timezone=True),
         nullable=False,
-        default=func.sysdate(),
+        default=func.current_timestamp(),
     )
 
     @property
@@ -83,9 +84,9 @@ class RegisteringTidObjekt(DeclarativeBase):
     objektid = Column(Integer, primary_key=True)
     _registreringfra = Column(
         "registreringfra",
-        DateTime(timezone=True),
+        TIMESTAMP(timezone=True),
         nullable=False,
-        default=func.sysdate(),
+        default=func.current_timestamp(),
     )
     _registreringtil = Column("registreringtil", DateTime(timezone=True))
 

@@ -119,7 +119,7 @@ def observation(firedb, sagsevent, observationstype, punkt):
     sagsevent.eventtype = EventType.OBSERVATION_INDSAT
     o0 = Observation(
         sagsevent=sagsevent,
-        observationstidspunkt=func.sysdate(),
+        observationstidspunkt=func.current_timestamp(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
         antal=1,
@@ -133,13 +133,13 @@ def observationer(firedb, sagsevent, observationstype, punkt):
     sagsevent.eventtype = EventType.OBSERVATION_INDSAT
     o0 = Observation(
         sagsevent=sagsevent,
-        observationstidspunkt=func.sysdate(),
+        observationstidspunkt=func.current_timestamp(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
     )
     o1 = Observation(
         sagsevent=sagsevent,
-        observationstidspunkt=func.sysdate(),
+        observationstidspunkt=func.current_timestamp(),
         observationstype=observationstype,
         opstillingspunkt=punkt,
     )
@@ -178,15 +178,6 @@ def srid(firedb):
 
 @pytest.fixture()
 def punktinformationtype(firedb):
-    try:
-        pi = firedb.hent_punktinformationtyper()[0]
-    except IndexError:
-        firedb.indset_punktinformationtype(
-            PunktInformationType(
-                name="ATTR:fixture",
-                anvendelse=PunktInformationTypeAnvendelse.FLAG,
-                beskrivelse="Punktinfotype oprettet af test fixture",
-            )
-        )
-        pi = firedb.hent_punktinformationtyper()[0]
+    pi = firedb.hent_punktinformationtype("ATTR:test")
+
     return pi

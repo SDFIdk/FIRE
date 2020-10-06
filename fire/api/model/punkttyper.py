@@ -8,12 +8,12 @@ from sqlalchemy import (
     String,
     Integer,
     Float,
-    DateTime,
     ForeignKey,
     Enum,
     func,
 )
 from sqlalchemy.orm import relationship, reconstructor
+from sqlalchemy.dialects.oracle import TIMESTAMP
 
 import fire
 from fire.api.model import (
@@ -311,7 +311,7 @@ class Koordinat(FikspunktregisterObjekt):
     sx = Column(Float)
     sy = Column(Float)
     sz = Column(Float)
-    t = Column(DateTime(timezone=True), default=func.sysdate())
+    t = Column(TIMESTAMP(timezone=True), default=func.current_timestamp())
     transformeret = Column(StringEnum(Boolean), nullable=False, default=Boolean.FALSE)
     _fejlmeldt = Column(
         "fejlmeldt", StringEnum(Boolean), nullable=False, default=Boolean.FALSE
@@ -448,7 +448,7 @@ class Observation(FikspunktregisterObjekt):
         foreign_keys=[sagseventtilid],
         back_populates="observationer_slettede",
     )
-    observationstidspunkt = Column(DateTime(timezone=True), nullable=False)
+    observationstidspunkt = Column(TIMESTAMP(timezone=True), nullable=False)
     antal = Column(Integer, nullable=False, default=1)
     gruppe = Column(Integer)
     observationstypeid = Column(

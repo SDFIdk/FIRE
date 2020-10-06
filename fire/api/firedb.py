@@ -73,7 +73,7 @@ class FireDb(object):
         def listener(thissession, flush_context, instances):
             for obj in thissession.deleted:
                 if isinstance(obj, RegisteringTidObjekt):
-                    obj._registreringtil = func.sysdate()
+                    obj._registreringtil = func.current_timestamp()
                     thissession.add(obj)
 
     from ._firedb_hent import (
@@ -367,7 +367,7 @@ class FireDb(object):
     def _luk_fikspunkregisterobjekt(
         self, objekt: FikspunktregisterObjekt, sagsevent: Sagsevent, commit: bool = True
     ):
-        objekt._registreringtil = func.sysdate()
+        objekt._registreringtil = func.current_timestamp()
         objekt.sagseventtilid = sagsevent.id
 
         self.session.add(objekt)
