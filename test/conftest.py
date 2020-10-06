@@ -27,6 +27,8 @@ class TestFireDb(FireDb):
     'test_connection' section of config file
     """
 
+    _exe_opt = {}
+
     def _build_connection_string(self):
         # Establish connection to database
         username = self.config.get("test_connection", "username")
