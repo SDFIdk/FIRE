@@ -3,6 +3,7 @@ from datetime import datetime
 
 import click
 import pandas as pd
+from sqlalchemy import func
 
 import fire.cli
 from fire.cli import firedb
@@ -81,7 +82,7 @@ def ilæg_nye_koter(
     ny_punktoversigt = punktoversigt[0:0]
 
     DVR90 = firedb.hent_srid("EPSG:5799")
-    registreringstidspunkt = datetime.now()
+    registreringstidspunkt = func.current_timestamp()
     tid = gyldighedstidspunkt(projektnavn)
 
     # Generer sagsevent
