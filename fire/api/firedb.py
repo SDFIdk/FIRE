@@ -102,7 +102,6 @@ class FireDb(object):
         indset_flere_observationer,
         indset_observation,
         indset_observationstype,
-        indset_beregning,
         indset_srid,
     )
 

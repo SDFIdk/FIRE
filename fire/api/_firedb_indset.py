@@ -17,7 +17,6 @@ from fire.api.model import (
     Observation,
     ObservationsType,
     Sagsevent,
-    Beregning,
     EventType,
     Srid,
 )
@@ -39,6 +38,18 @@ def indset_sagsevent(self, sagsevent: Sagsevent):
         raise Exception(f"Sagsevent allerede tilføjet databasen: {sagsevent}")
     if len(sagsevent.sagseventinfos) < 1:
         raise Exception("Mindst et SagseventInfo skal tilføjes Sag")
+
+    if sagsevent.eventtype == EventType.KOORDINAT_BEREGNET:
+        self._check_and_prepare_sagsevent(sagsevent, EventType.KOORDINAT_BEREGNET)
+        for beregning in sagsevent.beregninger:
+            if not self._is_new_object(beregning):
+                raise Exception(f"Beregning allerede tilføjet databasen: {beregning}")
+
+        for koordinat in sagsevent.koordinater:
+            if not self._is_new_object(koordinat):
+                raise Exception(f"Koordinat allerede tilføjet datbasen: {koordinat}")
+            koordinat.sagsevent = sagsevent
+
     self.session.add(sagsevent)
     self.session.commit()
 
@@ -201,20 +212,6 @@ def indset_observationstype(self, observationstype: ObservationsType):
         n = 0
     observationstype.observationstypeid = n + 1
     self.session.add(observationstype)
-    self.session.commit()
-
-
-def indset_beregning(self, sagsevent: Sagsevent, beregning: Beregning):
-    if not self._is_new_object(beregning):
-        raise Exception(f"Beregning allerede tilføjet datbasen: {beregning}")
-
-    self._check_and_prepare_sagsevent(sagsevent, EventType.KOORDINAT_BEREGNET)
-    beregning.sagsevent = sagsevent
-    for koordinat in beregning.koordinater:
-        if not self._is_new_object(koordinat):
-            raise Exception(f"Koordinat allerede tilføjet datbasen: {koordinat}")
-        koordinat.sagsevent = sagsevent
-    self.session.add(beregning)
     self.session.commit()
 
 
