@@ -156,9 +156,8 @@ ARKDEF_REVISION = {
     "Talværdi": float,
     "Tekstværdi": str,
     "Sluk": str,
-    "Ret tal": float,
-    "Ret tekst": str,
-    "id": int,
+    "Ny værdi": str,
+    "id": float,
     "Ikke besøgt": str,
 }
 
