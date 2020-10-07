@@ -130,10 +130,10 @@ def ilæg_revision(
     # Find alle koordinater, der skal oprettes
 
     # Først skal vi bruge alle gyldige koordinatsystemnavne
-    srid_db = firedb.session.query(Srid).order_by(Srid.name).all()
-    sridnavne = [srid.name for srid in srid_db]
+    srider = firedb.hent_srider()
+    sridnavne = [srid.name.upper() for srid in srider]
 
-    # Så looper vi over hele rammen og ignorerer ikke-koordinaterne
+    # Så itererer vi over hele rammen og ignorerer ikke-koordinaterne
     til_registrering = []
     opdaterede_punkter = []
     koordinatoprettelsestekst = str()
@@ -160,7 +160,10 @@ def ilæg_revision(
             sag=sag, id=uuid(), eventtype=EventType.KOORDINAT_BEREGNET
         )
 
-        # Undgå forsøg på at læse punkter der endnu ikke er skrevet til databasen
+        # Undgå forsøg på at læse punkter der endnu ikke er skrevet til databasen:
+        # Ved testkørsler bruger vi dummypunkt 00009 fra det ikke-eksisterende
+        # opmålingsdistrikt 9-09. Ved endelige kørsler har vi lige lagt punkterne
+        # i databasen ovenfor, så her kan vi bruge de faktiske punktnavne.
         if not alvor:
             punkt = firedb.hent_punkt("9-09-00009")
         else:
@@ -317,7 +320,7 @@ def ilæg_revision(
                     try:
                         # Både punktum og komma er accepterede decimalseparatorer
                         tal = float(r["Ny værdi"].replace(",", "."))
-                    except Exception as ex:
+                    except ValueError as ex:
                         fire.cli.print(
                             f"    FEJL: {pitnavn} forventer numerisk værdi [{ex}].",
                             fg="yellow",
@@ -366,7 +369,7 @@ def ilæg_revision(
             else:
                 try:
                     tal = float(r["Ny værdi"])
-                except Exception as ex:
+                except ValueError as ex:
                     fire.cli.print(
                         f"    FEJL: {pitnavn} forventer numerisk værdi [{ex}].",
                         fg="yellow",
@@ -393,63 +396,12 @@ def ilæg_revision(
         fire.cli.print(f"    * {sluk_tekst}")
         fire.cli.print(f"    * {ret_tekst}")
         fire.cli.print(f"Ingen data lagt i FIRE-databasen", fg="yellow")
-        # firedb.session.rollback()
         sys.exit(0)
-
-    # Persistering af flere punktinformationer på en sagshændelse virker ikke - derfor
-    # ilægges punktinformationerne, i denne version, en ad gangen oppe i loopet
-    # 'for r in rev.to_dict("records")', under de tre 'if alvor'-udtryk.
-    # Så når vi når hertil er vi færdige, og kan returnere
-    return
-
-    # Persister til databasen - som den burde fungere...
-    if len(til_opret):
-        fire.cli.print("opret")
-        sleep(1.1)
-        se_opret = Sagsevent(
-            sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_TILFOEJET
-        )
-        se_opret.punktinformationer = til_opret
-        sagseventinfo = SagseventInfo(beskrivelse=opret_tekst)
-        se_opret.sagseventinfos.append(sagseventinfo)
-        firedb.indset_sagsevent(se_opret)
-    if len(til_sluk):
-        fire.cli.print("sluk")
-        sleep(1.1)
-        se_sluk = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_FJERNET)
-        se_sluk.punktinformationer_slettede = til_sluk
-        sagseventinfo = SagseventInfo(beskrivelse=sluk_tekst)
-        se_sluk.sagseventinfos.append(sagseventinfo)
-        firedb.indset_sagsevent(se_sluk)
-    if len(til_ret):
-        fire.cli.print("ret")
-        sleep(1.1)
-        se_ret = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_TILFOEJET)
-        se_ret.punktinformationer = til_ret
-        sagseventinfo = SagseventInfo(beskrivelse=ret_tekst)
-        se_ret.sagseventinfos.append(sagseventinfo)
-        firedb.indset_sagsevent(se_ret)
-
-    # Ja, vi tygger stadig på den rette vej
-    return
-    # Ad disse veje videre
-    # sagseventtekst = "bla bla bla"
-    # sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
-    # se_tilføj.sagseventinfos.append(sagseventinfo)
-    registreringstidspunkt = func.sysdate()
-
-    # Generer dokumentation til fanebladet "Sagsgang"
-    sagsgangslinje = {
-        "Dato": registreringstidspunkt,
-        "Hvem": sagsbehandler,
-        "Hændelse": "Koteberegning",
-        "Tekst": sagseventtekst,
-        "uuid": se_tilføj.id,
-    }
-    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
 
 
 def opret_punkt(ident: str, lokation: str, sag: Sag):
+    """Opret nyt punkt i databasen, ud fra minimumsinformationsmængder."""
+
     lok = lokation.split()
     assert len(lok) in (
         2,
@@ -470,7 +422,9 @@ def opret_punkt(ident: str, lokation: str, sag: Sag):
     if lok[3].upper() in ("W", "V"):
         e = -e
 
-    # Regionen kan detekteres alene ud fra længdegraden
+    # Regionen kan detekteres alene ud fra længdegraden, hvis vi holder os til
+    # {DK, EE, FO, GL}. EE er dog ikke understøttet her: Hvis man forsøger at
+    # oprette nye estiske punkter vil de blive tildelt region DK
     if e > 0:
         region = "REGION:DK"
     elif e < -11:
