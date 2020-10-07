@@ -1,5 +1,4 @@
 import sys
-from datetime import datetime
 
 import click
 import pandas as pd
