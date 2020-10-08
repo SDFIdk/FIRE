@@ -15,6 +15,7 @@ from fire.api.model import (
     Sag,
     Sagsevent,
     SagseventInfo,
+    EventType,
 )
 
 from . import (
@@ -242,12 +243,13 @@ def ilæg_nye_punkter(
     # Gør klar til at persistere
 
     # Generer sagsevent
-    sagsevent = Sagsevent(sag=sag)
+    sagsevent = Sagsevent(sag=sag, eventtype=EventType.PUNKT_OPRETTET)
     sagsevent.id = uuid()
     er = "er" if len(genererede_landsnumre) > 1 else ""
     sagseventtekst = f"Oprettelse af punkt{er} {', '.join(genererede_landsnumre)}"
     sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
     sagsevent.sagseventinfos.append(sagseventinfo)
+    sagsevent.punkter = list(genererede_punkter.values())
 
     # Generer dokumentation til fanebladet "Sagsgang"
     sagsgangslinje = {
@@ -261,7 +263,9 @@ def ilæg_nye_punkter(
 
     if alvor:
         # Persister punkterne til databasen
-        firedb.indset_flere_punkter(sagsevent, list(genererede_punkter.values()))
+        # firedb.indset_flere_punkter(sagsevent, list(genererede_punkter.values()))
+        firedb.indset_sagsevent(sagsevent)
+
         # ... og marker i regnearket at det er sket
         for k in genererede_punkter.keys():
             nyetablerede.at[k, "uuid"] = genererede_punkter[k].id

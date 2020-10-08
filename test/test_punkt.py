@@ -7,6 +7,7 @@ import pytest
 from fire.api import FireDb
 from fire.api.model import (
     Sagsevent,
+    SagseventInfo,
     Punkt,
     Observation,
     Koordinat,
@@ -51,7 +52,16 @@ def test_indset_flere_punkter(firedb: FireDb, sag: Sag):
     go.geometri = Point([2, 2])
     q.geometriobjekter.append(go)
 
-    firedb.indset_flere_punkter(Sagsevent(sag=sag), [p, q])
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            eventtype=EventType.PUNKT_OPRETTET,
+            sagseventinfos=[
+                SagseventInfo(beskrivelse="Testindsættelse af flere punkter")
+            ],
+            punkter=[p, q],
+        )
+    )
 
 
 def test_indset_punkt_with_invalid_sagsevent_eventtype(firedb: FireDb, sag: Sag):

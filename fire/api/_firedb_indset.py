@@ -39,6 +39,24 @@ def indset_sagsevent(self, sagsevent: Sagsevent):
     if len(sagsevent.sagseventinfos) < 1:
         raise Exception("Mindst et SagseventInfo skal tilføjes Sag")
 
+    if sagsevent.eventtype == EventType.PUNKT_OPRETTET:
+        self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
+
+        # Check at alle punkter er i orden
+        for punkt in sagsevent.punkter:
+            if not self._is_new_object(punkt):
+                raise Exception(f"Punkt allerede tilføjet databasen: {punkt}")
+            if len(punkt.geometriobjekter) != 1:
+                raise Exception(
+                    "Der skal tilføjes et (og kun et) GeometriObjekt til punktet"
+                )
+            for geometriobjekt in punkt.geometriobjekter:
+                if not self._is_new_object(geometriobjekt):
+                    raise Exception(
+                        "Punktet kan ikke henvise til et eksisterende GeometriObjekt"
+                    )
+                geometriobjekt.sagsevent = sagsevent
+
     if sagsevent.eventtype == EventType.KOORDINAT_BEREGNET:
         self._check_and_prepare_sagsevent(sagsevent, EventType.KOORDINAT_BEREGNET)
         for beregning in sagsevent.beregninger:
@@ -51,58 +69,6 @@ def indset_sagsevent(self, sagsevent: Sagsevent):
             koordinat.sagsevent = sagsevent
 
     self.session.add(sagsevent)
-    self.session.commit()
-
-
-def indset_flere_punkter(self, sagsevent: Sagsevent, punkter: List[Punkt]) -> None:
-    """Indsæt flere punkter i punkttabellen, alle under samme sagsevent
-
-    Parameters
-    ----------
-    sagsevent: Sagsevent
-        Nyt (endnu ikke persisteret) sagsevent.
-
-        NB: Principielt ligger "indset_flere_punkter" på et højere API-niveau
-        end "indset_punkter", så det bør overvejes at generere sagsevent her.
-        Argumentet vil så skulle ændres til "sagseventtekst: str", og der vil
-        skulle tilføjes et argument "sag: Sag". Alternativt kan sagseventtekst
-        autogenereres her ("oprettelse af punkterne nn, mm, ...")
-
-    punkter: List[Punkt]
-        De punkter der skal persisteres under samme sagsevent
-
-    Returns
-    -------
-    None
-
-    """
-    # Check at alle punkter er i orden
-    for punkt in punkter:
-        if not self._is_new_object(punkt):
-            raise Exception(f"Punkt allerede tilføjet databasen: {punkt}")
-        if len(punkt.geometriobjekter) != 1:
-            raise Exception(
-                "Der skal tilføjes et (og kun et) GeometriObjekt til punktet"
-            )
-
-    self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
-
-    for punkt in punkter:
-        punkt.sagsevent = sagsevent
-        for geometriobjekt in punkt.geometriobjekter:
-            if not self._is_new_object(geometriobjekt):
-                raise Exception(
-                    "Punktet kan ikke henvise til et eksisterende GeometriObjekt"
-                )
-            geometriobjekt.sagsevent = sagsevent
-        for punktinformation in punkt.punktinformationer:
-            if not self._is_new_object(punktinformation):
-                raise Exception(
-                    "Punktet kan ikke henvise til et eksisterende PunktInformation objekt"
-                )
-            punktinformation.sagsevent = sagsevent
-        self.session.add(punkt)
-
     self.session.commit()
 
 
