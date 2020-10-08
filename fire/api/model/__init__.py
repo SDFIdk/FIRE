@@ -2,6 +2,7 @@
 """
 import sqlalchemy.ext.declarative
 from sqlalchemy import Column, Integer, DateTime, String, func
+from sqlalchemy.dialects.oracle import TIMESTAMP
 
 
 class BetterBehavedEnum(sqlalchemy.types.TypeDecorator):
@@ -48,10 +49,22 @@ class ReprBase(object):
 
     def __repr__(self):
         class_ = self.__class__.__name__
-        attrs = sorted(
-            (col.name, getattr(self, col.name)) for col in self.__table__.columns
-        )
-        sattrs = ", ".join("{}={!r}".format(*x) for x in attrs)
+
+        attrs = []
+        for col in self.__table__.columns:
+            try:
+                attrs.append((col.name, getattr(self, col.name)))
+            except AttributeError:
+                # Der er ikke altid et en til en match mellem kolonnenavn og attributnavn
+                try:
+                    # Mest almindeligt er at et "id" udelades i attributnavnet ...
+                    attributnavn = col.name.replace("id", "")
+                    attrs.append((attributnavn, getattr(self, attributnavn)))
+                except AttributeError:
+                    # ... og hvis mapningen er anderledes springes den over
+                    continue
+
+        sattrs = ", ".join("{}={!r}".format(*x) for x in sorted(attrs))
         return f"{class_}({sattrs})"
 
 
@@ -66,9 +79,9 @@ class RegisteringFraObjekt(DeclarativeBase):
     objektid = Column(Integer, primary_key=True)
     _registreringfra = Column(
         "registreringfra",
-        DateTime(timezone=True),
+        TIMESTAMP(timezone=True),
         nullable=False,
-        default=func.sysdate(),
+        default=func.current_timestamp(),
     )
 
     @property
@@ -83,9 +96,9 @@ class RegisteringTidObjekt(DeclarativeBase):
     objektid = Column(Integer, primary_key=True)
     _registreringfra = Column(
         "registreringfra",
-        DateTime(timezone=True),
+        TIMESTAMP(timezone=True),
         nullable=False,
-        default=func.sysdate(),
+        default=func.current_timestamp(),
     )
     _registreringtil = Column("registreringtil", DateTime(timezone=True))
 

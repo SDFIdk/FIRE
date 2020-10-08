@@ -8,12 +8,12 @@ from sqlalchemy import (
     String,
     Integer,
     Float,
-    DateTime,
     ForeignKey,
     Enum,
     func,
 )
 from sqlalchemy.orm import relationship, reconstructor
+from sqlalchemy.dialects.oracle import TIMESTAMP
 
 import fire
 from fire.api.model import (
@@ -158,7 +158,7 @@ class Punkt(FikspunktregisterObjekt):
         if not self._identer:
             temp = []
             for punktinfo in self.punktinformationer:
-                if punktinfo.infotype.name.startswith("IDENT:"):
+                if punktinfo.infotype.name.startswith("IDENT:") and punktinfo.tekst:
                     temp.append(Ident(punktinfo))
 
             self._identer = sorted(temp)
@@ -176,7 +176,9 @@ class Punkt(FikspunktregisterObjekt):
         Returner liste over alle identer der er tilknyttet Punktet
         """
         self._populer_identer()
-        return [str(ident) for ident in self._identer]
+        if self._identer:
+            return [str(ident) for ident in self._identer if ident]
+        return []
 
     @property
     def ident(self) -> str:
@@ -200,7 +202,7 @@ class Punkt(FikspunktregisterObjekt):
 
         try:
             return str(self._identer[0])
-        except IndexError:
+        except (IndexError, TypeError):
             return self.id
 
 
@@ -309,7 +311,7 @@ class Koordinat(FikspunktregisterObjekt):
     sx = Column(Float)
     sy = Column(Float)
     sz = Column(Float)
-    t = Column(DateTime(timezone=True), default=func.sysdate())
+    t = Column(TIMESTAMP(timezone=True), default=func.current_timestamp())
     transformeret = Column(StringEnum(Boolean), nullable=False, default=Boolean.FALSE)
     _fejlmeldt = Column(
         "fejlmeldt", StringEnum(Boolean), nullable=False, default=Boolean.FALSE
@@ -446,7 +448,7 @@ class Observation(FikspunktregisterObjekt):
         foreign_keys=[sagseventtilid],
         back_populates="observationer_slettede",
     )
-    observationstidspunkt = Column(DateTime(timezone=True), nullable=False)
+    observationstidspunkt = Column(TIMESTAMP(timezone=True), nullable=False)
     antal = Column(Integer, nullable=False, default=1)
     gruppe = Column(Integer)
     observationstypeid = Column(

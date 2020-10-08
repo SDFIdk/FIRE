@@ -29,6 +29,9 @@ from fire.api.model import (
 
 
 class FireDb(object):
+
+    _exe_opt = {"schema_translate_map": {None: "fire_adm"}}
+
     def __init__(self, connectionstring=None, debug=False):
         """
 
@@ -58,6 +61,7 @@ class FireDb(object):
             f"{self.dialect}://{self.connectionstring}",
             connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
             echo=debug,
+            execution_options=self._exe_opt,
         )
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.session = self.sessionmaker(autoflush=False)
@@ -66,7 +70,7 @@ class FireDb(object):
         def listener(thissession, flush_context, instances):
             for obj in thissession.deleted:
                 if isinstance(obj, RegisteringTidObjekt):
-                    obj._registreringtil = func.sysdate()
+                    obj._registreringtil = func.current_timestamp()
                     thissession.add(obj)
 
     from ._firedb_hent import (
@@ -360,7 +364,7 @@ class FireDb(object):
     def _luk_fikspunkregisterobjekt(
         self, objekt: FikspunktregisterObjekt, sagsevent: Sagsevent, commit: bool = True
     ):
-        objekt._registreringtil = func.sysdate()
+        objekt._registreringtil = func.current_timestamp()
         objekt.sagseventtilid = sagsevent.id
 
         self.session.add(objekt)
