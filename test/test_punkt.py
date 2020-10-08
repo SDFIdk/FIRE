@@ -38,7 +38,15 @@ def test_indset_punkt(firedb: FireDb, sag: Sag):
     go = GeometriObjekt()
     go.geometri = Point([1, 1])
     p.geometriobjekter.append(go)
-    firedb.indset_punkt(Sagsevent(sag=sag), p)
+
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            sagseventinfos=[SagseventInfo(beskrivelse="Testindsættelse af et punkt")],
+            eventtype=EventType.PUNKT_OPRETTET,
+            punkter=[p],
+        )
+    )
 
 
 def test_indset_flere_punkter(firedb: FireDb, sag: Sag):
@@ -62,15 +70,6 @@ def test_indset_flere_punkter(firedb: FireDb, sag: Sag):
             punkter=[p, q],
         )
     )
-
-
-def test_indset_punkt_with_invalid_sagsevent_eventtype(firedb: FireDb, sag: Sag):
-    p = Punkt()
-    go = GeometriObjekt()
-    go.geometri = Point([1, 1])
-    p.geometriobjekter.append(go)
-    with pytest.raises(Exception, match="KOMMENTAR"):
-        firedb.indset_punkt(Sagsevent(sag=sag, eventtype=EventType.KOMMENTAR), p)
 
 
 def test_hent_punkt(firedb: FireDb, punkt: Punkt):

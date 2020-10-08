@@ -79,29 +79,6 @@ def indset_sagsevent(self, sagsevent: Sagsevent):
     self.session.commit()
 
 
-def indset_punkt(self, sagsevent: Sagsevent, punkt: Punkt):
-    if not self._is_new_object(punkt):
-        raise Exception(f"Punkt er allerede tilføjet databasen: {punkt}")
-    if len(punkt.geometriobjekter) != 1:
-        raise Exception("Der skal tilføjes et (og kun et) GeometriObjekt til punktet")
-    self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
-    punkt.sagsevent = sagsevent
-    for geometriobjekt in punkt.geometriobjekter:
-        if not self._is_new_object(geometriobjekt):
-            raise Exception(
-                "Punktet kan ikke henvise til et eksisterende GeometriObjekt"
-            )
-        geometriobjekt.sagsevent = sagsevent
-    for punktinformation in punkt.punktinformationer:
-        if not self._is_new_object(punktinformation):
-            raise Exception(
-                "Punktet kan ikke henvise til et eksisterende PunktInformation objekt"
-            )
-        punktinformation.sagsevent = sagsevent
-    self.session.add(punkt)
-    self.session.commit()
-
-
 def indset_punktinformation(
     self, sagsevent: Sagsevent, punktinformation: PunktInformation
 ):
