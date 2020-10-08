@@ -98,7 +98,6 @@ class FireDb(object):
         indset_punkt,
         indset_punktinformation,
         indset_punktinformationtype,
-        indset_flere_observationer,
         indset_observation,
         indset_observationstype,
         indset_srid,

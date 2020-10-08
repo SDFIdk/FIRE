@@ -68,45 +68,14 @@ def indset_sagsevent(self, sagsevent: Sagsevent):
                 raise Exception(f"Koordinat allerede tilføjet datbasen: {koordinat}")
             koordinat.sagsevent = sagsevent
 
+    if sagsevent.eventtype == EventType.OBSERVATION_INDSAT:
+        self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
+
+        for obs in sagsevent.observationer:
+            if not self._is_new_object(obs):
+                raise Exception(f"Observation allerede tilføjet databasen: {obs}")
+
     self.session.add(sagsevent)
-    self.session.commit()
-
-
-def indset_flere_observationer(
-    self, sagsevent: Sagsevent, observationer: List[Observation]
-) -> None:
-    """Indsæt flere punkter i punkttabellen, alle under samme sagsevent
-
-    Parameters
-    ----------
-    sagsevent: Sagsevent
-        Nyt (endnu ikke persisteret) sagsevent.
-
-        NB: Principielt ligger "indset_flere_observationer" på et højere API-niveau
-        end "indset_observationer", så det bør overvejes at generere sagsevent her.
-        Argumentet vil så skulle ændres til "sagseventtekst: str", og der vil
-        skulle tilføjes et argument "sag: Sag". Alternativt kan sagseventtekst
-        autogenereres her ("oprettelse af observationerne nn, mm, ...")
-
-    observationer: List[Observation]
-        De observationer der skal persisteres under samme sagsevent
-
-    Returns
-    -------
-    None
-
-    """
-    # Check at alle punkter er i orden
-    for obs in observationer:
-        if not self._is_new_object(obs):
-            raise Exception(f"Observation allerede tilføjet databasen: {obs}")
-
-    self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
-
-    for obs in observationer:
-        obs.sagsevent = sagsevent
-        self.session.add(obs)
-
     self.session.commit()
 
 

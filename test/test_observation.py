@@ -142,7 +142,16 @@ def test_indset_flere_observationer(firedb: FireDb, sag: Sag, punkt: Punkt):
         value8=0,
     )
 
-    firedb.indset_flere_observationer(sagsevent, [obs1, obs2])
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            eventtype=EventType.OBSERVATION_INDSAT,
+            sagseventinfos=[
+                SagseventInfo(beskrivelse="Testindsættelse af flere observationer")
+            ],
+            observationer=[obs1, obs2],
+        )
+    )
 
 
 def test_luk_observation(
