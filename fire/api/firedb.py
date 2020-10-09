@@ -97,7 +97,6 @@ class FireDb(object):
         indset_sagsevent,
         indset_punktinformation,
         indset_punktinformationtype,
-        indset_observation,
         indset_observationstype,
         indset_srid,
     )

@@ -105,15 +105,6 @@ def indset_punktinformationtype(self, punktinfotype: PunktInformationType):
     self.session.commit()
 
 
-def indset_observation(self, sagsevent: Sagsevent, observation: Observation):
-    if not self._is_new_object(observation):
-        raise Exception(f"Observation allerede tilføjet databasen: {observation}")
-    self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
-    observation.sagsevent = sagsevent
-    self.session.add(observation)
-    self.session.commit()
-
-
 def indset_observationstype(self, observationstype: ObservationsType):
     if not self._is_new_object(observationstype):
         raise Exception(
