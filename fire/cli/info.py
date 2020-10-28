@@ -121,15 +121,13 @@ def punktinforapport(punktinformationer: List[PunktInformation]) -> None:
     Hjælpefunktion for 'punkt_fuld_rapport'.
     """
     for info in punktinformationer:
-        if info.registreringtil is not None:
-            continue
         tekst = info.tekst or ""
         # efter mellemrum rykkes teksten ind på linje med resten af
         # attributteksten
         tekst = tekst.replace("\n", "\n" + " " * 30).replace("\r", "").rstrip(" \n")
         tal = info.tal or ""
         # marker slukkede punktinformationer med rød tekst og et minus tv for linjen
-        if info.sagseventtilid:
+        if info.registreringtil:
             fire.cli.print(f" -{info.infotype.name:27} {tekst}{tal}", fg="red")
         else:
             fire.cli.print(f"  {info.infotype.name:27} {tekst}{tal}")
