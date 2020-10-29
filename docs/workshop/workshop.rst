@@ -408,7 +408,6 @@ denne gang vil det resulterende faneblad hedde *Endelig beregning*, som også ka
 over i projektfilen, såfremt man er tilfreds med beregningsresultatet.
 
 
-
 Step 7) ilæg-observationer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
