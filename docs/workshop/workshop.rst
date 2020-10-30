@@ -259,7 +259,9 @@ allerede HAR besøgt.
 
 Step 3) ilæg-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
-(steppet her kan springes over, såfremt man kun skal lave en beregning)
+.. note::
+
+    Steppet her kan springes over, såfremt man kun skal lave en beregning.
 
 *ENDNU IKKE FÆRDIGIMPLEMENTERET*
 
