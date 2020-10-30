@@ -202,7 +202,9 @@ genereres det øjeblik punktet ilægges databasen nede i :ref:`step 4) <step4>`.
 
 Step 2) udtræk-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
-(steppet her kan springes over, såfremt man kun skal lave en beregning)
+.. note::
+
+    Steppet her kan springes over, såfremt man kun skal lave en beregning.
 
 Når vi er ude at tilse punkter, fx ifm. den kommunale punktrevision, kontrolleres det
 at punktets attributter (beskrivelse, lokation, bolttype osv.) er korrekt; hvis ikke
@@ -479,4 +481,3 @@ alle punkter inden for en given kommune, et givent distrikt osv.
 
 Pluginet er endnu ikke færdigudviklet og testet af, derfor afventer en nærmere gennemgang
 af det. Men der bliver udviklet på funktionaliteterne løbende og som behovet opstår.
-
