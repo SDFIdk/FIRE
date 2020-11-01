@@ -12,14 +12,13 @@ vha. en terminal (fx miniconda eller Cmder) og kommandoer på linjen her.
 ===================  ===========================================  ===========================================
 **Kommando**         **Beskrivelse**                              **Eksempel på brug**
 -------------------  -------------------------------------------  -------------------------------------------
-ls                   Oplist mapper og filer                       > ls
-dir eller ls -l      Oplist mapper og filer med detaljer          > ls -l
+dir  		         Oplist mapper og filer med detaljer          > dir
 cd *dir*             Skift mappe (change directory)               > cd Users\\b031422\\Desktop
 cd ..                Skift mappe et niveau op                     > cd ..
 cd\                  Hop til roden af server                      > cd\\
-*Drev*:              Skift drev (uafh. af aktuel placering        > F:
+*Drev*:              Skift drev (uafh. af aktuel placering)       > F:
 md *dir*             Opret ny mappe (make directory)              > md TEST
-vim *fil*            Opret ny asciifil (fx med vim)               > vim TEST\\test
+vim *fil*            Opret ny asciifil (her vist med vim)         > vim TEST\\test
 cp *fil1* *fil2*     Kopier (copy) en given *fil1* til *fil2*     > cp test ..\\testkopi	
 mv *fil1* *fil2*     Flyt (move) en given *fil1* til *fil2*       > mv test ..\\. 
 rm *fil*             Slet (remove) en given *fil*                 > rm test
@@ -29,8 +28,8 @@ rmdir *dir*          Slet tom mappe (remove directory)            > rmdir TEST
 \| eller >           Information pipes videre i kommandokaldet    > cat test1 test2 >testsamlet
 ===================  ===========================================  ===========================================
 
-De fleste kommandoer dur også på unix, dog husk at man på unix benytter slash, /, 
-mens man på Windows benytter backslash, *\\*.
+I flere terminaler kan unix-kommandoer også genkendes, fx. ls (dir i Windows), mkdir (md i Windows) 
+osv., dog husk at man på unix benytter slash, /, mens man på Windows benytter backslash, *\\*.
 
 Hvis en sti er skrevet helt ud med */*, kan Windows dog godt genkende og oversætte 
 til *\\*, men autocomplete funktionen *tab* fungerer ikke.
@@ -60,18 +59,22 @@ Prøv selv at navigér rundt i terminalen og forsøg fx:
 Diverse programmer
 +++++++++++++++++++++++++++++++++++++++
 
-Nedenfor følger en liste over brugbare standardprogrammers anvendelse i terminalen.
+Nedenfor følger en liste over brugbare standardprogrammers anvendelse i terminalen. Det kræver dog, at 
+programmerne er installeret i dit environment, før du kan bruge dem. Til det kan man bruge ``conda search``, 
+og derefter ``conda install``:
+	
+	> conda install -c <channel> <package>
 
 =============  ==========================================================  ===========================================
 **Program**    **Beskrivelse**                                             **Eksempel på brug**
 -------------  ----------------------------------------------------------  -------------------------------------------
-cat            Sammensæt flere filer til en samlet og vis på skærm         > cat test1 test2 >testsamlet
 echo           Gentag input på skærmen, som kan pipes videre, fx til proj  > echo 12.4 55.8 36 | cct +proj=cart 
 grep           Søg efter bestemte udtryk i asciitekst og print til skærm   > grep -n DK test1
-vim            Tekstbehandlingsprogram, som notesblok, Notepad++ osv.      > vim test1
 less           Vis indholdet i en ascii-fil (ikke til redigering)          > less test1
+type           Sammensæt flere filer til en                                > type test1 test2>test3
+vim            Tekstbehandlingsprogram, som notesblok, Notepad++ osv.      > vim test1
 =============  ==========================================================  ===========================================
 
-Alle programmer kan yderligere udforskes ved at bruge parameteren *--help*, fx::
+Alle programmer kan yderligere udforskes ved at bruge parameteren *--help*, fx:
  
 	> grep --help

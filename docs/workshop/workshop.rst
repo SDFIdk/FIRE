@@ -53,10 +53,11 @@ Hvis man ønsker at fremsøge et punkt og se hvilke oplysninger, der knytter sig
 til det (som man før kunne med ``valde``, eller Valdemar i tjenesten), kan man
 fx taste:
 
-	> fire info punkt g.i.2010
+	> fire info punkt gi2010
 
 .. note:: Det er ligegyldet om der skrives med stort eller småt eller om der
-   benyttes punktummer eller ej i argumentet.
+   benyttes punktummer eller ej i argumentet. Dog skal der være bindestreg
+   mellem herred, sogn og løbenummer.
 
 I udtrækket plottes diverse oplysninger om punktet direkte på skærmen, som set
 på billedet:
@@ -76,7 +77,7 @@ I eksemplet ses det fx, at punktet
   11/2-2000 kl. 13:30),
 - har en plankoordinat fra 2011 (med EPSG-koden 4258) og to andre
   koordinater i andre net.
-  **Farven grøn indikerer at koordinaten er den gældende for det pågældende net.**
+  **Stjerne (eller farven grøn) indikerer at koordinaten er den gældende for det pågældende net.**
 
 På samme måde kan andre elementer slås op i databasen, bl.a. oplysninger om historiske
 koter med parameteren *-K*, observationer med parameteren *-O* og andre detaljer med
@@ -201,6 +202,9 @@ genereres det øjeblik punktet ilægges databasen nede i :ref:`step 4) <step4>`.
 
 Step 2) udtræk-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
+.. note::
+
+    Steppet her kan springes over, såfremt man kun skal lave en beregning.
 
 Når vi er ude at tilse punkter, fx ifm. den kommunale punktrevision, kontrolleres det
 at punktets attributter (beskrivelse, lokation, bolttype osv.) er korrekt; hvis ikke
@@ -255,6 +259,9 @@ allerede HAR besøgt.
 
 Step 3) ilæg-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
+.. note::
+
+    Steppet her kan springes over, såfremt man kun skal lave en beregning.
 
 *ENDNU IKKE FÆRDIGIMPLEMENTERET*
 
@@ -337,7 +344,7 @@ i den videre beregning.
   :width: 800
   :alt: Netopbygning ud fra inputfiler - punktoversigt
 
-Bemærk at nyetablerede punkter fra faneblad i projektfil fremgår med *År* lig 1800,
+Bemærk også at nyetablerede punkter fra faneblad i projektfil fremgår med *År* lig 1800,
 *Kote* lig 0 og *Middelfejl* lig 1000000. I tilfældet her er et punkt etableret, men
 findes ikke i observationsfilen (Hjortholmvej 19), og det fremgår så også uden
 yderligere information.
@@ -351,20 +358,21 @@ fastholdte punkter i punktoversigten.* Så det gør vi!
    flyttes, vælg *Flyt eller kopier*, og udvælg hvor du vil have arket flyttet hen.
 
 
-Step 6) beregn-nye-koter
+Step 6) regn
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Vi skal nu til at beregne nye koter til de observerede punkter.
 
 I ens projektfil kan man notere hvilke punkter skal fastholdes, ved at, i fanebladet
-*Punktoversigt*, skrive *x* ud for punktet i *Fasthold*-kolonnen. Gem derefter filen,
-luk projektet ned og vend tilbage til terminalen, hvor kaldet ``beregn-nye-koter`` skal
-køres:
+*Punktoversigt*, skrive *x* ud for punktet i *Fasthold*-kolonnen. Gem derefter filen 
+og vend tilbage til terminalen, hvor kaldet ``regn`` skal køres:
 
-	> fire niv beregn-nye-koter --help
+	> fire niv regn --help
 
-Herfra ses at man igen skal bruge *Projektnavn* som parameter, og i terminalen vil det
-se således ud:
+Herfra ses at man igen skal bruge *Projektnavn* som parameter, og har to valgmuligheder 
+også; en kontrolberegning (1 punkt fastholdt) eller en endelig beregning. Hvis ingen tilvalg 
+sættes, gætter scriptet selv på hvilken type beregning vi har, ud fra antal af fastholdte 
+punkter. I terminalen vil det se således ud:
 
 .. image:: figures/firenivadj.PNG
   :width: 800
@@ -385,20 +393,23 @@ kode (GnuGama) genererer. Filen åbnes også default efter kørslen.
 I resultatfilen er der nu tre faner;
 
 - *Netgeometri*,
-- *Ensomme* og
-- *Punktoversigt*
+- *Singulære* og
+- *Kontrolberegning*
 
 Netgeometrien viser hvilke punkter er naboer til hvilke punkter, og man kan herfra
-se om der er blinde linjer (punkter med kun én nabo). Ensomme punkter er punkter uden
-en nabo, og som der dermed ikke er målt til.
+se om der er blinde linjer (punkter med kun én nabo). Singulære punkter er punkter, som 
+ikke er forbundet med de(t) fastholdte punkt(er), og der derfor ikke kan beregnes en kote 
+til.
 
-Punktoversigten viser det egentlige beregningsresultat. Kolonner er nu fyldt ud med
+Kontrolberegningen viser det egentlige beregningsresultat. Kolonner er nu fyldt ud med
 nyberegnede koter, middelfejl og differencen fra gældende kote, og man kan lave sin
 endelige vurdering af beregningen.
 
-.. note:: Da kaldet ``beregn-nye-koter`` er langt at skrive, er der oprettet et
-   alias, ``adj``, som kan bruges i stedet for (forkortelse for *adjustment*).
-
+Fanebladet *Kontrolberegning* flyttes nu over i projektfilen på samme måde som før, og i 
+*Punktoversigt*-fanen kan man nu udvælge de fastholdte punkter til den endelige beregning.
+Derefter køres ``regn`` igen (husk at lukke resultatfilen), og en ny beregning udføres; 
+denne gang vil det resulterende faneblad hedde *Endelig beregning*, som også kan flyttes 
+over i projektfilen, såfremt man er tilfreds med beregningsresultatet.
 
 
 Step 7) ilæg-observationer
@@ -442,6 +453,8 @@ Step 9) luk-sag
 
 *ENDNU IKKE FÆRDIGIMPLEMENTERET*
 
+
+
 .. _visualiseringQGIS:
 
 Visualisering i QGIS
@@ -457,7 +470,7 @@ i sin terminal (såfremt det miljø man arbejder i har QGIS tilknyttet).
 I :ref:`step 5) <step5>` blev der genereret to .geojson-filer, en punktfil og en
 observationslinjefil. Disse to kan direkte indlæses i QGIS, fx vha. *drag-and-drop*.
 Nedenfor ses hvordan nettet i eksemplet ovenfor ser ud. Der er en række punkter
-der er målt imellem, samt et ensomt punkt; det nyetablerede ved Hjortholmvej 19.
+der er målt imellem, samt et singulært punkt; det nyetablerede ved Hjortholmvej 19.
 
 .. image:: figures/QGIS.PNG
   :width: 800
@@ -470,4 +483,3 @@ alle punkter inden for en given kommune, et givent distrikt osv.
 
 Pluginet er endnu ikke færdigudviklet og testet af, derfor afventer en nærmere gennemgang
 af det. Men der bliver udviklet på funktionaliteterne løbende og som behovet opstår.
-
