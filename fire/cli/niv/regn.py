@@ -44,7 +44,7 @@ from .netoversigt import netanalyse
     "--endelig",
     is_flag=True,
     default=False,
-    help="Foretag optimalt fastholdt endelig beregning. Hvis hverken -E eller -K vælges gættes ud fra antal fastholdte.",
+    help="Foretag optimalt fastholdt endelig beregning. Hvis hverken -E eller -K fremgår, afgøres parameteren ud fra eksisterende faneblade i projektfil.",
 )
 @fire.cli.default_options()
 @click.argument("projektnavn", nargs=1, type=str)
@@ -99,7 +99,7 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
         f"Fastholder {len(fastholdte)} og beregner nye koter for {len(estimerede_punkter)} punkter"
     )
     beregning = gama_beregning(
-        projektnavn, observationer, punktoversigt, estimerede_punkter
+        projektnavn, kontrol, endelig, observationer, punktoversigt, estimerede_punkter
     )
 
     resultater[næste_faneblad] = beregning
@@ -161,6 +161,7 @@ def find_fastholdte(punktoversigt: pd.DataFrame) -> Dict[str, float]:
 # ------------------------------------------------------------------------------
 def gama_beregning(
     projektnavn: str,
+    kontrol: bool, endelig: bool,
     observationer: pd.DataFrame,
     punktoversigt: pd.DataFrame,
     estimerede_punkter: Tuple[str, ...],
@@ -217,23 +218,30 @@ def gama_beregning(
         )
 
     # Lad GNU Gama om at køre udjævningen
+    if kontrol:
+        beregningstype="kontrol"
+
+    if endelig:
+        beregningstype="endelig"
+
     ret = subprocess.run(
         [
             "gama-local",
             f"{projektnavn}.xml",
             "--xml",
-            f"{projektnavn}-resultat.xml",
+            f"{projektnavn}-resultat-{beregningstype}.xml",
             "--html",
-            f"{projektnavn}-resultat.html",
+            f"{projektnavn}-resultat-{beregningstype}.html",
         ]
     )
     if ret.returncode:
-        fire.cli.print(f"Check {projektnavn}-resultat.html", bg="red", fg="white")
-    webbrowser.open_new_tab(f"{projektnavn}-resultat.html")
+        fire.cli.print(f"Check {projektnavn}-resultat-{beregningstype}.html", bg="red", fg="white")
+    webbrowser.open_new_tab(f"{projektnavn}-resultat-{beregningstype}.html")
 
     # Grav resultater frem fra GNU Gamas outputfil
-    with open(f"{projektnavn}-resultat.xml") as resultat:
+    with open(f"{projektnavn}-resultat-{beregningstype}.xml") as resultat:
         doc = xmltodict.parse(resultat.read())
+
 
     # Sammenhængen mellem rækkefølgen af elementer i Gamas punktliste (koteliste
     # herunder) og varianserne i covariansmatricens diagonal er uklart beskrevet:
