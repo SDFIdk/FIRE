@@ -229,7 +229,7 @@ def gama_beregning(
             "gama-local",
             f"{projektnavn}.xml",
             "--xml",
-            f"{projektnavn}-resultat-{beregningstype}.xml",
+            f"{projektnavn}-resultat.xml",
             "--html",
             f"{projektnavn}-resultat-{beregningstype}.html",
         ]
@@ -239,7 +239,7 @@ def gama_beregning(
     webbrowser.open_new_tab(f"{projektnavn}-resultat-{beregningstype}.html")
 
     # Grav resultater frem fra GNU Gamas outputfil
-    with open(f"{projektnavn}-resultat-{beregningstype}.xml") as resultat:
+    with open(f"{projektnavn}-resultat.xml") as resultat:
         doc = xmltodict.parse(resultat.read())
 
 
