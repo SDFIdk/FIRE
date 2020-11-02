@@ -117,6 +117,10 @@ def udtræk_revision(
                 if attributnavn == "IDENT:landsnr" and info.tekst == ident:
                     continue
 
+                # Vis kun identnavn i første række af hvert punkt
+                if i != indices[0]:
+                    ident = None
+
                 tekst = info.tekst
                 if tekst:
                     tekst = tekst.strip()
@@ -156,9 +160,8 @@ def udtræk_revision(
                 ignore_index=True,
             )
 
-            # To blanklinjer efter hvert punktoversigt
-            revision = revision.append({}, ignore_index=True)
-            revision = revision.append({}, ignore_index=True)
+            # Fem blanklinjer efter hvert punktoversigt
+            revision = revision.append(5 * [{}], ignore_index=True)
 
     resultater = {"Revision": revision}
     skriv_ark(projektnavn, resultater, "-revision")
