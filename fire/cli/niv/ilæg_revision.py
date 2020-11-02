@@ -388,7 +388,7 @@ def ilæg_revision(
 
     if test:
         fire.cli.print(
-            f" TESTEDE punktrevision for {projektnavn}:", bg="red", fg="white"
+            f"TESTEDE punktrevision for '{projektnavn}':", fg="yellow", bold=True
         )
         if koordinatoprettelsestekst != "":
             fire.cli.print(f"    * {koordinatoprettelsestekst}")
