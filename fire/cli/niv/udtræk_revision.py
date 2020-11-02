@@ -161,8 +161,7 @@ def udtræk_revision(
             )
 
             # Fem blanklinjer efter hvert punktoversigt
-            for i in range(5):
-                revision = revision.append({}, ignore_index=True)
+            revision = revision.append(5 * [{}], ignore_index=True)
 
     resultater = {"Revision": revision}
     skriv_ark(projektnavn, resultater, "-revision")
