@@ -1,10 +1,11 @@
 import sys
 from datetime import datetime
-from math import trunc, isnan
+from math import trunc, isnan, radians
 from time import sleep
 
 import click
 import pandas as pd
+from pyproj import Proj
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -138,7 +139,8 @@ def ilæg_revision(
     opdaterede_punkter = []
     koordinatoprettelsestekst = str()
     for r in revision.to_dict("records"):
-        if r["Attribut"].upper() not in sridnavne:
+        sridnavn = r["Attribut"].upper()
+        if sridnavn not in sridnavne:
             continue
         try:
             koord = [float(k) for k in r["Ny værdi"].split()]
@@ -154,7 +156,8 @@ def ilæg_revision(
         # Tæt-på-kopi af kode fra "niv/ilæg_nye_koter.py". Her bør mediteres og overvejes
         # hvordan denne opgave kan parametriseres på en rimeligt generel måde, så den kan
         # udstilles i et "højniveau-API"
-        srid = firedb.hent_srid(r["Attribut"].upper())
+        srid = firedb.hent_srid(sridnavn)
+        assert srid is not None, f"Kan ikke finde srid for sridnavn {sridnavn}"
         registreringstidspunkt = func.current_timestamp()
         sagsevent = Sagsevent(
             sag=sag, id=uuid(), eventtype=EventType.KOORDINAT_BEREGNET
@@ -192,6 +195,28 @@ def ilæg_revision(
             sz=koord[6],
         )
         til_registrering.append(koordinat)
+
+        # I Grønland er vi nødt til at duplikere geografiske koordinater til UTM24,
+        # da Oracles indbyggede UTM-rutine er for ringe til at vi kan generere
+        # udstillingskoordinater on-the-fly.
+        if sridnavn == "EPSG:4909" or sridnavn == "EPSG:4747":
+            srid_utm24 = firedb.hent_srid("EPSG:3184")
+            assert srid_utm24 is not None, "Kan ikke finde srid for sridnavn EPSG:3184"
+            utm24 = Proj("proj=utm zone=24 ellps=GRS80", preserve_units=False)
+            assert utm24 is not None, "Kan ikke initialisere projektionselelement utm24"
+            x, y = utm24(koord[0], koord[1])
+            koordinat = Koordinat(
+                srid=srid_utm24,
+                punkt=punkt,
+                x=x,
+                y=y,
+                z=None,
+                t=tid,
+                sx=koord[4],
+                sy=koord[5],
+                sz=None,
+            )
+            til_registrering.append(koordinat)
 
     n = len(opdaterede_punkter)
     if n > 0:
