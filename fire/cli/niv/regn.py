@@ -99,7 +99,7 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
         f"Fastholder {len(fastholdte)} og beregner nye koter for {len(estimerede_punkter)} punkter"
     )
     beregning = gama_beregning(
-        projektnavn, observationer, punktoversigt, estimerede_punkter
+        projektnavn, observationer, punktoversigt, estimerede_punkter, kontrol
     )
 
     resultater[næste_faneblad] = beregning
@@ -164,6 +164,7 @@ def gama_beregning(
     observationer: pd.DataFrame,
     punktoversigt: pd.DataFrame,
     estimerede_punkter: Tuple[str, ...],
+    kontrol: bool,
 ) -> pd.DataFrame:
     fastholdte = find_fastholdte(punktoversigt)
 
@@ -217,6 +218,11 @@ def gama_beregning(
         )
 
     # Lad GNU Gama om at køre udjævningen
+    if kontrol:
+        beregningstype = "kontrol"
+    else:
+        beregningstype = "endelig"
+
     ret = subprocess.run(
         [
             "gama-local",
@@ -224,12 +230,14 @@ def gama_beregning(
             "--xml",
             f"{projektnavn}-resultat.xml",
             "--html",
-            f"{projektnavn}-resultat.html",
+            f"{projektnavn}-resultat-{beregningstype}.html",
         ]
     )
     if ret.returncode:
-        fire.cli.print(f"Check {projektnavn}-resultat.html", bg="red", fg="white")
-    webbrowser.open_new_tab(f"{projektnavn}-resultat.html")
+        fire.cli.print(
+            f"Check {projektnavn}-resultat-{beregningstype}.html", bg="red", fg="white"
+        )
+    webbrowser.open_new_tab(f"{projektnavn}-resultat-{beregningstype}.html")
 
     # Grav resultater frem fra GNU Gamas outputfil
     with open(f"{projektnavn}-resultat.xml") as resultat:
