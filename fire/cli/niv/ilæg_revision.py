@@ -157,7 +157,6 @@ def ilæg_revision(
         # hvordan denne opgave kan parametriseres på en rimeligt generel måde, så den kan
         # udstilles i et "højniveau-API"
         srid = firedb.hent_srid(sridnavn)
-        assert srid is not None, f"Kan ikke finde srid for sridnavn {sridnavn}"
         registreringstidspunkt = func.current_timestamp()
         sagsevent = Sagsevent(
             sag=sag, id=uuid(), eventtype=EventType.KOORDINAT_BEREGNET
@@ -201,9 +200,7 @@ def ilæg_revision(
         # udstillingskoordinater on-the-fly.
         if sridnavn == "EPSG:4909" or sridnavn == "EPSG:4747":
             srid_utm24 = firedb.hent_srid("EPSG:3184")
-            assert srid_utm24 is not None, "Kan ikke finde srid for sridnavn EPSG:3184"
             utm24 = Proj("proj=utm zone=24 ellps=GRS80", preserve_units=False)
-            assert utm24 is not None, "Kan ikke initialisere projektionselelement utm24"
             x, y = utm24(koord[0], koord[1])
             koordinat = Koordinat(
                 srid=srid_utm24,
