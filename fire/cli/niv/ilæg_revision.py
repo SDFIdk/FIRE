@@ -143,7 +143,7 @@ def ilæg_revision(
         if sridnavn not in sridnavne:
             continue
         try:
-            koord = [float(k) for k in r["Ny værdi"].split()]
+            koord = [float(k.replace(",", ".")) for k in r["Ny værdi"].split()]
         except ValueError as ex:
             fire.cli.print(
                 f"Slemt koordinatudtryk:\n{'    '.join(r['Ny værdi'])}\n{ex}"

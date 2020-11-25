@@ -111,7 +111,8 @@ def koordinat_linje(koord: Koordinat) -> str:
 
     if dimensioner == 3:
         linje = meta + f"{koord.x:.10f}, {koord.y:.10f}, {koord.z:.5f}"
-        linje += f"  ({koord.sx:.0f}, {koord.sy:.0f}, {koord.sz:.0f})"
+        if koord.sx is not None and koord.sy is not None and koord.sz is not None:
+            linje += f"  ({koord.sx:.0f}, {koord.sy:.0f}, {koord.sz:.0f})"
 
     return linje
 
@@ -525,7 +526,9 @@ def infotype(infotype: str, søg: bool, **kwargs):
     bredde = max([len(p.name) for p in punktinfotyper]) + 2
     for punktinfotype in punktinfotyper:
         besk = punktinfotype.beskrivelse.replace("-\n", "").replace("\n", " ").strip()
-        fire.cli.print(f"{punktinfotype.name:{bredde}} {besk}")
+        fire.cli.print(
+            f"{punktinfotype.infotypeid:{-4}} {punktinfotype.name:{bredde}} {besk}"
+        )
 
 
 @info.command()

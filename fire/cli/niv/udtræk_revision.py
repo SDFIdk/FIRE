@@ -103,6 +103,11 @@ def udtræk_revision(
 
             anvendte_attributter = []
 
+            # Nedenfor sætter vi ident=None efter første linje, for at få en mere
+            # overskuelig rapportering. Men vi skal stadig have adgang til identen
+            # for at kunne fejlmelde undervejs
+            ident_til_fejlmelding = ident
+
             # Så itererer vi, med aktuelle beskrivelse først
             for i in indices:
                 info = punkt.punktinformationer[i]
@@ -149,7 +154,15 @@ def udtræk_revision(
                     },
                     ignore_index=True,
                 )
-            lokation = punkt.geometri.koordinater
+            try:
+                lokation = punkt.geometri.koordinater
+            except AttributeError:
+                fire.cli.print(
+                    f"NB! {ident_til_fejlmelding} mangler lokationskoordinat - bruger (11,56)",
+                    fg="yellow",
+                    bold=True,
+                )
+                lokation = (11.0, 56.0)
             revision = revision.append(
                 {
                     "Punkt": ident,
