@@ -34,7 +34,7 @@ def luk_sag(self, sag: Sag):
     self.session.commit()
 
 
-def luk_punkt(self, punkt: Punkt, sagsevent: Sagsevent):
+def luk_punkt(self, punkt: Punkt, sagsevent: Sagsevent, commit: bool = True):
     """
     Luk et punkt.
 
@@ -65,10 +65,13 @@ def luk_punkt(self, punkt: Punkt, sagsevent: Sagsevent):
     for observation in punkt.observationer_til:
         self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=False)
 
-    self.session.commit()
+    if commit:
+        self.session.commit()
 
 
-def luk_koordinat(self, koordinat: Koordinat, sagsevent: Sagsevent):
+def luk_koordinat(
+    self, koordinat: Koordinat, sagsevent: Sagsevent, commit: bool = True
+):
     """
     Luk en koordinat.
 
@@ -78,10 +81,12 @@ def luk_koordinat(self, koordinat: Koordinat, sagsevent: Sagsevent):
         raise TypeError("'koordinat' er ikke en instans af Koordinat")
 
     sagsevent.eventtype = EventType.KOORDINAT_NEDLAGT
-    self._luk_fikspunkregisterobjekt(koordinat, sagsevent)
+    self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=commit)
 
 
-def luk_observation(self, observation: Observation, sagsevent: Sagsevent):
+def luk_observation(
+    self, observation: Observation, sagsevent: Sagsevent, commit: bool = True
+):
     """
     Luk en observation.
 
@@ -91,10 +96,12 @@ def luk_observation(self, observation: Observation, sagsevent: Sagsevent):
         raise TypeError("'observation' er ikk en instans af Observation")
 
     sagsevent.eventtype = EventType.OBSERVATION_NEDLAGT
-    self._luk_fikspunkregisterobjekt(observation, sagsevent)
+    self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=commit)
 
 
-def luk_punktinfo(self, punktinfo: PunktInformation, sagsevent: Sagsevent):
+def luk_punktinfo(
+    self, punktinfo: PunktInformation, sagsevent: Sagsevent, commit: bool = True
+):
     """
     Luk en punktinformation.
 
@@ -104,10 +111,12 @@ def luk_punktinfo(self, punktinfo: PunktInformation, sagsevent: Sagsevent):
         raise TypeError("'punktinfo' er ikke en instans af PunktInformation")
 
     sagsevent.eventtype = EventType.PUNKTINFO_FJERNET
-    self._luk_fikspunkregisterobjekt(punktinfo, sagsevent)
+    self._luk_fikspunkregisterobjekt(punktinfo, sagsevent, commit=commit)
 
 
-def luk_beregning(self, beregning: Beregning, sagsevent: Sagsevent):
+def luk_beregning(
+    self, beregning: Beregning, sagsevent: Sagsevent, commit: bool = True
+):
     """
     Luk en beregning.
 
@@ -120,5 +129,4 @@ def luk_beregning(self, beregning: Beregning, sagsevent: Sagsevent):
     sagsevent.eventtype = EventType.KOORDINAT_NEDLAGT
     for koordinat in beregning.koordinater:
         self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
-    self._luk_fikspunkregisterobjekt(beregning, sagsevent, commit=False)
-    self.session.commit()
+    self._luk_fikspunkregisterobjekt(beregning, sagsevent, commit=commit)
