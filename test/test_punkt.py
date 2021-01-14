@@ -104,20 +104,24 @@ def test_luk_punkt(
     firedb.luk_punkt(punkt, sagsevent)
     assert punkt.registreringtil is not None
     assert punkt.sagsevent.eventtype == EventType.PUNKT_NEDLAGT
+    assert punkt.sagseventtilid == sagsevent.id
     assert geometri.registreringtil is not None
     assert geometri.sagsevent.eventtype == EventType.PUNKT_NEDLAGT
 
     for koordinat in punkt.koordinater:
         assert koordinat.registreringtil is not None
         assert koordinat.sagsevent.eventtype == EventType.PUNKT_NEDLAGT
+        assert koordinat.sagseventtilid == sagsevent.id
 
     for punktinfo in punkt.punktinformationer:
         assert punktinfo.registreringtil is not None
         assert punktinfo.sagsevent.eventtype == EventType.PUNKT_NEDLAGT
+        assert punktinfo.sagseventtilid == sagsevent.id
 
     for observation in chain(punkt.observationer_fra, punkt.observationer_til):
         assert observation.registreringtil is not None
         assert observation.sagsevent.eventtype == EventType.PUNKT_NEDLAGT
+        assert observation.sagseventtilid == sagsevent.id
 
     with pytest.raises(TypeError):
         firedb.luk_punkt(999)
