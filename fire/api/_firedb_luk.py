@@ -49,9 +49,9 @@ def luk_punkt(self, punkt: Punkt, sagsevent: Sagsevent, commit: bool = True):
 
     sagsevent.eventtype = EventType.PUNKT_NEDLAGT
     self._luk_fikspunkregisterobjekt(punkt, sagsevent, commit=False)
-    self._luk_fikspunkregisterobjekt(
-        punkt.geometriobjekter[-1], sagsevent, commit=False
-    )
+
+    for geometriobjekt in punkt.geometriobjekter:
+        self._luk_fikspunkregisterobjekt(geometriobjekt, sagsevent, commit=False)
 
     for koordinat in punkt.koordinater:
         self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
