@@ -7,14 +7,14 @@ dependencies:
   - cx_oracle=7.0
   - sqlalchemy=1.2.13
   - pyproj
-  - qgis=3.10
+  - qgis=3.14
   - click
   - colorama
   - pandas=1.1.2
   - xlsxwriter
-  - xlrd
+  - xlrd=1.2.0
   - xmltodict
-  - gama
+  - gama=2.09
   - pytest
   - pytest-cov
   - pytest-mock
