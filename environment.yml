@@ -11,6 +11,6 @@ dependencies:
   - pyproj
   - pandas=1.1.2
   - xlsxwriter
-  - xlrd
+  - xlrd=1.2.0
   - xmltodict
-  - gama
+  - gama=2.09
