@@ -10,9 +10,9 @@ dependencies:
   - qgis=3.14
   - click
   - colorama
-  - pandas=1.1.2
+  - pandas=1.2.1
+  - openpyxl=3.0.6
   - xlsxwriter
-  - xlrd=1.2.0
   - xmltodict
   - gama=2.13
   - pytest
