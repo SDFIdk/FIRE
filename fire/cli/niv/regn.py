@@ -249,7 +249,6 @@ def gama_beregning(
     # Men rækkefølgen anvendt her passer sammen med det Gama præsenterer i
     # html-rapportudgaven af beregningsresultatet.
     koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
-    print(f"koteliste: {koteliste}")
     punkter = [punkt["id"] for punkt in koteliste]
     koter = [float(punkt["z"]) for punkt in koteliste]
     varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
