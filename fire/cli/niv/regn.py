@@ -259,6 +259,8 @@ def gama_beregning(
     punktoversigt["uuid"] = ""
     punktoversigt["Udelad publikation"] = ""
     punktoversigt["Fasthold"] = "x"
+    punktoversigt["Ny kote"] = None
+    punktoversigt["Ny σ"] = None
     punktoversigt["Δ-kote [mm]"] = None
     punktoversigt["Opløft [mm/år]"] = float("NaN")
     punktoversigt["System"] = "DVR90"
