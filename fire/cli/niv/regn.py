@@ -271,7 +271,7 @@ def gama_beregning(
         punktoversigt.at[punkt, "Fasthold"] = ""
 
         # Ændring i millimeter...
-        Δ = ny_kote - punktoversigt.at[punkt, "Kote"]
+        Δ = (ny_kote - punktoversigt.at[punkt, "Kote"]) * 1000.0
         # ...men vi ignorerer ændringer under mikrometerniveau
         if abs(Δ) < 0.001:
             Δ = 0
