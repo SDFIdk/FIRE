@@ -178,7 +178,6 @@ def gama_beregning(
             f"    algorithm='gso' angles='400' conf-pr='0.95'\n"
             f"    cov-band='0' ellipsoid='grs80' latitude='55.7' sigma-act='apriori'\n"
             f"    sigma-apr='1.0' tol-abs='1000.0'\n"
-            f"    update-constrained-coordinates='no'\n"
             f"/>\n\n"
             f"<description>\n"
             f"    Nivellementsprojekt {ascii(projektnavn)}\n"  # Gama kaster op over Windows-1252 tegn > 127

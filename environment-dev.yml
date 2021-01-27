@@ -14,7 +14,7 @@ dependencies:
   - xlsxwriter
   - xlrd=1.2.0
   - xmltodict
-  - gama=2.09
+  - gama=2.13
   - pytest
   - pytest-cov
   - pytest-mock
