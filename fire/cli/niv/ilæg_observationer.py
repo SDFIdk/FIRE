@@ -150,9 +150,10 @@ def ilæg_observationer(
                 value1=obs.ΔH,
                 value2=obs.L,
                 value3=obs.Opst,
-                # value4=Refraktion, eta_1, sættes her til None
+                value4=0.0,  # Refraktion, eta_1, er defineret som non-null, så vi sætter den til 0 istf. None
                 value5=obs.σ,
                 value6=obs.δ,
+                value7=0,  # 1,2,3 henviser til 1.,2.,3. præcisionsnivellement. 0 til "ingen af dem"
             )
         else:
             fire.cli.print(

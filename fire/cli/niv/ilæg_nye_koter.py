@@ -132,8 +132,15 @@ def ilæg_nye_koter(
     sagsevent.sagseventinfos.append(sagseventinfo)
 
     # Generer dokumentation til fanebladet "Sagsgang"
+    # Variablen "registreringstidspunkt" har værdien "CURRENT_TIMESTAMP"
+    # som udvirker mikrosekundmagi når den bliver skrevet til databasen,
+    # men ikke er meget informativ for en menneskelig læser her i regne-
+    # arkenes prosaiske verden. Derfor benytter vi pd.Timestamp.now(),
+    # som ikke har mikrosekundmagi over sig, men som kan læses og giver
+    # mening, selv om den ikke bliver eksakt sammenfaldende med det
+    # tidsstempel hændelsen får i databasen. Det lever vi med.
     sagsgangslinje = {
-        "Dato": registreringstidspunkt,
+        "Dato": pd.Timestamp.now(),
         "Hvem": sagsbehandler,
         "Hændelse": "Koteberegning",
         "Tekst": sagseventtekst,
