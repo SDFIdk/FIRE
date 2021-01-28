@@ -84,6 +84,7 @@ def indset_sagsevent(self, sagsevent: Sagsevent):
                     f"PunktInformation allerede tilføjet databasen: {punktinformation}"
                 )
 
+    self.session.commit()
 
 
 def indset_punktinformationtype(self, punktinfotype: PunktInformationType):

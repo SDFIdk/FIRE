@@ -34,7 +34,9 @@ def test_indset_beregning(
     firedb.indset_sagsevent(
         Sagsevent(
             sag=sag,
-            sagseventinfos=[SagseventInfo(beskrivelse="Testindsættelse af observation")],
+            sagseventinfos=[
+                SagseventInfo(beskrivelse="Testindsættelse af observation")
+            ],
             eventtype=EventType.OBSERVATION_INDSAT,
             observationer=[o0],
         )
@@ -63,7 +65,9 @@ def test_indset_beregning_invalidates_existing_koordinat(
     firedb.indset_sagsevent(
         Sagsevent(
             sag=sag,
-            sagseventinfos=[SagseventInfo(beskrivelse="Testindsættelse af observation")],
+            sagseventinfos=[
+                SagseventInfo(beskrivelse="Testindsættelse af observation")
+            ],
             eventtype=EventType.OBSERVATION_INDSAT,
             observationer=[observation],
         )
