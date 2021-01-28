@@ -222,7 +222,9 @@ def skriv_ark(
         try:
             with pd.ExcelWriter(filnavn) as writer:
                 for r in resultater:
-                    resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
+                    resultater[r].to_excel(
+                        writer, sheet_name=r, encoding="utf-8", index=False
+                    )
             if suffix == "-resultat":
                 os.startfile(f"{projektnavn}-resultat.xlsx")
             return
