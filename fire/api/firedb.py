@@ -95,7 +95,6 @@ class FireDb(object):
     from ._firedb_indset import (
         indset_sag,
         indset_sagsevent,
-        indset_punktinformation,
         indset_punktinformationtype,
         indset_observationstype,
         indset_srid,
