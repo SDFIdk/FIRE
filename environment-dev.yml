@@ -12,7 +12,6 @@ dependencies:
   - colorama
   - pandas=1.2.1
   - openpyxl=3.0.6
-  - xlsxwriter
   - xmltodict
   - gama=2.13
   - pytest
