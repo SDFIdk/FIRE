@@ -217,23 +217,24 @@ def skriv_ark(
         fire.cli.print(f"Skriver: {tuple(resultater)}")
         fire.cli.print(f"Til filen '{filnavn}'")
 
-    writer = pd.ExcelWriter(filnavn, engine="xlsxwriter")
-    for r in resultater:
-        resultater[r].to_excel(writer, sheet_name=r, encoding="utf-8", index=False)
-
     # Giv brugeren en chance for at lukke et åbent regneark
     while True:
         try:
-            writer.save()
+            with pd.ExcelWriter(filnavn) as writer:
+                for r in resultater:
+                    resultater[r].to_excel(
+                        writer, sheet_name=r, encoding="utf-8", index=False
+                    )
             if suffix == "-resultat":
                 os.startfile(f"{projektnavn}-resultat.xlsx")
             return
-        except:
+        except Exception as ex:
             fire.cli.print(
                 f"Kan ikke skrive til '{filnavn}' - måske fordi den er åben.",
                 fg="yellow",
                 bold=True,
             )
+            fire.cli.print(f"Anden mulig årsag: {ex}")
             if input("Prøv igen ([j]/n)? ") in ["j", "J", "ja", ""]:
                 continue
             fire.cli.print("Dropper skrivning")
