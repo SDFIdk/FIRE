@@ -2,7 +2,7 @@ import math
 import xml.etree.ElementTree as ET
 
 from fire.api import FireDb
-from fire.api.model import Beregning, Koordinat, Sagsevent
+from fire.api.model import Beregning, Koordinat, Sagsevent, SagseventInfo, EventType
 
 
 class GamaReader(object):
@@ -68,4 +68,14 @@ class GamaReader(object):
         observation_list = self.fireDb.hent_observationer(observation_id_list)
         beregning.observationer.extend(observation_list)
 
-        self.fireDb.indset_beregning(Sagsevent(sag=sag), beregning)
+        self.fireDb.indset_sagsevent(
+            Sagsevent(
+                sag=sag,
+                eventtype=EventType.KOORDINAT_BEREGNET,
+                sagseventinfos=[
+                    SagseventInfo(beskrivelse="Beregning indlæst via GNU Gama")
+                ],
+                beregninger=[beregning],
+                koordinater=beregning.koordinater,
+            )
+        )

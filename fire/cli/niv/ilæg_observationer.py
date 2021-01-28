@@ -175,7 +175,9 @@ def ilæg_observationer(
     # Persister observationerne til databasen
     fire.cli.print(f"Skriver {len(til_registrering)} observationer")
     try:
-        firedb.indset_flere_observationer(sagsevent, til_registrering)
+        sagsevent.observationer = til_registrering
+        firedb.indset_sagsevent(sagsevent)
+
     except Exception as ex:
         fire.cli.print(
             "Skrivning til databasen slog fejl", bg="red", fg="white", bold=True

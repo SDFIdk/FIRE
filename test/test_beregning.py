@@ -8,11 +8,11 @@ from fire.api.model import (
     Observation,
     Beregning,
     Sagsevent,
+    SagseventInfo,
     Sag,
     Srid,
     ObservationsType,
     EventType,
-    Boolean,
 )
 
 
@@ -31,12 +31,30 @@ def test_indset_beregning(
         opstillingspunkt=punkt,
     )
 
-    firedb.indset_observation(Sagsevent(sag=sag), o0)
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            sagseventinfos=[
+                SagseventInfo(beskrivelse="Testindsættelse af observation")
+            ],
+            eventtype=EventType.OBSERVATION_INDSAT,
+            observationer=[o0],
+        )
+    )
     beregning = Beregning()
     beregning.observationer.append(o0)
     koordinat = Koordinat(srid=srid, punkt=punkt, x=0, y=0, z=0, sx=0, sy=0, sz=0)
     beregning.koordinater.append(koordinat)
-    firedb.indset_beregning(Sagsevent(sag=sag), beregning)
+
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            eventtype=EventType.KOORDINAT_BEREGNET,
+            sagseventinfos=[SagseventInfo(beskrivelse="Testberegning")],
+            beregninger=[beregning],
+            koordinater=beregning.koordinater,
+        )
+    )
 
     assert koordinat.objektid is not None
 
@@ -44,12 +62,30 @@ def test_indset_beregning(
 def test_indset_beregning_invalidates_existing_koordinat(
     firedb: FireDb, sag: Sag, punkt: Punkt, srid: Srid, observation: Observation
 ):
-    firedb.indset_observation(Sagsevent(sag=sag), observation)
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            sagseventinfos=[
+                SagseventInfo(beskrivelse="Testindsættelse af observation")
+            ],
+            eventtype=EventType.OBSERVATION_INDSAT,
+            observationer=[observation],
+        )
+    )
     beregning = Beregning()
     beregning.observationer.append(observation)
     koordinat = Koordinat(srid=srid, punkt=punkt, x=0, y=0, z=0, sx=0, sy=0, sz=0)
     beregning.koordinater.append(koordinat)
-    firedb.indset_beregning(Sagsevent(sag=sag), beregning)
+
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            eventtype=EventType.KOORDINAT_BEREGNET,
+            sagseventinfos=[SagseventInfo(beskrivelse="Testberegning")],
+            beregninger=[beregning],
+            koordinater=beregning.koordinater,
+        )
+    )
 
     # new beregning of the same observation with a new koordinat
     beregning2 = Beregning()
@@ -65,7 +101,16 @@ def test_indset_beregning_invalidates_existing_koordinat(
         sz=0,
     )
     beregning2.koordinater.append(koordinat2)
-    firedb.indset_beregning(Sagsevent(sag=sag), beregning2)
+
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            eventtype=EventType.KOORDINAT_BEREGNET,
+            sagseventinfos=[SagseventInfo(beskrivelse="Testberegning")],
+            beregninger=[beregning2],
+            koordinater=beregning2.koordinater,
+        )
+    )
 
     assert len(punkt.koordinater) == 2
     assert len([k for k in punkt.koordinater if k.registreringtil is None]) == 1

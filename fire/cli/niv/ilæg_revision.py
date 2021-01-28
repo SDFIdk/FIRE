@@ -488,7 +488,8 @@ def opret_punkt(ident: str, lokation: str, sag: Sag):
     se = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKT_OPRETTET)
     si = SagseventInfo(beskrivelse=f"opret {ident}")
     se.sagseventinfos.append(si)
-    firedb.indset_punkt(se, p)
+    se.punkter.append(p)
+    firedb.indset_sagsevent(se)
 
     # indsæt ident
     pit = firedb.hent_punktinformationtype(identtype)

@@ -17,7 +17,6 @@ from fire.api.model import (
     Observation,
     ObservationsType,
     Sagsevent,
-    Beregning,
     EventType,
     Srid,
 )
@@ -39,133 +38,52 @@ def indset_sagsevent(self, sagsevent: Sagsevent):
         raise Exception(f"Sagsevent allerede tilføjet databasen: {sagsevent}")
     if len(sagsevent.sagseventinfos) < 1:
         raise Exception("Mindst et SagseventInfo skal tilføjes Sag")
-    self.session.add(sagsevent)
-    self.session.commit()
 
+    if sagsevent.eventtype == EventType.PUNKT_OPRETTET:
+        self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
 
-def indset_flere_punkter(self, sagsevent: Sagsevent, punkter: List[Punkt]) -> None:
-    """Indsæt flere punkter i punkttabellen, alle under samme sagsevent
-
-    Parameters
-    ----------
-    sagsevent: Sagsevent
-        Nyt (endnu ikke persisteret) sagsevent.
-
-        NB: Principielt ligger "indset_flere_punkter" på et højere API-niveau
-        end "indset_punkter", så det bør overvejes at generere sagsevent her.
-        Argumentet vil så skulle ændres til "sagseventtekst: str", og der vil
-        skulle tilføjes et argument "sag: Sag". Alternativt kan sagseventtekst
-        autogenereres her ("oprettelse af punkterne nn, mm, ...")
-
-    punkter: List[Punkt]
-        De punkter der skal persisteres under samme sagsevent
-
-    Returns
-    -------
-    None
-
-    """
-    # Check at alle punkter er i orden
-    for punkt in punkter:
-        if not self._is_new_object(punkt):
-            raise Exception(f"Punkt allerede tilføjet databasen: {punkt}")
-        if len(punkt.geometriobjekter) != 1:
-            raise Exception(
-                "Der skal tilføjes et (og kun et) GeometriObjekt til punktet"
-            )
-
-    self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
-
-    for punkt in punkter:
-        punkt.sagsevent = sagsevent
-        for geometriobjekt in punkt.geometriobjekter:
-            if not self._is_new_object(geometriobjekt):
+        # Check at alle punkter er i orden
+        for punkt in sagsevent.punkter:
+            if not self._is_new_object(punkt):
+                raise Exception(f"Punkt allerede tilføjet databasen: {punkt}")
+            if len(punkt.geometriobjekter) != 1:
                 raise Exception(
-                    "Punktet kan ikke henvise til et eksisterende GeometriObjekt"
+                    "Der skal tilføjes et (og kun et) GeometriObjekt til punktet"
                 )
-            geometriobjekt.sagsevent = sagsevent
-        for punktinformation in punkt.punktinformationer:
+            for geometriobjekt in punkt.geometriobjekter:
+                if not self._is_new_object(geometriobjekt):
+                    raise Exception(
+                        "Punktet kan ikke henvise til et eksisterende GeometriObjekt"
+                    )
+                geometriobjekt.sagsevent = sagsevent
+
+    if sagsevent.eventtype == EventType.KOORDINAT_BEREGNET:
+        self._check_and_prepare_sagsevent(sagsevent, EventType.KOORDINAT_BEREGNET)
+        for beregning in sagsevent.beregninger:
+            if not self._is_new_object(beregning):
+                raise Exception(f"Beregning allerede tilføjet databasen: {beregning}")
+
+        for koordinat in sagsevent.koordinater:
+            if not self._is_new_object(koordinat):
+                raise Exception(f"Koordinat allerede tilføjet datbasen: {koordinat}")
+            koordinat.sagsevent = sagsevent
+
+    if sagsevent.eventtype == EventType.OBSERVATION_INDSAT:
+        self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
+
+        for obs in sagsevent.observationer:
+            if not self._is_new_object(obs):
+                raise Exception(f"Observation allerede tilføjet databasen: {obs}")
+
+    if sagsevent.eventtype == EventType.PUNKTINFO_TILFOEJET:
+        self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKTINFO_TILFOEJET)
+
+        for punktinformation in sagsevent.punktinformationer:
             if not self._is_new_object(punktinformation):
                 raise Exception(
-                    "Punktet kan ikke henvise til et eksisterende PunktInformation objekt"
+                    f"PunktInformation allerede tilføjet databasen: {punktinformation}"
                 )
-            punktinformation.sagsevent = sagsevent
-        self.session.add(punkt)
 
-    self.session.commit()
-
-
-def indset_flere_observationer(
-    self, sagsevent: Sagsevent, observationer: List[Observation]
-) -> None:
-    """Indsæt flere punkter i punkttabellen, alle under samme sagsevent
-
-    Parameters
-    ----------
-    sagsevent: Sagsevent
-        Nyt (endnu ikke persisteret) sagsevent.
-
-        NB: Principielt ligger "indset_flere_observationer" på et højere API-niveau
-        end "indset_observationer", så det bør overvejes at generere sagsevent her.
-        Argumentet vil så skulle ændres til "sagseventtekst: str", og der vil
-        skulle tilføjes et argument "sag: Sag". Alternativt kan sagseventtekst
-        autogenereres her ("oprettelse af observationerne nn, mm, ...")
-
-    observationer: List[Observation]
-        De observationer der skal persisteres under samme sagsevent
-
-    Returns
-    -------
-    None
-
-    """
-    # Check at alle punkter er i orden
-    for obs in observationer:
-        if not self._is_new_object(obs):
-            raise Exception(f"Observation allerede tilføjet databasen: {obs}")
-
-    self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
-
-    for obs in observationer:
-        obs.sagsevent = sagsevent
-        self.session.add(obs)
-
-    self.session.commit()
-
-
-def indset_punkt(self, sagsevent: Sagsevent, punkt: Punkt):
-    if not self._is_new_object(punkt):
-        raise Exception(f"Punkt er allerede tilføjet databasen: {punkt}")
-    if len(punkt.geometriobjekter) != 1:
-        raise Exception("Der skal tilføjes et (og kun et) GeometriObjekt til punktet")
-    self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKT_OPRETTET)
-    punkt.sagsevent = sagsevent
-    for geometriobjekt in punkt.geometriobjekter:
-        if not self._is_new_object(geometriobjekt):
-            raise Exception(
-                "Punktet kan ikke henvise til et eksisterende GeometriObjekt"
-            )
-        geometriobjekt.sagsevent = sagsevent
-    for punktinformation in punkt.punktinformationer:
-        if not self._is_new_object(punktinformation):
-            raise Exception(
-                "Punktet kan ikke henvise til et eksisterende PunktInformation objekt"
-            )
-        punktinformation.sagsevent = sagsevent
-    self.session.add(punkt)
-    self.session.commit()
-
-
-def indset_punktinformation(
-    self, sagsevent: Sagsevent, punktinformation: PunktInformation
-):
-    if not self._is_new_object(punktinformation):
-        raise Exception(
-            f"PunktInformation allerede tilføjet databasen: {punktinformation}"
-        )
-    self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKTINFO_TILFOEJET)
-    punktinformation.sagsevent = sagsevent
-    self.session.add(punktinformation)
     self.session.commit()
 
 
@@ -182,15 +100,6 @@ def indset_punktinformationtype(self, punktinfotype: PunktInformationType):
     self.session.commit()
 
 
-def indset_observation(self, sagsevent: Sagsevent, observation: Observation):
-    if not self._is_new_object(observation):
-        raise Exception(f"Observation allerede tilføjet databasen: {observation}")
-    self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
-    observation.sagsevent = sagsevent
-    self.session.add(observation)
-    self.session.commit()
-
-
 def indset_observationstype(self, observationstype: ObservationsType):
     if not self._is_new_object(observationstype):
         raise Exception(
@@ -201,20 +110,6 @@ def indset_observationstype(self, observationstype: ObservationsType):
         n = 0
     observationstype.observationstypeid = n + 1
     self.session.add(observationstype)
-    self.session.commit()
-
-
-def indset_beregning(self, sagsevent: Sagsevent, beregning: Beregning):
-    if not self._is_new_object(beregning):
-        raise Exception(f"Beregning allerede tilføjet datbasen: {beregning}")
-
-    self._check_and_prepare_sagsevent(sagsevent, EventType.KOORDINAT_BEREGNET)
-    beregning.sagsevent = sagsevent
-    for koordinat in beregning.koordinater:
-        if not self._is_new_object(koordinat):
-            raise Exception(f"Koordinat allerede tilføjet datbasen: {koordinat}")
-        koordinat.sagsevent = sagsevent
-    self.session.add(beregning)
     self.session.commit()
 
 

@@ -4,25 +4,45 @@ from fire.api.model import (
     PunktInformation,
     PunktInformationType,
     Sagsevent,
+    SagseventInfo,
     EventType,
 )
 
 
 def test_indset_punktinformation(firedb, sag, punkt, punktinformationtype):
     pi = PunktInformation(infotype=punktinformationtype, punkt=punkt)
-    firedb.indset_punktinformation(Sagsevent(sag=sag), pi)
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            sagseventinfos=[SagseventInfo(beskrivelse="Testindsættelse af punktinfo")],
+            eventtype=EventType.PUNKTINFO_TILFOEJET,
+            punktinformationer=[pi],
+        )
+    )
 
 
 def test_opdatering_punktinformation(firedb, sag, punkt):
     pit = firedb.hent_punktinformationtype("IDENT:landsnr")
 
-    se1 = Sagsevent(sag=sag)
     pi1 = PunktInformation(infotype=pit, punkt=punkt, tekst="K-12-1231")
-    firedb.indset_punktinformation(se1, pi1)
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            sagseventinfos=[SagseventInfo(beskrivelse="Testindsættelse af punktinfo")],
+            eventtype=EventType.PUNKTINFO_TILFOEJET,
+            punktinformationer=[pi1],
+        )
+    )
 
-    se2 = Sagsevent(sag=sag)
     pi2 = PunktInformation(infotype=pit, punkt=punkt, tekst="K-22-2231")
-    firedb.indset_punktinformation(se2, pi2)
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            sagseventinfos=[SagseventInfo(beskrivelse="Testindsættelse af punktinfo")],
+            eventtype=EventType.PUNKTINFO_TILFOEJET,
+            punktinformationer=[pi2],
+        )
+    )
 
     infotyper = (
         firedb.session.query(PunktInformation)

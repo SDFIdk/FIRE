@@ -81,11 +81,6 @@ def test_hent_observationer_naer_geometri(firedb: FireDb):
 def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
     obstype = firedb.session.query(ObservationsType).first()
 
-    sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.OBSERVATION_INDSAT)
-    sagseventtekst = "Ilægning af observation"
-    sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
-    sagsevent.sagseventinfos.append(sagseventinfo)
-
     obs1 = Observation(
         antal=0,
         observationstype=obstype,
@@ -101,7 +96,13 @@ def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
         value8=0,
     )
 
-    firedb.indset_observation(sagsevent, obs1)
+    sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.OBSERVATION_INDSAT)
+    sagseventtekst = "Ilægning af observation"
+    sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
+    sagsevent.sagseventinfos.append(sagseventinfo)
+    sagsevent.observationer = [obs1]
+
+    firedb.indset_sagsevent(sagsevent)
 
 
 def test_indset_flere_observationer(firedb: FireDb, sag: Sag, punkt: Punkt):
@@ -142,7 +143,16 @@ def test_indset_flere_observationer(firedb: FireDb, sag: Sag, punkt: Punkt):
         value8=0,
     )
 
-    firedb.indset_flere_observationer(sagsevent, [obs1, obs2])
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            eventtype=EventType.OBSERVATION_INDSAT,
+            sagseventinfos=[
+                SagseventInfo(beskrivelse="Testindsættelse af flere observationer")
+            ],
+            observationer=[obs1, obs2],
+        )
+    )
 
 
 def test_luk_observation(
