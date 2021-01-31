@@ -36,7 +36,7 @@ _default_options = [
 ]
 
 
-def default_options():
+def default_options(**kwargs):
     def _add_options(func):
         for option in reversed(_default_options):
             func = option(func)

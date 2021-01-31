@@ -21,25 +21,6 @@ from fire.api.model import (
 )
 
 
-class TestFireDb(FireDb):
-    """
-    FireDb that connects to DB with login data from
-    'test_connection' section of config file
-    """
-
-    _exe_opt = {}
-
-    def _build_connection_string(self):
-        # Establish connection to database
-        username = self.config.get("test_connection", "username")
-        password = self.config.get("test_connection", "password")
-        hostname = self.config.get("test_connection", "hostname")
-        database = self.config.get("test_connection", "database")
-        port = self.config.get("test_connection", "port", fallback=1521)
-
-        return f"{username}:{password}@{hostname}:{port}/{database}"
-
-
 class DummyFireDb(FireDb):
     """
     FireDb klasse der bruges i tests hvor databaseudtræk med
@@ -53,7 +34,7 @@ class DummyFireDb(FireDb):
         }
 
 
-persistent_firedb = TestFireDb(debug=False)
+persistent_firedb = FireDb(db="ci", debug=False)
 fire.cli.override_firedb(persistent_firedb)
 
 

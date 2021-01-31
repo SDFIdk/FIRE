@@ -30,20 +30,38 @@ from fire.api.model import (
 
 class FireDb(object):
 
-    _exe_opt = {"schema_translate_map": {None: "fire_adm"}}
+    _exe_opt = {}
 
-    def __init__(self, connectionstring=None, debug=False):
+    def __init__(self, db=None, connectionstring=None, debug=False):
         """
 
         Parameters
         ----------
+        db: str
+            Vælg databaseforbindelse defineret i fire.ini. Mulige valg er
+                prod, test, ci og None
+            Hvis None, vælges defaultdatabasen fra fire.ini, er denne ikke sat
+            faldes tilbage på prod databaseforbindelsen.
         connectionstring : str
             Connection string til FIRE databasen.
             På formen 'user:pass@host:port/dbname[?key=value&key=value...]'
+
+            connectionstring bruges hvis db også er angivet.
         debug: bool
             Hvis sat til True spyttes debug information ud på stdout. Kan
             omdirigeres ved at angive en anden logger til self.engine.
         """
+        self.config = self._read_config()
+
+        if db not in (None, "prod", "test", "ci"):
+            raise ValueError(
+                "'db' skal være en af følgende: 'prod', 'test', 'ci' eller None"
+            )
+
+        if connectionstring:
+            self.connectionstring = connectionstring
+        else:
+            self.connectionstring = self._build_connection_string(db)
 
         self._cache = {
             "punkt": {},
@@ -51,12 +69,6 @@ class FireDb(object):
         }
 
         self.dialect = "oracle+cx_oracle"
-        self.config = self._read_config()
-        if connectionstring:
-            self.connectionstring = connectionstring
-        else:
-            self.connectionstring = self._build_connection_string()
-
         self.engine = create_engine(
             f"{self.dialect}://{self.connectionstring}",
             connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
@@ -453,6 +465,7 @@ class FireDb(object):
             raise EnvironmentError("Konfigurationsfil ikke fundet!")
 
         default_settings = {
+            "general": {"default_connection": "prod"},
             # se https://www.gnu.org/software/gama/manual/gama.html#Network-SQL-definition
             "network-attributes": {
                 "axes-xy": "en",
@@ -479,16 +492,22 @@ class FireDb(object):
         parser.read(conf_file)
         return parser
 
-    def _build_connection_string(self):
+    def _build_connection_string(self, db: str):
         """Konstruer connection-string til databasen."""
+        if db is None:
+            db = self.config.get("general", "default_connection")
 
-        username = self.config.get("connection", "username")
-        password = self.config.get("connection", "password")
-        hostname = self.config.get("connection", "hostname")
-        database = self.config.get("connection", "database", fallback="")
-        service = self.config.get("connection", "service", fallback="")
-        method = self.config.get("connection", "method", fallback="service")
-        port = self.config.get("connection", "port", fallback=1521)
+        con = f"{db}_connection"
+        username = self.config.get(con, "username")
+        password = self.config.get(con, "password")
+        hostname = self.config.get(con, "hostname")
+        database = self.config.get(con, "database", fallback="")
+        service = self.config.get(con, "service", fallback="")
+        method = self.config.get(con, "method", fallback="service")
+        port = self.config.get(con, "port", fallback=1521)
+        schema = self.config.get(con, "schema", fallback="fire_adm")
+
+        self._exe_opt = {"schema_translate_map": {None: schema}}
 
         if method not in {"service", "database"}:
             raise ValueError(
