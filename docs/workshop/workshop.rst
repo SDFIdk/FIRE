@@ -349,6 +349,20 @@ Bemærk også at nyetablerede punkter fra faneblad i projektfil fremgår med *Å
 findes ikke i observationsfilen (Hjortholmvej 19), og det fremgår så også uden
 yderligere information.
 
+
+**Kontrol af journalsidefejl**
+
+Da journalnumrene typisk er fortløbende vil evt. fejl dukke op enten i top eller bund af kolonnen (journal).
+
+1. kontrol af at der ingen dubletter er, gøres ved at markere kolonne A (Journal) i fanen Observationer. Klik på Hjem > Betinget formatering > Fremhæv Celleregler > Dupliker Værdier.
+2. I feltet ud for "værdier med" skal du vælge den formatering, du vil anvende til dubletværdier, og klik derefter på OK. Sat som standard til ”Lys rød fyldfarve med mørkerød tekst”. Nem farve at se så forsæt med det.
+3. Hvis der er dubletter, så skal fejlen rettes i råfilen, og så køre de step man har kørt en gang til, sådan at fejlen er rettet alle steder.
+4. Hvis ingen markering så er der ingen dubletter.
+
+.. image:: figures/journalsidekontrol.PNG
+  :width: 800
+  :alt: Kontrol af journalsidenummer i inputfiler
+
 Slutteligt står der i terminalen hvad man skal gøre som det næste: *Kopiér nu
 faneblade fra 'Projektnavn-resultat.xlsx' til 'Projektsnavn.xlsx', og vælg
 fastholdte punkter i punktoversigten.* Så det gør vi!
@@ -364,14 +378,14 @@ Step 6) regn
 Vi skal nu til at beregne nye koter til de observerede punkter.
 
 I ens projektfil kan man notere hvilke punkter skal fastholdes, ved at, i fanebladet
-*Punktoversigt*, skrive *x* ud for punktet i *Fasthold*-kolonnen. Gem derefter filen 
+*Punktoversigt*, skrive *x* ud for punktet i *Fasthold*-kolonnen. Gem derefter filen
 og vend tilbage til terminalen, hvor kaldet ``regn`` skal køres:
 
 	> fire niv regn --help
 
-Herfra ses at man igen skal bruge *Projektnavn* som parameter, og har to valgmuligheder 
-også; en kontrolberegning (1 punkt fastholdt) eller en endelig beregning. Hvis ingen tilvalg 
-sættes, gætter scriptet selv på hvilken type beregning vi har, ud fra antal af fastholdte 
+Herfra ses at man igen skal bruge *Projektnavn* som parameter, og har to valgmuligheder
+også; en kontrolberegning (1 punkt fastholdt) eller en endelig beregning. Hvis ingen tilvalg
+sættes, gætter scriptet selv på hvilken type beregning vi har, ud fra antal af fastholdte
 punkter. I terminalen vil det se således ud:
 
 .. image:: figures/firenivadj.PNG
@@ -397,18 +411,18 @@ I resultatfilen er der nu tre faner;
 - *Kontrolberegning*
 
 Netgeometrien viser hvilke punkter er naboer til hvilke punkter, og man kan herfra
-se om der er blinde linjer (punkter med kun én nabo). Singulære punkter er punkter, som 
-ikke er forbundet med de(t) fastholdte punkt(er), og der derfor ikke kan beregnes en kote 
+se om der er blinde linjer (punkter med kun én nabo). Singulære punkter er punkter, som
+ikke er forbundet med de(t) fastholdte punkt(er), og der derfor ikke kan beregnes en kote
 til.
 
 Kontrolberegningen viser det egentlige beregningsresultat. Kolonner er nu fyldt ud med
 nyberegnede koter, middelfejl og differencen fra gældende kote, og man kan lave sin
 endelige vurdering af beregningen.
 
-Fanebladet *Kontrolberegning* flyttes nu over i projektfilen på samme måde som før, og i 
+Fanebladet *Kontrolberegning* flyttes nu over i projektfilen på samme måde som før, og i
 *Punktoversigt*-fanen kan man nu udvælge de fastholdte punkter til den endelige beregning.
-Derefter køres ``regn`` igen (husk at lukke resultatfilen), og en ny beregning udføres; 
-denne gang vil det resulterende faneblad hedde *Endelig beregning*, som også kan flyttes 
+Derefter køres ``regn`` igen (husk at lukke resultatfilen), og en ny beregning udføres;
+denne gang vil det resulterende faneblad hedde *Endelig beregning*, som også kan flyttes
 over i projektfilen, såfremt man er tilfreds med beregningsresultatet.
 
 
