@@ -2,14 +2,13 @@ name: fire
 channels:
   - conda-forge
 dependencies:
-  - python=3.7
-  - cx_oracle=7.0
-  - sqlalchemy=1.2.13
-  - qgis=3.10
-  - click
-  - colorama
-  - pyproj
-  - pandas=1.2.1
-  - openpyxl=3.0.6
-  - xmltodict
-  - gama=2.13
+  - click=7.1.*
+  - cx_oracle=7.0.*
+  - gama=2.13.*
+  - openpyxl=3.0.*
+  - pandas=1.2.*
+  - pyproj=2.6.*
+  - python=3.7.*
+  - qgis=3.16.*
+  - sqlalchemy=1.2.*
+  - xmltodict=0.12.*
