@@ -143,7 +143,7 @@ måde
     password = <adgangskode>
     username = <brugernavn>
     hostname = <netværksadresse>
-    methode = <database|service>
+    method = <database|service>
     database = <databasenavn>
     service = <servicenavn>
     schema = <schema>
@@ -152,7 +152,7 @@ måde
     password = <adgangskode>
     username = <brugernavn>
     hostname = <netværksadresse>
-    methode = <database|service>
+    method = <database|service>
     database = <databasenavn>
     service = <servicenavn>
     schema = <schema>

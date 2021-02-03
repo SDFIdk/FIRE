@@ -9,7 +9,6 @@ import pandas as pd
 import xmltodict
 
 import fire.cli
-from fire.cli import firedb
 
 from fire.api.model import (
     Punkt,

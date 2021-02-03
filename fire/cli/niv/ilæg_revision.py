@@ -10,7 +10,6 @@ from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
-from fire.cli import firedb
 from fire import uuid
 from fire.api.model import (
     EventType,
@@ -131,7 +130,7 @@ def ilæg_revision(
     # Find alle koordinater, der skal oprettes
 
     # Først skal vi bruge alle gyldige koordinatsystemnavne
-    srider = firedb.hent_srider()
+    srider = fire.cli.firedb.hent_srider()
     sridnavne = [srid.name.upper() for srid in srider]
 
     # Så itererer vi over hele rammen og ignorerer ikke-koordinaterne
@@ -156,7 +155,7 @@ def ilæg_revision(
         # Tæt-på-kopi af kode fra "niv/ilæg_nye_koter.py". Her bør mediteres og overvejes
         # hvordan denne opgave kan parametriseres på en rimeligt generel måde, så den kan
         # udstilles i et "højniveau-API"
-        srid = firedb.hent_srid(sridnavn)
+        srid = fire.cli.firedb.hent_srid(sridnavn)
         registreringstidspunkt = func.current_timestamp()
         sagsevent = Sagsevent(
             sag=sag, id=uuid(), eventtype=EventType.KOORDINAT_BEREGNET
@@ -167,9 +166,9 @@ def ilæg_revision(
         # opmålingsdistrikt 9-09. Ved endelige kørsler har vi lige lagt punkterne
         # i databasen ovenfor, så her kan vi bruge de faktiske punktnavne.
         if not alvor:
-            punkt = firedb.hent_punkt("9-09-00009")
+            punkt = fire.cli.firedb.hent_punkt("9-09-00009")
         else:
-            punkt = firedb.hent_punkt(r["Punkt"])
+            punkt = fire.cli.firedb.hent_punkt(r["Punkt"])
         opdaterede_punkter.append(r["Punkt"])
 
         # Det er ikke helt så nemt som i C at oversætte decimal-år til datetime
@@ -199,7 +198,7 @@ def ilæg_revision(
         # da Oracles indbyggede UTM-rutine er for ringe til at vi kan generere
         # udstillingskoordinater on-the-fly.
         if sridnavn == "EPSG:4909" or sridnavn == "EPSG:4747":
-            srid_utm24 = firedb.hent_srid("EPSG:3184")
+            srid_utm24 = fire.cli.firedb.hent_srid("EPSG:3184")
             utm24 = Proj("proj=utm zone=24 ellps=GRS80", preserve_units=False)
             x, y = utm24(koord[0], koord[1])
             koordinat = Koordinat(
@@ -229,7 +228,7 @@ def ilæg_revision(
         sagsevent.sagseventinfos.append(sagseventinfo)
         sagsevent.koordinater = til_registrering
         if alvor:
-            firedb.indset_sagsevent(sagsevent)
+            fire.cli.firedb.indset_sagsevent(sagsevent)
 
     # Så tager vi fat på punktinformationerne
 
@@ -256,13 +255,13 @@ def ilæg_revision(
         # infonøglerne, så vi er nødt til at hente det faktiske punkt,
         # med tilørende infonøgler, fra databasen - alvor eller ej
         try:
-            punkt = firedb.hent_punkt(ident)
+            punkt = fire.cli.firedb.hent_punkt(ident)
             infonøgler = {
                 info.objektid: i for i, info in enumerate(punkt.punktinformationer)
             }
         except NoResultFound as ex:
             if not alvor:
-                punkt = firedb.hent_punkt("9-09-00009")
+                punkt = fire.cli.firedb.hent_punkt("9-09-00009")
                 infonøgler = dict()
             else:
                 fire.cli.print(
@@ -306,7 +305,7 @@ def ilæg_revision(
                 )
                 continue
 
-            pit = firedb.hent_punktinformationtype(pitnavn)
+            pit = fire.cli.firedb.hent_punktinformationtype(pitnavn)
             if pit is None:
                 fire.cli.print(
                     f"    * Ignorerer ukendt punktinformationstype '{pitnavn}'",
@@ -354,7 +353,9 @@ def ilæg_revision(
                 til_opret.append(pi)
                 punkter_med_oprettelse.add(ident)
                 if alvor:
-                    firedb.indset_punktinformation(opret(sag, punkt.ident, pitnavn), pi)
+                    fire.cli.firedb.indset_punktinformation(
+                        opret(sag, punkt.ident, pitnavn), pi
+                    )
                 continue
 
             # Ingen ændringer? - så afslutter vi og går til næste element.
@@ -380,7 +381,7 @@ def ilæg_revision(
                 til_sluk.append(pi)
                 punkter_med_slukning.add(punkt.ident)
                 if alvor:
-                    firedb.luk_punktinfo(pi, sluk(sag, punkt.ident, pitnavn))
+                    fire.cli.firedb.luk_punktinfo(pi, sluk(sag, punkt.ident, pitnavn))
                 continue
 
             fire.cli.print(f"    Retter punktinfo-element: {pitnavn}")
@@ -402,7 +403,9 @@ def ilæg_revision(
             til_ret.append(pi)
             punkter_med_rettelse.add(punkt.ident)
             if alvor:
-                firedb.indset_punktinformation(ret(sag, punkt.ident, pitnavn), pi)
+                fire.cli.firedb.indset_punktinformation(
+                    ret(sag, punkt.ident, pitnavn), pi
+                )
             continue
     opret_tekst = f"Opretter {len(til_opret)} attributter fordelt på {len(punkter_med_oprettelse)} punkter"
     sluk_tekst = f"Slukker for {len(til_sluk)} attributter fordelt på {len(punkter_med_slukning)} punkter"
@@ -489,10 +492,10 @@ def opret_punkt(ident: str, lokation: str, sag: Sag):
     si = SagseventInfo(beskrivelse=f"opret {ident}")
     se.sagseventinfos.append(si)
     se.punkter.append(p)
-    firedb.indset_sagsevent(se)
+    fire.cli.firedb.indset_sagsevent(se)
 
     # indsæt ident
-    pit = firedb.hent_punktinformationtype(identtype)
+    pit = fire.cli.firedb.hent_punktinformationtype(identtype)
     if pit is None:
         fire.cli.print(f"Kan ikke finde identtype '{identtype}'")
         sys.exit(1)
@@ -500,10 +503,10 @@ def opret_punkt(ident: str, lokation: str, sag: Sag):
     se = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_TILFOEJET)
     si = SagseventInfo(beskrivelse=f"tilpas {ident}")
     se.sagseventinfos.append(si)
-    firedb.indset_punktinformation(se, pi)
+    fire.cli.firedb.indset_punktinformation(se, pi)
 
     # indsæt region
-    pit = firedb.hent_punktinformationtype(region)
+    pit = fire.cli.firedb.hent_punktinformationtype(region)
     if pit is None:
         fire.cli.print(f"Kan ikke finde region '{region}'")
         sys.exit(1)
@@ -511,7 +514,7 @@ def opret_punkt(ident: str, lokation: str, sag: Sag):
     se = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_TILFOEJET)
     si = SagseventInfo(beskrivelse=f"tilpas {ident}")
     se.sagseventinfos.append(si)
-    firedb.indset_punktinformation(se, pi)
+    fire.cli.firedb.indset_punktinformation(se, pi)
 
 
 # -----------------------------------------------------------------------------

@@ -10,7 +10,6 @@ import pandas as pd
 from pyproj import Proj
 
 import fire.cli
-from fire.cli import firedb
 from fire.api.model import (
     Point,
     Punkt,
@@ -276,7 +275,7 @@ def find_sag(projektnavn: str) -> Sag:
     sagsgang = find_sagsgang(projektnavn)
     sagsid = find_sagsid(sagsgang)
     try:
-        sag = firedb.hent_sag(sagsid)
+        sag = fire.cli.firedb.hent_sag(sagsid)
     except:
         fire.cli.print(
             f" Sag for {projektnavn} er endnu ikke oprettet - brug fire niv opret-sag! ",

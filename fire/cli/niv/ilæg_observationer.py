@@ -5,7 +5,6 @@ import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
-from fire.cli import firedb
 from fire import uuid
 from fire.api.model import (
     EventType,
@@ -67,8 +66,8 @@ def ilæg_observationer(
     if alvor and test:
         return
 
-    obstype_trig = firedb.hent_observationstype("trigonometrisk_koteforskel")
-    obstype_geom = firedb.hent_observationstype("geometrisk_koteforskel")
+    obstype_trig = fire.cli.firedb.hent_observationstype("trigonometrisk_koteforskel")
+    obstype_geom = fire.cli.firedb.hent_observationstype("geometrisk_koteforskel")
     til_registrering = []
 
     observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
@@ -106,9 +105,9 @@ def ilæg_observationer(
         # objekt af typen Observation
         try:
             punktnavn = obs.Fra
-            punkt_fra = firedb.hent_punkt(punktnavn)
+            punkt_fra = fire.cli.firedb.hent_punkt(punktnavn)
             punktnavn = obs.Til
-            punkt_til = firedb.hent_punkt(punktnavn)
+            punkt_til = fire.cli.firedb.hent_punkt(punktnavn)
         except NoResultFound:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
             sys.exit(1)
@@ -177,7 +176,7 @@ def ilæg_observationer(
     fire.cli.print(f"Skriver {len(til_registrering)} observationer")
     try:
         sagsevent.observationer = til_registrering
-        firedb.indset_sagsevent(sagsevent)
+        fire.cli.firedb.indset_sagsevent(sagsevent)
 
     except Exception as ex:
         fire.cli.print(

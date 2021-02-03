@@ -5,7 +5,6 @@ import click
 from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
-from fire.cli import firedb
 from fire.cli.utils import klargør_ident_til_søgning
 from . import søg
 
@@ -37,7 +36,7 @@ def punkt(ident: str, antal: int, **kwargs):
     ident_pattern = ident.replace("%", ".*")
 
     try:
-        punkter = firedb.soeg_punkter(ident, antal)
+        punkter = fire.cli.firedb.soeg_punkter(ident, antal)
     except NoResultFound:
         fire.cli.print(
             f"Fejl: Kunne ikke finde {ident.replace('%', '')}.", fg="red", err=True

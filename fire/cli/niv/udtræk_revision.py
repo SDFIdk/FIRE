@@ -5,7 +5,6 @@ import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
-from fire.cli import firedb
 
 from . import (
     ARKDEF_REVISION,
@@ -57,7 +56,7 @@ def udtræk_revision(
     for distrikt in opmålingsdistrikter:
         fire.cli.print(f"Behandler distrikt {distrikt}")
         try:
-            punkter = firedb.soeg_punkter(f"{distrikt}%")
+            punkter = fire.cli.firedb.soeg_punkter(f"{distrikt}%")
         except NoResultFound:
             punkter = []
         fire.cli.print(f"Der er {len(punkter)} punkter i distrikt {distrikt}")

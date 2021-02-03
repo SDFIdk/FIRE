@@ -5,7 +5,6 @@ import click
 import pandas as pd
 
 import fire.cli
-from fire.cli import firedb
 from fire import uuid
 from fire.api.model import (
     GeometriObjekt,
@@ -80,9 +79,11 @@ def ilæg_nye_punkter(
         fire.cli.print("Ingen nyetablerede punkter at registrere")
         return
 
-    landsnummer_pit = firedb.hent_punktinformationtype("IDENT:landsnr")
-    beskrivelse_pit = firedb.hent_punktinformationtype("ATTR:beskrivelse")
-    h_over_terræn_pit = firedb.hent_punktinformationtype("AFM:højde_over_terræn")
+    landsnummer_pit = fire.cli.firedb.hent_punktinformationtype("IDENT:landsnr")
+    beskrivelse_pit = fire.cli.firedb.hent_punktinformationtype("ATTR:beskrivelse")
+    h_over_terræn_pit = fire.cli.firedb.hent_punktinformationtype(
+        "AFM:højde_over_terræn"
+    )
     assert landsnummer_pit is not None, "Rådden landsnummer_pit"
     assert beskrivelse_pit is not None, "Rådden beskrivelse_pit"
     assert h_over_terræn_pit is not None, "Rådden h_over_terræn_pit"
@@ -203,10 +204,10 @@ def ilæg_nye_punkter(
             else:
                 afm_id = afm_ids.get(afm, 4999)
 
-            afmærkning_pit = firedb.hent_punktinformationtype(f"AFM:{afm_id}")
+            afmærkning_pit = fire.cli.firedb.hent_punktinformationtype(f"AFM:{afm_id}")
             if afmærkning_pit is None:
                 afm_id = 4999
-                afmærkning_pit = firedb.hent_punktinformationtype("AFM:4999")
+                afmærkning_pit = fire.cli.firedb.hent_punktinformationtype("AFM:4999")
             beskrivelse = (
                 afmærkning_pit.beskrivelse.replace("-\n", "")
                 .replace("\n", " ")
@@ -263,8 +264,7 @@ def ilæg_nye_punkter(
 
     if alvor:
         # Persister punkterne til databasen
-        # firedb.indset_flere_punkter(sagsevent, list(genererede_punkter.values()))
-        firedb.indset_sagsevent(sagsevent)
+        fire.cli.firedb.indset_sagsevent(sagsevent)
 
         # ... og marker i regnearket at det er sket
         for k in genererede_punkter.keys():
@@ -287,9 +287,9 @@ def ilæg_nye_punkter(
 
 
 def find_alle_løbenumre_i_distrikt(distrikt: str) -> List[str]:
-    pit = firedb.hent_punktinformationtype("IDENT:landsnr")
+    pit = fire.cli.firedb.hent_punktinformationtype("IDENT:landsnr")
     landsnumre = (
-        firedb.session.query(PunktInformation)
+        fire.cli.firedb.session.query(PunktInformation)
         .filter(
             PunktInformation.infotypeid == pit.infotypeid,
             PunktInformation.tekst.startswith(distrikt),

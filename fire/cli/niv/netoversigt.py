@@ -5,7 +5,6 @@ import click
 import pandas as pd
 
 import fire.cli
-from fire.cli import firedb
 
 from . import (
     ARKDEF_NYETABLEREDE_PUNKTER,

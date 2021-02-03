@@ -5,7 +5,6 @@ from fire.api import FireDb
 firedb = FireDb()
 _show_colors = True
 
-
 # Create decorator that handles all default options
 def _set_monochrome(ctx, param, value):
     """
@@ -23,7 +22,22 @@ def _set_debug(ctx, param, value):
     firedb.engine.echo = value
 
 
+def _set_database(ctx, param, value):
+    """
+    Vælg en specifik databaseforbindelse.
+    """
+    if value is not None:
+        new_firedb = FireDb(db=str(value).lower())
+        override_firedb(new_firedb)
+
+
 _default_options = [
+    click.option(
+        "--db",
+        type=click.Choice(["prod", "test"]),
+        default=None,
+        callback=_set_database,
+    ),
     click.option(
         "-m",
         "--monokrom",
@@ -52,6 +66,7 @@ def print(*args, **kwargs):
     Tilsidesætter farven når --monokrom parameteren anvendes i
     kommandolinjekald.
     """
+
     kwargs["color"] = _show_colors
     click.secho(*args, **kwargs)
 
@@ -59,8 +74,7 @@ def print(*args, **kwargs):
 def override_firedb(new_firedb):
     """
     Tillad at bruge en anden firedb end den der oprettes automatisk af
-    fire.cli. Primært brugbar i forbindelse med afvikling af test-suite,
-    hvor fire.cli ellers vil arbejde op mod produktionsdatabasen.
+    fire.cli.
     """
     global firedb
     firedb = new_firedb

@@ -7,7 +7,6 @@ import sys
 
 from fire import uuid
 import fire.cli
-from fire.cli import firedb
 
 from . import (
     ARKDEF_FILOVERSIGT,
@@ -70,7 +69,7 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
         sagsinfo = Sagsinfo(
             aktiv="true", behandler=sagsbehandler, beskrivelse=beskrivelse
         )
-        firedb.indset_sag(Sag(id=sag["uuid"], sagsinfos=[sagsinfo]))
+        fire.cli.firedb.indset_sag(Sag(id=sag["uuid"], sagsinfos=[sagsinfo]))
         fire.cli.print(f"Sag '{projektnavn}' oprettet")
     else:
         fire.cli.print("Opretter IKKE sag")
