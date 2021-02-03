@@ -199,29 +199,53 @@ genereres det øjeblik punktet ilægges databasen nede i :ref:`step 4) <step4>`.
 .. note:: Koordinater kan skrives både med UTM-format og med gradetal. ``fire`` genkender
    selv formatet og transformerer til geografiske koordinater, som er standard i ``fire``.
 
-..Opret-sag Kort fortalt::
-Først skal du på F: Er du på f: så gå til stien i pkt. 3 og opret mappe (eks) md VEDL_HERNING_VEST 
-1:(fire) C:\Users\bxxxxxx>cd f:\GRF\Data\GEO\BC\Niv_Opgaver\2020
-2:(fire) C:\Users\bxxxxxx>F:
-3:(fire) f:\GRF\Data\GEO\BC\Niv_Opgaver\2020>md VEDL_HERNING_VEST
-4:(fire) f:\GRF\Data\GEO\BC\Niv_Opgaver\2020\VEDL_HERNING_VEST
-Du står nu i mappen VEDL_HERNING_VEST og skal nu oprette en sag.
-KALD: fire niv opret-sag [PROJEKTNAVN] [SAGSBEHANDLER] [BESKRIVELSE]...
-Eks: fire niv opret-sag 2020_5d_KDI_ROENNE bxxxxxx "5D samt KDI vandstand i Rønne."
-Eks: fire niv opret-sag 2020_VEDL_HERNING_VEST bxxxxxx "Højdenetsvedligholdelse"
+Kort fortalt
+~~~~~~~~~~~~
 
-(fire) f:\GRF\Data\GEO\BC\Niv_Opgaver\2020\VEDL_HERNING_VEST>fire niv opret-sag 2020_VEDL_HERNING_VEST bxxxxxx "Højdenetsvedligholdelse"
- BEKRÆFT: Opretter ny sag i FIRE databasen!!!
-Sags/projekt-navn: 2020_VEDL_HERNING_VEST  (5fb3616c-7cc1-4a41-8ce1-e45a076fdb4b)
-Sagsbehandler:     bxxxxxx
-Beskrivelse:       Højdenetsvedligholdelse
-OK (ja/nej)? ja
-Sag '2020_VEDL_HERNING_VEST' oprettet
-Skriver sagsregneark '2020_VEDL_HERNING_VEST.xlsx'
-Færdig!
+1. Først skal du på F-drevet
 
-(fire) f:\GRF\Data\GEO\BC\Niv_Opgaver\2020\VEDL_HERNING_VEST>dir
-Nu kan du se at der er oprettet et Excel-ark, du har nu oprettet en sag.
+::
+
+    (fire) C:\Users\bxxxxxx>F:
+
+2. Naviger til mappen med nivellementsopgaver
+
+::
+
+    (fire) F:\>cd f:\GRF\Data\GEO\BC\Niv_Opgaver\2020
+
+3. Opret ny mappe, eksempelvis ``VEDL_HERNING_VEST``
+
+::
+
+    (fire) f:\GRF\Data\GEO\BC\Niv_Opgaver\2020>md VEDL_HERNING_VEST
+
+4. Du står nu i mappen ``VEDL_HERNING_VEST`` og skal nu oprette en sag.
+   KALD: ``fire niv opret-sag [PROJEKTNAVN] [SAGSBEHANDLER] [BESKRIVELSE]...``.
+   Et par eksempler::
+
+    fire niv opret-sag 2020_5d_KDI_ROENNE bxxxxxx "5D samt KDI vandstand i Rønne."
+    fire niv opret-sag 2020_VEDL_HERNING_VEST bxxxxxx "Højdenetsvedligholdelse"
+
+Ved kørsel bliver du bedt om at bekræfte at det indtastede er korrekt
+
+::
+
+    (fire) f:\GRF\Data\GEO\BC\Niv_Opgaver\2020\VEDL_HERNING_VEST>fire niv opret-sag 2020_VEDL_HERNING_VEST bxxxxxx "Højdenetsvedligholdelse"
+     BEKRÆFT: Opretter ny sag i FIRE databasen!!!
+    Sags/projekt-navn: 2020_VEDL_HERNING_VEST  (5fb3616c-7cc1-4a41-8ce1-e45a076fdb4b)
+    Sagsbehandler:     bxxxxxx
+    Beskrivelse:       Højdenetsvedligholdelse
+    OK (ja/nej)? ja
+    Sag '2020_VEDL_HERNING_VEST' oprettet
+    Skriver sagsregneark '2020_VEDL_HERNING_VEST.xlsx'
+    Færdig!
+
+5. Nu kan du se at der er oprettet et Excel-ark, du har nu oprettet en sag
+
+::
+
+    (fire) f:\GRF\Data\GEO\BC\Niv_Opgaver\2020\VEDL_HERNING_VEST>dir
 
 
 Step 2) udtræk-revision
