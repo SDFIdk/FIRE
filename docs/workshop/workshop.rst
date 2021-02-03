@@ -359,7 +359,7 @@ Da journalnumrene typisk er fortløbende vil evt. fejl dukke op enten i top elle
 3. Hvis der er dubletter, så skal fejlen rettes i råfilen, og så køre de step man har kørt en gang til, sådan at fejlen er rettet alle steder.
 4. Hvis ingen markering så er der ingen dubletter.
 
-.. image:: figures/journalsidekontrol.PNG
+.. image:: figures/journalsidekontrol.png
   :width: 800
   :alt: Kontrol af journalsidenummer i inputfiler
 
