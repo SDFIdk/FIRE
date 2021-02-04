@@ -22,7 +22,7 @@ from fire.api.model import (
 )
 
 
-def indset_sag(self, sag: Sag):
+def indset_sag(self, sag: Sag, commit: bool = True):
     if not self._is_new_object(sag):
         raise Exception(f"Sag allerede tilføjet databasen: {sag}")
     if len(sag.sagsinfos) < 1:
@@ -30,10 +30,12 @@ def indset_sag(self, sag: Sag):
     if sag.sagsinfos[-1].aktiv != "true":
         raise Exception("Sidst SagsInfo på sagen skal have aktiv = 'true'")
     self.session.add(sag)
-    self.session.commit()
+
+    if commit:
+        self.session.commit()
 
 
-def indset_sagsevent(self, sagsevent: Sagsevent):
+def indset_sagsevent(self, sagsevent: Sagsevent, commit: bool = True):
     if not self._is_new_object(sagsevent):
         raise Exception(f"Sagsevent allerede tilføjet databasen: {sagsevent}")
     if len(sagsevent.sagseventinfos) < 1:
@@ -84,10 +86,13 @@ def indset_sagsevent(self, sagsevent: Sagsevent):
                     f"PunktInformation allerede tilføjet databasen: {punktinformation}"
                 )
 
-    self.session.commit()
+    if commit:
+        self.session.commit()
 
 
-def indset_punktinformationtype(self, punktinfotype: PunktInformationType):
+def indset_punktinformationtype(
+    self, punktinfotype: PunktInformationType, commit: bool = True
+):
     if not self._is_new_object(punktinfotype):
         raise Exception(
             f"PunktInformationType allerede tilføjet databasen: {punktinfotype}"
@@ -97,10 +102,14 @@ def indset_punktinformationtype(self, punktinfotype: PunktInformationType):
         n = 0
     punktinfotype.infotypeid = n + 1
     self.session.add(punktinfotype)
-    self.session.commit()
+
+    if commit:
+        self.session.commit()
 
 
-def indset_observationstype(self, observationstype: ObservationsType):
+def indset_observationstype(
+    self, observationstype: ObservationsType, commit: bool = True
+):
     if not self._is_new_object(observationstype):
         raise Exception(
             f"ObservationsType allerede tilføjet databasen: {observationstype}"
@@ -110,10 +119,12 @@ def indset_observationstype(self, observationstype: ObservationsType):
         n = 0
     observationstype.observationstypeid = n + 1
     self.session.add(observationstype)
-    self.session.commit()
+
+    if commit:
+        self.session.commit()
 
 
-def indset_srid(self, srid: Srid):
+def indset_srid(self, srid: Srid, commit: bool = True):
     if not self._is_new_object(srid):
         raise Exception(f"Srid allerede tilføjet datbasen: {srid}")
 
@@ -122,4 +133,5 @@ def indset_srid(self, srid: Srid):
         n = 0
     srid.sridid = n + 1
     self.session.add(srid)
-    self.session.commit()
+    if commit:
+        self.session.commit()
