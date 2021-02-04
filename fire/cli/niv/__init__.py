@@ -209,7 +209,7 @@ def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
 # -----------------------------------------------------------------------------
 def skriv_ark(
     projektnavn: str, resultater: Dict[str, pd.DataFrame], suffix: str = "-resultat"
-) -> None:
+) -> bool:
     """Skriv resultater til excel-fil"""
 
     filnavn = f"{projektnavn}{suffix}.xlsx"
@@ -227,7 +227,7 @@ def skriv_ark(
                     )
             if suffix == "-resultat":
                 os.startfile(f"{projektnavn}-resultat.xlsx")
-            return
+            return True
         except Exception as ex:
             fire.cli.print(
                 f"Kan ikke skrive til '{filnavn}' - måske fordi den er åben.",
@@ -238,7 +238,7 @@ def skriv_ark(
             if input("Prøv igen ([j]/n)? ") in ["j", "J", "ja", ""]:
                 continue
             fire.cli.print("Dropper skrivning")
-            return
+            return False
 
 
 # ------------------------------------------------------------------------------

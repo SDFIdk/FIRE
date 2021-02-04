@@ -41,7 +41,7 @@ from fire.api.model import (
     type=str,
 )
 def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) -> None:
-    """Registrer ny sag i databasen - husk anførelsestegn om sagsbehandlernavn"""
+    """Registrer ny sag i databasen"""
 
     if os.path.isfile(f"{projektnavn}.xlsx"):
         fire.cli.print(
@@ -99,5 +99,6 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
         "Parametre": param,
     }
 
-    skriv_ark(projektnavn, resultater, "")
-    fire.cli.print("Færdig!")
+    if skriv_ark(projektnavn, resultater, ""):
+        fire.cli.print("Færdig! - åbner regneark for check.")
+        os.startfile(f"{projektnavn}.xlsx")
