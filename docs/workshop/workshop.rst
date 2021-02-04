@@ -265,11 +265,19 @@ Step 3) ilæg-revision
 
 *ENDNU IKKE FÆRDIGIMPLEMENTERET*
 
-	> fire niv ilæg-revision --help
+Når revisionsarket (excel-fil navngivet "projektnavn"-revision.xlsx) er OPDATERET OG GEMT i Excel kan de reviderede punkter opdateres i databasen med kommandoen ``ilæg-revision``. Med denne kommando køres alle punkter igennem og tjekker for revision foretaget i excel-filen. Registrerede ændringer i attributter for det enkelte punkt vises ud fra hvert punktnummer i terminalen.
+I bunden ses desuden en opsummering med antallet af oprettede, slukkede og rettede attributter i projektet. 
 
+	> fire niv ilæg-revision --help
+	
 .. image:: figures/firenivilægrevision.PNG
   :width: 800
   :alt: Ilæg data fra punktrevision
+  
+Her vil input være:
+
+- Projektnavn: Som defineret i ``opret-sag``
+- Sagsbehandler: Endnu engang B-NUMMER på den som foretager revision af punkterne.
 
 *Der findes dog pt. en testfunktion (parameteren* --test *), som kan vise dig hvor der er registreret nye
 attributter på punkterne, men som ikke lægger noget i databasen.*
