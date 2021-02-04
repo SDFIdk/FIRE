@@ -371,6 +371,12 @@ fastholdte punkter i punktoversigten.* Så det gør vi!
    Åbn filen du ønsker at flytte faner til. Højreklik på fanebladet der skal
    flyttes, vælg *Flyt eller kopier*, og udvælg hvor du vil have arket flyttet hen.
 
+..Kort fortalt::
+KALD: fire niv læs-observationer PROJEKTNAVN
+Dataindlæsning afsluttet. Kontroller nu for Journalsidefejl og dubletter. (Læs vejl. Kontrol af Journalsidefejl.
+Kopiér derefter fanebladene (Observationer, Punktoversigt) fra 'PROJEKTNAVN-resultat.xlsx'
+til 'PROJEKTNAVN.xlsx', og vælg fastholdte punkter i punktoversigten.
+
 
 Step 6) regn
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
