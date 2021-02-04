@@ -278,6 +278,11 @@ attributter på punkterne, men som ikke lægger noget i databasen.*
   :width: 800
   :alt: Ilæg data fra punktrevision
 
+..Kort fortalt::
+Kald: fire niv ilæg-revision --test PROJEKTNAVN Bxxxxxx "Bemærkning skrives her" (Kontrol)
+Eksempler.
+Kald: fire niv ilæg-revision --test 2020_VEDL_HERNING_VEST Bxxxxxx "Kontrol"
+Kald: fire niv ilæg-revision 2020_VEDL_HERNING_VEST Bxxxxxx "Kontrol OK"
 
 .. _step4:
 
