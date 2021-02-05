@@ -9,7 +9,6 @@ import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
-from fire.cli import firedb
 
 from . import (
     ARKDEF_FILOVERSIGT,
@@ -98,7 +97,7 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
 
     for punktnavn in observerede_punkter:
         try:
-            punkt = firedb.hent_punkt(punktnavn)
+            punkt = fire.cli.firedb.hent_punkt(punktnavn)
             ident = punkt.ident
             fire.cli.print(f"Fandt {ident}", fg="green")
         except NoResultFound:
@@ -176,7 +175,7 @@ def opbyg_punktoversigt(
     nye_punkter = tuple(sorted(set(nyetablerede.index)))
 
     try:
-        DVR90 = firedb.hent_srid("EPSG:5799")
+        DVR90 = fire.cli.firedb.hent_srid("EPSG:5799")
     except KeyError:
         fire.cli.print(
             "DVR90 (EPSG:5799) ikke fundet i srid-tabel", bg="red", fg="white", err=True
@@ -190,7 +189,7 @@ def opbyg_punktoversigt(
             continue
 
         fire.cli.print(f"Finder kote for {punkt}", fg="green")
-        pkt = firedb.hent_punkt(punkt)
+        pkt = fire.cli.firedb.hent_punkt(punkt)
 
         # Grav aktuel kote frem
         kote = None

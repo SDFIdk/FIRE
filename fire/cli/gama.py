@@ -1,6 +1,6 @@
 import click
 
-from fire.cli import firedb
+import fire.cli
 from fire.cli.utils import Datetime
 from fire.api.model import Geometry
 from fire.api.gama import GamaReader, GamaWriter
@@ -85,7 +85,7 @@ def write(
     fixpunkterfil,
 ):
     """Skriv en gama input fil"""
-    writer = GamaWriter(firedb, output)
+    writer = GamaWriter(fire.cli.firedb, output)
 
     g = None
 
@@ -99,9 +99,11 @@ def write(
             g = Geometry(wkt)
 
         if fra is not None and til is not None:
-            observations = firedb.hent_observationer_naer_geometri(g, buffer, fra, til)
+            observations = fire.cli.firedb.hent_observationer_naer_geometri(
+                g, buffer, fra, til
+            )
         else:
-            observations = firedb.hent_observationer_naer_geometri(g, buffer)
+            observations = fire.cli.firedb.hent_observationer_naer_geometri(g, buffer)
         writer.take_observations(observations)
 
     if fixpunkter is not None or fixpunkterfil is not None:
@@ -113,7 +115,7 @@ def write(
         fixpunkter_list = [pkt.strip() for pkt in fixpunkter_literal.split(",")]
         writer.set_fixed_point_ids(fixpunkter_list)
 
-    writer.write(True, False, "Created by fire-gama", firedb.config)
+    writer.write(True, False, "Created by fire-gama", fire.cli.firedb.config)
 
 
 @gama.command()
@@ -129,7 +131,7 @@ def write(
 )
 def read(input, case_id):
     """Læs en gama resultatfil (se --help)"""
-    reader = GamaReader(firedb, input)
+    reader = GamaReader(fire.cli.firedb, input)
     reader.read(case_id)
 
 

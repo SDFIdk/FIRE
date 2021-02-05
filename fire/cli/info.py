@@ -11,7 +11,6 @@ from pyproj import CRS
 from pyproj.exceptions import CRSError
 
 import fire.cli
-from fire.cli import firedb
 from fire.cli.utils import klargør_ident_til_søgning
 from fire.api.model import (
     Punkt,
@@ -382,7 +381,7 @@ def punkt(
     ident = klargør_ident_til_søgning(ident)
 
     try:
-        punkter = firedb.hent_punkter(ident)
+        punkter = fire.cli.firedb.hent_punkter(ident)
     except NoResultFound:
         fire.cli.print(f"Fejl: Kunne ikke finde {ident}.", fg="red", err=True)
         sys.exit(1)
@@ -423,10 +422,10 @@ def srid(srid: str, ts: bool, **kwargs):
     """
     if not srid:
         if ts:
-            srid_db = firedb.session.query(Srid).order_by(Srid.name).all()
+            srid_db = fire.cli.firedb.session.query(Srid).order_by(Srid.name).all()
         else:
             srid_db = (
-                firedb.session.query(Srid)
+                fire.cli.firedb.session.query(Srid)
                 .filter(not_(Srid.name.like("TS:%")))
                 .order_by(Srid.name)
                 .all()
@@ -439,7 +438,7 @@ def srid(srid: str, ts: bool, **kwargs):
         srid_name = srid
 
         try:
-            srid = firedb.hent_srid(srid_name)
+            srid = fire.cli.firedb.hent_srid(srid_name)
         except NoResultFound:
             fire.cli.print(f"Error! {srid_name} not found!", fg="red", err=True)
             sys.exit(1)
@@ -476,7 +475,7 @@ def infotype(infotype: str, søg: bool, **kwargs):
     try:
         if søg:
             punktinfotyper = (
-                firedb.session.query(PunktInformationType)
+                fire.cli.firedb.session.query(PunktInformationType)
                 .filter(
                     or_(
                         PunktInformationType.name.ilike(f"%{infotype}%"),
@@ -488,7 +487,7 @@ def infotype(infotype: str, søg: bool, **kwargs):
             )
         else:
             punktinfotyper = (
-                firedb.session.query(PunktInformationType)
+                fire.cli.firedb.session.query(PunktInformationType)
                 .filter(PunktInformationType.name.ilike(f"{infotype}%"))
                 .order_by(PunktInformationType.name)
                 .all()
@@ -541,7 +540,7 @@ def obstype(obstype: str, **kwargs):
     Anføres `obstype` ikke gives liste af mulige obstyper.
     """
     if not obstype:
-        obstyper = firedb.hent_observationstyper()
+        obstyper = fire.cli.firedb.hent_observationstyper()
         for obstype in obstyper:
             beskrivelse = textwrap.shorten(
                 obstype.beskrivelse, width=70, placeholder="..."
@@ -550,7 +549,7 @@ def obstype(obstype: str, **kwargs):
 
         return 0
 
-    ot = firedb.hent_observationstype(obstype)
+    ot = fire.cli.firedb.hent_observationstype(obstype)
     if ot is None:
         fire.cli.print(f"Fejl! {obstype} ikke fundet!", fg="red", err=True)
         sys.exit(1)
@@ -575,9 +574,8 @@ def sag(sagsid: str, **kwargs):
 
     Kaldes `fire info sag` uden sagsid listes alle aktive sager
     """
-
     if sagsid:
-        sag = firedb.hent_sag(sagsid)
+        sag = fire.cli.firedb.hent_sag(sagsid)
 
         fire.cli.print(
             "------------------------- SAG -------------------------", bold=True
@@ -611,7 +609,7 @@ def sag(sagsid: str, **kwargs):
 
         return
 
-    sager = firedb.hent_alle_sager()
+    sager = fire.cli.firedb.hent_alle_sager()
     fire.cli.print("Sagsid     Behandler           Beskrivelse", bold=True)
     fire.cli.print("---------  ------------------  -----------")
     for sag in sager:

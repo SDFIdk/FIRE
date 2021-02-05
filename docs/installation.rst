@@ -136,12 +136,28 @@ måde
 
 .. code-block:: ini
 
-    [connection]
+    [general]
+    default_connection = prod
+
+    [prod_connection]
     password = <adgangskode>
     username = <brugernavn>
     hostname = <netværksadresse>
+    method = <database|service>
     database = <databasenavn>
     service = <servicenavn>
+    schema = <schema>
+
+    [test_connection]
+    password = <adgangskode>
+    username = <brugernavn>
+    hostname = <netværksadresse>
+    method = <database|service>
+    database = <databasenavn>
+    service = <servicenavn>
+    schema = <schema>
+
+
 
 .. note::
 

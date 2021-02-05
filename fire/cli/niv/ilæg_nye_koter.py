@@ -5,7 +5,6 @@ import pandas as pd
 from sqlalchemy import func
 
 import fire.cli
-from fire.cli import firedb
 from fire import uuid
 from fire.api.model import (
     EventType,
@@ -80,7 +79,7 @@ def ilæg_nye_koter(
     punktoversigt = punktoversigt.replace("nan", "")
     ny_punktoversigt = punktoversigt[0:0]
 
-    DVR90 = firedb.hent_srid("EPSG:5799")
+    DVR90 = fire.cli.firedb.hent_srid("EPSG:5799")
     registreringstidspunkt = func.current_timestamp()
     tid = gyldighedstidspunkt(projektnavn)
 
@@ -99,7 +98,7 @@ def ilæg_nye_koter(
             ny_punktoversigt = ny_punktoversigt.append(punktdata, ignore_index=True)
             continue
 
-        punkt = firedb.hent_punkt(punktdata["Punkt"])
+        punkt = fire.cli.firedb.hent_punkt(punktdata["Punkt"])
         opdaterede_punkter.append(punkt)
         punktdata["uuid"] = sagsevent.id
 
@@ -156,7 +155,7 @@ def ilæg_nye_koter(
         return
 
     sagsevent.koordinater = til_registrering
-    firedb.indset_sagsevent(sagsevent)
+    fire.cli.firedb.indset_sagsevent(sagsevent)
 
     # Skriv resultater til resultatregneark
     ny_punktoversigt = ny_punktoversigt.replace("nan", "")
