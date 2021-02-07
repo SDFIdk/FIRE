@@ -18,76 +18,78 @@ from fire.api.model import (
 
 
 # ------------------------------------------------------------------------------
-@click.group()
+niv_help = f"""Nivellement: Arbejdsflow, beregning og analyse
+
+Underkommandoerne:
+
+    opret-sag
+
+    udtræk-revision
+
+    ilæg-revision
+
+    ilæg-nye-punkter
+
+    læs-observationer
+
+    regn
+
+    ilæg-observationer
+
+    ilæg-nye-koter
+
+    luk-sag
+
+definerer, i den anførte rækkefølge, nogenlunde arbejdsskridtene i et
+almindeligt opmålingsprojekt.
+
+OPRET-SAG registrerer sagen (projektet) i databasen og skriver det regneark,
+som bruges til at holde styr på arbejdet.
+
+UDTRÆK-REVISION udtrækker oversigt over eksisterende punkter i et område,
+til brug for punktrevision (herunder registrering af tabtgåede punkter).
+
+ILÆG-REVISION lægger opdaterede og nye punktattributter i databasen efter revision.
+
+ILÆG-NYE-PUNKTER lægger oplysninger om nyoprettede punkter i databasen, og tildeler
+bl.a. landsnumre til punkterne.
+
+LÆS-OBSERVATIONER læser råfilerne og skriver observationerne til regnearket så de
+er klar til brug i beregninger.
+
+REGN beregner nye koter til alle punkter, og genererer rapporter og
+visualiseringsmateriale.
+
+ILÆG-OBSERVATIONER lægger nye observationer i databasen.
+
+ILÆG-NYE-KOTER lægger nyberegnede koter i databasen.
+
+LUK-SAG arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
+
+(i skrivende stund er ILÆG-REVISION og LUK-SAG endnu ikke implementeret, og
+ILÆG-NYE-PUNKTER står for en større overhaling)
+
+Eksempel:
+
+{click.style('fire niv opret-sag andeby_2020 Bxxxxxx "Vedligehold Andeby"', fg='green')}
+
+{click.style('fire niv ilæg-nye-punkter andeby_2020 Bxxxxxx', fg='green')}
+
+{click.style('fire niv læs-observationer andeby_2020', fg='green')}
+
+{click.style('fire niv regn andeby_2020', fg='green')}     <- kontrolberegning
+
+{click.style('fire niv regn andeby_2020', fg='green')}     <- endelig beregning
+
+{click.style('fire niv ilæg-observationer andeby_2020 Bxxxxxx', fg='green')}
+
+{click.style('fire niv ilæg-nye-koter andeby_2020 Bxxxxxx', fg='green')}
+
+"""
+
+
+@click.group(help=niv_help)
 def niv():
-    """Nivellement: Arbejdsflow, beregning og analyse
-
-    Underkommandoerne:
-
-        opret-sag
-
-        udtræk-revision
-
-        ilæg-revision
-
-        ilæg-nye-punkter
-
-        læs-observationer
-
-        regn
-
-        ilæg-observationer
-
-        ilæg-nye-koter
-
-        luk-sag
-
-    definerer, i den anførte rækkefølge, nogenlunde arbejdsskridtene i et
-    almindeligt opmålingsprojekt.
-
-    OPRET-SAG registrerer sagen (projektet) i databasen og skriver det regneark,
-    som bruges til at holde styr på arbejdet.
-
-    UDTRÆK-REVISION udtrækker oversigt over eksisterende punkter i et område,
-    til brug for punktrevision (herunder registrering af tabtgåede punkter).
-
-    ILÆG-REVISION lægger opdaterede og nye punktattributter i databasen efter revision.
-
-    ILÆG-NYE-PUNKTER lægger oplysninger om nyoprettede punkter i databasen, og tildeler
-    bl.a. landsnumre til punkterne.
-
-    LÆS-OBSERVATIONER læser råfilerne og skriver observationerne til regnearket så de
-    er klar til brug i beregninger.
-
-    REGN beregner nye koter til alle punkter, og genererer rapporter og
-    visualiseringsmateriale.
-
-    ILÆG-OBSERVATIONER lægger nye observationer i databasen.
-
-    ILÆG-NYE-KOTER lægger nyberegnede koter i databasen.
-
-    LUK-SAG arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
-
-    (i skrivende stund er ILÆG-REVISION og LUK-SAG endnu ikke implementeret, og
-    ILÆG-NYE-PUNKTER står for en større overhaling)
-
-    Eksempel:
-
-    fire niv opret-sag andeby_2020 Bxxxxxx Testsag: Nyopmåling af Andeby
-
-    fire niv ilæg-nye-punkter andeby_2020 Bxxxxxx
-
-    fire niv læs-observationer andeby_2020
-
-    fire niv regn andeby_2020     <- kontrolberegning
-
-    fire niv regn andeby_2020     <- endelig beregning
-
-    fire niv ilæg-observationer andeby_2020 Bxxxxxx
-
-    fire niv ilæg-nye-koter andeby_2020 Bxxxxxx
-
-    """
     pass
 
 

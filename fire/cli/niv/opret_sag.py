@@ -87,7 +87,10 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
     )
     notater = pd.DataFrame([{"Dato": pd.Timestamp.now(), "Hvem": "", "Tekst": ""}])
     filoversigt = pd.DataFrame(columns=tuple(ARKDEF_FILOVERSIGT))
-    param = pd.DataFrame({"Navn": ["Major", "Minor", "Revision"], "Værdi": [0, 0, 0]})
+    param = pd.DataFrame(
+        columns=["Navn", "Værdi"],
+        data=[("Version", fire.__version__), ("Database", fire.cli.firedb.db)],
+    )
 
     resultater = {
         "Projektforside": forside,
@@ -99,5 +102,8 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
     }
 
     if skriv_ark(projektnavn, resultater, ""):
-        fire.cli.print("Færdig! - åbner regneark for check.")
-        os.startfile(f"{projektnavn}.xlsx")
+
+        # os.startfile() er kun tilgængelig på Windows
+        if "startfile" in dir(os):
+            fire.cli.print("Færdig! - åbner regneark for check.")
+            os.startfile(f"{projektnavn}.xlsx")
