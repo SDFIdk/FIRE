@@ -17,7 +17,7 @@ from fire.api.model import (
 )
 
 
-def luk_sag(self, sag: Sag):
+def luk_sag(self, sag: Sag, commit: bool = True):
     """Sætter en sags status til inaktiv"""
     if not isinstance(sag, Sag):
         raise TypeError("'sag' er ikke en instans af Sag")
@@ -30,8 +30,10 @@ def luk_sag(self, sag: Sag):
         beskrivelse=current.beskrivelse,
         sag=sag,
     )
+
     self.session.add(new)
-    self.session.commit()
+    if commit:
+        self.session.commit()
 
 
 def luk_punkt(self, punkt: Punkt, sagsevent: Sagsevent, commit: bool = True):

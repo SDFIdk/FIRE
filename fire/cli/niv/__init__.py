@@ -66,8 +66,7 @@ ILÆG-NYE-KOTER lægger nyberegnede koter i databasen.
 
 LUK-SAG arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
 
-(i skrivende stund er ILÆG-REVISION og LUK-SAG endnu ikke implementeret, og
-ILÆG-NYE-PUNKTER står for en større overhaling)
+(i skrivende stund står ILÆG-REVISION og ILÆG-NYE-PUNKTER for en større overhaling)
 
 Eksempel:
 
@@ -170,6 +169,10 @@ ARKDEF_SAG = {
     "uuid": str,
 }
 
+ARKDEF_PARAM = {
+    "Navn": str,
+    "Værdi": str,
+}
 
 # ------------------------------------------------------------------------------
 # Hjælpefunktioner
@@ -400,3 +403,4 @@ from .regn import regn
 from .ilæg_nye_koter import ilæg_nye_koter
 from .ilæg_nye_punkter import ilæg_nye_punkter
 from .netoversigt import netoversigt
+from .luk_sag import luk_sag
