@@ -87,7 +87,10 @@ def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) 
     )
     notater = pd.DataFrame([{"Dato": pd.Timestamp.now(), "Hvem": "", "Tekst": ""}])
     filoversigt = pd.DataFrame(columns=tuple(ARKDEF_FILOVERSIGT))
-    param = pd.DataFrame({"Navn": ["Version"], "Værdi": fire.__version__})
+    param = pd.DataFrame(
+        columns=["Navn", "Værdi"],
+        data=[("Version", fire.__version__), ("Database", fire.cli.firedb.db)],
+    )
 
     resultater = {
         "Projektforside": forside,

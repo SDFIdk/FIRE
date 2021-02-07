@@ -53,6 +53,7 @@ class FireDb(object):
         """
         self.config = self._read_config()
 
+        self.db = db
         if db not in (None, "prod", "test", "ci"):
             raise ValueError(
                 "'db' skal være en af følgende: 'prod', 'test', 'ci' eller None"
@@ -496,6 +497,7 @@ class FireDb(object):
         """Konstruer connection-string til databasen."""
         if db is None:
             db = self.config.get("general", "default_connection")
+            self.db = db
 
         con = f"{db}_connection"
         username = self.config.get(con, "username")
