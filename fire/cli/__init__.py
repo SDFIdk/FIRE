@@ -37,6 +37,7 @@ _default_options = [
         type=click.Choice(["prod", "test"]),
         default=None,
         callback=_set_database,
+        help="Vælg en specifik databaseforbindelse - default_connection i fire.ini bruges hvis intet vælges.",
     ),
     click.option(
         "-m",
