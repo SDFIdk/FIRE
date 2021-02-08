@@ -17,6 +17,13 @@ from fire.api.model import (
 )
 
 
+# Undgå ANSI farvekoder i Sphinx HTML docs
+def grøn(tekst):
+    if "sphinx" in sys.modules:
+        return tekst
+    return click.style(tekst, fg="green")
+
+
 # ------------------------------------------------------------------------------
 niv_help = f"""Nivellement: Arbejdsflow, beregning og analyse
 
@@ -70,19 +77,19 @@ LUK-SAG arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
 
 Eksempel:
 
-{click.style('fire niv opret-sag andeby_2020 Bxxxxxx "Vedligehold Andeby"', fg='green')}
+{grøn('fire niv opret-sag andeby_2020 Bxxxxxx "Vedligehold Andeby"')}
 
-{click.style('fire niv ilæg-nye-punkter andeby_2020 Bxxxxxx', fg='green')}
+{grøn('fire niv ilæg-nye-punkter andeby_2020 Bxxxxxx')}
 
-{click.style('fire niv læs-observationer andeby_2020', fg='green')}
+{grøn('fire niv læs-observationer andeby_2020')}
 
-{click.style('fire niv regn andeby_2020', fg='green')}     <- kontrolberegning
+{grøn('fire niv regn andeby_2020')}     <- kontrolberegning
 
-{click.style('fire niv regn andeby_2020', fg='green')}     <- endelig beregning
+{grøn('fire niv regn andeby_2020')}     <- endelig beregning
 
-{click.style('fire niv ilæg-observationer andeby_2020 Bxxxxxx', fg='green')}
+{grøn('fire niv ilæg-observationer andeby_2020 Bxxxxxx')}
 
-{click.style('fire niv ilæg-nye-koter andeby_2020 Bxxxxxx', fg='green')}
+{grøn('fire niv ilæg-nye-koter andeby_2020 Bxxxxxx')}
 
 """
 
