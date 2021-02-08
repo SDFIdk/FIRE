@@ -1,4 +1,5 @@
 import sys
+import os
 
 import click
 import pandas as pd
@@ -47,10 +48,11 @@ from . import (
     nargs=1,
     type=str,
 )
-@click.argument(
-    "sagsbehandler",
-    nargs=1,
+@click.option(
+    "--sagsbehandler",
+    default=os.getlogin(),
     type=str,
+    help="Angiv andet brugernavn end den aktuelt indloggede",
 )
 def ilæg_observationer(
     projektnavn: str, sagsbehandler: str, alvor: bool, test: bool, **kwargs

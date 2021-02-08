@@ -30,16 +30,17 @@ from fire.api.model import (
     type=str,
 )
 @click.argument(
-    "sagsbehandler",
-    nargs=1,
-    type=str,
-)
-@click.argument(
     "beskrivelse",
     nargs=-1,
     type=str,
 )
-def opret_sag(projektnavn: str, sagsbehandler: str, beskrivelse: str, **kwargs) -> None:
+@click.option(
+    "--sagsbehandler",
+    default=os.getlogin(),
+    type=str,
+    help="Angiv andet brugernavn end den aktuelt indloggede",
+)
+def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer ny sag i databasen"""
 
     if os.path.isfile(f"{projektnavn}.xlsx"):

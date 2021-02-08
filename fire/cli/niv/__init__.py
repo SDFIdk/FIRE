@@ -77,9 +77,9 @@ LUK-SAG arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
 
 Eksempel:
 
-{grøn('fire niv opret-sag andeby_2020 Bxxxxxx "Vedligehold Andeby"')}
+{grøn('fire niv opret-sag andeby_2020 "Vedligehold Andeby"')}
 
-{grøn('fire niv ilæg-nye-punkter andeby_2020 Bxxxxxx')}
+{grøn('fire niv ilæg-nye-punkter andeby_2020')}
 
 {grøn('fire niv læs-observationer andeby_2020')}
 
@@ -87,9 +87,11 @@ Eksempel:
 
 {grøn('fire niv regn andeby_2020')}     <- endelig beregning
 
-{grøn('fire niv ilæg-observationer andeby_2020 Bxxxxxx')}
+{grøn('fire niv ilæg-observationer andeby_2020')}
 
-{grøn('fire niv ilæg-nye-koter andeby_2020 Bxxxxxx')}
+{grøn('fire niv ilæg-nye-koter andeby_2020')}
+
+{grøn('fire niv luk-sag andeby_2020')}
 
 """
 
