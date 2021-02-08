@@ -1,5 +1,5 @@
 import sys
-import os
+import getpass
 
 import click
 import pandas as pd
@@ -54,7 +54,7 @@ from . import (
 )
 @click.option(
     "--sagsbehandler",
-    default=os.getlogin(),
+    default=getpass.getuser(),
     type=str,
     help="Angiv andet brugernavn end den aktuelt indloggede",
 )

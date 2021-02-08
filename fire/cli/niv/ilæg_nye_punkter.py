@@ -1,4 +1,4 @@
-import os
+import getpass
 from itertools import chain
 from typing import List
 
@@ -53,7 +53,7 @@ from . import (
 )
 @click.option(
     "--sagsbehandler",
-    default=os.getlogin(),
+    default=getpass.getuser(),
     type=str,
     help="Angiv andet brugernavn end den aktuelt indloggede",
 )

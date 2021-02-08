@@ -1,5 +1,6 @@
 import os
 import os.path
+import getpass
 
 import click
 import pandas as pd
@@ -36,7 +37,7 @@ from fire.api.model import (
 )
 @click.option(
     "--sagsbehandler",
-    default=os.getlogin(),
+    default=getpass.getuser(),
     type=str,
     help="Angiv andet brugernavn end den aktuelt indloggede",
 )
