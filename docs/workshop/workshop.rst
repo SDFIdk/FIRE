@@ -181,24 +181,6 @@ Hvert faneblad kan nu redigeres til det formål man ønsker.
    projekt med det navn allerede, ellers vil ``fire`` brokke sig. ``fire`` kan ligeledes
    ikke skrive til et allerede åbent excel-ark.
 
-Ang. nyetablerede punkter:
-Hertil findes et faneblad, som skal udfyldes med mindst tre oplysninger:
-
-1. Et foreløbigt navn
-2. En længdegrad/Y, Nord (UTM eller grader)
-3. En breddegrad/X, Øst (UTM eller grader)
-
-De resterende kolonner må meget gerne også fyldes ud, men den videre proces er ikke
-afhængig af dem. Det man ikke kan udfylde, er *Landsnummer* og *uuid*, da det først
-genereres det øjeblik punktet ilægges databasen nede i :ref:`step 4) <step4>`.
-
-.. image:: figures/firenivopretsag4.PNG
-  :width: 800
-  :alt: Opret nye punkter, excel-visning
-
-.. note:: Koordinater kan skrives både med UTM-format og med gradetal. ``fire`` genkender
-   selv formatet og transformerer til geografiske koordinater, som er standard i ``fire``.
-
 
 Step 2) udtræk-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -284,14 +266,48 @@ attributter på punkterne, men som ikke lægger noget i databasen.*
 Step 4) ilæg-nye-punkter
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-*ENDNU IKKE FÆRDIGIMPLEMENTERET*
+.. note::
 
-	> fire niv ilæg-nye-punkter --help
+    Dette step kan springes over hvis ingen nye punkter er tilføjet
 
-.. image:: figures/firenivilægpunkt.PNG
+
+
+Nye punkter tilføjes i fanebladet "Nyetablerede punkter" i projektregnearket. Punkterne
+indlæses i databasen med kommandoen ``fire niv ilæg-nye-punkter``. Programmet muligheder
+ses herunder:
+
+.. command-output:: fire niv ilæg-nye-punkter --help
+
+Et typisk kald vil være::
+
+    fire niv ilæg-nye-punkter projektnavn
+
+Under faneblandet "Nyetablerede punkter" findes et antal kolonner hvor information om
+de nye punkter indtastes. En linje pr. nyt punkt. For at tilføje et punkt *skal*
+følgende kolonner være udfyldt:
+
+1. Et foreløbigt navn
+2. En længdegrad/Y, Nord (UTM eller grader)
+3. En breddegrad/X, Øst (UTM eller grader)
+
+.. image:: figures/firenivopretsag4.PNG
   :width: 800
-  :alt: Ilæg nye punkter
+  :alt: Opret nye punkter, excel-visning
 
+De resterende kolonner må meget gerne også fyldes ud, men den videre proces er ikke
+afhængig af dem. Det man ikke kan udfylde, er *Landsnummer* og *uuid*, da det først
+genereres det øjeblik punktet lægges i databasen.
+
+.. note:: Koordinater kan skrives både med UTM-format og med gradetal. ``fire`` genkender
+   selv formatet og transformerer til geografiske koordinater, som er standard i ``fire``.
+
+Under afmærkning kan følgende typer indtastes:
+
+1. ukendt
+2. bolt
+3. lodret bolt
+4. skruepløk
+5. ingen
 
 .. _step5:
 
