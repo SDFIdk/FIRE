@@ -1,4 +1,5 @@
 import sys
+import getpass
 from datetime import datetime
 from math import trunc, isnan, radians
 from time import sleep
@@ -60,10 +61,11 @@ from . import (
     nargs=1,
     type=str,
 )
-@click.argument(
-    "sagsbehandler",
-    nargs=1,
+@click.option(
+    "--sagsbehandler",
+    default=getpass.getuser(),
     type=str,
+    help="Angiv andet brugernavn end den aktuelt indloggede",
 )
 @click.argument(
     "bemærkning",

@@ -1,3 +1,4 @@
+import getpass
 from itertools import chain
 from typing import List
 
@@ -50,10 +51,11 @@ from . import (
     nargs=1,
     type=str,
 )
-@click.argument(
-    "sagsbehandler",
-    nargs=1,
+@click.option(
+    "--sagsbehandler",
+    default=getpass.getuser(),
     type=str,
+    help="Angiv andet brugernavn end den aktuelt indloggede",
 )
 def ilæg_nye_punkter(
     projektnavn: str, sagsbehandler: str, alvor: bool, test: bool, **kwargs
