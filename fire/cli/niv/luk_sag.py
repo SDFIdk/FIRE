@@ -33,11 +33,15 @@ def luk_sag(projektnavn: str, **kwargs) -> None:
         sys.exit(1)
 
     param = find_faneblad(projektnavn, "Parametre", ARKDEF_PARAM)
+    if "Database" not in list(param["Navn"]):
+        fire.cli.print("FEJL: 'Database' ikke angivet under fanebladet 'Parametre'")
+        sys.exit(1)
+
     projekt_db = param.loc[param["Navn"] == "Database"]["Værdi"].to_string(index=False)
 
     if projekt_db != fire.cli.firedb.db:
         fire.cli.print(
-            f"{projektnavn} er kan ikke indsættes i {fire.cli.firedb.db}-databansen, da det er oprettet i {projekt_db}-databasen!"
+            f"{projektnavn} er kan ikke indsættes i {fire.cli.firedb.db}-databasen, da det er oprettet i {projekt_db}-databasen!"
         )
         sys.exit(1)
 
@@ -50,11 +54,16 @@ def luk_sag(projektnavn: str, **kwargs) -> None:
     except:
         # rul tilbage hvis databasen smider en exception
         fire.cli.firedb.session.rollback()
+        fire.cli.print(
+            f"Der opstod en fejl - sag {sag.id} for '{projektnavn}' IKKE lukket!"
+        )
     else:
         if (
-            input(f"Er du sikker på at du vil lukke sagen {projektnavn}? ja/[nej]")
+            input(f"Er du sikker på at du vil lukke sagen {projektnavn}? ja/[nej] ")
             == "ja"
         ):
             fire.cli.firedb.session.commit()
+            fire.cli.print(f"Sag {sag.id} for '{projektnavn}' lukket!")
         else:
             fire.cli.firedb.session.rollback()
+            fire.cli.print(f"Sag {sag.id} for '{projektnavn}' IKKE lukket!")
