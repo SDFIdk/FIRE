@@ -388,8 +388,6 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
 def bekræft2(spørgsmål: str) -> bool:
     """
     Bed bruger om at tage stilling til spørgsmålet.
-
-    Erstatning for bekræft().
     """
     fire.cli.print(f"{spørgsmål} (ja/NEJ):")
     svar = input()

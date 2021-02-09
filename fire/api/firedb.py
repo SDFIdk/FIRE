@@ -199,7 +199,6 @@ class FireDb(object):
         landsnumre = {}
         for distrikt, pkt_ider in distrikt_punkter.items():
             brugte_løbenumre = self._løbenumre_i_distrikt(distrikt)
-
             for punktid in pkt_ider:
                 for kandidat in self._generer_tilladte_løbenumre(punkttyper[punktid]):
                     if kandidat in brugte_løbenumre:
@@ -359,7 +358,7 @@ class FireDb(object):
                 """
         )
 
-        return [løbenummer for løbenummer in self.session.execute(sql)]
+        return [løbenummer[0] for løbenummer in self.session.execute(sql)]
 
     def _hent_konfiguration(self):
         return (
