@@ -79,6 +79,8 @@ Eksempel:
 
 {grøn('fire niv opret-sag andeby_2020 "Vedligehold Andeby"')}
 
+{grøn('fire niv udtræk-revision andeby_2020 K-99 102-08')}
+
 {grøn('fire niv ilæg-nye-punkter andeby_2020')}
 
 {grøn('fire niv læs-observationer andeby_2020')}
@@ -239,7 +241,8 @@ def skriv_ark(
                         writer, sheet_name=r, encoding="utf-8", index=False
                     )
             if suffix == "-resultat":
-                os.startfile(f"{projektnavn}-resultat.xlsx")
+                if "startfile" in dir(os):
+                    os.startfile(f"{projektnavn}-resultat.xlsx")
             return True
         except Exception as ex:
             fire.cli.print(
@@ -380,6 +383,21 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
             },
         }
         yield feature
+
+
+def bekræft2(spørgsmål: str) -> bool:
+    """
+    Bed bruger om at tage stilling til spørgsmålet.
+
+    Erstatning for bekræft().
+    """
+    fire.cli.print(f"{spørgsmål} (ja/NEJ):")
+    svar = input()
+    if svar in ("ja", "JA", "Ja"):
+        if input("Gentag svar for at bekræfte (ja/NEJ)\n") in ("ja", "JA", "Ja"):
+            return True
+
+    return False
 
 
 def bekræft(spørgsmål: str, alvor: bool, test: bool) -> Tuple[bool, bool]:
