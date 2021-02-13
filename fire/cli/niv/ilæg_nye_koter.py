@@ -14,6 +14,7 @@ from fire.api.model import (
     Sag,
     Sagsevent,
     SagseventInfo,
+    SagseventInfoHtml,
 )
 
 
@@ -109,8 +110,15 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         punktnavne[10] = punktnavne[-1]
         punktnavne = punktnavne[0:10]
     sagseventtekst = f"Opdatering af DVR90 kote til {', '.join(punktnavne)}"
-    sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
+    with open(f"{projektnavn}-resultat-endelig.html") as html:
+        clob = "".join(html.readlines())
+    sagseventinfo = SagseventInfo(
+        beskrivelse=sagseventtekst,
+        htmler=[SagseventInfoHtml(html=clob)],
+    )
     sagsevent.sagseventinfos.append(sagseventinfo)
+    sagsevent.koordinater = til_registrering
+    fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
 
     # Generer dokumentation til fanebladet "Sagsgang"
     # Variablen "registreringstidspunkt" har værdien "CURRENT_TIMESTAMP"
@@ -129,12 +137,8 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     }
     sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
 
-    # Persister koterne til databasen
     fire.cli.print(sagseventtekst, fg="yellow", bold=True)
     fire.cli.print(f"Ialt {n} koter")
-
-    sagsevent.koordinater = til_registrering
-    fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
 
     try:
         fire.cli.firedb.session.flush()
