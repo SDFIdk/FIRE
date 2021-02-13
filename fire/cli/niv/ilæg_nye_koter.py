@@ -21,7 +21,7 @@ from . import (
     ARKDEF_PUNKTOVERSIGT,
     ARKDEF_OBSERVATIONER,
     anvendte,
-    bekræft,
+    bekræft2,
     find_faneblad,
     find_sag,
     find_sagsgang,
@@ -33,20 +33,6 @@ from . import (
 
 @niv.command()
 @fire.cli.default_options()
-@click.option(
-    "-t",
-    "--test",
-    is_flag=True,
-    default=True,
-    help="Check inputfil, skriv intet til databasen",
-)
-@click.option(
-    "-a",
-    "--alvor",
-    is_flag=True,
-    default=False,
-    help="Skriv aftestet materiale til databasen",
-)
 @click.argument(
     "projektnavn",
     nargs=1,
@@ -58,9 +44,7 @@ from . import (
     type=str,
     help="Angiv andet brugernavn end den aktuelt indloggede",
 )
-def ilæg_nye_koter(
-    projektnavn: str, sagsbehandler: str, alvor: bool, test: bool, **kwargs
-) -> None:
+def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyberegnede koter i databasen"""
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
@@ -70,10 +54,6 @@ def ilæg_nye_koter(
 
     fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
-    alvor, test = bekræft("Læg nye koter i databasen", alvor, test)
-    # Fortrød de?
-    if alvor and test:
-        return
 
     punktoversigt = find_faneblad(
         projektnavn, "Endelig beregning", ARKDEF_PUNKTOVERSIGT
@@ -152,18 +132,36 @@ def ilæg_nye_koter(
     # Persister koterne til databasen
     fire.cli.print(sagseventtekst, fg="yellow", bold=True)
     fire.cli.print(f"Ialt {n} koter")
-    if test:
-        fire.cli.print("Testkørsel. Intet skrevet til databasen")
-        return
 
     sagsevent.koordinater = til_registrering
-    fire.cli.firedb.indset_sagsevent(sagsevent)
+    fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
 
-    # Skriv resultater til resultatregneark
-    ny_punktoversigt = ny_punktoversigt.replace("nan", "")
-    resultater = {"Sagsgang": sagsgang, "Resultat": ny_punktoversigt}
-    skriv_ark(projektnavn, resultater)
+    try:
+        fire.cli.firedb.session.flush()
+    except Exception as ex:
+        # rul tilbage hvis databasen smider en exception
+        fire.cli.firedb.session.rollback()
+        fire.cli.print(f"Der opstod en fejl - koter for '{projektnavn}' IKKE indlæst!")
+        fire.cli.print(f"Mulig årsag: {ex}")
+    else:
+        spørgsmål = click.style("Du indsætter nu ", fg="white", bg="red")
+        spørgsmål += click.style(
+            f"{len(til_registrering)} kote(r) ", fg="white", bg="red", bold=True
+        )
+        spørgsmål += click.style(f"i ", fg="white", bg="red")
+        spørgsmål += click.style(
+            f"{fire.cli.firedb.db}", fg="white", bg="red", bold=True
+        )
+        spørgsmål += click.style("-databasen - er du sikker?", fg="white", bg="red")
 
-    fire.cli.print(
-        f"Koter registreret. Flyt nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
-    )
+        if bekræft2(spørgsmål):
+            fire.cli.firedb.session.commit()
+
+            # Skriv resultater til resultatregneark
+            ny_punktoversigt = ny_punktoversigt.replace("nan", "")
+            resultater = {"Sagsgang": sagsgang, "Resultat": ny_punktoversigt}
+            skriv_ark(projektnavn, resultater)
+
+            fire.cli.print(
+                f"Koter registreret. Flyt nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
+            )
