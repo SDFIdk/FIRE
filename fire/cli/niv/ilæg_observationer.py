@@ -18,7 +18,7 @@ from fire.api.model import (
 
 from . import (
     ARKDEF_OBSERVATIONER,
-    bekræft,
+    bekræft2,
     find_faneblad,
     find_sag,
     find_sagsgang,
@@ -29,20 +29,6 @@ from . import (
 
 @niv.command()
 @fire.cli.default_options()
-@click.option(
-    "-t",
-    "--test",
-    is_flag=True,
-    default=True,
-    help="Check inputfil, skriv intet til databasen",
-)
-@click.option(
-    "-a",
-    "--alvor",
-    is_flag=True,
-    default=False,
-    help="Skriv aftestet materiale til databasen",
-)
 @click.argument(
     "projektnavn",
     nargs=1,
@@ -54,19 +40,13 @@ from . import (
     type=str,
     help="Angiv andet brugernavn end den aktuelt indloggede",
 )
-def ilæg_observationer(
-    projektnavn: str, sagsbehandler: str, alvor: bool, test: bool, **kwargs
-) -> None:
+def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nye observationer i databasen"""
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
     fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
-    alvor, test = bekræft("Ilæg observationer i databasen", alvor, test)
-    # Fortrød de?
-    if alvor and test:
-        return
 
     obstype_trig = fire.cli.firedb.hent_observationstype("trigonometrisk_koteforskel")
     obstype_geom = fire.cli.firedb.hent_observationstype("geometrisk_koteforskel")
@@ -168,29 +148,43 @@ def ilæg_observationer(
     observationer["uuid"] = alle_uuider
 
     fire.cli.print(sagseventtekst, fg="yellow", bold=True)
-    print(observationer[["Journal", "Fra", "Til", "uuid"]])
-    if test:
-        fire.cli.print(f"Har {len(til_registrering)} observationer")
-        fire.cli.print("Testkørsel. Intet skrevet til databasen")
-        return
+    fire.cli.print(str(observationer[["Journal", "Fra", "Til", "uuid"]]))
 
     # Persister observationerne til databasen
     fire.cli.print(f"Skriver {len(til_registrering)} observationer")
-    try:
-        sagsevent.observationer = til_registrering
-        fire.cli.firedb.indset_sagsevent(sagsevent)
+    sagsevent.observationer = til_registrering
+    fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
 
+    try:
+        fire.cli.firedb.session.flush()
     except Exception as ex:
+        # rul tilbage hvis databasen smider en exception
+        fire.cli.firedb.session.rollback()
         fire.cli.print(
-            "Skrivning til databasen slog fejl", bg="red", fg="white", bold=True
+            f"Der opstod en fejl - observationer for '{projektnavn}' IKKE indlæst!"
         )
         fire.cli.print(f"Mulig årsag: {ex}")
-        sys.exit(1)
+    else:
+        spørgsmål = click.style("Du indsætter nu ", fg="white", bg="red")
+        spørgsmål += click.style(
+            f"{len(til_registrering)} observationer ", fg="white", bg="red", bold=True
+        )
+        spørgsmål += click.style(f"i ", fg="white", bg="red")
+        spørgsmål += click.style(
+            f"{fire.cli.firedb.db}", fg="white", bg="red", bold=True
+        )
+        spørgsmål += click.style("-databasen - er du sikker?", fg="white", bg="red")
 
-    # Skriv resultater til resultatregneark
-    observationer = observationer.replace("nan", "")
-    resultater = {"Sagsgang": sagsgang, "Observationer": observationer}
-    skriv_ark(projektnavn, resultater)
-    fire.cli.print(
-        f"Observationer registreret. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
-    )
+        if bekræft2(spørgsmål):
+            fire.cli.firedb.session.commit()
+
+            # Skriv resultater til resultatregneark
+            observationer = observationer.replace("nan", "")
+            resultater = {"Sagsgang": sagsgang, "Observationer": observationer}
+            skriv_ark(projektnavn, resultater)
+            fire.cli.print(
+                f"Observationer registreret. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
+            )
+        else:
+            fire.cli.firedb.session.rollback()
+            fire.cli.print(f"Observationer for '{projektnavn}' IKKE indlæst!")
