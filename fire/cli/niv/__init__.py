@@ -385,14 +385,17 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
         yield feature
 
 
-def bekræft2(spørgsmål: str) -> bool:
+def bekræft2(spørgsmål: str, gentag=True) -> bool:
     """
     Bed bruger om at tage stilling til spørgsmålet.
     """
     fire.cli.print(f"{spørgsmål} (ja/NEJ):")
     svar = input()
     if svar in ("ja", "JA", "Ja"):
-        if input("Gentag svar for at bekræfte (ja/NEJ)\n") in ("ja", "JA", "Ja"):
+        if gentag:
+            if input("Gentag svar for at bekræfte (ja/NEJ)\n") in ("ja", "JA", "Ja"):
+                return True
+        else:
             return True
 
     return False
