@@ -3,8 +3,10 @@ from typing import Tuple
 import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import text
 
 import fire.cli
+from fire.api.model import Punkt
 
 from . import (
     ARKDEF_REVISION,
@@ -32,17 +34,18 @@ def udtræk_revision(
     revision = pd.DataFrame(columns=tuple(ARKDEF_REVISION)).astype(ARKDEF_REVISION)
 
     # Punkter med bare EN af disse attributter ignoreres
-    uønskede_punkter = {
+    uønskede_punkter = [
         "ATTR:hjælpepunkt",
         "ATTR:tabtgået",
         "ATTR:teknikpunkt",
         "AFM:naturlig",
         "ATTR:MV_punkt",
-    }
+        "IDENT:ekstern",
+    ]
 
     # Disse attributter indgår ikke i punktrevisionen
     # (men det diskvalificerer ikke et punkt at have dem)
-    ignorerede_attributter = {
+    ignorerede_attributter = [
         "REGION:DK",
         "IDENT:refgeo_id",
         "IDENT:station",
@@ -50,109 +53,101 @@ def udtræk_revision(
         "SKITSE:md5",
         "ATTR:fundamentalpunkt",
         "ATTR:tinglysningsnr",
-    }
+    ]
 
-    fire.cli.print("Udtrækker punktinformation til revision")
-    for distrikt in opmålingsdistrikter:
-        fire.cli.print(f"Behandler distrikt {distrikt}")
-        try:
-            punkter = fire.cli.firedb.soeg_punkter(f"{distrikt}%")
-        except NoResultFound:
-            punkter = []
-        fire.cli.print(f"Der er {len(punkter)} punkter i distrikt {distrikt}")
+    distrikter = ",".join([f"'{d}'" for d in opmålingsdistrikter])
+    uønsket = ",".join([f"'{p}'" for p in uønskede_punkter])
+    pkt_i_distrikter = f"""
+                SELECT p.*
+                FROM (
+                    SELECT DISTINCT g.punktid FROM geometriobjekt g
+                    JOIN herredsogn hs
+                    ON sdo_inside(g.geometri, hs.geometri) = 'TRUE'
+                    WHERE hs.kode IN ({distrikter}) AND g.registreringtil IS NULL
+                ) a
+                LEFT JOIN (
+                    SELECT DISTINCT pi.punktid FROM punktinfo pi
+                    JOIN punktinfotype pit ON pit.infotypeid=pi.infotypeid
+                    WHERE pit.infotype IN ({uønsket}) AND pi.registreringtil IS NULL
+                ) b
+                ON a.punktid = b.punktid
+                JOIN punkt p ON p.id = a.punktid
+                WHERE b.punktid IS NULL AND p.registreringtil IS NULL
+                ORDER BY p.registreringfra"""
 
-        for punkt in punkter:
-            ident = punkt.ident
-            infotypenavne = [i.infotype.name for i in punkt.punktinformationer]
-            if not uønskede_punkter.isdisjoint(infotypenavne):
+    stmt = text(pkt_i_distrikter).columns(Punkt.objektid)
+    punkter = fire.cli.firedb.session.query(Punkt).from_statement(stmt).all()
+
+    for punkt in punkter:
+        ident = punkt.ident
+        fire.cli.print(f"Punkt: {ident}")
+
+        # Find index for aktuelle punktbeskrivelse, for at kunne vise den først
+        indices = list(range(len(punkt.punktinformationer)))
+        beskrivelse = 0
+        for i, info in enumerate(punkt.punktinformationer):
+            if info.registreringtil is not None:
                 continue
-
-            # Hvis punktet har et landsnummer kan vi bruge det til at frasortere irrelevante punkter
-            if "IDENT:landsnr" in infotypenavne:
-                landsnrinfo = punkt.punktinformationer[
-                    infotypenavne.index("IDENT:landsnr")
-                ]
-                landsnr = landsnrinfo.tekst
-                løbenr = landsnr.split("-")[-1]
-
-                # Frasorter numeriske løbenumre udenfor 1-10, 801-999, 9001-19999
-                if løbenr.isnumeric():
-                    i = int(løbenr)
-                    if 10 < i < 801:
-                        continue
-                    if 1000 < i < 9001:
-                        continue
-                    if i > 20000:
-                        continue
-
-            fire.cli.print(f"Punkt: {ident}")
-
-            # Find index for aktuelle punktbeskrivelse, for at kunne vise den først
-            beskrivelse = 0
-            for i, info in enumerate(punkt.punktinformationer):
-                if info.registreringtil is not None:
-                    continue
-                if info.infotype.name != "ATTR:beskrivelse":
-                    continue
-                beskrivelse = i
-                break
-            indices = list(range(len(punkt.punktinformationer)))
+            if info.infotype.name != "ATTR:beskrivelse":
+                continue
+            beskrivelse = i
             indices[0] = beskrivelse
             indices[beskrivelse] = 0
+            break
 
-            anvendte_attributter = []
+        anvendte_attributter = []
 
-            # Nedenfor sætter vi ident=None efter første linje, for at få en mere
-            # overskuelig rapportering. Men vi skal stadig have adgang til identen
-            # for at kunne fejlmelde undervejs
-            ident_til_fejlmelding = ident
+        # Nedenfor sætter vi ident=None efter første linje, for at få en mere
+        # overskuelig rapportering. Men vi skal stadig have adgang til identen
+        # for at kunne fejlmelde undervejs
+        ident_til_fejlmelding = ident
 
-            # Så itererer vi, med aktuelle beskrivelse først
-            for i in indices:
-                info = punkt.punktinformationer[i]
-                if info.registreringtil is not None:
-                    continue
+        # Så itererer vi, med aktuelle beskrivelse først
+        for i in indices:
+            info = punkt.punktinformationer[i]
+            if info.registreringtil is not None:
+                continue
 
-                attributnavn = info.infotype.name
-                if attributnavn in ignorerede_attributter:
-                    continue
+            attributnavn = info.infotype.name
+            if attributnavn in ignorerede_attributter:
+                continue
 
-                # Vis kun landsnr for punkter med GM/GI/GNSS-primærident
-                if attributnavn == "IDENT:landsnr" and info.tekst == ident:
-                    continue
+            # Vis kun landsnr for punkter med GM/GI/GNSS-primærident
+            if attributnavn == "IDENT:landsnr" and info.tekst == ident:
+                continue
 
-                # Vis kun identnavn i første række af hvert punkt
-                if i != indices[0]:
-                    ident = None
+            # Vis kun identnavn i første række af hvert punkt
+            if i != indices[0]:
+                ident = None
 
-                tekst = info.tekst
-                if tekst:
-                    tekst = tekst.strip()
-                tal = info.tal
-                revision = revision.append(
-                    {
-                        "Punkt": ident,
-                        "Sluk": "",
-                        "Attribut": attributnavn,
-                        "Talværdi": tal,
-                        "Tekstværdi": tekst,
-                        "id": info.objektid,
-                        "Ikke besøgt": "x" if i == beskrivelse else None,
-                    },
-                    ignore_index=True,
-                )
-                anvendte_attributter.append(attributnavn)
+            tekst = info.tekst
+            if tekst:
+                tekst = tekst.strip()
+            tal = info.tal
+            revision = revision.append(
+                {
+                    "Punkt": ident,
+                    "Sluk": "",
+                    "Attribut": attributnavn,
+                    "Talværdi": tal,
+                    "Tekstværdi": tekst,
+                    "id": info.objektid,
+                    "Ikke besøgt": "x" if i == beskrivelse else None,
+                },
+                ignore_index=True,
+            )
+            anvendte_attributter.append(attributnavn)
 
-            # Revisionsovervejelser: p.t. geometri og datumstabilitet
-            if "ATTR:muligt_datumstabil" not in anvendte_attributter:
-                revision = revision.append(
-                    {
-                        "Punkt": ident,
-                        "Attribut": "OVERVEJ:muligt_datumstabil",
-                        "Tekstværdi": "Hvis ja: Ret 'OVERVEJ:' til 'ATTR:'",
-                    },
-                    ignore_index=True,
-                )
+        # Revisionsovervejelser: p.t. geometri og datumstabilitet
+        if "ATTR:muligt_datumstabil" not in anvendte_attributter:
+            revision = revision.append(
+                {
+                    "Punkt": ident,
+                    "Attribut": "OVERVEJ:muligt_datumstabil",
+                    "Tekstværdi": "Hvis ja: Ret 'OVERVEJ:' til 'ATTR:'",
+                },
+                ignore_index=True,
+            )
             try:
                 lokation = punkt.geometri.koordinater
             except AttributeError:
