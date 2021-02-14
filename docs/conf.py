@@ -46,6 +46,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_click.ext",
     "sphinx.ext.graphviz",
+    "sphinxcontrib.programoutput",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
