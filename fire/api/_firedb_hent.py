@@ -10,7 +10,7 @@ from typing import List, Optional
 import re
 
 from sqlalchemy import or_
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from fire.api.model import (
@@ -79,6 +79,10 @@ def hent_punkter(self, ident: str) -> List[Punkt]:
     else:
         result = (
             self.session.query(Punkt)
+            .options(
+                joinedload(Punkt.geometriobjekter),
+                joinedload(Punkt.koordinater),
+            )
             .join(PunktInformation)
             .join(PunktInformationType)
             .filter(

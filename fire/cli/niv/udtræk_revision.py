@@ -2,6 +2,7 @@ from typing import Tuple
 
 import click
 import pandas as pd
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 
@@ -76,7 +77,7 @@ def udtræk_revision(
                 ORDER BY p.registreringfra"""
 
     stmt = text(pkt_i_distrikter).columns(Punkt.objektid)
-    punkter = fire.cli.firedb.session.query(Punkt).from_statement(stmt).all()
+    punkter = fire.cli.firedb.session.query(Punkt).from_statement(stmt).options(joinedload(Punkt.geometriobjekter)).all()
 
     for punkt in punkter:
         ident = punkt.ident

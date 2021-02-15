@@ -131,7 +131,10 @@ class Punkt(FikspunktregisterObjekt):
         "GeometriObjekt", order_by="GeometriObjekt.objektid", back_populates="punkt"
     )
     punktinformationer = relationship(
-        "PunktInformation", order_by="PunktInformation.objektid", back_populates="punkt"
+        "PunktInformation",
+        order_by="PunktInformation.objektid",
+        back_populates="punkt",
+        lazy="joined",
     )
     observationer_fra = relationship(
         "Observation",
@@ -219,7 +222,7 @@ class PunktInformation(FikspunktregisterObjekt):
         back_populates="punktinformationer_slettede",
     )
     infotypeid = Column(Integer, ForeignKey("punktinfotype.infotypeid"), nullable=False)
-    infotype = relationship("PunktInformationType")
+    infotype = relationship("PunktInformationType", lazy="joined")
     tal = Column(Float)
     tekst = Column(String(4000))
     punktid = Column(String(36), ForeignKey("punkt.id"), nullable=False)
@@ -307,7 +310,7 @@ class PunktInformationType(DeclarativeBase):
 class Koordinat(FikspunktregisterObjekt):
     __tablename__ = "koordinat"
     sridid = Column(Integer, ForeignKey("sridtype.sridid"), nullable=False)
-    srid = relationship("Srid")
+    srid = relationship("Srid", lazy="joined")
     sx = Column(Float)
     sy = Column(Float)
     sz = Column(Float)
@@ -454,7 +457,9 @@ class Observation(FikspunktregisterObjekt):
     observationstypeid = Column(
         Integer, ForeignKey("observationstype.observationstypeid")
     )
-    observationstype = relationship("ObservationsType", back_populates="observationer")
+    observationstype = relationship(
+        "ObservationsType", back_populates="observationer", lazy="joined"
+    )
     sigtepunktid = Column(String(36), ForeignKey("punkt.id"))
     sigtepunkt = relationship("Punkt", foreign_keys=[sigtepunktid])
     opstillingspunktid = Column(String(36), ForeignKey("punkt.id"))
