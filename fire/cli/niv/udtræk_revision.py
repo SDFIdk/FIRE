@@ -23,7 +23,7 @@ from . import (
     nargs=1,
     type=str,
 )
-@click.argument("opmålingsdistrikter", nargs=-1)
+@click.argument("opmålingsdistrikter", nargs=-1, required=True)
 def udtræk_revision(
     projektnavn: str, opmålingsdistrikter: Tuple[str], **kwargs
 ) -> None:
