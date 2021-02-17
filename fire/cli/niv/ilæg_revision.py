@@ -1,14 +1,13 @@
 import sys
 import getpass
 from datetime import datetime
-from math import trunc, isnan, radians
-from time import sleep
+from math import trunc, isnan
 
 import click
 import pandas as pd
 from pyproj import Proj
-from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import DatabaseError
 
 import fire.cli
 from fire import uuid
@@ -19,21 +18,20 @@ from fire.api.model import (
     Point,
     Punkt,
     PunktInformation,
-    PunktInformationType,
     PunktInformationTypeAnvendelse,
-    Sag,
     Sagsevent,
     SagseventInfo,
-    Srid,
+    FikspunktsType,
 )
 
 from . import (
     ARKDEF_REVISION,
-    bekræft,
+    bekræft2,
     find_faneblad,
     find_sag,
     find_sagsgang,
     niv,
+    skriv_ark,
 )
 
 
@@ -42,20 +40,6 @@ from . import (
 # ------------------------------------------------------------------------------
 @niv.command()
 @fire.cli.default_options()
-@click.option(
-    "-t",
-    "--test",
-    is_flag=True,
-    default=True,
-    help="Check inputfil, skriv intet til databasen",
-)
-@click.option(
-    "-a",
-    "--alvor",
-    is_flag=True,
-    default=False,
-    help="Skriv aftestet materiale til databasen",
-)
 @click.argument(
     "projektnavn",
     nargs=1,
@@ -73,30 +57,25 @@ from . import (
     type=str,
 )
 def ilæg_revision(
-    alvor: bool,
-    test: bool,
     projektnavn: str,
     sagsbehandler: str,
-    bemærkning: str,
     **kwargs,
 ) -> None:
     """Læg reviderede punktdata i databasen"""
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
-    fire.cli.print("Lægger punktrevisionsarbejde i databasen")
-
     fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
-    alvor, test = bekræft("Skriv punktrevisionsdata til databasen", alvor, test)
-    # Fortrød de?
-    if alvor and test:
-        return
+    fire.cli.print("")
 
     revision = find_faneblad(f"{projektnavn}-revision", "Revision", ARKDEF_REVISION)
     revision = revision.replace("nan", "")
-    bemærkning = " ".join(bemærkning)
-    opdateret = pd.DataFrame(columns=list(ARKDEF_REVISION))
+
+    # Tildel navne til endnu ikke oprettede punkter
+    oprettelse = revision.query("Attribut == 'OPRET'")
+    for i, _ in oprettelse.iterrows():
+        revision.loc[i, "Punkt"] = f"NYTPUNKT{i}"
 
     # Udfyld udeladte identer
     punkter = list(revision["Punkt"])
@@ -109,25 +88,46 @@ def ilæg_revision(
     revision["Punkt"] = punkter
 
     # Find alle punkter, der skal nyoprettes
-    oprettelse = revision.query(f"Attribut == 'Opret'")
+    nye_punkter = []
+    oprettelse = revision.query("Attribut == 'OPRET'")
     for row in oprettelse.to_dict("records"):
         if row["id"] == -1:
             continue
-        fire.cli.print(f"Opretter nyt punkt: {row['Punkt']}")
-        if alvor:
-            opret_punkt(row["Punkt"], row["Ny værdi"], sag)
-    revision = revision.query(f"Attribut != 'Opret'")
+        punkt = opret_punkt(row["Ny værdi"])
+        fire.cli.print(f"Opretter nyt punkt {punkt.ident}: {row['Ny værdi']}")
+        nye_punkter.append(punkt)
+
+        # indsæt nyt punkt ID i Punkt kolonnen, for at kunne trække
+        # dem ud med hent_punkt() senere
+        erstat = lambda x: punkt.id if x == row["Punkt"] else x
+        revision["Punkt"] = revision.Punkt.apply(erstat)
+
+    revision = revision.query("Attribut != 'OPRET'")
 
     # Find alle lokationskoordinater, der skal korrigeres
-    lokation = revision.query(f"Attribut == 'Lokation'")
-    lokation = lokation.query(f"`Ny værdi` != ''")
+    nye_lokationer = []
+    lokation = revision.query("Attribut == 'LOKATION'")
+    lokation = lokation.query("`Ny værdi` != ''")
     for row in lokation.to_dict("records"):
-        fire.cli.print(
-            f"IKKE IMPLEMENTERET - Korrigerer lokation for: {row['Punkt']}: {row['Ny værdi']}"
+        punkt = fire.cli.firedb.hent_punkt(row["Punkt"])
+        go = læs_lokation(row["Ny værdi"])
+        go.punkt = punkt
+        nye_lokationer.append(go)
+
+    if len(nye_punkter) > 0 or len(nye_lokationer) > 0:
+        sagsevent = Sagsevent(
+            id=uuid(),
+            sagsid=sag.id,
+            sagseventinfos=[SagseventInfo(beskrivelse="Oprettelse af nye punkter")],
+            eventtype=EventType.PUNKT_OPRETTET,
+            punkter=nye_punkter,
+            geometriobjekter=nye_lokationer,
         )
-        if alvor:
-            pass  # refaktor af opret_punkt(row["Punkt"], row["Ny værdi"], sag)
-    revision = revision.query(f"Attribut != 'Lokation'")
+        fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
+        sagsgang = opdater_sagsgang(sagsgang, sagsevent, sagsbehandler)
+        flush()
+
+    revision = revision.query("Attribut != 'LOKATION'")
 
     # Find alle koordinater, der skal oprettes
 
@@ -136,9 +136,8 @@ def ilæg_revision(
     sridnavne = [srid.name.upper() for srid in srider]
 
     # Så itererer vi over hele rammen og ignorerer ikke-koordinaterne
-    til_registrering = []
+    nye_koordinater = []
     opdaterede_punkter = []
-    koordinatoprettelsestekst = str()
     for r in revision.to_dict("records"):
         sridnavn = r["Attribut"].upper()
         if sridnavn not in sridnavne:
@@ -147,7 +146,10 @@ def ilæg_revision(
             koord = [float(k.replace(",", ".")) for k in r["Ny værdi"].split()]
         except ValueError as ex:
             fire.cli.print(
-                f"Slemt koordinatudtryk:\n{'    '.join(r['Ny værdi'])}\n{ex}"
+                f"Ukorrekt koordinatformat:\n{'    '.join(r['Ny værdi'])}\n{ex}"
+            )
+            fire.cli.print(
+                "Skal være på formen: 'x y z t sx sy sz', hvor ubrugte værdier sættes til 'nan'"
             )
             sys.exit(1)
 
@@ -158,30 +160,16 @@ def ilæg_revision(
         # hvordan denne opgave kan parametriseres på en rimeligt generel måde, så den kan
         # udstilles i et "højniveau-API"
         srid = fire.cli.firedb.hent_srid(sridnavn)
-        registreringstidspunkt = func.current_timestamp()
-        sagsevent = Sagsevent(
-            sag=sag, id=uuid(), eventtype=EventType.KOORDINAT_BEREGNET
-        )
 
-        # Undgå forsøg på at læse punkter der endnu ikke er skrevet til databasen:
-        # Ved testkørsler bruger vi dummypunkt 00009 fra det ikke-eksisterende
-        # opmålingsdistrikt 9-09. Ved endelige kørsler har vi lige lagt punkterne
-        # i databasen ovenfor, så her kan vi bruge de faktiske punktnavne.
-        if not alvor:
-            punkt = fire.cli.firedb.hent_punkt("9-09-00009")
-        else:
-            punkt = fire.cli.firedb.hent_punkt(r["Punkt"])
+        punkt = fire.cli.firedb.hent_punkt(r["Punkt"])
         opdaterede_punkter.append(r["Punkt"])
 
         # Det er ikke helt så nemt som i C at oversætte decimal-år til datetime
-        if koord[3] is None:
-            tid = None
-        else:
-            år = trunc(koord[3])
-            rest = koord[3] - år
-            startdato = datetime(år, 1, 1)
-            årlængde = datetime(år + 1, 1, 1) - startdato
-            tid = startdato + rest * årlængde
+        år = trunc(koord[3])
+        rest = koord[3] - år
+        startdato = datetime(år, 1, 1)
+        årlængde = datetime(år + 1, 1, 1) - startdato
+        tid = startdato + rest * årlængde
 
         koordinat = Koordinat(
             srid=srid,
@@ -194,12 +182,12 @@ def ilæg_revision(
             sy=koord[5],
             sz=koord[6],
         )
-        til_registrering.append(koordinat)
+        nye_koordinater.append(koordinat)
 
         # I Grønland er vi nødt til at duplikere geografiske koordinater til UTM24,
         # da Oracles indbyggede UTM-rutine er for ringe til at vi kan generere
         # udstillingskoordinater on-the-fly.
-        if sridnavn == "EPSG:4909" or sridnavn == "EPSG:4747":
+        if sridnavn in ("EPSG:4909", "EPSG:4747"):
             srid_utm24 = fire.cli.firedb.hent_srid("EPSG:3184")
             utm24 = Proj("proj=utm zone=24 ellps=GRS80", preserve_units=False)
             x, y = utm24(koord[0], koord[1])
@@ -214,7 +202,7 @@ def ilæg_revision(
                 sy=koord[5],
                 sz=None,
             )
-            til_registrering.append(koordinat)
+            nye_koordinater.append(koordinat)
 
     n = len(opdaterede_punkter)
     if n > 0:
@@ -226,18 +214,19 @@ def ilæg_revision(
         koordinatoprettelsestekst = (
             f"Opdatering af {n} koordinater til {', '.join(punktnavne)}"
         )
-        sagseventinfo = SagseventInfo(beskrivelse=koordinatoprettelsestekst)
-        sagsevent.sagseventinfos.append(sagseventinfo)
-        sagsevent.koordinater = til_registrering
-        if alvor:
-            fire.cli.firedb.indset_sagsevent(sagsevent)
+
+        sagsevent = Sagsevent(
+            id=uuid(),
+            sagsid=sag.id,
+            sagseventinfos=[SagseventInfo(beskrivelse=koordinatoprettelsestekst)],
+            eventtype=EventType.KOORDINAT_BEREGNET,
+            koordinater=nye_koordinater,
+        )
+        fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
+        sagsgang = opdater_sagsgang(sagsgang, sagsevent, sagsbehandler)
+        flush()
 
     # Så tager vi fat på punktinformationerne
-
-    # Find identer for alle punkter, der indgår i revisionen
-    identer = tuple(sorted(set(revision["Punkt"]) - set(["nan", ""])))
-    fire.cli.print(f"Behandler {len(identer)} punkter")
-
     til_opret = []
     til_ret = []
     til_sluk = []
@@ -245,38 +234,41 @@ def ilæg_revision(
     punkter_med_rettelse = set()
     punkter_med_slukning = set()
 
+    # Først, tilknyt regionspunktinfo til nyoprettede punkter
+    for p in nye_punkter:
+        til_opret.append(opret_region_punktinfo(p))
+
+    # Find identer for alle punkter, der indgår i revisionen
+    identer = tuple(sorted(set(revision["Punkt"]) - set(["nan", ""])))
+    fire.cli.print("")
+    fire.cli.print(f"Behandler {len(identer)} punkter")
+
     # Så itererer vi over alle punkter
     for ident in identer:
         fire.cli.print(ident, fg="yellow", bold=True)
 
-        # Hent punkt og alle relevante punktinformationer i databasen
-        # Håndter punkter der endnu ikke er persisterede under test.
-        #
+        # Hent punkt og alle relevante punktinformationer i databasen.
         # Her er det lidt sværere end for koordinaternes vedkommende:
         # Ved opdatering af eksisterende punkter vil vi gerne checke
         # infonøglerne, så vi er nødt til at hente det faktiske punkt,
-        # med tilørende infonøgler, fra databasen - alvor eller ej
+        # med tilørende infonøgler, fra databasen
         try:
             punkt = fire.cli.firedb.hent_punkt(ident)
             infonøgler = {
                 info.objektid: i for i, info in enumerate(punkt.punktinformationer)
             }
         except NoResultFound as ex:
-            if not alvor:
-                punkt = fire.cli.firedb.hent_punkt("9-09-00009")
-                infonøgler = dict()
-            else:
-                fire.cli.print(
-                    f"FEJL: Kan ikke finde punkt {ident}!",
-                    fg="yellow",
-                    bg="red",
-                    bold=True,
-                )
-                fire.cli.print(f"Mulig årsag: {ex}")
-                sys.exit(1)
+            fire.cli.print(
+                f"FEJL: Kan ikke finde punkt {ident}!",
+                fg="yellow",
+                bg="red",
+                bold=True,
+            )
+            fire.cli.print(f"Mulig årsag: {ex}")
+            sys.exit(1)
 
         # Hent alle revisionselementer for punktet fra revisionsarket
-        rev = revision.query(f"Punkt == '{ident}' and Attribut != 'Opret'")
+        rev = revision.query(f"Punkt == '{ident}'")
 
         for r in rev.to_dict("records"):
             if r["Attribut"] in sridnavne:
@@ -287,8 +279,6 @@ def ilæg_revision(
                 continue
             pitnavn = r["Attribut"]
             if pitnavn == "":
-                continue
-            if pitnavn.startswith("OVERVEJ:"):
                 continue
 
             if r["Sluk"] and r["Ny værdi"]:
@@ -318,6 +308,11 @@ def ilæg_revision(
 
             # Nyt punktinfo-element?
             if pd.isna(r["id"]):
+                # ATTR:muligt_datumstabil+slukket == ikke eksisterende i DB
+                # Indsat af fire niv udtræk-revision
+                if pitnavn == "ATTR:muligt_datumstabil" and r["Sluk"]:
+                    continue
+
                 fire.cli.print(f"    Opretter nyt punktinfo-element: {pitnavn}")
                 if pit.anvendelse == PunktInformationTypeAnvendelse.FLAG:
                     if r["Ny værdi"]:
@@ -354,10 +349,6 @@ def ilæg_revision(
 
                 til_opret.append(pi)
                 punkter_med_oprettelse.add(ident)
-                if alvor:
-                    fire.cli.firedb.indset_punktinformation(
-                        opret(sag, punkt.ident, pitnavn), pi
-                    )
                 continue
 
             # Ingen ændringer? - så afslutter vi og går til næste element.
@@ -372,18 +363,16 @@ def ilæg_revision(
                 try:
                     pi = punkt.punktinformationer[infonøgler[oid]]
                 except KeyError:
-                    if alvor:
-                        fire.cli.print(
-                            f"    * Ukendt id - ignorerer element '{oid}'",
-                            fg="red",
-                            bold=True,
-                        )
-                        continue
+                    fire.cli.print(
+                        f"    * Ukendt id - ignorerer element '{oid}'",
+                        fg="red",
+                        bold=True,
+                    )
+                    continue
                 fire.cli.print(f"    Slukker: {pitnavn}")
+                # pi._registreringtil = func.current_timestamp()
                 til_sluk.append(pi)
                 punkter_med_slukning.add(punkt.ident)
-                if alvor:
-                    fire.cli.firedb.luk_punktinfo(pi, sluk(sag, punkt.ident, pitnavn))
                 continue
 
             fire.cli.print(f"    Retter punktinfo-element: {pitnavn}")
@@ -404,30 +393,98 @@ def ilæg_revision(
                 pi = PunktInformation(infotype=pit, punkt=punkt, tal=tal)
             til_ret.append(pi)
             punkter_med_rettelse.add(punkt.ident)
-            if alvor:
-                fire.cli.firedb.indset_punktinformation(
-                    ret(sag, punkt.ident, pitnavn), pi
-                )
             continue
-    opret_tekst = f"Opretter {len(til_opret)} attributter fordelt på {len(punkter_med_oprettelse)} punkter"
-    sluk_tekst = f"Slukker for {len(til_sluk)} attributter fordelt på {len(punkter_med_slukning)} punkter"
-    ret_tekst = f"Retter {len(til_ret)} attributter fordelt på {len(punkter_med_rettelse)} punkter"
 
-    if test:
-        fire.cli.print(
-            f"TESTEDE punktrevision for '{projektnavn}':", fg="yellow", bold=True
+    fikspunktstyper = [FikspunktsType.GI for _ in nye_punkter]
+    landsnumre = fire.cli.firedb.tilknyt_landsnumre(nye_punkter, fikspunktstyper)
+    til_opret.extend(landsnumre)
+    for p in nye_punkter:
+        punkter_med_oprettelse.add(p.ident)
+
+    if len(til_opret) > 0 or len(til_ret) > 0:
+        sagsevent = Sagsevent(
+            id=uuid(),
+            sagsid=sag.id,
+            sagseventinfos=[
+                SagseventInfo(beskrivelse="Opdatering af punktinformationer")
+            ],
+            eventtype=EventType.PUNKTINFO_TILFOEJET,
+            punktinformationer=[*til_opret, *til_ret],
         )
-        if koordinatoprettelsestekst != "":
-            fire.cli.print(f"    * {koordinatoprettelsestekst}")
-        fire.cli.print(f"    * {opret_tekst}")
-        fire.cli.print(f"    * {sluk_tekst}")
-        fire.cli.print(f"    * {ret_tekst}")
-        fire.cli.print(f"Ingen data lagt i FIRE-databasen", fg="yellow")
-        sys.exit(0)
+
+        fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
+        sagsgang = opdater_sagsgang(sagsgang, sagsevent, sagsbehandler)
+        flush()
+
+    if len(til_sluk) > 0:
+        sagsevent = Sagsevent(
+            id=uuid(),
+            sagsid=sag.id,
+            sagseventinfos=[SagseventInfo(beskrivelse="Lukning af punktinformationer")],
+            eventtype=EventType.PUNKTINFO_FJERNET,
+            punktinformationer_slettede=til_sluk,
+        )
+
+        fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
+        sagsgang = opdater_sagsgang(sagsgang, sagsevent, sagsbehandler)
+        flush()
+
+    opret_tekst = f"- oprette {len(til_opret)} attributter fordelt på {len(punkter_med_oprettelse)} punkter"
+    sluk_tekst = f"- slukke for {len(til_sluk)} attributter fordelt på {len(punkter_med_slukning)} punkter"
+    ret_tekst = f"- rette {len(til_ret)} attributter fordelt på {len(punkter_med_rettelse)} punkter"
+
+    fire.cli.print("")
+    fire.cli.print("-" * 50)
+    fire.cli.print("Punkter færdigbehandlet, klar til at")
+    fire.cli.print(opret_tekst)
+    fire.cli.print(sluk_tekst)
+    fire.cli.print(ret_tekst)
+
+    spørgsmål = click.style(
+        f"Er du sikker på du vil indsætte ovenstående i {fire.cli.firedb.db}-databasen",
+        fg="white",
+        bg="red",
+    )
+    if bekræft2(spørgsmål):
+        fire.cli.firedb.session.commit()
+        skriv_ark(projektnavn, {"Sagsgang": sagsgang})
+    else:
+        fire.cli.firedb.session.rollback()
 
 
-def opret_punkt(ident: str, lokation: str, sag: Sag):
-    """Opret nyt punkt i databasen, ud fra minimumsinformationsmængder."""
+def flush():
+    """Indlæs data i database"""
+    try:
+        fire.cli.firedb.session.flush()
+    except DatabaseError as ex:
+        fire.cli.print("FEJL! Mulig årsag:", fg="red", bold=True)
+        fire.cli.print(f"{ex.orig}", fg="red")
+        fire.cli.firedb.session.rollback()
+        sys.exit(1)
+
+
+def opdater_sagsgang(sagsgang, sagsevent, sagsbehandler):
+    """Opdater sagsgang med data fra sagsevent"""
+    hændelsestype = {
+        EventType.KOORDINAT_BEREGNET: "Koordinatoprettelse",
+        EventType.PUNKTINFO_TILFOEJET: "Punktinformation tilføjet",
+        EventType.PUNKTINFO_FJERNET: "Punktinformation fjernet",
+        EventType.PUNKT_OPRETTET: "Punktoprettelse",
+    }
+    sagsgangslinje = {
+        "Dato": pd.Timestamp.now(),
+        "Hvem": sagsbehandler,
+        "Hændelse": hændelsestype[sagsevent.eventtype],
+        "Tekst": sagsevent.beskrivelse,
+        "uuid": sagsevent.id,
+    }
+    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+
+    return sagsgang
+
+
+def læs_lokation(lokation: str) -> GeometriObjekt:
+    """Skab GeometriObjekt ud fra en brugerangivet lokationskoordinat"""
 
     lok = lokation.split()
     assert len(lok) in (
@@ -449,6 +506,27 @@ def opret_punkt(ident: str, lokation: str, sag: Sag):
     if lok[3].upper() in ("W", "V"):
         e = -e
 
+    go = GeometriObjekt()
+    go.geometri = Point([e, n])
+
+    return go
+
+
+def opret_punkt(lokation: str) -> Punkt:
+    """Opret nyt punkt i databasen, ud fra minimumsinformationsmængder."""
+
+    p = Punkt(id=uuid())
+    go = læs_lokation(lokation)
+    p.geometriobjekter.append(go)
+
+    return p
+
+
+def opret_region_punktinfo(punkt: Punkt) -> PunktInformation:
+    """Opret regionspunktinfo for et nyt punkt"""
+
+    e = punkt.geometri.koordinater[0]
+
     # Regionen kan detekteres alene ud fra længdegraden, hvis vi holder os til
     # {DK, EE, FO, GL}. EE er dog ikke understøttet her: Hvis man forsøger at
     # oprette nye estiske punkter vil de blive tildelt region DK
@@ -459,91 +537,10 @@ def opret_punkt(ident: str, lokation: str, sag: Sag):
     else:
         region = "REGION:FO"
 
-    # Hvis ident har regionspræfiks, så skræller vi det af og håndterer det separat
-    region_ident = ident.split()
-    if len(region_ident) == 2:
-        assert region_ident[0] in (
-            "DK",
-            "FO",
-            "GL",
-        ), f"Ukendt regionspræfiks: {region_ident[0]}"
-        ident = region_ident[1]
-
-    prefix = {"REGION:DK": "", "REGION:FO": "FO  ", "REGION:GL": "GL  "}
-
-    if 3 == len(ident.split("-")):
-        identtype = "IDENT:landsnr"
-    elif 4 == len(ident) and not ident.isnumeric():
-        identtype = "IDENT:GNSS"
-    elif ident.startswith("G.M."):
-        identtype = "IDENT:GI"
-    elif ident.startswith("G.I."):
-        identtype = "IDENT:GI"
-    else:
-        if ident.isnumeric():
-            identtype = "IDENT:station"
-        else:
-            identtype = "IDENT:ekstern"
-
-    p = Punkt(id=uuid())
-    go = GeometriObjekt()
-    go.geometri = Point([e, n])
-    p.geometriobjekter.append(go)
-
-    se = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKT_OPRETTET)
-    si = SagseventInfo(beskrivelse=f"opret {ident}")
-    se.sagseventinfos.append(si)
-    se.punkter.append(p)
-    fire.cli.firedb.indset_sagsevent(se)
-
-    # indsæt ident
-    pit = fire.cli.firedb.hent_punktinformationtype(identtype)
-    if pit is None:
-        fire.cli.print(f"Kan ikke finde identtype '{identtype}'")
-        sys.exit(1)
-    pi = PunktInformation(infotype=pit, punkt=p, tekst=f"{prefix[region]}{ident}")
-    se = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_TILFOEJET)
-    si = SagseventInfo(beskrivelse=f"tilpas {ident}")
-    se.sagseventinfos.append(si)
-    fire.cli.firedb.indset_punktinformation(se, pi)
-
     # indsæt region
     pit = fire.cli.firedb.hent_punktinformationtype(region)
     if pit is None:
         fire.cli.print(f"Kan ikke finde region '{region}'")
         sys.exit(1)
-    pi = PunktInformation(infotype=pit, punkt=p)
-    se = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_TILFOEJET)
-    si = SagseventInfo(beskrivelse=f"tilpas {ident}")
-    se.sagseventinfos.append(si)
-    fire.cli.firedb.indset_punktinformation(se, pi)
 
-
-# -----------------------------------------------------------------------------
-def opret(sag: Sag, punktid: str, pitnavn: str) -> Sagsevent:
-    """Konstruer en sagshændelse beregnet på registrering af ny punktinfo"""
-    se = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_TILFOEJET)
-    tekst = f"{punktid}: Opret {pitnavn}"
-    info = SagseventInfo(beskrivelse=tekst)
-    se.sagseventinfos.append(info)
-    return se
-
-
-# -----------------------------------------------------------------------------
-def ret(sag: Sag, punktid: str, pitnavn: str) -> Sagsevent:
-    """Konstruer en sagshændelse beregnet på registrering af ny punktinfo"""
-    se = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_TILFOEJET)
-    tekst = f"{punktid}: Ret {pitnavn}"
-    info = SagseventInfo(beskrivelse=tekst)
-    se.sagseventinfos.append(info)
-    return se
-
-
-# -----------------------------------------------------------------------------
-def sluk(sag: Sag, punktid: str, pitnavn: str) -> Sagsevent:
-    """Konstruer en sagshændelse beregnet på slukning af punktinfo"""
-    se = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.PUNKTINFO_FJERNET)
-    tekst = f"{punktid}: Sluk {pitnavn}"
-    info = SagseventInfo(beskrivelse=tekst)
-    se.sagseventinfos.append(info)
-    return se
+    return PunktInformation(infotype=pit, punkt=punkt)

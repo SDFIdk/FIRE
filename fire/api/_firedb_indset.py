@@ -86,6 +86,13 @@ def indset_sagsevent(self, sagsevent: Sagsevent, commit: bool = True):
                     f"PunktInformation allerede tilføjet databasen: {punktinformation}"
                 )
 
+    if sagsevent.eventtype == EventType.PUNKTINFO_FJERNET:
+        self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKTINFO_FJERNET)
+
+        for punktinformation in sagsevent.punktinformationer_slettede:
+            self._luk_fikspunkregisterobjekt(punktinformation, sagsevent, commit=commit)
+
+    self.session.add(sagsevent)
     if commit:
         self.session.commit()
 
