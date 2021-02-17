@@ -246,9 +246,9 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     if bekræft2(spørgsmål):
         # Indsæt rækker i database og skriv resultater til regneark
         fire.cli.firedb.session.commit()
-        skriv_ark(projektnavn, resultater)
-        fire.cli.print(
-            f"Punkter oprettet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
-        )
+        if skriv_ark(projektnavn, resultater):
+            fire.cli.print(
+                f"Punkter oprettet. Resultater skrevet til '{projektnavn}.xlsx'"
+            )
     else:
         fire.cli.firedb.session.rollback()

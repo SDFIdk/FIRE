@@ -115,7 +115,7 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
         "Parametre": param,
     }
 
-    if skriv_ark(projektnavn, resultater, ""):
+    if skriv_ark(projektnavn, resultater):
         # os.startfile() er kun tilgængelig på Windows
         if "startfile" in dir(os):
             fire.cli.print("Færdig! - åbner regneark for check.")
