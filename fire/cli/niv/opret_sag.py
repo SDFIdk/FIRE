@@ -15,7 +15,7 @@ from . import (
     ARKDEF_SAG,
     niv,
     skriv_ark,
-    bekræft2,
+    bekræft,
 )
 
 from fire.api.model import (
@@ -81,7 +81,7 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
             bg="red",
             fg="white",
         )
-        if bekræft2(spørgsmål):
+        if bekræft(spørgsmål):
             fire.cli.firedb.session.commit()
             fire.cli.print(f"Sag '{projektnavn}' oprettet")
         else:
@@ -89,7 +89,7 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
             fire.cli.print("Opretter IKKE sag")
             # Ved demonstration af systemet er det nyttigt at kunne oprette
             # et sagsregneark, uden at oprette en tilhørende sag
-            if not bekræft2("Opret sagsregneark alligevel?", gentag=False):
+            if not bekræft("Opret sagsregneark alligevel?", gentag=False):
                 return
 
     fire.cli.print(f"Skriver sagsregneark '{projektnavn}.xlsx'")

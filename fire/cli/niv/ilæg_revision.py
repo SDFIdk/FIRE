@@ -26,7 +26,7 @@ from fire.api.model import (
 
 from . import (
     ARKDEF_REVISION,
-    bekræft2,
+    bekræft,
     find_faneblad,
     find_sag,
     find_sagsgang,
@@ -445,7 +445,7 @@ def ilæg_revision(
         fg="white",
         bg="red",
     )
-    if bekræft2(spørgsmål):
+    if bekræft(spørgsmål):
         fire.cli.firedb.session.commit()
         skriv_ark(projektnavn, {"Sagsgang": sagsgang})
     else:

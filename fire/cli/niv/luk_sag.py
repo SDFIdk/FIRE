@@ -13,7 +13,7 @@ from . import (
     find_faneblad,
     find_sag,
     niv,
-    bekræft2,
+    bekræft,
 )
 
 
@@ -62,7 +62,7 @@ def luk_sag(projektnavn: str, **kwargs) -> None:
         spørgsmål = click.style(
             "Er du sikker på at du vil lukke sagen {projektnavn}?", bg="red", fg="white"
         )
-        if bekræft2(spørgsmål):
+        if bekræft(spørgsmål):
             fire.cli.firedb.session.commit()
             fire.cli.print(f"Sag {sag.id} for '{projektnavn}' lukket!")
         else:
