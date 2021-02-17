@@ -164,6 +164,10 @@ class Punkt(FikspunktregisterObjekt):
                 if punktinfo.infotype.name.startswith("IDENT:") and punktinfo.tekst:
                     temp.append(Ident(punktinfo))
 
+            # Tilføj kort uuid som bagstopper-ident
+            if self.id:
+                temp.append(Ident(self.id[0:8]))
+
             self._identer = sorted(temp)
 
     @property
@@ -206,7 +210,10 @@ class Punkt(FikspunktregisterObjekt):
         try:
             return str(self._identer[0])
         except (IndexError, TypeError):
-            return self.id
+            if self.id:
+                return self.id[0:8]
+            else:
+                return None
 
 
 class PunktInformation(FikspunktregisterObjekt):
@@ -240,13 +247,19 @@ class Ident:
         DIVERSE = 7
         REFGEO = 8
         UKENDT = 9
+        KORTUUID = 10
 
-    def __init__(self, punktinfo: PunktInformation):
-        if not punktinfo.infotype.name.startswith("IDENT:"):
-            raise ValueError("punktinfo indeholder ikke en ident")
+    def __init__(self, punktinfo: Union[PunktInformation, str]):
+        if isinstance(punktinfo, PunktInformation):
+            if not punktinfo.infotype.name.startswith("IDENT:"):
+                raise ValueError("punktinfo indeholder ikke en ident")
 
-        self.variant = punktinfo.infotype.name
-        self.tekst = punktinfo.tekst
+            self.variant = punktinfo.infotype.name
+            self.tekst = punktinfo.tekst
+        else:
+            # Vi antager der er spyttet et kort uuid ind
+            self.variant = "kortuuid"
+            self.tekst = punktinfo
 
     def __lt__(self, other: Ident):
         """
@@ -294,6 +307,8 @@ class Ident:
             return self.IdentType.DIVERSE
         if self.variant == "IDENT:refgeo_id":
             return self.IdentType.REFGEO
+        if self.variant == "kortuuid":
+            return self.IdentType.KORTUUID
 
         return self.IdentType.UKENDT
 
