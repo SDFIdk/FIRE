@@ -3,6 +3,7 @@ import json
 import os
 import os.path
 import sys
+from pathlib import Path
 from typing import Dict, Tuple
 
 import click
@@ -223,38 +224,146 @@ def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
 
 # -----------------------------------------------------------------------------
 def skriv_ark(
-    projektnavn: str, resultater: Dict[str, pd.DataFrame], suffix: str = "-resultat"
+    projektnavn: str, nye_faneblade: Dict[str, pd.DataFrame], suffix: str = ""
 ) -> bool:
-    """Skriv resultater til excel-fil"""
+    """Skriv resultater til excel-fil
 
-    filnavn = f"{projektnavn}{suffix}.xlsx"
-    if suffix != "":
-        fire.cli.print(f"Skriver: {tuple(resultater)}")
-        fire.cli.print(f"Til filen '{filnavn}'")
+    Basalt en temmeligt simpel operation, men virkemåden er næsten overskygget af
+    kontroller af at filoperationer gik godt. Det er et vilkår ved interaktioner
+    med filsystemer, så for overblikkets skyld kommer her en kort prosabeskrivelse.
 
-    # Giv brugeren en chance for at lukke et åbent regneark
-    while True:
+    1. Flyt projektnavn.xlsx til projektnavn-ex.xlsx
+    2. Læs dict gamle_faneblade fra projektnavn-ex.xlsx
+    3. Fjern elementer fra gamle_faneblade hvis navnet også findes i nye_faneblade
+    4. Skriv nye_faneblade til projektnavn.xlsx
+    5. Skriv gamle_faneblade til projektnavn.xlsx
+
+    Trin 4 kommer før trin 5 for at sikre at de nye faneblade er umiddelbart
+    synlige når man åbner projektnavn.xlsx
+
+    Eller mere direkte sagt:
+
+    ```
+    fil = Path(f"{projektnavn}{suffix}.xlsx")
+    exfil = Path(f"{projektnavn}{suffix}-ex.xlsx")
+    fil.replace(exfil)
+
+    gamle_faneblade = pd.read_excel(exfil, sheet_name=None)
+    for fanebladnavn in set(gamle_faneblade).intersection(nye_faneblade):
+        gamle_faneblade.pop(fanebladnavn)
+
+    with pd.ExcelWriter(fil) as writer:
+        skriv nye_faneblade
+        skriv gamle_faneblade
+    ```
+
+    Hvilket er i omegnen af en faktor 10 mindre end den implementerede
+    version - men *it's a jungle out there*...
+    """
+
+    fil = Path(f"{projektnavn}{suffix}.xlsx")
+    exfil = Path(f"{projektnavn}{suffix}-ex.xlsx")
+    nye_navne = set(nye_faneblade)
+
+    # Gå med seler og livrem: Læs fanebladsnavne fra originalfilen,
+    #  så vi kan checke at alt kom helskindet med over i exfilen.
+    #
+    # NB: man kan læse en excelfil selv om den er åben. Derfor er
+    # læsefejl her ikke tegn på at filen er åben (eller af anden
+    # årsag låst), men på at filen ikke eksisterer.
+    try:
+        gamle_navne = set(pd.read_excel(fil, sheet_name=None))
+    except Exception as ex:
+        fire.cli.print(f"Filen '{fil}' findes ikke.")
+        gamle_navne = set()
+
+    fire.cli.print(f"Skriver: {nye_navne}")
+    fire.cli.print(f"Til filen '{fil}'")
+
+    # Størstedelen af "det der skal gøres" skal kun gøres hvis
+    # vi skriver til en allerede eksisterende fil
+    if gamle_navne:
+        fire.cli.print(f"Overskriver fanebladene {gamle_navne.intersection(nye_navne)}")
+        fire.cli.print(f"    med opdaterede versioner.")
+        fire.cli.print(f"Foregående versioner beholdes i 'ex'-filen '{exfil}'")
+
+        # Vi starter med at omdøbe fil.xlsx til fil-ex.xlsx - det giver sikkerhed
+        # for på at ingen af filerne er i brug
+        while True:
+            try:
+                fil.replace(exfil)
+                break
+            except Exception as ex:
+                fire.cli.print(
+                    f"Kan ikke håndtere '{fil}' - måske fordi den eller '{exfil}' er åben.",
+                    fg="yellow",
+                    bold=True,
+                )
+                fire.cli.print(f"Anden mulig årsag: {ex}")
+                if input("Luk fil og prøv igen ([j]/n)? ") in ["j", "J", "ja", ""]:
+                    continue
+                fire.cli.print("Dropper skrivning")
+                return False
+
+        # Så læser vi de eksisterende faneblade.
+        #
+        # NB: Her er der er en mikroskopisk chance for en race-condition (hvad hedder det
+        # på dansk?): Vi holder ikke en lås på exfilen når den opstår ved omdøbning af
+        # projektfilen, så den kan overskrives af eksterne processer *efter* at vi har
+        # omdøbt projektfilen og *inden* vi når videre hertil.
+        #
+        # Så her, og formodentlig overalt i FIRE, bortset fra databaseadgang, antager vi
+        # at benspænd fra eksterne processer er sjældne og ignorable.
+        #
+        # Langt de fleste tænkelige benspænd af den slags vil enten fanges af
+        # undtagelseshåndteringen, eller af "seler og livrem"-mekanismen omtalt ovenfor.
         try:
-            with pd.ExcelWriter(filnavn) as writer:
-                for r in resultater:
-                    resultater[r].to_excel(
-                        writer, sheet_name=r, encoding="utf-8", index=False
-                    )
-            if suffix == "-resultat":
-                if "startfile" in dir(os):
-                    os.startfile(f"{projektnavn}-resultat.xlsx")
-            return True
+            gamle_faneblade = pd.read_excel(exfil, sheet_name=None)
         except Exception as ex:
             fire.cli.print(
-                f"Kan ikke skrive til '{filnavn}' - måske fordi den er åben.",
+                f"Kan ikke læse '{exfil}' - dropper skrivning af '{nye_navne}'.",
                 fg="yellow",
                 bold=True,
             )
-            fire.cli.print(f"Anden mulig årsag: {ex}")
-            if input("Prøv igen ([j]/n)? ") in ["j", "J", "ja", ""]:
-                continue
-            fire.cli.print("Dropper skrivning")
+            fire.cli.print(f"Systemfejlmeddelelse: {ex}")
             return False
+
+        # Afslut seler og livrem: Check at fanebladnavnene stemmer
+        if set(gamle_faneblade) != gamle_navne:
+            fire.cli.print(
+                f"Noget gik galt ved flytning af '{fil}' til '{exfil}'.",
+                fg="yellow",
+                bold=True,
+            )
+            fire.cli.print(f"    Dropper skrivning af '{nye_navne}'.")
+            return False
+
+        # Fjern gamle faneblade hvis der findes et nyt med samme navn
+        for fanebladnavn in gamle_navne.intersection(nye_faneblade):
+            gamle_faneblade.pop(fanebladnavn)
+    else:
+        gamle_faneblade = dict()
+
+    # Skriv de nye faneblade, efterfulgt af de resterende gamle til den
+    # opdaterede fil.
+    # Derved bliver de nye faneblade umiddelbart synlige, når arket åbnes.
+    try:
+        with pd.ExcelWriter(fil) as writer:
+            for navn in nye_faneblade:
+                nye_faneblade[navn].to_excel(
+                    writer, sheet_name=navn, encoding="utf-8", index=False
+                )
+            for navn in gamle_faneblade:
+                gamle_faneblade[navn].to_excel(
+                    writer, sheet_name=navn, encoding="utf-8", index=False
+                )
+    except Exception as ex:
+        fire.cli.print(f"Kan ikke skrive opdateret '{fil}'!")
+        if gamle_navne:
+            fire.cli.print(f"Gammel version er stadig tilgængelig som '{exfil}'.")
+        fire.cli.print(f"Systemfejlmeddelelse: {ex}")
+        return False
+    return True
 
 
 # ------------------------------------------------------------------------------

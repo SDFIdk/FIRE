@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 import webbrowser
@@ -97,7 +98,7 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
     fire.cli.print(
         f"Fastholder {len(fastholdte)} og beregner nye koter for {len(estimerede_punkter)} punkter"
     )
-    beregning = gama_beregning(
+    beregning, htmlrapportnavn = gama_beregning(
         projektnavn, observationer, punktoversigt, estimerede_punkter, kontrol
     )
 
@@ -105,6 +106,11 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
     # ...og beret om resultaterne
     punkter_geojson(projektnavn, resultater[næste_faneblad])
     skriv_ark(projektnavn, resultater)
+
+    webbrowser.open_new_tab(htmlrapportnavn)
+    if "startfile" in dir(os):
+        fire.cli.print("Færdig! - åbner regneark og resultatrapport for check.")
+        os.startfile(f"{projektnavn}.xlsx")
 
 
 # ------------------------------------------------------------------------------
@@ -164,7 +170,7 @@ def gama_beregning(
     punktoversigt: pd.DataFrame,
     estimerede_punkter: Tuple[str, ...],
     kontrol: bool,
-) -> pd.DataFrame:
+) -> Tuple[pd.DataFrame, str]:
     fastholdte = find_fastholdte(punktoversigt)
 
     # Skriv Gama-inputfil i XML-format
@@ -221,6 +227,7 @@ def gama_beregning(
     else:
         beregningstype = "endelig"
 
+    htmlrapportnavn = f"{projektnavn}-resultat-{beregningstype}.html"
     ret = subprocess.run(
         [
             "gama-local",
@@ -228,14 +235,13 @@ def gama_beregning(
             "--xml",
             f"{projektnavn}-resultat.xml",
             "--html",
-            f"{projektnavn}-resultat-{beregningstype}.html",
+            htmlrapportnavn,
         ]
     )
     if ret.returncode:
         fire.cli.print(
             f"Check {projektnavn}-resultat-{beregningstype}.html", bg="red", fg="white"
         )
-    webbrowser.open_new_tab(f"{projektnavn}-resultat-{beregningstype}.html")
 
     # Grav resultater frem fra GNU Gamas outputfil
     with open(f"{projektnavn}-resultat.xml") as resultat:
@@ -283,4 +289,4 @@ def gama_beregning(
             continue
         punktoversigt.at[punkt, "Opløft [mm/år]"] = Δ / dt
     punktoversigt = punktoversigt.reset_index()
-    return punktoversigt
+    return (punktoversigt, htmlrapportnavn)
