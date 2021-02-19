@@ -22,7 +22,7 @@ from fire.api.model import (
 
 from . import (
     ARKDEF_NYETABLEREDE_PUNKTER,
-    bekræft2,
+    bekræft,
     find_faneblad,
     find_sag,
     find_sagsgang,
@@ -243,7 +243,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     spørgsmål += click.style(f"i ", fg="white", bg="red")
     spørgsmål += click.style(f"{fire.cli.firedb.db}", fg="white", bg="red", bold=True)
     spørgsmål += click.style("-databasen - er du sikker?", fg="white", bg="red")
-    if bekræft2(spørgsmål):
+    if bekræft(spørgsmål):
         # Indsæt rækker i database og skriv resultater til regneark
         fire.cli.firedb.session.commit()
         if skriv_ark(projektnavn, resultater):

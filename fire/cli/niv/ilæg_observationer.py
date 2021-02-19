@@ -18,7 +18,7 @@ from fire.api.model import (
 
 from . import (
     ARKDEF_OBSERVATIONER,
-    bekræft2,
+    bekræft,
     find_faneblad,
     find_sag,
     find_sagsgang,
@@ -175,7 +175,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         )
         spørgsmål += click.style("-databasen - er du sikker?", fg="white", bg="red")
 
-        if bekræft2(spørgsmål):
+        if bekræft(spørgsmål):
             fire.cli.firedb.session.commit()
 
             # Skriv resultater til resultatregneark

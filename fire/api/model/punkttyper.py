@@ -131,7 +131,10 @@ class Punkt(FikspunktregisterObjekt):
         "GeometriObjekt", order_by="GeometriObjekt.objektid", back_populates="punkt"
     )
     punktinformationer = relationship(
-        "PunktInformation", order_by="PunktInformation.objektid", back_populates="punkt"
+        "PunktInformation",
+        order_by="PunktInformation.objektid",
+        back_populates="punkt",
+        lazy="joined",
     )
     observationer_fra = relationship(
         "Observation",
@@ -160,6 +163,10 @@ class Punkt(FikspunktregisterObjekt):
             for punktinfo in self.punktinformationer:
                 if punktinfo.infotype.name.startswith("IDENT:") and punktinfo.tekst:
                     temp.append(Ident(punktinfo))
+
+            # Tilføj kort uuid som bagstopper-ident
+            if self.id:
+                temp.append(Ident(self.id[0:8]))
 
             self._identer = sorted(temp)
 
@@ -203,7 +210,10 @@ class Punkt(FikspunktregisterObjekt):
         try:
             return str(self._identer[0])
         except (IndexError, TypeError):
-            return self.id
+            if self.id:
+                return self.id[0:8]
+            else:
+                return None
 
 
 class PunktInformation(FikspunktregisterObjekt):
@@ -219,7 +229,7 @@ class PunktInformation(FikspunktregisterObjekt):
         back_populates="punktinformationer_slettede",
     )
     infotypeid = Column(Integer, ForeignKey("punktinfotype.infotypeid"), nullable=False)
-    infotype = relationship("PunktInformationType")
+    infotype = relationship("PunktInformationType", lazy="joined")
     tal = Column(Float)
     tekst = Column(String(4000))
     punktid = Column(String(36), ForeignKey("punkt.id"), nullable=False)
@@ -237,13 +247,19 @@ class Ident:
         DIVERSE = 7
         REFGEO = 8
         UKENDT = 9
+        KORTUUID = 10
 
-    def __init__(self, punktinfo: PunktInformation):
-        if not punktinfo.infotype.name.startswith("IDENT:"):
-            raise ValueError("punktinfo indeholder ikke en ident")
+    def __init__(self, punktinfo: Union[PunktInformation, str]):
+        if isinstance(punktinfo, PunktInformation):
+            if not punktinfo.infotype.name.startswith("IDENT:"):
+                raise ValueError("punktinfo indeholder ikke en ident")
 
-        self.variant = punktinfo.infotype.name
-        self.tekst = punktinfo.tekst
+            self.variant = punktinfo.infotype.name
+            self.tekst = punktinfo.tekst
+        else:
+            # Vi antager der er spyttet et kort uuid ind
+            self.variant = "kortuuid"
+            self.tekst = punktinfo
 
     def __lt__(self, other: Ident):
         """
@@ -291,6 +307,8 @@ class Ident:
             return self.IdentType.DIVERSE
         if self.variant == "IDENT:refgeo_id":
             return self.IdentType.REFGEO
+        if self.variant == "kortuuid":
+            return self.IdentType.KORTUUID
 
         return self.IdentType.UKENDT
 
@@ -307,7 +325,7 @@ class PunktInformationType(DeclarativeBase):
 class Koordinat(FikspunktregisterObjekt):
     __tablename__ = "koordinat"
     sridid = Column(Integer, ForeignKey("sridtype.sridid"), nullable=False)
-    srid = relationship("Srid")
+    srid = relationship("Srid", lazy="joined")
     sx = Column(Float)
     sy = Column(Float)
     sz = Column(Float)
@@ -454,7 +472,9 @@ class Observation(FikspunktregisterObjekt):
     observationstypeid = Column(
         Integer, ForeignKey("observationstype.observationstypeid")
     )
-    observationstype = relationship("ObservationsType", back_populates="observationer")
+    observationstype = relationship(
+        "ObservationsType", back_populates="observationer", lazy="joined"
+    )
     sigtepunktid = Column(String(36), ForeignKey("punkt.id"))
     sigtepunkt = relationship("Punkt", foreign_keys=[sigtepunktid])
     opstillingspunktid = Column(String(36), ForeignKey("punkt.id"))

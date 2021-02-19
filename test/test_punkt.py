@@ -158,7 +158,7 @@ def test_identer(firedb: FireDb):
 
     assert "SKEJ" in punkt.identer
     assert "102-08-00802" in punkt.identer
-    assert len(punkt.identer) == 2
+    assert len(punkt.identer) == 3  # kort uuid 8e5e57f8 er også en ident
 
 
 def test_punkt_cache(firedb: FireDb):

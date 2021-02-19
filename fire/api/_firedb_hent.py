@@ -10,7 +10,7 @@ from typing import List, Optional
 import re
 
 from sqlalchemy import or_
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from fire.api.model import (
@@ -70,15 +70,27 @@ def hent_punkter(self, ident: str) -> List[Punkt]:
     uuidmønster = re.compile(
         r"^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
     )
+    kort_uuidmønster = re.compile(r"^[0-9A-Fa-f]{8}$")
+
     if uuidmønster.match(ident):
         result = (
             self.session.query(Punkt)
             .filter(Punkt.id == ident, Punkt._registreringtil == None)  # NOQA
             .all()
         )
+    elif kort_uuidmønster.match(ident):
+        result = (
+            self.session.query(Punkt)
+            .filter(Punkt.id.startswith(ident), Punkt._registreringtil == None)  # NOQA
+            .all()
+        )
     else:
         result = (
             self.session.query(Punkt)
+            .options(
+                joinedload(Punkt.geometriobjekter),
+                joinedload(Punkt.koordinater),
+            )
             .join(PunktInformation)
             .join(PunktInformationType)
             .filter(
@@ -94,7 +106,7 @@ def hent_punkter(self, ident: str) -> List[Punkt]:
         )
 
     if not result:
-        raise NoResultFound
+        raise NoResultFound(f"Punkt med ident {ident} ikke fundet")
 
     return result
 

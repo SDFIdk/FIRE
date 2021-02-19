@@ -2,6 +2,7 @@ from typing import Tuple
 
 import click
 import pandas as pd
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 
@@ -22,7 +23,7 @@ from . import (
     nargs=1,
     type=str,
 )
-@click.argument("opmålingsdistrikter", nargs=-1)
+@click.argument("opmålingsdistrikter", nargs=-1, required=True)
 def udtræk_revision(
     projektnavn: str, opmålingsdistrikter: Tuple[str], **kwargs
 ) -> None:
@@ -82,25 +83,59 @@ def udtræk_revision(
         ident = punkt.ident
         fire.cli.print(f"Punkt: {ident}")
 
-        # Find index for aktuelle punktbeskrivelse, for at kunne vise den først
+        # Angiv ident og lokationskoordinat
+        try:
+            lokation = punkt.geometri.koordinater
+        except AttributeError:
+            fire.cli.print(
+                f"NB! {ident} mangler lokationskoordinat - bruger (11,56)",
+                fg="yellow",
+                bold=True,
+            )
+            lokation = (11.0, 56.0)
+        revision = revision.append(
+            {
+                "Punkt": ident,
+                "Attribut": "LOKATION",
+                # Centimeterafrunding for lokationskoordinaten er rigeligt
+                "Tekstværdi": f"{lokation[1]:.7f} N   {lokation[0]:.7f} Ø",
+                "Ikke besøgt": "x",
+            },
+            ignore_index=True,
+        )
+
+        # Find index for aktuelle datumstabilitetsstatus,
+        # for at kunne vise den først
         indices = list(range(len(punkt.punktinformationer)))
-        beskrivelse = 0
+        for i, info in enumerate(punkt.punktinformationer):
+            if info.registreringtil is not None:
+                continue
+            if info.infotype.name != "ATTR:muligt_datumstabil":
+                continue
+            datumstabilt = True
+            indices[0], indices[i] = indices[i], indices[0]
+            break
+        else:
+            revision = revision.append(
+                {
+                    "Attribut": "ATTR:muligt_datumstabil",
+                    "Sluk": "x",
+                },
+                ignore_index=True,
+            )
+
+        # Find index for aktuelle punktbeskrivelse, for at kunne vise den øverst
         for i, info in enumerate(punkt.punktinformationer):
             if info.registreringtil is not None:
                 continue
             if info.infotype.name != "ATTR:beskrivelse":
                 continue
-            beskrivelse = i
-            indices[0] = beskrivelse
-            indices[beskrivelse] = 0
+
+            # ATTR:beskrivelse's placering i listen afhænger af om der findes
+            # et ATTR:muligt_datumstabil i databasen eller ej
+            pos = 1 if datumstabilt else 0
+            indices[pos], indices[i] = indices[i], indices[pos]
             break
-
-        anvendte_attributter = []
-
-        # Nedenfor sætter vi ident=None efter første linje, for at få en mere
-        # overskuelig rapportering. Men vi skal stadig have adgang til identen
-        # for at kunne fejlmelde undervejs
-        ident_til_fejlmelding = ident
 
         # Så itererer vi, med aktuelle beskrivelse først
         for i in indices:
@@ -116,59 +151,23 @@ def udtræk_revision(
             if attributnavn == "IDENT:landsnr" and info.tekst == ident:
                 continue
 
-            # Vis kun identnavn i første række af hvert punkt
-            if i != indices[0]:
-                ident = None
-
             tekst = info.tekst
             if tekst:
                 tekst = tekst.strip()
             tal = info.tal
             revision = revision.append(
                 {
-                    "Punkt": ident,
                     "Sluk": "",
                     "Attribut": attributnavn,
                     "Talværdi": tal,
                     "Tekstværdi": tekst,
                     "id": info.objektid,
-                    "Ikke besøgt": "x" if i == beskrivelse else None,
-                },
-                ignore_index=True,
-            )
-            anvendte_attributter.append(attributnavn)
-
-        # Revisionsovervejelser: p.t. geometri og datumstabilitet
-        if "ATTR:muligt_datumstabil" not in anvendte_attributter:
-            revision = revision.append(
-                {
-                    "Punkt": ident,
-                    "Attribut": "OVERVEJ:muligt_datumstabil",
-                    "Tekstværdi": "Hvis ja: Ret 'OVERVEJ:' til 'ATTR:'",
-                },
-                ignore_index=True,
-            )
-            try:
-                lokation = punkt.geometri.koordinater
-            except AttributeError:
-                fire.cli.print(
-                    f"NB! {ident_til_fejlmelding} mangler lokationskoordinat - bruger (11,56)",
-                    fg="yellow",
-                    bold=True,
-                )
-                lokation = (11.0, 56.0)
-            revision = revision.append(
-                {
-                    "Punkt": ident,
-                    "Attribut": "OVERVEJ:lokation",
-                    # Centimeterafrunding for lokationskoordinaten er rigeligt
-                    "Tekstværdi": f"{lokation[1]:.7f} N   {lokation[0]:.7f} Ø",
                 },
                 ignore_index=True,
             )
 
-            # Fem blanklinjer efter hvert punktoversigt
-            revision = revision.append(5 * [{}], ignore_index=True)
+        # Fem blanklinjer efter hvert punktoversigt
+        revision = revision.append(5 * [{}], ignore_index=True)
 
     resultater = {"Revision": revision}
     skriv_ark(projektnavn, resultater, "-revision")
