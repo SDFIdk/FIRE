@@ -5,36 +5,62 @@ import click
 import pytest
 
 from click.testing import CliRunner
-from fire.cli.niv import niv
+import fire.cli.niv
+from fire.cli.niv import (
+    niv,
+    find_faneblad,
+    skriv_ark,
+    ARKDEF_NYETABLEREDE_PUNKTER,
+)
 
 
-def test_cli():
+def test_revision(mocker):
+    """Test fire niv kommandoer relateret til punktrevision"""
     runner = CliRunner()
 
-    title = "MTL-indlæsning"
-    args = ["indlæs", "bananas"]
-
-    # Lidt bannerlarm
-    click.echo("\nTest: " + title)
-    click.echo(" Emulating: fire niv " + " ".join(args))
-
-    # Kildefilerne ligger samme sted som testkodefilen
-    source_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Kopier nødvendige filer til isoleret filsystem og kør så testen derfra
     with runner.isolated_filesystem():
-        # Roden i det isolerede filsystem
-        dest_dir = os.getcwd()
-        for filename in ("bananas.xlsx", "bananas.obs", "resultat_canonical.xlsx"):
-            copy(source_dir + "/" + filename, dest_dir)
-        result = runner.invoke(niv, args)
+        # fire niv opret-sag test
+        mocker.patch("fire.cli.niv._opret_sag.bekræft", return_value=True)
+        result = runner.invoke(niv, ["opret-sag", "testsag", "This is only a test"])
+        print(result.output)
+        assert result.exit_code == 0
 
-    # Lav lidt larm om hvorvidt resulatet var succesfuldt
-    if result.exit_code != 0:
-        click.echo(" Failed: " + str(args))
-        click.echo(" Exception: " + str(result.exception))
-        click.echo(" Output: " + str(result.output))
-        return False
-    else:
-        click.echo(" Success: " + str(args))
-        return True
+        # fire niv udtræk-revision test
+        result = runner.invoke(niv, ["udtræk-revision", "testsag", "K-63"])
+        print(result.output)
+        assert result.exit_code == 0
+
+        # fire niv ilæg-revision test
+        mocker.patch("fire.cli.niv._ilæg_revision.bekræft", return_value=True)
+        result = runner.invoke(niv, ["ilæg-revision", "testsag"])
+        print(result.output)
+        assert result.exit_code == 0
+
+        # fire niv ilæg-nye-punkter test
+        nyetablerede = find_faneblad(
+            "testsag", "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
+        )
+
+        nyt_punkt = {
+            "Foreløbigt navn": "Dokk1",
+            "Nord": 56.176809,
+            "Øst": 10.22475,
+            # "Etablereret dato": "2021-02-21",
+            "Hvem": "Karl Smart",
+            "Beskrivelse": "Testpunkt",
+            "Afmærkning": "Bolt",
+            "Højde_over_terræn": 1.32,
+        }
+        nyetablerede = nyetablerede.append(nyt_punkt, ignore_index=True)
+        skriv_ark("testsag", {"Nyetablerede punkter": nyetablerede})
+
+        mocker.patch("fire.cli.niv._ilæg_nye_punkter.bekræft", return_value=True)
+        result = runner.invoke(niv, ["ilæg-nye-punkter", "testsag"])
+        print(result.output)
+        assert result.exit_code == 0
+
+        # fire niv luk-sag test
+        mocker.patch("fire.cli.niv._luk_sag.bekræft", return_value=True)
+        result = runner.invoke(niv, ["luk-sag", "testsag"])
+        print(result.output)
+        assert result.exit_code == 0

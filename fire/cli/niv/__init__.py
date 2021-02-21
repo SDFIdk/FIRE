@@ -510,13 +510,17 @@ def bekræft(spørgsmål: str, gentag=True) -> bool:
     return False
 
 
-from .opret_sag import opret_sag
-from .læs_observationer import læs_observationer
-from .ilæg_observationer import ilæg_observationer
-from .udtræk_revision import udtræk_revision
-from .ilæg_revision import ilæg_revision
-from .regn import regn
-from .ilæg_nye_koter import ilæg_nye_koter
-from .ilæg_nye_punkter import ilæg_nye_punkter
-from .netoversigt import netoversigt
-from .luk_sag import luk_sag
+# moduler præfikset med _ for at undgå konflikter, der i visse tilfælde
+# kan opstå. Med nedenstående kan man entydigt kende forskel på modulet
+# fire.cli.niv._opret-sag og Click kommandoobjektet fire.cli.niv.opret-sag.
+# Uden præfix kan der ikke skælnes mellem de to.
+from ._opret_sag import opret_sag
+from ._læs_observationer import læs_observationer
+from ._ilæg_observationer import ilæg_observationer
+from ._udtræk_revision import udtræk_revision
+from ._ilæg_revision import ilæg_revision
+from ._regn import regn
+from ._ilæg_nye_koter import ilæg_nye_koter
+from ._ilæg_nye_punkter import ilæg_nye_punkter
+from ._netoversigt import netoversigt
+from ._luk_sag import luk_sag
