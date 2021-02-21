@@ -28,7 +28,7 @@ from . import (
     skriv_ark,
 )
 
-from .netoversigt import netanalyse
+from ._netoversigt import netanalyse
 
 
 @niv.command()

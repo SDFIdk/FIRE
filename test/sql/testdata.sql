@@ -51,6 +51,15 @@ INSERT INTO konfiguration (
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (347,'IDENT:GNSS','TEKST','GNNS Stationsnummer');
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (346,'IDENT:landsnr','TEKST','Landsnummer');
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (331,'ATTR:tabtgået','FLAG','Fysisk punkt ikke længere tilgængeligt');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (360, 'ATTR:beskrivelse', 'TEKST', 'Tekstbeskrivelse af punktet');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (362, 'AFM:højde_over_terræn', 'TAL', 'Fikspunkts højde over terræn');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (363, 'AFM:4999', 'FLAG', 'Ukendt fikspunktstype');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (364, 'AFM:2700', 'FLAG', 'Bolt');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (365, 'AFM:2701', 'FLAG', 'Lodret bolt');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (366, 'AFM:2950', 'FLAG', 'Skruepløk');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (367, 'AFM:5998', 'FLAG', 'Ingen');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (370, 'ATTR:muligt_datumstabil', 'FLAG', 'Markering af om punkt potentielt er datumstabilt');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (371, 'REGION:DK', 'FLAG', 'Punkter i Danmark');
 
 -- Manuel indtastning, kun til testbrug.
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (1,'ATTR:test','FLAG','Testattribut');
@@ -1350,3 +1359,66 @@ INSERT INTO geometriobjekt (registreringfra,registreringtil,sagseventfraid,sagse
 
 COMMIT;
 
+-------------------------------------------------------------------------------
+-- PUNKTINFO TIL TEST AF FIRE NIV UDTRÆK/ILÆG-REVISION
+
+-- Det forudsættes at forskellige punktinformationer er til stede i databasen.
+-------------------------------------------------------------------------------
+
+INSERT INTO sag (
+    id,
+    registreringfra
+) VALUES (
+    'sag00007-aaaa-bbbb-cccc-000000000001',
+    sysdate
+);
+
+
+INSERT INTO sagsinfo (
+    aktiv,
+    registreringfra,
+    registreringtil,
+    journalnummer,
+    behandler,
+    beskrivelse,
+    sagsid
+) VALUES (
+    'true',
+    sysdate,
+    null,
+    null,
+    'Kristian Evers',
+    'Tilføj testdata til fire niv udtræk/ilæg-revision',
+    'sag00007-aaaa-bbbb-cccc-000000000001'
+);
+
+
+INSERT INTO sagsevent (
+    id,
+    registreringfra,
+    eventtypeid,
+    sagsid
+) VALUES (
+    'sagevent-aaaa-bbbb-0007-000000000001',
+    sysdate,
+    5, -- oprettelse af punktinfo
+    'sag00007-aaaa-bbbb-cccc-000000000001'
+);
+
+INSERT INTO sagseventinfo (
+    registreringfra,
+    registreringtil,
+    beskrivelse,
+    sagseventid
+) VALUES (
+    sysdate,
+    null,
+    'Punktinfo til test af fire niv udtræk/ilæg-revision',
+    'sagevent-aaaa-bbbb-0007-000000000001'
+);
+
+INSERT INTO punktinfo (registreringfra, sagseventfraid, infotypeid, tekst, punktid)
+VALUES (SYSDATE, 'sag00007-aaaa-bbbb-cccc-000000000001', 360, 'Radiohuset', '301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO punktinfo (registreringfra, sagseventfraid, infotypeid, punktid)
+VALUES (SYSDATE, 'sag00007-aaaa-bbbb-cccc-000000000001', 370,  '301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO punktinfo (registreringfra, sagseventfraid, infotypeid, tekst, punktid)VALUES (SYSDATE, 'sag00007-aaaa-bbbb-cccc-000000000001', 360, 'Radiohuset 2', '4b4c5c17-32e8-495d-a598-cdf42e0892de');

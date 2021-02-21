@@ -9,7 +9,7 @@ import sys
 from fire import uuid
 import fire.cli
 
-from . import (
+from fire.cli.niv import (
     ARKDEF_FILOVERSIGT,
     ARKDEF_NYETABLEREDE_PUNKTER,
     ARKDEF_SAG,
