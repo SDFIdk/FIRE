@@ -1,0 +1,35 @@
+Program:            MGL 1.8 2014-06-20
+Filnavn:            C:\NivProgs\resultatfiler\kalve_mgl
+Projektbeskrivelse: KDI
+Dato og tid:        09.12.2020 09.13
+Maalerinitialer:    rta rekol
+Instrument: 2729,  type: dini003.
+Laegter:
+142:  nulpunktsfejl: 0.00000 m
+135:  nulpunktsfejl: 0.50905 m
+132:  nulpunktsfejl: 0.51139 m
+133:  nulpunktsfejl: 0.00000 m
+123:  nulpunktsfejl: 0.00000 m
+124b:  nulpunktsfejl: 0.00702 m
+128v:  nulpunktsfejl: -0.01702 m
+129s:  nulpunktsfejl: -0.00552 m
+Forkastelseskriterie: 2.00 ne
+* Slut paa header
+tilbagesigte  RDIO        142   12.70 m 2.64212 m 2.64212 m 
+fremsigte                 142   13.59 m 0.41227 m 0.41230 m 2.22983 m
+T: 4.0 11.36
+sd: t: 0.00000 m f: 0.00001 m 0.00001 m
+* B1 26.29 -0.89 2.229835 RDIO
+tilbagesigte              142   9.93 m 2.36312 m 2.36312 m 
+fremsigte                 142   8.80 m 0.88526 m 0.88528 m 1.47785 m
+T: 4.0 11.40
+sd: t: 0.00000 m f: 0.00001 m 0.00001 m
+* N 18.73 1.13 1.477850 
+tilbagesigte              142   10.94 m 2.08901 m 2.08900 m 
+fremsigte     K-63-09017  142   10.03 m 0.31974 m 0.31974 m 1.76927 m
+T: 4.0 11.45
+sd: t: 0.00000 m f: 0.00001 m 0.00001 m
+* B2 20.97 0.90 1.769265 K-63-09017
+AT: 2.00
+# RDIO K-63-09017 09.12.2020 11.45 65.98 5.47695 265270.1 4.0 3
+
