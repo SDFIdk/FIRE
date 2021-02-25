@@ -80,6 +80,7 @@ def udtræk_revision(
     punkter = fire.cli.firedb.session.query(Punkt).from_statement(stmt).all()
 
     for punkt in punkter:
+        datumstabilt = False
         ident = punkt.ident
         fire.cli.print(f"Punkt: {ident}")
 
