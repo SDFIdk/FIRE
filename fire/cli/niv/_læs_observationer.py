@@ -67,10 +67,7 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     resultater["Punktoversigt"] = punktoversigt
     skriv_ark(projektnavn, resultater)
     fire.cli.print(
-        f"Dataindlæsning afsluttet. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx'"
-    )
-    fire.cli.print(
-        f"til '{projektnavn}.xlsx', og vælg fastholdte punkter i punktoversigten."
+        f"Dataindlæsning afsluttet. Vælg nu fastholdte punkter i punktoversigten."
     )
 
     punkter_geojson(projektnavn, punktoversigt)
@@ -261,66 +258,83 @@ def læs_observationsstrenge(
             continue
         if verbose:
             fire.cli.print(f"Læser {fil.Filnavn} med σ={fil.σ} og δ={fil.δ}")
+
+        # Det hænder at der er fejl ved læsning af observationsfiler.
+        # Nogle gange er filen UTF-8 andre gange er den latin-1 og
+        # muligvis er det af og til en kombination af begge (typisk ved brug
+        # af æøå). Herunder tager vi hånd om de to første scenarier og
+        # lader koden fejle ved det sidste scenarie for at undgå
+        # efterfølgende bivirkninger.
+        obsfil = open(fil.Filnavn, "rt", encoding="utf-8")
         try:
-            with open(fil.Filnavn, "rt", encoding="utf-8") as obsfil:
-                for line in obsfil:
-                    if "#" != line[0]:
-                        continue
-                    # Fjern luft i begge ender, havelågen i starten og kollaps gentagen luft
-                    line = re.sub(r"[ \t]+", " ", line.lstrip("# ").strip())
+            # check for unicode læsefejl
+            obsfil.readlines()
+            # hvis ingen fejl mødes spoles filen tilbage til start
+            obsfil.seek(0)
+        except UnicodeDecodeError:
+            obsfil = open(fil.Filnavn, "rt", encoding="latin-1")
+        try:
+            for line in obsfil:
+                if "#" != line[0]:
+                    continue
+                # Fjern luft i begge ender, havelågen i starten og kollaps gentagen luft
+                line = re.sub(r"[ \t]+", " ", line.lstrip("# ").strip())
 
-                    # Check at observationen er i et af de kendte formater
-                    tokens = line.split(" ", 13)
-                    assert len(tokens) in (
-                        9,
-                        13,
-                        14,
-                    ), f"Deform input linje: {line} i fil: {fil.Filnavn}"
+                # Check at observationen er i et af de kendte formater
+                tokens = line.split(" ", 13)
+                assert len(tokens) in (
+                    9,
+                    13,
+                    14,
+                ), f"Deform input linje: {line} i fil: {fil.Filnavn}"
 
-                    # Bring observationen på kanonisk 14-feltform.
-                    for _ in range(len(tokens), 13):
-                        tokens.append(0)
-                    # Tilføj tom kommentar hvis der ikke er nogen med indhold
-                    if len(tokens) < 14:
-                        tokens.append('""')
-                    # Befri kommentar for anførelsestegn og overflødige mellemrum
-                    tokens[13] = tokens[13].lstrip('"').strip().rstrip('"')
+                # Bring observationen på kanonisk 14-feltform.
+                for _ in range(len(tokens), 13):
+                    tokens.append(0)
+                # Tilføj tom kommentar hvis der ikke er nogen med indhold
+                if len(tokens) < 14:
+                    tokens.append('""')
+                # Befri kommentar for anførelsestegn og overflødige mellemrum
+                tokens[13] = tokens[13].lstrip('"').strip().rstrip('"')
 
-                    # Korriger de rædsomme dato/tidsformater
-                    tid = " ".join((tokens[2], tokens[3]))
-                    try:
-                        isotid = datetime.strptime(tid, "%d.%m.%Y %H.%M")
-                    except ValueError:
-                        sys.exit(
-                            f"Argh - ikke-understøttet datoformat: '{tid}' i fil: '{fil.Filnavn}'"
-                        )
+                # Korriger de rædsomme dato/tidsformater
+                tid = " ".join((tokens[2], tokens[3]))
+                try:
+                    isotid = datetime.strptime(tid, "%d.%m.%Y %H.%M")
+                except ValueError:
+                    sys.exit(
+                        f"Argh - ikke-understøttet datoformat: '{tid}' i fil: '{fil.Filnavn}'"
+                    )
 
-                    # Opbyg række-som-dict: Omsæt numeriske data fra strengrepræsentation til tal
-                    obs = {
-                        "Fra": tokens[0],
-                        "Til": tokens[1],
-                        "L": float(tokens[4]),
-                        "ΔH": float(tokens[5]),
-                        # Undgå journalside fortolkes som tal: Erstat decimalseparator
-                        "Journal": tokens[6].replace(".", ":"),
-                        "T": float(tokens[7]),
-                        "Opst": int(tokens[8]),
-                        "Sky": int(tokens[9]),
-                        "Sol": int(tokens[10]),
-                        "Vind": int(tokens[11]),
-                        "Sigt": int(tokens[12]),
-                        "σ": fil.σ,
-                        "δ": fil.δ,
-                        "Kommentar": tokens[13],
-                        "Sluk": "",
-                        "Hvornår": isotid,
-                        "Kilde": fil.Filnavn,
-                        "Type": fil.Type.upper(),
-                        "uuid": "",
-                    }
-                    observationer = observationer.append(obs, ignore_index=True)
+                # Opbyg række-som-dict: Omsæt numeriske data fra strengrepræsentation til tal
+                obs = {
+                    "Fra": tokens[0],
+                    "Til": tokens[1],
+                    "L": float(tokens[4]),
+                    "ΔH": float(tokens[5]),
+                    # Undgå journalside fortolkes som tal: Erstat decimalseparator
+                    "Journal": tokens[6].replace(".", ":"),
+                    "T": float(tokens[7]),
+                    "Opst": int(tokens[8]),
+                    "Sky": int(tokens[9]),
+                    "Sol": int(tokens[10]),
+                    "Vind": int(tokens[11]),
+                    "Sigt": int(tokens[12]),
+                    "σ": fil.σ,
+                    "δ": fil.δ,
+                    "Kommentar": tokens[13],
+                    "Sluk": "",
+                    "Hvornår": isotid,
+                    "Kilde": fil.Filnavn,
+                    "Type": fil.Type.upper(),
+                    "uuid": "",
+                }
+                observationer = observationer.append(obs, ignore_index=True)
         except FileNotFoundError:
             fire.cli.print(f"Kunne ikke læse filen '{fil.Filnavn}'")
+        finally:
+            obsfil.close()
+
     return observationer
 
 
