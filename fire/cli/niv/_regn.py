@@ -120,7 +120,7 @@ def spredning(
     if "NUL" == observationstype.upper():
         return 0
 
-    opstillingsafhængig = antal_opstillinger * (centreringsspredning_i_mm ** 2)
+    opstillingsafhængig = sqrt(antal_opstillinger * (centreringsspredning_i_mm ** 2))
 
     if "MTL" == observationstype.upper():
         afstandsafhængig = afstandsafhængig_spredning_i_mm * afstand_i_m / 1000
@@ -159,7 +159,7 @@ def gama_beregning(
             f"<network angles='left-handed' axes-xy='en' epoch='0.0'>\n"
             f"<parameters\n"
             f"    algorithm='gso' angles='400' conf-pr='0.95'\n"
-            f"    cov-band='0' ellipsoid='grs80' latitude='55.7' sigma-act='apriori'\n"
+            f"    cov-band='0' ellipsoid='grs80' latitude='55.7' sigma-act='aposteriori'\n"
             f"    sigma-apr='1.0' tol-abs='1000.0'\n"
             f"/>\n\n"
             f"<description>\n"
