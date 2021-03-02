@@ -32,52 +32,31 @@ from ._netoversigt import netanalyse
 
 
 @niv.command()
-@click.option(
-    "-K",
-    "--kontrol",
-    is_flag=True,
-    default=False,
-    help="Foretag minimalt fastholdt kontrolberegning",
-)
-@click.option(
-    "-E",
-    "--endelig",
-    is_flag=True,
-    default=False,
-    help="Foretag optimalt fastholdt endelig beregning. Hvis hverken -E eller -K vælges gættes ud fra antal fastholdte.",
-)
 @fire.cli.default_options()
 @click.argument("projektnavn", nargs=1, type=str)
-def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
+def regn(projektnavn: str, **kwargs) -> None:
     """Beregn nye koter.
 
     Hvis der allerede er foretaget kontrolberegning udfører vi en endelig
-    beregning, med mindre flagene -K og -E siger andet. Valget styres via
-    navnet på punktoversigtsfanebladet, som går fra "Punktoversigt" (skabt
-    af 'læs_observationer'), via 'Kontrolberegning' (der skrives ved første
-    kald til denne funktion), til 'Endelig beregning' (der skrives
-    ved efterfølgende kald).
+    beregning. Valget styres via navnet på seneste oversigtsfaneblad, som
+    går fra 'Punktoversigt' (skabt af 'læs_observationer'), via
+    'Kontrolberegning' (der skrives ved første kald til denne funktion),
+    til 'Endelig beregning' (der skrives ved efterfølgende kald).
     """
     fire.cli.print("Så regner vi")
 
-    # En beregning kan ikke både være 'kontrol' og 'endelig'.
-    if kontrol and endelig:
-        fire.cli.print("Kun en af -K og -E må specificeres")
-        sys.exit(1)
-
-    # Hvis ingen flag er sat (begge er False) checker vi for kontrolberegningsfaneblad...
-    if kontrol == endelig:
-        kontrol = (
-            find_faneblad(projektnavn, "Kontrolberegning", ARKDEF_PUNKTOVERSIGT, True)
-            is None
-        )
+    # Hvis der ikke allerede findes et kontrolberegningsfaneblad, så er det en
+    # kontrolberegning vi skal i gang med.
+    kontrol = (
+        find_faneblad(projektnavn, "Kontrolberegning", ARKDEF_PUNKTOVERSIGT, True)
+        is None
+    )
 
     # ...og så kan vi vælge den korrekte fanebladsprogression
     if kontrol:
         faneblad = "Punktoversigt"
         næste_faneblad = "Kontrolberegning"
     else:
-        endelig = True
         faneblad = "Kontrolberegning"
         næste_faneblad = "Endelig beregning"
 
@@ -101,12 +80,11 @@ def regn(projektnavn: str, kontrol: bool, endelig: bool, **kwargs) -> None:
     beregning, htmlrapportnavn = gama_beregning(
         projektnavn, observationer, punktoversigt, estimerede_punkter, kontrol
     )
-
     resultater[næste_faneblad] = beregning
+
     # ...og beret om resultaterne
     punkter_geojson(projektnavn, resultater[næste_faneblad])
     skriv_ark(projektnavn, resultater)
-
     webbrowser.open_new_tab(htmlrapportnavn)
     if "startfile" in dir(os):
         fire.cli.print("Færdig! - åbner regneark og resultatrapport for check.")
