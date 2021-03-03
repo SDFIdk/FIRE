@@ -64,7 +64,8 @@ def netanalyse(
     # Opbyg net ud fra de fastholdte punkter, eller ud fra det mest observerede
     # punkt, hvis der endnu ikke er fastholdte punkter (dette er fx tilfældet
     # umiddelbart efter indlæsning af observationer)
-    fastholdte = tuple(punktoversigt[punktoversigt["Fasthold"].notnull()]["Punkt"])
+    punktoversigt = punktoversigt.replace("nan", "")
+    fastholdte = tuple(punktoversigt[punktoversigt["Fasthold"] != ""]["Punkt"])
     print("Fastholdte punkter:")
     print(fastholdte)
     if 0 == len(fastholdte):
