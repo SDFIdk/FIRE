@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import webbrowser
+from pathlib import Path
 from math import hypot, sqrt
 from typing import Dict, List, Set, Tuple
 
@@ -182,7 +183,6 @@ def gama_beregning(
         gamafil.write("<height-differences>\n")
         for obs in observationer.itertuples(index=False):
             if obs.Sluk == "x":
-                fire.cli.print(f"Slukket {obs}")
                 continue
             gamafil.write(
                 f"<dh from='{obs.Fra}' to='{obs.Til}' "
@@ -217,6 +217,14 @@ def gama_beregning(
         ]
     )
     if ret.returncode:
+        if not Path(f"{projektnavn}-resultat.xml").is_file():
+            fire.cli.print(
+                "FEJL: Beregning ikke gennemført. Kontroller om nettet er sammenhængende, og ved flere net om der mangler fastholdte punkter.",
+                bg="red",
+                fg="white",
+            )
+            sys.exit(1)
+
         fire.cli.print(
             f"Check {projektnavn}-resultat-{beregningstype}.html", bg="red", fg="white"
         )
