@@ -1,3 +1,4 @@
+import sys
 from collections import Counter
 from typing import Dict, List, Set, Tuple
 
@@ -86,6 +87,20 @@ def netgraf(
     assert len(fastholdte_punkter) > 0, "Netanalyse kræver mindst et fastholdt punkt"
     # Initialiser
     net = {}
+
+    # Sanity check af fastholdte punkter versus tilgængelige observationer
+    afbryd = False
+    for fastholdt_punkt in fastholdte_punkter:
+        if not fastholdt_punkt in alle_punkter:
+            fire.cli.print(
+                f"FEJL: Observation(er) for fastholdt punkt {fastholdt_punkt} er slukket eller mangler",
+                fg="white",
+                bg="red",
+            )
+            afbryd = True
+    if afbryd:
+        sys.exit(1)
+
     for punkt in alle_punkter:
         net[punkt] = set()
 
