@@ -65,6 +65,8 @@ def netanalyse(
     # punkt, hvis der endnu ikke er fastholdte punkter (dette er fx tilfældet
     # umiddelbart efter indlæsning af observationer)
     fastholdte = tuple(punktoversigt[punktoversigt["Fasthold"].notnull()]["Punkt"])
+    print("Fastholdte punkter:")
+    print(fastholdte)
     if 0 == len(fastholdte):
         alle_obs = list(observationer["Fra"]) + list(observationer["Til"])
         c = Counter(alle_obs)
