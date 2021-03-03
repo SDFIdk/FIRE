@@ -107,10 +107,16 @@ def netgraf(
                     continue
 
         if None in fastholdte_i_subnet:
-            fire.cli.print("ADVARSEL: Manglende fastholdt punkt i mindst et subnet! Forslag til fastholdte punkter i hvert subnet:", bg="yellow", fg="black")
+            fire.cli.print(
+                "ADVARSEL: Manglende fastholdt punkt i mindst et subnet! Forslag til fastholdte punkter i hvert subnet:",
+                bg="yellow",
+                fg="black",
+            )
             for i, subnet_ in enumerate(subnet):
                 if fastholdte_i_subnet[i]:
-                    fire.cli.print(f"  Subnet {i}: {fastholdte_i_subnet[i]}", fg="green")
+                    fire.cli.print(
+                        f"  Subnet {i}: {fastholdte_i_subnet[i]}", fg="green"
+                    )
                 else:
                     fire.cli.print(f"  Subnet {i}: {subnet_[0]}", fg="red")
 
@@ -200,29 +206,34 @@ def path_to_origin(
                 return newpath
     return None
 
+
 def analyser_subnet(net):
     """
     Find selvstændige net i et større net
 
     Med inspiration fra https://www.geeksforgeeks.org/connected-components-in-an-undirected-graph/
     """
+
     def depth_first_search(net, visited, vertex, subnet):
         visited[vertex] = True
         subnet.append(vertex)
 
         for adjacent_vertex in net[vertex]:
             if not visited[adjacent_vertex]:
-                net, visited, vertex, subnet = depth_first_search(net, visited, adjacent_vertex, subnet)
+                net, visited, vertex, subnet = depth_first_search(
+                    net, visited, adjacent_vertex, subnet
+                )
 
         return net, visited, vertex, subnet
-
 
     visited = {vertex: False for vertex in net.keys()}
     connected_vertices = []
     for vertex in net.keys():
         if not visited[vertex]:
             subnet = []
-            net, visited, vertex, subnet = depth_first_search(net, visited, vertex, subnet)
+            net, visited, vertex, subnet = depth_first_search(
+                net, visited, vertex, subnet
+            )
             connected_vertices.append(subnet)
 
     return connected_vertices
