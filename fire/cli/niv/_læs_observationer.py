@@ -95,8 +95,16 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     for punktnavn in observerede_punkter:
         try:
             punkt = fire.cli.firedb.hent_punkt(punktnavn)
-            ident = punkt.ident
-            fire.cli.print(f"Fandt {ident}", fg="green")
+            if punkt.tabtgået:
+                ident = "TABTGÅET"
+                fire.cli.print(
+                    f"{punkt.ident} er tabtgået, observationer til punktet ignoreres",
+                    fg="black",
+                    bg="yellow",
+                )
+            else:
+                ident = punkt.ident
+                fire.cli.print(f"Fandt {ident}", fg="green")
         except NoResultFound:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
             sys.exit(1)
@@ -107,7 +115,11 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
 
     observationer["Fra"] = fra
     observationer["Til"] = til
-    return observationer
+
+    idx_tabtgået = (observationer["Fra"] == "TABTGÅET") | (
+        observationer["Til"] == "TABTGÅET"
+    )
+    return observationer[~idx_tabtgået].reset_index(drop=True)
 
 
 # ------------------------------------------------------------------------------
