@@ -1,3 +1,4 @@
+import sys
 from collections import Counter
 from typing import Dict, List, Set, Tuple
 
@@ -64,7 +65,7 @@ def netanalyse(
     # Opbyg net ud fra de fastholdte punkter, eller ud fra det mest observerede
     # punkt, hvis der endnu ikke er fastholdte punkter (dette er fx tilfældet
     # umiddelbart efter indlæsning af observationer)
-    fastholdte = tuple(punktoversigt[punktoversigt["Fasthold"].notnull()]["Punkt"])
+    fastholdte = tuple(punktoversigt[punktoversigt["Fasthold"] == "x"]["Punkt"])
     if 0 == len(fastholdte):
         alle_obs = list(observationer["Fra"]) + list(observationer["Til"])
         c = Counter(alle_obs)
@@ -85,6 +86,20 @@ def netgraf(
     assert len(fastholdte_punkter) > 0, "Netanalyse kræver mindst et fastholdt punkt"
     # Initialiser
     net = {}
+
+    # Sanity check af fastholdte punkter versus tilgængelige observationer
+    afbryd = False
+    for fastholdt_punkt in fastholdte_punkter:
+        if not fastholdt_punkt in alle_punkter:
+            fire.cli.print(
+                f"FEJL: Observation(er) for fastholdt punkt {fastholdt_punkt} er slukket eller mangler",
+                fg="white",
+                bg="red",
+            )
+            afbryd = True
+    if afbryd:
+        sys.exit(1)
+
     for punkt in alle_punkter:
         net[punkt] = set()
 
@@ -92,6 +107,32 @@ def netgraf(
     for fra, til in zip(observationer["Fra"], observationer["Til"]):
         net[fra].add(til)
         net[til].add(fra)
+
+    # Undersøg om der er nettet består af flere ikke-sammenhængende subnet.
+    # Skriv advarsel hvis ikke der er mindste et fastholdt punkt i hvert
+    # subnet.
+    subnet = analyser_subnet(net)
+    if len(subnet) > 1:
+        fastholdte_i_subnet = [None for _ in subnet]
+        for i, subnet_ in enumerate(subnet):
+            for subnetpunkt in subnet_:
+                if subnetpunkt in fastholdte_punkter:
+                    fastholdte_i_subnet[i] = subnetpunkt
+                    continue
+
+        if None in fastholdte_i_subnet:
+            fire.cli.print(
+                "ADVARSEL: Manglende fastholdt punkt i mindst et subnet! Forslag til fastholdte punkter i hvert subnet:",
+                bg="yellow",
+                fg="black",
+            )
+            for i, subnet_ in enumerate(subnet):
+                if fastholdte_i_subnet[i]:
+                    fire.cli.print(
+                        f"  Subnet {i}: {fastholdte_i_subnet[i]}", fg="green"
+                    )
+                else:
+                    fire.cli.print(f"  Subnet {i}: {subnet_[0]}", fg="red")
 
     # Tilføj forbindelser fra alle fastholdte punkter til det første fastholdte punkt
     udgangspunkt = fastholdte_punkter[0]
@@ -178,3 +219,35 @@ def path_to_origin(
             if newpath:
                 return newpath
     return None
+
+
+def analyser_subnet(net):
+    """
+    Find selvstændige net i et større net
+
+    Med inspiration fra https://www.geeksforgeeks.org/connected-components-in-an-undirected-graph/
+    """
+
+    def depth_first_search(net, visited, vertex, subnet):
+        visited[vertex] = True
+        subnet.append(vertex)
+
+        for adjacent_vertex in net[vertex]:
+            if not visited[adjacent_vertex]:
+                net, visited, vertex, subnet = depth_first_search(
+                    net, visited, adjacent_vertex, subnet
+                )
+
+        return net, visited, vertex, subnet
+
+    visited = {vertex: False for vertex in net.keys()}
+    connected_vertices = []
+    for vertex in net.keys():
+        if not visited[vertex]:
+            subnet = []
+            net, visited, vertex, subnet = depth_first_search(
+                net, visited, vertex, subnet
+            )
+            connected_vertices.append(subnet)
+
+    return connected_vertices
