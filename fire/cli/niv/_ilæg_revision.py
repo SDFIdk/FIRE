@@ -328,7 +328,7 @@ def ilæg_revision(
                     tekst = r["Ny værdi"]
                     if tekst is None or tekst == "":
                         fire.cli.print(
-                            f"    ADVARSEL: Tom tekst anført for {pitnavn} [{ex}].",
+                            f"    ADVARSEL: Tom tekst anført for {pitnavn}.",
                             fg="yellow",
                             bold=True,
                         )
