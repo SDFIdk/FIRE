@@ -6,5 +6,4 @@ def test_has_session(firedb: FireDb):
 
 
 def test_konfiguration(firedb: FireDb):
-    assert firedb.basedir_materiale == r"F:\GDB\FIRE\materiale"
     assert firedb.basedir_skitser == r"F:\GDB\FIRE\skitser"
