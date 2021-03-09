@@ -1,5 +1,7 @@
 import os
 import os.path
+from io import BytesIO
+from zipfile import ZipFile
 
 import click
 import pandas as pd
@@ -8,8 +10,17 @@ import sys
 from fire import uuid
 import fire.cli
 
+from fire.api.model import (
+    Sagsevent,
+    SagseventInfo,
+    SagseventInfoMateriale,
+    EventType,
+)
+
+
 from . import (
     ARKDEF_PARAM,
+    ARKDEF_FILOVERSIGT,
     find_faneblad,
     find_sag,
     niv,
@@ -47,6 +58,28 @@ def luk_sag(projektnavn: str, **kwargs) -> None:
         sys.exit(1)
 
     sag = find_sag(projektnavn)
+
+    # Find sagsmateriale og zip det for let indlæsning i databasen
+    sagsmaterialer = [f"{projektnavn}.xlsx"]
+    filoversigt = find_faneblad(projektnavn, "Filoversigt", ARKDEF_FILOVERSIGT)
+    sagsmaterialer.extend(list(filoversigt["Filnavn"]))
+    zipped = BytesIO()
+    with ZipFile(zipped, "w") as zipobj:
+        for fil in sagsmaterialer:
+            zipobj.write(fil)
+
+    # Tilføj materiale til sagsevent
+    sagsevent = Sagsevent(
+        sag=sag,
+        eventtype=EventType.KOMMENTAR,
+        sagseventinfos=[
+            SagseventInfo(
+                beskrivelse=f"Sagsmateriale for {projektnavn}",
+                materialer=[SagseventInfoMateriale(materiale=zipped.getvalue())],
+            ),
+        ],
+    )
+    fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
 
     fire.cli.firedb.luk_sag(sag, commit=False)
     try:
