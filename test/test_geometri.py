@@ -1,6 +1,17 @@
 import pytest
 
-from fire.api.model import Geometry, Point, Bbox, geometry
+from fire.api import FireDb
+from fire.api.model import (
+    Sag,
+    Sagsevent,
+    SagseventInfo,
+    EventType,
+    GeometriObjekt,
+    Geometry,
+    Point,
+    Bbox,
+    geometry,
+)
 
 WKT_POINT = "POINT (10.200000 56.100000)"
 DICT_POINT = {
@@ -97,3 +108,29 @@ def test_to_wkt():
     """
     with pytest.raises(Exception):
         geometry.to_wkt({"coordinates": [10.2, 56.1], "type": "Punkt"})
+
+
+def test_geometriobjekt_afregistrering(firedb: FireDb, sag: Sag):
+    """
+    Test at forudgående geometrier afregistreres korrekt ved indsættelse af ny.
+    """
+
+    p = firedb.hent_punkt("SKEJ")
+    n = len(p.geometriobjekter)
+    go = GeometriObjekt()
+    go.geometri = Point([10.17983, 56.18759])
+    go.punkt = p
+
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            sagseventinfos=[SagseventInfo(beskrivelse="Opdater geometri")],
+            eventtype=EventType.PUNKT_OPRETTET,
+            geometriobjekter=[go],
+        )
+    )
+
+    geom = p.geometriobjekter
+    assert n + 1 == len(p.geometriobjekter)
+    assert geom[-2].registreringtil == geom[-1].registreringfra
+    assert geom[-2].sagseventtilid == geom[-1].sagseventfraid
