@@ -117,8 +117,7 @@ CREATE TABLE konfiguration (
     START WITH
       1 INCREMENT BY 1 ORDER NOCACHE
   ) PRIMARY KEY,
-  dir_skitser VARCHAR(200) NOT NULL,
-  dir_materiale VARCHAR(200) NOT NULL
+  dir_skitser VARCHAR(200) NOT NULL
 );
 
 
@@ -273,8 +272,7 @@ CREATE TABLE SAGSEVENTINFO_MATERIALE (
     START WITH
       1 INCREMENT BY 1 ORDER NOCACHE
   ) PRIMARY KEY,
-  md5sum VARCHAR2(32) NOT NULL,
-  sti VARCHAR2(4000) NOT NULL,
+  materiale BLOB NOT NULL,
   sagseventinfoobjektid INTEGER NOT NULL
 );
 
@@ -757,8 +755,7 @@ COMMENT ON COLUMN Sagseventinfo.sagseventid IS 'Den sagsevent som sagseventinfo 
 COMMENT ON COLUMN sagseventinfo_html.html IS 'Generisk operatørlæsbart orienterende rapportmateriale.';
 
 COMMENT ON TABLE sagseventinfo_materiale IS 'Eksternt placeret materiale knyttet til en event';
-COMMENT ON COLUMN sagseventinfo_materiale.md5sum IS 'Sum brugt til at kontrollere materialets integritet.';
-COMMENT ON COLUMN sagseventinfo_materiale.sti IS 'Placering af materialet.';
+COMMENT ON COLUMN sagseventinfo_materiale.materiale IS 'Zippet samling af observationsfiler og andet relevante materiale.';
 
 COMMENT ON TABLE sagsinfo IS 'Samling af administrativt relaterede sagshændelser.';
 COMMENT ON COLUMN sagsinfo.aktiv IS 'Markerer om sagen er åben eller lukket.';

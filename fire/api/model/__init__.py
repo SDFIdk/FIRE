@@ -124,7 +124,6 @@ class Konfiguration(DeclarativeBase):
     __tablename__ = "konfiguration"
     objektid = Column(Integer, primary_key=True)
     dir_skitser = Column(String, nullable=False)
-    dir_materiale = Column(String, nullable=False)
 
 
 # Expose these types

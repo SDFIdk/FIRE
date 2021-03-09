@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, String, Integer, ForeignKey, LargeBinary
 from sqlalchemy.orm import relationship
 
 import fire
@@ -174,8 +174,7 @@ class SagseventInfo(RegisteringTidObjekt):
 class SagseventInfoMateriale(DeclarativeBase):
     __tablename__ = "sagseventinfo_materiale"
     objektid = Column(Integer, primary_key=True)
-    md5sum = Column(String(32), nullable=False)
-    sti = Column(String(4000), nullable=False)
+    materiale = Column(LargeBinary, nullable=False)
     sagseventinfoobjektid = Column(
         Integer, ForeignKey("sagseventinfo.objektid"), nullable=False
     )

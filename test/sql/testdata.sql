@@ -34,11 +34,9 @@
 -------------------------------------------------------------------------------
 -- Grundlæggende FIRE konfiguration
 INSERT INTO konfiguration (
-    dir_skitser,
-    dir_materiale
+    dir_skitser
 ) VALUES (
-    'F:\GDB\FIRE\skitser',
-    'F:\GDB\FIRE\materiale'
+    'F:\GDB\FIRE\skitser'
 )
 
 -- SELECT
@@ -1260,12 +1258,10 @@ INSERT INTO sagseventinfo (
 );
 
 INSERT INTO sagseventinfo_materiale (
-    sti,
-    md5sum,
+    materiale,
     sagseventinfoobjektid
 ) VALUES (
-    'materiale/K-63-09446.pdf',
-    'af8f278306a057ba41bef6c29911df79',
+    TO_BLOB('f1cba4f8bc04d5c4809b1daccb63bd7b'),
     (SELECT objektid
      FROM sagseventinfo
      WHERE sagseventid='sagevent-aaaa-bbbb-0005-000000000005'

@@ -1,7 +1,16 @@
+import os
+
 import pytest
 
 from fire.api import FireDb
-from fire.api.model import Sag, Sagsinfo, Sagsevent, SagseventInfo, EventType
+from fire.api.model import (
+    Sag,
+    Sagsinfo,
+    Sagsevent,
+    SagseventInfo,
+    SagseventInfoMateriale,
+    EventType,
+)
 
 
 def test_hent_sag(firedb: FireDb, sag: Sag):
@@ -18,6 +27,40 @@ def test_indset_sag(firedb: FireDb):
     sagsinfo = Sagsinfo(aktiv="true", behandler="test")
     sag = Sag(sagsinfos=[sagsinfo])
     firedb.indset_sag(sag)
+
+
+def test_indset_sagsevent(firedb: FireDb, sag: Sag):
+    sagseventinfo = SagseventInfo(beskrivelse="Testing testing")
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            eventtype=EventType.KOMMENTAR,
+            sagseventinfos=[sagseventinfo],
+        )
+    )
+
+    s = firedb.hent_sag(sag.id)
+    assert s.sagsevents[0].sagseventinfos[0].beskrivelse == "Testing testing"
+
+
+def test_indset_sagsevent_materiale(firedb: FireDb, sag: Sag):
+
+    blob = os.urandom(1000)
+
+    sagseventinfo = SagseventInfo(
+        beskrivelse="Testing testing",
+        materialer=[SagseventInfoMateriale(materiale=blob)],
+    )
+    firedb.indset_sagsevent(
+        Sagsevent(
+            sag=sag,
+            eventtype=EventType.KOMMENTAR,
+            sagseventinfos=[sagseventinfo],
+        )
+    )
+
+    s = firedb.hent_sag(sag.id)
+    assert s.sagsevents[0].sagseventinfos[0].materialer[0].materiale == blob
 
 
 def test_indset_sagsevent(firedb: FireDb, sag: Sag):
