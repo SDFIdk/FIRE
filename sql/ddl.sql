@@ -1354,6 +1354,56 @@ BEGIN
 END;
 /
 
+
+CREATE OR REPLACE TRIGGER geometriobjekt_bi_trg
+BEFORE INSERT OR UPDATE ON geometriobjekt
+FOR EACH ROW
+DECLARE
+  cnt NUMBER;
+BEGIN
+  IF :new.registreringfra = :new.registreringtil THEN
+    SELECT
+      count(*) INTO cnt
+    FROM
+      punkt
+    WHERE
+      registreringtil = :new.registreringfra;
+
+    IF cnt = 0 THEN
+      RAISE_APPLICATION_ERROR(-20008, 'Manglende forudgående geometriobjekt');
+    END IF;
+  END IF;
+
+  IF :new.registreringtil IS NULL THEN
+    SELECT
+      count(*) INTO cnt
+    FROM
+      geometriobjekt
+    WHERE
+      punktid = :new.punktid
+      AND registreringtil IS NULL;
+
+    IF cnt = 1 THEN
+      UPDATE
+        geometriobjekt
+      SET
+        registreringtil = :new.registreringfra,
+        sagseventtilid = :new.sagseventfraid
+      WHERE
+        objektid = (
+          SELECT
+            objektid
+          FROM
+            geometriobjekt
+          WHERE
+            punktid = :new.punktid
+            AND registreringtil IS NULL
+        );
+    END IF;
+  END IF;
+END;
+/
+
 CREATE OR REPLACE TRIGGER koordinat_bi_trg
 BEFORE INSERT ON koordinat
 FOR EACH ROW
