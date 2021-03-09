@@ -75,10 +75,19 @@ def test_integration_tilknyt_landsnumre(firedb):
         FikspunktsType.HØJDE,
     ]
 
+    # Hvis test-suiten køres flere gange uden at databasen nulstilles kan vi
+    # ikke regne med stabilt landsnummer output i denne test.  Vi sjusser os frem
+    # til det rigtige svar på baggrund af databasens nuværende indhold
+    n = (
+        firedb.session.query(PunktInformation)
+        .filter(PunktInformation.tekst.startswith("K-63-0900"))
+        .count()
+    )
+
     punkter = firedb.hent_punkt_liste(punkt_ider)
     landsnumre = firedb.tilknyt_landsnumre(punkter, fikspunktstyper)
 
-    for i, landsnummer in enumerate(landsnumre, 1):
+    for i, landsnummer in enumerate(landsnumre, n + 1):
         assert landsnummer.tekst == f"K-63-0900{i}"
 
 

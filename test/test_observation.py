@@ -61,7 +61,7 @@ def test_hent_observationer_naer_opstillingspunkt(firedb: FireDb):
 def test_hent_observationer_naer_geometri(firedb: FireDb):
     go = firedb.hent_geometri_objekt(punktid="67e3987a-dc6b-49ee-8857-417ef35777af")
     os = firedb.hent_observationer_naer_geometri(go.geometri, 10000)
-    assert len(os) == 68
+    assert len(os) >= 68  # der KAN komme flere obs ved gentagende kørsler af tests
     point = Geometry("POINT (10.2112609352788 56.1567354902778)")
     os = firedb.hent_observationer_naer_geometri(point, 100)
     assert len(os) == 6
@@ -75,7 +75,7 @@ def test_hent_observationer_naer_geometri(firedb: FireDb):
         )
     )
     os = firedb.hent_observationer_naer_geometri(polygon, 100)
-    assert len(os) == 10
+    assert len(os) >= 10  # der KAN komme flere obs ved gentagende kørsler af tests
 
 
 def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
