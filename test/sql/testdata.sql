@@ -51,11 +51,11 @@ Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (3
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (331,'ATTR:tabtgået','FLAG','Fysisk punkt ikke længere tilgængeligt');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (360, 'ATTR:beskrivelse', 'TEKST', 'Tekstbeskrivelse af punktet');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (362, 'AFM:højde_over_terræn', 'TAL', 'Fikspunkts højde over terræn');
-INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (363, 'AFM:4999', 'FLAG', 'Ukendt fikspunktstype');
-INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (364, 'AFM:2700', 'FLAG', 'Bolt');
-INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (365, 'AFM:2701', 'FLAG', 'Lodret bolt');
-INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (366, 'AFM:2950', 'FLAG', 'Skruepløk');
-INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (367, 'AFM:5998', 'FLAG', 'Ingen');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (363, 'AFM:4999', 'TEKST', 'Ukendt fikspunktstype');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (364, 'AFM:2700', 'TEKST', 'Bolt');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (365, 'AFM:2701', 'TEKST', 'Lodret bolt');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (366, 'AFM:2950', 'TEKST', 'Skruepløk');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (367, 'AFM:5998', 'TEKST', 'Ingen');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (370, 'ATTR:muligt_datumstabil', 'FLAG', 'Markering af om punkt potentielt er datumstabilt');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (371, 'REGION:DK', 'FLAG', 'Punkter i Danmark');
 
