@@ -180,7 +180,15 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
                 bg="white",
                 bold=True,
             )
-        punktinfo.append(PunktInformation(infotype=afmærkning_pit, punkt=punkt))
+
+        # Grundet den lidt kluntede løsning med AFM:nnnn punktinfo er fx AFM:2700 (bolt)
+        # registreret som en tekst-punktinformation (frem for flag, som ville være den ideelle løsning)
+        # og tekst attributten skal derfor udfyldes. Vi bruger tekstnøgle til afm_ids.
+        punktinfo.append(
+            PunktInformation(
+                infotype=afmærkning_pit, punkt=punkt, tekst=afm.capitalize()
+            )
+        )
 
         # Tilføj punktbeskrivelsen som punktinformation, hvis anført
         if not pd.isna(nyetablerede["Beskrivelse"][i]):
