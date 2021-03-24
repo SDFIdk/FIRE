@@ -1,6 +1,7 @@
 from __future__ import annotations
 import enum
 from typing import List
+import functools
 
 from sqlalchemy import (
     Table,
@@ -113,6 +114,7 @@ class FikspunktregisterObjekt(RegisteringTidObjekt):
     __abstract__ = True
 
 
+@functools.total_ordering
 class Punkt(FikspunktregisterObjekt):
     __tablename__ = "punkt"
     id = Column(String, nullable=False, unique=True, default=fire.uuid)
@@ -128,7 +130,9 @@ class Punkt(FikspunktregisterObjekt):
         "Koordinat", order_by="Koordinat.objektid", back_populates="punkt"
     )
     geometriobjekter = relationship(
-        "GeometriObjekt", order_by="GeometriObjekt.objektid", back_populates="punkt"
+        "GeometriObjekt",
+        order_by="GeometriObjekt.objektid",
+        back_populates="punkt",
     )
     punktinformationer = relationship(
         "PunktInformation",
@@ -222,6 +226,27 @@ class Punkt(FikspunktregisterObjekt):
                 return True
         return False
 
+    @property
+    def landsnummer(self) -> str:
+        landsnumre = []
+        for punktinfo in self.punktinformationer:
+            if punktinfo.infotype.name == "IDENT:landsnr":
+                landsnumre.append(punktinfo.tekst)
+
+        if landsnumre:
+            return sorted(landsnumre)[0]
+
+        return self.ident
+
+    def __lt__(self, other: Punkt) -> bool:
+        return self.landsnummer < other.landsnummer
+
+    def __eq__(self, other: Punkt) -> bool:
+        return self.landsnummer == other.landsnummer
+
+    def __hash__(self) -> int:
+        return hash(self.id)
+
 
 class PunktInformation(FikspunktregisterObjekt):
     __tablename__ = "punktinfo"
@@ -243,6 +268,7 @@ class PunktInformation(FikspunktregisterObjekt):
     punkt = relationship("Punkt", back_populates="punktinformationer")
 
 
+@functools.total_ordering
 class Ident:
     class IdentType(enum.Enum):
         GI = 1
