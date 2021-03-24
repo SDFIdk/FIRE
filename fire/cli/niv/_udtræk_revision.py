@@ -79,9 +79,9 @@ def udtræk_revision(
     stmt = text(pkt_i_distrikter).columns(Punkt.objektid)
     punkter = fire.cli.firedb.session.query(Punkt).from_statement(stmt).all()
 
-    for punkt in punkter:
+    for punkt in sorted(punkter):
         datumstabilt = False
-        ident = punkt.ident
+        ident = punkt.landsnummer
         fire.cli.print(f"Punkt: {ident}")
 
         # Angiv ident og lokationskoordinat
