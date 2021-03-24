@@ -92,18 +92,19 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     observerede_punkter = sorted(tuple(set(fra + til)))
     kanonisk_ident = {}
 
+    n_tabte = 0
     for punktnavn in observerede_punkter:
         try:
             punkt = fire.cli.firedb.hent_punkt(punktnavn)
+            ident = punkt.ident
             if punkt.tabtgået:
-                ident = "TABTGÅET"
                 fire.cli.print(
-                    f"{punkt.ident} er tabtgået, observationer til punktet ignoreres",
+                    f"{punkt.ident} er tabtgået",
                     fg="black",
                     bg="yellow",
                 )
+                n_tabte += 1
             else:
-                ident = punkt.ident
                 fire.cli.print(f"Fandt {ident}", fg="green")
         except NoResultFound:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
@@ -116,10 +117,11 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     observationer["Fra"] = fra
     observationer["Til"] = til
 
-    idx_tabtgået = (observationer["Fra"] == "TABTGÅET") | (
-        observationer["Til"] == "TABTGÅET"
+    fire.cli.print(
+        f"Fandt {n_tabte} tabte punkter blandt {len(observerede_punkter)} observerede punkter."
     )
-    return observationer[~idx_tabtgået].reset_index(drop=True)
+
+    return observationer
 
 
 # ------------------------------------------------------------------------------
