@@ -156,6 +156,7 @@ def obs_feature(punkter: pd.DataFrame, observationer: pd.DataFrame) -> Dict[str,
                 # konvertering, da json.dump ikke uderstøtter int64
                 "Opstillinger": int(observationer.at[i, "Opst"]),
                 "Journal": observationer.at[i, "Journal"],
+                "Type": observationer.at[i, "Type"],
             },
             "geometry": {
                 "type": "LineString",
