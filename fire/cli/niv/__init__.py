@@ -371,11 +371,15 @@ def find_faneblad(
     projektnavn: str, faneblad: str, arkdef: Dict, ignore_failure: bool = False
 ) -> pd.DataFrame:
     try:
-        return pd.read_excel(
-            f"{projektnavn}.xlsx",
-            sheet_name=faneblad,
-            usecols=anvendte(arkdef),
-        ).astype(arkdef)
+        return (
+            pd.read_excel(
+                f"{projektnavn}.xlsx",
+                sheet_name=faneblad,
+                usecols=anvendte(arkdef),
+            )
+            .astype(arkdef)
+            .dropna()
+        )
     except Exception as ex:
         if ignore_failure:
             return None
