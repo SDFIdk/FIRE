@@ -70,7 +70,6 @@ def ilæg_revision(
     fire.cli.print("")
 
     revision = find_faneblad(f"{projektnavn}-revision", "Revision", ARKDEF_REVISION)
-    revision = revision.replace("nan", "")
 
     # Tildel navne til endnu ikke oprettede punkter
     oprettelse = revision.query("Attribut == 'OPRET'")

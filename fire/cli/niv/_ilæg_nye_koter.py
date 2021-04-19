@@ -59,7 +59,6 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     punktoversigt = find_faneblad(
         projektnavn, "Endelig beregning", ARKDEF_PUNKTOVERSIGT
     )
-    punktoversigt = punktoversigt.replace("nan", "")
     ny_punktoversigt = punktoversigt[0:0]
 
     DVR90 = fire.cli.firedb.hent_srid("EPSG:5799")
