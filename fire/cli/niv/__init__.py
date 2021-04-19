@@ -377,8 +377,9 @@ def find_faneblad(
                 sheet_name=faneblad,
                 usecols=anvendte(arkdef),
             )
+            .dropna(how="all")
             .astype(arkdef)
-            .dropna()
+            .replace("nan", "")
         )
     except Exception as ex:
         if ignore_failure:
