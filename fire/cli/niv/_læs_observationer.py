@@ -18,7 +18,7 @@ from . import (
     anvendte,
     find_faneblad,
     niv,
-    normaliser_placeringskoordinat,
+    normaliser_lokationskoordinat,
     punkter_geojson,
     skriv_ark,
 )
@@ -62,7 +62,7 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     nye_punkter = tuple(sorted(nye_punkter))
     alle_punkter = nye_punkter + tuple(sorted(gamle_punkter))
 
-    # Opbyg oversigt over alle punkter m. kote og placering
+    # Opbyg oversigt over alle punkter m. kote og lokation
     punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
     resultater["Punktoversigt"] = punktoversigt
     skriv_ark(projektnavn, resultater)
@@ -238,7 +238,7 @@ def opbyg_punktoversigt(
             punktoversigt.at[punkt, "Øst"] = pkt.geometri.koordinater[0]
 
     # Nyetablerede punkter er ikke i databasen, så hent eventuelle manglende
-    # koter og placeringskoordinater i fanebladet 'Nyetablerede punkter'
+    # koter og lokationskoordinater i fanebladet 'Nyetablerede punkter'
     for punkt in nye_punkter:
         if pd.isna(punktoversigt.at[punkt, "Kote"]):
             punktoversigt.at[punkt, "Kote"] = None
@@ -247,9 +247,9 @@ def opbyg_punktoversigt(
         if pd.isna(punktoversigt.at[punkt, "Øst"]):
             punktoversigt.at[punkt, "Øst"] = nyetablerede.at[punkt, "Øst"]
 
-    # Check op på placeringskoordinaterne
+    # Check op på lokationskoordinaterne
     for punkt in alle_punkter:
-        (λ, φ) = normaliser_placeringskoordinat(
+        λ, φ = normaliser_lokationskoordinat(
             punktoversigt.at[punkt, "Øst"], punktoversigt.at[punkt, "Nord"]
         )
         punktoversigt.at[punkt, "Nord"] = φ

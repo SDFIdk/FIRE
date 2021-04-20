@@ -268,7 +268,15 @@ def punkt_fuld_rapport(
     # under et, da det giver et bedre indledende overblik
     try:
         for geometriobjekt in punkt.geometriobjekter:
-            fire.cli.print(f"  Lokation                    {geometriobjekt.geometri}")
+            # marker slukkede geometriobjekter med rød tekst og et minus tv for linjen
+            if geometriobjekt.registreringtil:
+                fire.cli.print(
+                    f" -Lokation                    {geometriobjekt.geometri}", fg="red"
+                )
+            else:
+                fire.cli.print(
+                    f"  Lokation                    {geometriobjekt.geometri}"
+                )
     except Exception:
         pass
 
@@ -348,7 +356,7 @@ def punkt(
     Punkt-klassen er omfattende og består af følgende elementer:
 
     Punkt = Punkt(\n
-        'geometriobjekter',   -- placeringskoordinat\n
+        'geometriobjekter',   -- lokationskoordinat\n
         'id',                 -- uuid: intern databaseidentifikation\n
         'koordinater',        -- alle tilgængelige koordinater\n
         'metadata',           -- øh\n

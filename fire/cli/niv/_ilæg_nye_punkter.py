@@ -27,7 +27,7 @@ from . import (
     find_sag,
     find_sagsgang,
     niv,
-    normaliser_placeringskoordinat,
+    normaliser_lokationskoordinat,
     skriv_ark,
 )
 
@@ -84,8 +84,8 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         if str(nyetablerede.uuid[i]) not in ["", "None", "nan"]:
             continue
 
-        lokation = normaliser_placeringskoordinat(
-            nyetablerede["Øst"][i], nyetablerede["Nord"][i]
+        lokation = normaliser_lokationskoordinat(
+            nyetablerede["Øst"][i], nyetablerede["Nord"][i], "DK"
         )
 
         # Skab nyt punktobjekt
