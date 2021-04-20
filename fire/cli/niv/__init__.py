@@ -201,26 +201,63 @@ def anvendte(arkdef: Dict) -> str:
 
 
 # ------------------------------------------------------------------------------
-def normaliser_placeringskoordinat(λ: float, φ: float) -> Tuple[float, float]:
-    """Check op på placeringskoordinaterne.
-    Hvis nogle ligner UTM, så regner vi om til geografiske koordinater.
-    NaN og 0 flyttes ud i Kattegat, så man kan få øje på dem
+def normaliser_lokationskoordinat(
+    λ: float, φ: float, region: str = "DK", invers: bool = False
+) -> Tuple[float, float]:
+    """Check op på lokationskoordinaterne.
+    En normaliseret lokationskoordinat er en koordinat der egner sig som
+    WKT- og/eller geojson-geometriobjekt. Dvs. en koordinat anført i en
+    afart af WGS84 og med akseorden længde, bredde (λ, φ).
+
+    Hvis det ser ud som om akseordenen er gal, så bytter vi om på dem.
+
+    Hvis input ligner UTM, så regner vi om til geografiske koordinater.
+    NaN og 0 flyttes ud i Kattegat, så man kan få øje på dem.
+
+    Disse korrektioner udføres med brug af bredt gyldige heuristikker,
+    der dog er nødt til at gøre antagelser om hvor i verden vi befinder os.
+    Dette kan eksplicit anføres med argumentet `region`, der som standard
+    sættes til `"DK"`.
+
+    Den omvendte vej (`invers==True`, input: geografiske koordinater,
+    output: UTM-koordinater i traditionel lokationskoordinatorden)
+    er indtil videre kun understøttet for `region=="DK"`.
     """
+    global utm32
+    if utm32 is None:
+        utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
+        assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
+
+    # Begrænset understøttelse af FO, GL, hvor UTM32 er meningsløst.
+    # Der er gjort plads til indførelse af UTM24 og UTM29 hvis der skulle
+    # vise sig behov, men det kræver en væsentlig algoritmeudvidelse.
+    if region not in ("DK", ""):
+        return (λ, φ)
+
+    # Geometri-til-lokationskoordinat
+    if invers:
+        return utm32(λ, φ, inverse=False)
 
     if pd.isna(λ) or pd.isna(φ) or 0 == λ or 0 == φ:
         return (11.0, 56.0)
 
     # Heuristik til at skelne mellem UTM og geografiske koordinater.
     # Heuristikken fejler kun for UTM-koordinater fra et lille
-    # område på 4 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
+    # område på 6 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
     # Det er langt ude i Atlanterhavet, så det lever vi med.
-    if abs(λ) < 100 and abs(φ) < 100:
+    if abs(λ) < 181 and abs(φ) < 91:
         return (λ, φ)
 
-    utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
-    assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
+    # Hvis utm-koordinaterne ser ud til at ligge syd for Sahara,
+    # så er der nok byttet om på northing og easting.
+    if abs(φ) < 1e6:
+        λ, φ = φ, λ
+
     return utm32(λ, φ, inverse=True)
 
+
+# Globalt transformationsobjekt til normaliser_lokationskoordinat
+utm32 = None
 
 # -----------------------------------------------------------------------------
 def skriv_ark(

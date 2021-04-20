@@ -31,6 +31,7 @@ from . import (
     find_sag,
     find_sagsgang,
     niv,
+    normaliser_lokationskoordinat,
     skriv_ark,
 )
 
@@ -431,6 +432,7 @@ def ilæg_revision(
     opret_tekst = f"- oprette {len(til_opret)} attributter fordelt på {len(punkter_med_oprettelse)} punkter"
     sluk_tekst = f"- slukke for {len(til_sluk)} attributter fordelt på {len(punkter_med_slukning)} punkter"
     ret_tekst = f"- rette {len(til_ret)} attributter fordelt på {len(punkter_med_rettelse)} punkter"
+    lok_tekst = f"- rette {len(nye_lokationer)} lokationskoordinater"
 
     fire.cli.print("")
     fire.cli.print("-" * 50)
@@ -438,6 +440,7 @@ def ilæg_revision(
     fire.cli.print(opret_tekst)
     fire.cli.print(sluk_tekst)
     fire.cli.print(ret_tekst)
+    fire.cli.print(lok_tekst)
 
     spørgsmål = click.style(
         f"Er du sikker på du vil indsætte ovenstående i {fire.cli.firedb.db}-databasen",
@@ -493,21 +496,25 @@ def læs_lokation(lokation: str) -> GeometriObjekt:
     if len(lok) == 2:
         lok = [lok[0], "", lok[1], ""]
     try:
-        e = float(lok[2])
-        n = float(lok[0])
+        e = float(lok[2].replace(",", "."))
+        n = float(lok[0].replace(",", "."))
     except ValueError as ex:
         fire.cli.print(f"Ikke-numerisk lokationskoordinat anført: {lokation} ({ex})")
         sys.exit(1)
 
     # Håndter verdenshjørner Nn/ØøEe/VvWw/Ss
+    if lok[3].upper() in ("S", "N"):
+        lok = [lok[2], lok[3], lok[0], lok[1]]
     if lok[1].upper() == "S":
         n = -n
     if lok[3].upper() in ("W", "V"):
         e = -e
 
+    # Håndter UTM zone 32 og geografiske koordinater ensartet
+    e, n = normaliser_lokationskoordinat(e, n)
+
     go = GeometriObjekt()
     go.geometri = Point([e, n])
-
     return go
 
 

@@ -12,6 +12,7 @@ from fire.api.model import Punkt
 from . import (
     ARKDEF_REVISION,
     niv,
+    normaliser_lokationskoordinat,
     skriv_ark,
 )
 
@@ -94,12 +95,14 @@ def udtræk_revision(
                 bold=True,
             )
             lokation = (11.0, 56.0)
+
+        lokation = normaliser_lokationskoordinat(lokation[0], lokation[1], "DK", True)
         revision = revision.append(
             {
                 "Punkt": ident,
                 "Attribut": "LOKATION",
                 # Centimeterafrunding for lokationskoordinaten er rigeligt
-                "Tekstværdi": f"{lokation[1]:.7f} N   {lokation[0]:.7f} Ø",
+                "Tekstværdi": f"{lokation[1]:.3f} m   {lokation[0]:.3f} m",
                 "Ikke besøgt": "x",
             },
             ignore_index=True,
