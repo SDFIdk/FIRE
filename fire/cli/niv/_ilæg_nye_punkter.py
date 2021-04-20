@@ -85,7 +85,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             continue
 
         lokation = normaliser_lokationskoordinat(
-            nyetablerede["Øst"][i], nyetablerede["Nord"][i], "DK", True
+            nyetablerede["Øst"][i], nyetablerede["Nord"][i], "DK"
         )
 
         # Skab nyt punktobjekt
