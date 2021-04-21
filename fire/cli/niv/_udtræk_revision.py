@@ -42,7 +42,6 @@ def udtræk_revision(
         "ATTR:teknikpunkt",
         "AFM:naturlig",
         "ATTR:MV_punkt",
-        "IDENT:ekstern",
     ]
 
     # Disse attributter indgår ikke i punktrevisionen
@@ -52,7 +51,10 @@ def udtræk_revision(
         "IDENT:refgeo_id",
         "IDENT:station",
         "NET:10KM",
-        "SKITSE:md5",
+        "SKITSE:master_md5",
+        "SKITSE:master_sti",
+        "SKITSE:png_md5",
+        "SKITSE:png_sti",
         "ATTR:fundamentalpunkt",
         "ATTR:tinglysningsnr",
     ]
