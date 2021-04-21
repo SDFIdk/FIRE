@@ -57,7 +57,7 @@ def udtræk_revision(
         "ATTR:tinglysningsnr",
     ]
 
-    distrikter = ",".join([f"'{d}'" for d in opmålingsdistrikter])
+    distrikter = ",".join([f"'{d.upper()}'" for d in opmålingsdistrikter])
     uønsket = ",".join([f"'{p}'" for p in uønskede_punkter])
     pkt_i_distrikter = f"""
                 SELECT p.*
@@ -65,7 +65,10 @@ def udtræk_revision(
                     SELECT DISTINCT g.punktid FROM geometriobjekt g
                     JOIN herredsogn hs
                     ON sdo_inside(g.geometri, hs.geometri) = 'TRUE'
-                    WHERE hs.kode IN ({distrikter}) AND g.registreringtil IS NULL
+                    WHERE
+                        upper(hs.kode) IN ({distrikter})
+                      AND
+                        g.registreringtil IS NULL
                 ) a
                 LEFT JOIN (
                     SELECT DISTINCT pi.punktid FROM punktinfo pi
