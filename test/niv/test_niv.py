@@ -28,7 +28,7 @@ def test_revision(mocker):
         assert result.exit_code == 0
 
         # fire niv udtræk-revision test
-        result = runner.invoke(niv, ["udtræk-revision", "testsag", "K-63"])
+        result = runner.invoke(niv, ["udtræk-revision", "testsag", "k-63"])
         print(result.output)
         assert result.exit_code == 0
 
