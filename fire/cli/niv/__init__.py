@@ -74,13 +74,13 @@ ILÆG-NYE-KOTER lægger nyberegnede koter i databasen.
 
 LUK-SAG arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
 
-(i skrivende stund står ILÆG-REVISION og ILÆG-NYE-PUNKTER for en større overhaling)
-
 Eksempel:
 
 {grøn('fire niv opret-sag andeby_2020 "Vedligehold Andeby"')}
 
 {grøn('fire niv udtræk-revision andeby_2020 K-99 102-08')}
+
+{grøn('fire niv ilæg-revision andeby_2020')}
 
 {grøn('fire niv ilæg-nye-punkter andeby_2020')}
 
