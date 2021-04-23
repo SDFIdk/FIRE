@@ -302,6 +302,14 @@ def ilæg_revision(
                 )
                 continue
 
+            if r["Tekstværdi"] != "" and r["Tekstværdi"] == r["Ny værdi"]:
+                fire.cli.print(
+                    f"    ADVARSEL: Tekst i 'Ny værdi' identisk med udgangspunkt for {pitnavn}.",
+                    fg="yellow",
+                    bold=True,
+                )
+                continue
+
             if pitnavn is None:
                 fire.cli.print(
                     "    * Ignorerer uanført punktinformationstype",
