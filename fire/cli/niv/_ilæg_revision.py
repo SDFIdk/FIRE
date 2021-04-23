@@ -1,3 +1,4 @@
+import re
 import sys
 import getpass
 from datetime import datetime
@@ -400,7 +401,11 @@ def ilæg_revision(
             if pit.anvendelse == PunktInformationTypeAnvendelse.FLAG:
                 pi = PunktInformation(infotype=pit, punkt=punkt)
             elif pit.anvendelse == PunktInformationTypeAnvendelse.TEKST:
-                pi = PunktInformation(infotype=pit, punkt=punkt, tekst=r["Ny værdi"])
+                # Fjern overflødigt whitespace og duplerede punktummer
+                tekst = r["Ny værdi"]
+                tekst = re.sub(r"[ \t]+", " ", tekst.strip())
+                tekst = re.sub(r"[.]+", ".", tekst)
+                pi = PunktInformation(infotype=pit, punkt=punkt, tekst=tekst)
             else:
                 try:
                     tal = float(r["Ny værdi"])
