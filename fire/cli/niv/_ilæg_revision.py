@@ -5,7 +5,7 @@ from math import trunc, isnan
 
 import click
 import pandas as pd
-from pyproj import Proj
+from pyproj import Proj, Geod
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import DatabaseError
 
@@ -110,9 +110,22 @@ def ilæg_revision(
     lokation = lokation.query("`Ny værdi` != ''")
     for row in lokation.to_dict("records"):
         punkt = fire.cli.firedb.hent_punkt(row["Punkt"])
+        # gem her inden ny geometri tilknyttes punktet
+        (λ1, φ1) = punkt.geometri.koordinater
+
         go = læs_lokation(row["Ny værdi"])
         go.punkt = punkt
         nye_lokationer.append(go)
+        (λ2, φ2) = go.koordinater
+
+        g = Geod(ellps="GRS80")
+        _, _, dist = g.inv(λ1, φ1, λ2, φ2)
+        if dist >= 25:
+            fire.cli.print(
+                f"    ADVARSEL: Ny lokationskoordinat afviger {dist:.0f} m fra den gamle",
+                fg="yellow",
+                bold=True,
+            )
 
     if len(nye_punkter) > 0 or len(nye_lokationer) > 0:
         sagsevent = Sagsevent(
