@@ -37,26 +37,6 @@ from . import (
 )
 def luk_sag(projektnavn: str, **kwargs) -> None:
     """Luk sag i databasen"""
-
-    if not os.path.isfile(f"{projektnavn}.xlsx"):
-        fire.cli.print(
-            f"Filen '{projektnavn}.xlsx' eksisterer ikke - kan ikke lukke sag!"
-        )
-        sys.exit(1)
-
-    param = find_faneblad(projektnavn, "Parametre", ARKDEF_PARAM)
-    if "Database" not in list(param["Navn"]):
-        fire.cli.print("FEJL: 'Database' ikke angivet under fanebladet 'Parametre'")
-        sys.exit(1)
-
-    projekt_db = param.loc[param["Navn"] == "Database"]["Værdi"].to_string(index=False)
-
-    if projekt_db != fire.cli.firedb.db:
-        fire.cli.print(
-            f"{projektnavn} er kan ikke indsættes i {fire.cli.firedb.db}-databasen, da det er oprettet i {projekt_db}-databasen!"
-        )
-        sys.exit(1)
-
     sag = find_sag(projektnavn)
 
     # Find sagsmateriale og zip det for let indlæsning i databasen

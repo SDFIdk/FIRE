@@ -1,3 +1,4 @@
+import re
 import sys
 import getpass
 from datetime import datetime
@@ -5,7 +6,7 @@ from math import trunc, isnan
 
 import click
 import pandas as pd
-from pyproj import Proj
+from pyproj import Proj, Geod
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import DatabaseError
 
@@ -110,9 +111,22 @@ def ilæg_revision(
     lokation = lokation.query("`Ny værdi` != ''")
     for row in lokation.to_dict("records"):
         punkt = fire.cli.firedb.hent_punkt(row["Punkt"])
+        # gem her inden ny geometri tilknyttes punktet
+        (λ1, φ1) = punkt.geometri.koordinater
+
         go = læs_lokation(row["Ny værdi"])
         go.punkt = punkt
         nye_lokationer.append(go)
+        (λ2, φ2) = go.koordinater
+
+        g = Geod(ellps="GRS80")
+        _, _, dist = g.inv(λ1, φ1, λ2, φ2)
+        if dist >= 25:
+            fire.cli.print(
+                f"    ADVARSEL: Ny lokationskoordinat afviger {dist:.0f} m fra den gamle",
+                fg="yellow",
+                bold=True,
+            )
 
     if len(nye_punkter) > 0 or len(nye_lokationer) > 0:
         sagsevent = Sagsevent(
@@ -289,6 +303,14 @@ def ilæg_revision(
                 )
                 continue
 
+            if r["Tekstværdi"] != "" and r["Tekstværdi"] == r["Ny værdi"]:
+                fire.cli.print(
+                    f"    ADVARSEL: Tekst i 'Ny værdi' identisk med udgangspunkt for {pitnavn}.",
+                    fg="yellow",
+                    bold=True,
+                )
+                continue
+
             if pitnavn is None:
                 fire.cli.print(
                     "    * Ignorerer uanført punktinformationstype",
@@ -379,7 +401,11 @@ def ilæg_revision(
             if pit.anvendelse == PunktInformationTypeAnvendelse.FLAG:
                 pi = PunktInformation(infotype=pit, punkt=punkt)
             elif pit.anvendelse == PunktInformationTypeAnvendelse.TEKST:
-                pi = PunktInformation(infotype=pit, punkt=punkt, tekst=r["Ny værdi"])
+                # Fjern overflødigt whitespace og duplerede punktummer
+                tekst = r["Ny værdi"]
+                tekst = re.sub(r"[ \t]+", " ", tekst.strip())
+                tekst = re.sub(r"[.]+", ".", tekst)
+                pi = PunktInformation(infotype=pit, punkt=punkt, tekst=tekst)
             else:
                 try:
                     tal = float(r["Ny værdi"])
@@ -460,7 +486,7 @@ def flush():
         fire.cli.firedb.session.flush()
     except DatabaseError as ex:
         fire.cli.print("FEJL! Mulig årsag:", fg="red", bold=True)
-        fire.cli.print(f"{ex.orig}", fg="red")
+        fire.cli.print(f"{ex}", fg="red")
         fire.cli.firedb.session.rollback()
         sys.exit(1)
 
