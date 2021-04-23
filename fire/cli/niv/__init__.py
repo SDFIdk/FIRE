@@ -437,9 +437,36 @@ def gyldighedstidspunkt(projektnavn: str) -> datetime.datetime:
     return max(obs["Hvornår"])
 
 
+def find_parameter(projektnavn: str, parameter: str) -> str:
+    """Find parameter fra et projektregneark"""
+    param = find_faneblad(projektnavn, "Parametre", ARKDEF_PARAM)
+    if parameter not in list(param["Navn"]):
+        fire.cli.print(f"FEJL: '{parameter}' ikke angivet under fanebladet 'Parametre'")
+        sys.exit(1)
+
+    return param.loc[param["Navn"] == "Database"]["Værdi"].to_string(index=False)
+
+
 # -----------------------------------------------------------------------------
 def find_sag(projektnavn: str) -> Sag:
     """Bomb hvis sag for projektnavn ikke er oprettet. Ellers returnér sagen"""
+    if not os.path.isfile(f"{projektnavn}.xlsx"):
+        fire.cli.print(
+            f"FEJL: Filen '{projektnavn}.xlsx' ikke fundet - står du i den rigtige folder?",
+            bold=True,
+            bg="red",
+        )
+        sys.exit(1)
+
+    projekt_db = find_parameter(projektnavn, "Database")
+    if projekt_db != fire.cli.firedb.db:
+        fire.cli.print(
+            f"FEJL: '{projektnavn}' er oprettet i {projekt_db}-databasen - du forbinder til {fire.cli.firedb.db}-databasen!",
+            bold=True,
+            bg="red",
+        )
+        sys.exit(1)
+
     sagsgang = find_sagsgang(projektnavn)
     sagsid = find_sagsid(sagsgang)
     try:

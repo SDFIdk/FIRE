@@ -14,6 +14,7 @@ from . import (
     niv,
     normaliser_lokationskoordinat,
     skriv_ark,
+    find_sag,
 )
 
 
@@ -32,7 +33,8 @@ def udtræk_revision(
 
     fire niv udtræk-revision projektnavn distrikts-eller-punktnavn(e)
     """
-
+    # Kontroller at projektet er oprettet etc.
+    find_sag(projektnavn)
     revision = pd.DataFrame(columns=tuple(ARKDEF_REVISION)).astype(ARKDEF_REVISION)
 
     # Punkter med bare EN af disse attributter ignoreres
