@@ -460,7 +460,7 @@ def flush():
         fire.cli.firedb.session.flush()
     except DatabaseError as ex:
         fire.cli.print("FEJL! Mulig årsag:", fg="red", bold=True)
-        fire.cli.print(f"{ex.orig}", fg="red")
+        fire.cli.print(f"{ex}", fg="red")
         fire.cli.firedb.session.rollback()
         sys.exit(1)
 
