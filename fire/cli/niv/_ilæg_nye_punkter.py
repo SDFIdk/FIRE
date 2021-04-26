@@ -29,6 +29,7 @@ from . import (
     niv,
     normaliser_lokationskoordinat,
     skriv_ark,
+    opret_region_punktinfo,
 )
 
 
@@ -199,6 +200,9 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
                     tekst=nyetablerede["Beskrivelse"][i],
                 )
             )
+
+        # Tilknyt regionskode til punktet
+        punktinfo.append(opret_region_punktinfo(punkt))
 
     # Tilknyt landsnumre til punkter
     landsnumre = dict(

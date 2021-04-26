@@ -14,6 +14,7 @@ import fire.cli
 from fire.api.model import (
     Point,
     Punkt,
+    PunktInformation,
     Sag,
 )
 
@@ -577,6 +578,30 @@ def bekræft(spørgsmål: str, gentag=True) -> bool:
             return True
 
     return False
+
+
+def opret_region_punktinfo(punkt: Punkt) -> PunktInformation:
+    """Opret regionspunktinfo for et nyt punkt"""
+
+    e = punkt.geometri.koordinater[0]
+
+    # Regionen kan detekteres alene ud fra længdegraden, hvis vi holder os til
+    # {DK, EE, FO, GL}. EE er dog ikke understøttet her: Hvis man forsøger at
+    # oprette nye estiske punkter vil de blive tildelt region DK
+    if e > 0:
+        region = "REGION:DK"
+    elif e < -11:
+        region = "REGION:GL"
+    else:
+        region = "REGION:FO"
+
+    # indsæt region
+    pit = fire.cli.firedb.hent_punktinformationtype(region)
+    if pit is None:
+        fire.cli.print(f"Kan ikke finde region '{region}'")
+        sys.exit(1)
+
+    return PunktInformation(infotype=pit, punkt=punkt)
 
 
 # moduler præfikset med _ for at undgå konflikter, der i visse tilfælde
