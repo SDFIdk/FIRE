@@ -116,8 +116,6 @@ ARKDEF_NYETABLEREDE_PUNKTER = {
     "Landsnummer": str,
     "Nord": float,
     "Øst": float,
-    "Etableret dato": "datetime64[ns]",
-    "Hvem": str,
     "Beskrivelse": str,
     "Afmærkning": str,
     "Højde over terræn": float,
