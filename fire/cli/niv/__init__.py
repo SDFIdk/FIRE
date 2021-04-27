@@ -423,10 +423,7 @@ def find_faneblad(
         if ignore_failure:
             return None
         fire.cli.print(f"Kan ikke læse {faneblad} fra '{projektnavn}.xlsx'")
-        fire.cli.print(
-            f"- har du glemt at kopiere den fra '{projektnavn}-resultat.xlsx'?"
-        )
-        fire.cli.print(f"Anden mulig årsag: {ex}")
+        fire.cli.print(f"Mulig årsag: {ex}")
         sys.exit(1)
 
 
