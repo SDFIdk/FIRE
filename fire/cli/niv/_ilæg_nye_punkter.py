@@ -1,3 +1,4 @@
+import sys
 import getpass
 import math
 from itertools import chain
@@ -31,6 +32,14 @@ from . import (
     skriv_ark,
     opret_region_punktinfo,
 )
+
+FIKSPUNKTSYPER = {
+    "GI": FikspunktsType.GI,
+    "MV": FikspunktsType.MV,
+    "HØJDE": FikspunktsType.HØJDE,
+    "JESSEN": FikspunktsType.JESSEN,
+    "VANDSTANDSBRÆT": FikspunktsType.VANDSTANDSBRÆT,
+}
 
 
 @niv.command()
@@ -95,8 +104,17 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             geometriobjekter=[GeometriObjekt(geometri=Point(lokation))],
         )
 
-        # TODO: Alle punkter er højdefikspunkter indtil videre...
-        fikspunktstyper.append(FikspunktsType.HØJDE)
+        try:
+            fikspunktstype = FIKSPUNKTSYPER[nyetablerede["Fikspunktstype"][i].upper()]
+        except KeyError:
+            fire.cli.print(
+                f"FEJL: '{nyetablerede['Fikspunktstype'][i]}' er ikke en gyldig fikspunktsype! Vælg mellem GI, MV, HØJDE, JESSEN og VANDSTANDSBRÆT",
+                bg="red",
+                bold=True,
+            )
+            sys.exit(1)
+
+        fikspunktstyper.append(fikspunktstype)
 
     # sagsevent for punkter
     er = "er" if len(punkter) > 1 else ""
@@ -203,6 +221,14 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
         # Tilknyt regionskode til punktet
         punktinfo.append(opret_region_punktinfo(punkt))
+
+    # tilknyt GI-identer til punkter
+    for punkt, fikspunktstype in zip(punkter.values(), fikspunktstyper):
+        if fikspunktstype != FikspunktsType.GI:
+            continue
+        gi = fire.cli.firedb.tilknyt_gi_nummer(punkt)
+        print(gi)
+        punktinfo.append(gi)
 
     # Tilknyt landsnumre til punkter
     landsnumre = dict(

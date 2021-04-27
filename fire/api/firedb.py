@@ -189,7 +189,6 @@ class FireDb(object):
             return []
 
         distrikter = self._opmålingsdistrikt_fra_punktid(uuider)
-
         distrikt_punkter = {}
         for (distrikt, pktid) in distrikter:
             if distrikt not in distrikt_punkter.keys():
@@ -214,6 +213,31 @@ class FireDb(object):
             punktinfo.append(pi)
 
         return punktinfo
+
+    def tilknyt_gi_nummer(self, punkt: Punkt) -> PunktInformation:
+        """
+        Tilknyt et G.I. ident til et punkt.
+        """
+        sql = text(
+            fr"""SELECT max(to_number(regexp_substr(pi.tekst, 'G.I.(.+)', 1, 1, '', 1))) lbnr FROM punktinfo pi
+                 JOIN punktinfotype pit ON pit.infotypeid=pi.infotypeid
+                 WHERE
+                 pi.registreringtil IS NULL
+                     AND
+                 pit.infotype = 'IDENT:GI'
+                     AND
+                 pi.tekst LIKE 'G.I.%'
+                     AND
+                 pi.tekst != 'G.I.9999'
+                 ORDER BY pi.tekst DESC
+                 """
+        )
+
+        løbenummer = self.session.execute(sql).first()[0]
+        gi_ident = self.hent_punktinformationtype("IDENT:GI")
+        return PunktInformation(
+            punktid=punkt.id, infotype=gi_ident, tekst=f"G.I.{løbenummer+1}"
+        )
 
     def fejlmeld_koordinat(self, sagsevent: Sagsevent, koordinat: Koordinat):
         """
