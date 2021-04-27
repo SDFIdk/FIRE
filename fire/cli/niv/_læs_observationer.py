@@ -149,7 +149,7 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     for p in par:
         if tuple(reversed(p)) not in par:
             fire.cli.print(
-                f"Der mangler returmåling for {p}",
+                f"ADVARSEL: Der mangler returmåling for {p}",
                 fg="yellow",
                 bold=True,
             )
