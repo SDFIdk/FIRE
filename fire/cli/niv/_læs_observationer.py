@@ -121,6 +121,39 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
         f"Fandt {n_tabte} tabte punkter blandt {len(observerede_punkter)} observerede punkter."
     )
 
+    # Check journalsiders konsistens:
+
+    # Vi starter med en dict med en tom mængde for hver strækning
+    journalsider = dict((tuple(sorted(p)), set()) for p in zip(fra, til))
+    # ...så føjer vi hovedjournalsidenummeret til for hver observation
+    for i, par in enumerate(zip(fra, til)):
+        strækning = tuple(sorted(par))
+        hovedside = observationer["Journal"][i].split(":")[0]
+        journalsider[strækning].add(hovedside)
+    # ...og advarer hvis der er strækninger med flere hovedjournalsidenumre
+    for strækning in journalsider:
+        if len(journalsider[strækning]) > 1:
+            fire.cli.print(
+                "ADVARSEL:Flere hovedjournalsider til samme strækning:",
+                fg="yellow",
+                bold=True,
+            )
+            fire.cli.print(
+                f"{strækning}: {sorted(journalsider[strækning])}",
+                fg="yellow",
+                bold=True,
+            )
+
+    # Check at vi har returmålinger for alle strækninger.
+    par = set([tuple(p) for p in zip(fra, til)])
+    for p in par:
+        if tuple(reversed(p)) not in par:
+            fire.cli.print(
+                f"ADVARSEL: Der mangler returmåling for {p}",
+                fg="yellow",
+                bold=True,
+            )
+
     return observationer
 
 
@@ -132,16 +165,30 @@ def observationer_geojson(
 ) -> None:
     """Skriv observationer til geojson-fil"""
 
+    fra = observationer["Fra"]
+    til = observationer["Til"]
+
+    # Optæl antal frem-og/eller-tilbagemålinger pr. strækning: Vi starter
+    # med en dict med et nul for hver strækning
+    par = [tuple(p) for p in zip(fra, til)]
+    antal_målinger = dict((tuple(sorted(p)), 0) for p in par)
+    # ...og så tæller vi det relevante element op for hver observation
+    for p in par:
+        # Indeksering med tuple(sorted(p)) da set(p) ikke kan hashes
+        antal_målinger[tuple(sorted(p))] += 1
+
     with open(f"{projektnavn}-observationer.geojson", "wt") as obsfil:
         til_json = {
             "type": "FeatureCollection",
-            "Features": list(obs_feature(punkter, observationer)),
+            "Features": list(obs_feature(punkter, observationer, antal_målinger)),
         }
         json.dump(til_json, obsfil, indent=4)
 
 
 # ------------------------------------------------------------------------------
-def obs_feature(punkter: pd.DataFrame, observationer: pd.DataFrame) -> Dict[str, str]:
+def obs_feature(
+    punkter: pd.DataFrame, observationer: pd.DataFrame, antal_målinger: Dict[Tuple, int]
+) -> Dict[str, str]:
     """Omsæt observationsinformationer til JSON-egnet dict"""
     for i in range(observationer.shape[0]):
         fra = observationer.at[i, "Fra"]
@@ -151,6 +198,7 @@ def obs_feature(punkter: pd.DataFrame, observationer: pd.DataFrame) -> Dict[str,
             "properties": {
                 "Fra": fra,
                 "Til": til,
+                "Målinger": antal_målinger[tuple(sorted([fra, til]))],
                 "Afstand": observationer.at[i, "L"],
                 "ΔH": observationer.at[i, "ΔH"],
                 # konvertering, da json.dump ikke uderstøtter int64
