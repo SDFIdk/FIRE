@@ -134,7 +134,7 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
     for strækning in journalsider:
         if len(journalsider[strækning]) > 1:
             fire.cli.print(
-                "ADVARSEL - Flere hovedjournalsider til samme strækning:",
+                "ADVARSEL:Flere hovedjournalsider til samme strækning:",
                 fg="yellow",
                 bold=True,
             )
