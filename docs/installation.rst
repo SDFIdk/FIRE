@@ -84,46 +84,88 @@ FIRE
     Hav tålmodighed, der er smartere løsninger på vej!
 
 Åbn "Anaconda Prompt". Start med at lave en ny mappe til FIRE koden og download
-den med git::
+den med git
 
-    > mkdir C:\fire
-    > cd C:\fire
-    > git clone https://github.com/Kortforsyningen/FIRE.git
+.. code-block::
 
-.. image:: figures/anacondaprompt-hent-fire.PNG
-  :width: 800
-  :alt: FIRE i anacondaprompt
+    (base) C:\>mkdir FIRE
 
-Initialiser et "conda environment" til FIRE::
+    (base) C:\>cd FIRE
 
-    > cd FIRE
-    > conda env create --file environment.yml
+    (base) C:\FIRE>git clone https://github.com/Kortforsyningen/FIRE.git .
+    Cloning into '.'...
+    remote: Enumerating objects: 4175, done.
+    remote: Counting objects: 100% (343/343), done.
+    remote: Compressing objects: 100% (147/147), done.
+    remote: Total 4175 (delta 208), reused 313 (delta 190), pack-reused 3832
+    Receiving objects: 100% (4175/4175), 22.54 MiB | 3.66 MiB/s, done.
+    Resolving deltas: 100% (2512/2512), done.
 
-Vær tålmodig, det kan godt tage lang tid.
+.. note::
 
-
-.. image:: figures/anacondaprompt-conda-env-create.PNG
-  :width: 800
-  :alt: FIRE i anacondaprompt - environment
-
-Undervejs ser det således ud:
-
-.. image:: figures/anacondaprompt-undervejs-i-installation-af-fire-env.PNG
-  :width: 800
-  :alt: FIRE i anacondaprompt - undervejs
+    Bemærk det afsluttende punktum i ``git clone`` kommandoen. Det sørger for at din installation placeres i C:\\FIRE.
 
 
-Gør som ``conda`` siger og aktiver dit nye "fire environment"::
+Initialiser et "conda miljø" til FIRE (vær tålmodig, det kan godt tage lang tid)
 
-    > conda activate fire
+.. code-block::
 
-.. image:: figures/anacondaprompt-færdig.PNG
-  :width: 800
-  :alt: FIRE i anacondaprompt - færdig
+    (base) C:\FIRE>conda env create --file environment.yml
+    Collecting package metadata (repodata.json): done
+    Solving environment: done
 
-Installer FIRE::
+    Downloading and Extracting Packages
+    cryptography-3.4.7   | 705 KB    | ############################################################################ | 100%
+    libcurl-7.76.1       | 292 KB    | ############################################################################ | 100%
 
-    > pip install -e .
+    ...
+
+    coverage-5.5         | 285 KB    | ############################################################################ | 100%
+    libzip-1.7.3         | 134 KB    | ############################################################################ | 100%
+    Preparing transaction: done
+    Verifying transaction: done
+    Executing transaction: done
+    #
+    # To activate this environment, use
+    #
+    #     $ conda activate fire
+    #
+    # To deactivate an active environment, use
+    #
+    #     $ conda deactivate
+
+Efter endt installation gør da som ``conda`` siger og aktiver dit nye "fire environment"
+
+.. code-block::
+
+    (base) C:\FIRE>conda activate fire
+
+.. note::
+
+  Bemærk at ``(base)`` nu er ændret til ``(fire)`` i kommandolineprompten.
+  Det betyder at dit fire-miljø nu er aktivt.
+
+Installer FIRE
+
+.. code-block::
+
+    (fire) C:\FIRE>pip install -e .
+    Obtaining file:///C:/FIRE
+    Requirement already satisfied: cx_Oracle>=7.0 in c:\users\b012349\appdata\local\continuum\miniconda3\envs\fire\lib\site-packages (from fire==1.0.1) (7.0.0)
+    Requirement already satisfied: sqlalchemy>=1.2.13 in c:\users\b012349\appdata\local\continuum\miniconda3\envs\fire\lib\site-packages (from fire==1.0.1) (1.2.18)
+    Requirement already satisfied: click in c:\users\b012349\appdata\local\continuum\miniconda3\envs\fire\lib\site-packages (from fire==1.0.1) (7.1.2)
+    Collecting click_plugins
+      Using cached click_plugins-1.1.1-py2.py3-none-any.whl (7.5 kB)
+    Installing collected packages: click-plugins, fire
+      Running setup.py develop for fire
+    Successfully installed click-plugins-1.1.1 fire-1.0.1
+
+Bekræft at installation er gennemført korrekt
+
+.. code-block::
+
+    (fire) C:\FIRE>fire --version
+    fire, version 1.0.1
 
 
 Konfigurationsfil
