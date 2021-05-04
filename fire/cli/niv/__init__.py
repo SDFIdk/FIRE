@@ -320,9 +320,12 @@ def skriv_ark(
     # Størstedelen af "det der skal gøres" skal kun gøres hvis
     # vi skriver til en allerede eksisterende fil
     if gamle_navne:
-        fire.cli.print(f"Overskriver fanebladene {gamle_navne.intersection(nye_navne)}")
-        fire.cli.print(f"    med opdaterede versioner.")
-        fire.cli.print(f"Foregående versioner beholdes i 'ex'-filen '{exfil}'")
+        if len(gamle_navne.intersection(nye_navne)) > 0:
+            fire.cli.print(
+                f"Overskriver fanebladene {gamle_navne.intersection(nye_navne)}"
+            )
+            fire.cli.print(f"    med opdaterede versioner.")
+            fire.cli.print(f"Foregående versioner beholdes i 'ex'-filen '{exfil}'")
 
         # Vi starter med at omdøbe fil.xlsx til fil-ex.xlsx - det giver sikkerhed
         # for på at ingen af filerne er i brug

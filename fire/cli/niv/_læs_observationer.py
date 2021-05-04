@@ -33,7 +33,6 @@ from . import (
 )
 def læs_observationer(projektnavn: str, **kwargs) -> None:
     """Importer data fra observationsfiler og opbyg punktoversigt"""
-    fire.cli.print("Så kører vi")
     resultater = {}
 
     # Opbyg oversigt over nyetablerede punkter
