@@ -21,6 +21,8 @@ script:
   - sed -i '/qgis/d' environment-dev.yml
   - conda env create -f environment-dev.yml
   - conda activate fire-dev
+  # Install fire
+  - pip install -e .
   # Copy config file to suitable location
   - cp .circleci/fire.ini ~/.fire.ini
   # Build docs

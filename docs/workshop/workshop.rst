@@ -37,9 +37,10 @@ fire info
 
 En grundliggende funktionalitet er at kunne se hvilken data, der ligger i databasen,
 altså hvilken info man har i arkivet. Til det er der udviklet et kommandolinjeprogram
-kaldet ``fire info``. Man kan se hvad programmet indeholder ved at taste
+kaldet ``fire info``. Man kan se hvad programmet indeholder ved at afvikle kommandoen
+``fire info --help``:
 
-	> fire info --help
+.. command-output:: fire info --help
 
 Herfra ses fem forskellige kommandoer man kan bruge:
 
@@ -51,20 +52,69 @@ Herfra ses fem forskellige kommandoer man kan bruge:
 
 Hvis man ønsker at fremsøge et punkt og se hvilke oplysninger, der knytter sig
 til det (som man før kunne med ``valde``, eller Valdemar i tjenesten), kan man
-fx taste:
+fx taste ``fire info punkt gi2010``. I udtrækket plottes diverse oplysninger om
+punktet direkte på skærmen, som ses herunder:
 
-	> fire info punkt gi2010
+.. code-block::
 
-.. note:: Det er ligegyldet om der skrives med stort eller småt eller om der
+    (fire-dev) C:\dev\fire\docs>fire info punkt gi2010
+
+    --------------------------------------------------------------------------------
+    PUNKT G.I.2010
+    --------------------------------------------------------------------------------
+      Lokation                    POINT (11.1425084856365 55.3252167385718)
+      Oprettelsesdato             1985-03-19 01:11:00
+     -AFM:4999                    Ukendt.
+     -AFM:1700                    Præcisionsnivellementspunkt.
+      AFM:1704                    Messingbolt i granitpostament.
+     -AFM:horisontal
+      AFM:horisontal
+      AFM:højde_over_terræn       -1.4
+      ATTR:restricted
+     -ATTR:beskrivelse            G.I.2010
+     -ATTR:beskrivelse            G.I.2010
+                                  Korsør By.
+                                  Kjærsvej 2.
+                                  Punkt i S. del af kirkegårdens planteskole.
+     -ATTR:beskrivelse            G.I.2010.
+                                  Korsør By.
+                                  Kjærsvej 2.
+                                  Punkt i brønd med dæksel, i S. del
+                                  af kirkegårdens materialplads.
+                                  Dæksel til terræn.
+      ATTR:beskrivelse            G.I.2010.
+                                  Korsør Kirkegård.
+                                  Punkt i brønd med dæksel,
+                                  i lille jordstykke til planteopdræt.
+                                  Dæksel til terræn.
+      ATTR:højdefikspunkt
+      ATTR:tinglysningsnr         Sagsnummer fra Tingbogen ikke tilgængeligt. Opdatering udestår.
+     -ATTR:bemærkning             Punkt oprettet
+     -ATTR:bemærkning             Rev. beskr. uge 31 2003 Ole E.
+     -ATTR:bemærkning             Rev. 1971 af Stæhr Madsen.
+      ATTR:bemærkning             Rev. uge 18 2017 PN.
+      NET:jessen
+      REGION:DK
+      SKITSE:png_sti              skitser_png/K-11-09263_1.png
+      SKITSE:png_md5              61c0d3e31274e889b4c627d455bee5d8
+      SKITSE:master_sti           skitser_master/K-11-09263_1.cgm
+      SKITSE:master_md5           49d8bc56b63d71122a9f1cfc95975ffb
+      NET:DVR90
+      IDENT:refgeo_id             11122
+      IDENT:landsnr               K-11-09263
+      IDENT:GI                    G.I.2010
+      IDENT:ekstern               9904/14510
+      IDENT:jessen                81041
+
+    --- KOORDINATER ---
+    * 2000-02-11 14:30  EPSG:5799       n 8.49270 (4)
+    * 2011-12-24 01:00  EPSG:4258       n 11.1424517702, 55.3252437011 (200, 200)
+    * 2000-02-11 14:30  DK:HPOT_DVR90   n 8.33590 (4)
+    * 1999-04-29 16:00  DK:GI44         n 8.56610 (5)
+
+.. note:: Det er ligegyldigt om der skrives med stort eller småt eller om der
    benyttes punktummer eller ej i argumentet. Dog skal der være bindestreg
    mellem herred, sogn og løbenummer.
-
-I udtrækket plottes diverse oplysninger om punktet direkte på skærmen, som set
-på billedet:
-
-.. image:: figures/fireinfopunkt.PNG
-  :width: 800
-  :alt: Udtræk fra databasen for punkt G.I.2010
 
 Udtrækket viser den formodede relevante information, der ligger på punktet fra
 attribut-tabellerne og fra koordinattabellerne.
@@ -72,16 +122,16 @@ I eksemplet ses det fx, at punktet
 
 - er oprettet i databasen 19/3 1985,
 - også hedder K-11-09263,
-- i øvrigt er et jessenpunkt til en tidsserie,
-- har en DVR90-kote fra 3. præc. indikeret ved EPSG-kode 5799 og beregningstidspunkt
-  11/2-2000 kl. 13:30),
+- i øvrigt er et Jessenpunkt til en tidsserie,
+- har en DVR90-kote fra 3. præcisionsnivellement indikeret ved EPSG-kode 5799
+  og beregningstidspunkt 11/2-2000 kl. 13:30,
 - har en plankoordinat fra 2011 (med EPSG-koden 4258) og to andre
   koordinater i andre net.
   **Stjerne (eller farven grøn) indikerer at koordinaten er den gældende for det pågældende net.**
 
 På samme måde kan andre elementer slås op i databasen, bl.a. oplysninger om historiske
-koter med parameteren *-K*, observationer med parameteren *-O* og andre detaljer med
-parameteren *-D*.
+koter med parameteren ``-K``, observationer med parameteren ``-O`` og andre detaljer med
+parameteren ``-D``.
 
 Øvelse
 ^^^^^^^^^^^^^^^^^^^^
@@ -94,26 +144,30 @@ Prøv selv at fremsøge mere info, fx:
 4. alle aktive sager i databasen
 
 
-
-
 fire niv
 ++++++++++++++++++++++++++++++++
 Der er blevet udviklet et kommandolinjeprogram til udjævningsberegning kaldet ``niv``.
 Læs om hvordan programmet kaldes :ref:`her <kommandolinjeprogrammer_niv>`
 
-Fra dette kald kan hele produktionslinjen køres; fra dataudtræk, revision, beregning,
+Med dette program kan hele produktionslinjen køres; fra dataudtræk, revision, beregning,
 til ilægning af resultat og generering af afsluttende rapport til kunde. Se mere ved
-at køre kaldet::
+at køre kommandoen ``fire niv --help:
 
-	> fire niv --help
+.. command-output:: fire niv --help
 
-Alt datahåndtering foregår på Windows og i Excelregneark med diverse faneblade.
+Alt datahåndtering foregår på Windows og i Excel-regneark med diverse faneblade.
 Vi vil nedenfor gennemgå processen.
 
 .. note:: Sørg for at bruge små bogstaver. Kald og parametre genkendes ikke med versaler.
    Undtagelsen er ved punktnumre; her kan både store og små bogstaver benyttes.
 
-Step 1) opret-sag
+I de følgende afsnit beskrive de enkelte delprogrammer under `fire niv`. De vises i
+en idealiseret rækkefølge, der følger arbejdsgangene i forbindelse med revision af
+kommunale fikspunkter. I praksis kan programmerne afvikles i forskellig rækkefølge,
+eller helt udelades, alt efter behov.
+
+
+Trin 1) opret-sag
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 I ``fire`` har vi valgt at knytte al beregning og fikspunkthåndtering op på såkaldte
@@ -122,16 +176,15 @@ omhandlende opmåling og beregning af lokal vandstand i Havnebyen, så opretter 
 en sag til denne opgave, hvori alt ens dataudtræk, observationer, beregninger og
 endelige resultater bliver registreret på. Kaldet, der skal køres under ``fire niv``
 for at oprette en ny sag, hedder, passende nok, ``opret-sag``. Lad os prøve at få
-mere hjælp::
+mere hjælp:
 
-	> fire niv opret-sag --help
+  .. command-output:: fire niv opret-sag --help
 
 Her kommer en beskrivelse af hvad der forventes af input:
 
 - Options: Valgfrit. Valgmuligheder ses i hjælpeteksten.
-- Projektnavn: Obligatorisk. Kan fx være *Fjernkontrol_af_SULD*. Dette bliver navnet
+- Projektnavn: Obligatorisk. Kan fx være ``Fjernkontrol_af_SULD``. Dette bliver navnet
   på dit regneark.
-- Sagsbehandler: Obligatorisk. Skal altid være opretters B-NUMMER (af GDPR-årsager).
 - Beskrivelse: Valgfrit, men en god idé at beskrive nærmere hvad sagen indeholder,
   fx "Nivellement af skruepløkke samt lodrette bolte ved SULD samt fjernkontrol til
   5D-punktet GRAV. Antenne IKKE opført."
@@ -142,27 +195,48 @@ Her kommer en beskrivelse af hvad der forventes af input:
 
 I terminalen vil det se ud som dette, når der oprettes en sag:
 
-.. image:: figures/firenivopretsag.PNG
-  :width: 800
-  :alt: Opret sag, step 1
+.. code-block::
+
+    (fire) C:\>fire niv opret-sag Fjernkontrol_af_SULD "Nivellement af skruepløkke og lodrette bolte ved SULD samt fjernkontrol til 4D-punktet GRAV. Antenne IKKE opført"
+    Sags/projekt-navn: Fjernkontrol_af_SULD  (aef7ae59-e2fd-4c5d-9bc1-99bc7ad82bb9)
+    Sagsbehandler:     B012349
+    Beskrivelse:       Nivellement af skruepløkke og lodrette bolte ved SULD samt fjernkontrol til 4D-punktet GRAV. Antenne IKKE opført
+    Opretter ny sag i test-databasen - er du sikker?  (ja/NEJ):
+    ja
+    Gentag svar for at bekræfte (ja/NEJ)
+    ja
+    Sag 'Fjernkontrol_af_SULD' oprettet
+    Skriver sagsregneark 'Fjernkontrol_af_SULD.xlsx'
+    Filen 'Fjernkontrol_af_SULD.xlsx' findes ikke.
+    Skriver: {'Notater', 'Filoversigt', 'Sagsgang', 'Projektforside', 'Nyetablerede punkter', 'Parametre'}
+    Til filen 'Fjernkontrol_af_SULD.xlsx'
+    Færdig! - åbner regneark for check.
 
 Det ses, at der kommer en advarsel op. Da alt hvad der oprettes i databasen ikke
 kan slettes, er det en god idé at dobbelttjekke alt info man skriver til databasen.
 Hvis man er sikker på sit input, kan man svare *"ja"* til spørgsmålet. Hvis der svares
 alt andet, vil der ikke blive oprettet en sag i databasen.
 
-.. image:: figures/firenivopretsag2.PNG
-  :width: 800
-  :alt: Opret sag, step 2
-
-
 Skrives der alt andet end *"ja"*, får man valget om der alligevel skal oprettes
 sagsregneark (også kaldet projektfil). Hertil kan der svares *"ja"*, og et excel-ark
 med filnavn som projektnavn oprettes i den mappe man kører kaldet i.
 
-.. image:: figures/firenivopretsag3.PNG
-  :width: 800
-  :alt: Opret sag, step 3
+.. code-block::
+
+    (fire) C:\>fire niv opret-sag Fjernkontrol_af_SULD2
+    Sags/projekt-navn: Fjernkontrol_af_SULD2  (b87e15e0-b0db-4388-9476-09d496ec0906)
+    Sagsbehandler:     B012349
+    Beskrivelse:
+    Opretter ny sag i test-databasen - er du sikker?  (ja/NEJ):
+    nej
+    Opretter IKKE sag
+    Opret sagsregneark alligevel? (ja/NEJ):
+    ja
+    Skriver sagsregneark 'Fjernkontrol_af_SULD2.xlsx'
+    Filen 'Fjernkontrol_af_SULD2.xlsx' findes ikke.
+    Skriver: {'Projektforside', 'Parametre', 'Filoversigt', 'Nyetablerede punkter', 'Notater', 'Sagsgang'}
+    Til filen 'Fjernkontrol_af_SULD2.xlsx'
+    Færdig! - åbner regneark for check.
 
 Excel-arket åbnes, og der ses seks faneblade:
 
@@ -182,11 +256,11 @@ Hvert faneblad kan nu redigeres til det formål man ønsker.
    ikke skrive til et allerede åbent excel-ark.
 
 
-Step 2) udtræk-revision
+Trin 2) udtræk-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
 .. note::
 
-    Steppet her kan springes over, såfremt man kun skal lave en beregning.
+    Dette trin kan springes over, såfremt man kun skal lave en beregning.
 
 Når vi er ude at tilse punkter, fx ifm. den kommunale punktrevision, kontrolleres det
 at punktets attributter (beskrivelse, lokation, bolttype osv.) er korrekt; hvis ikke
@@ -194,37 +268,51 @@ skal de rettes til.
 Til det formål kan man kalde en kommando, der hedder ``udtræk-revision`` under
 ``fire niv``:
 
-	> fire niv udtræk-revision --help
+.. command-output:: fire niv udtræk-revision --help
 
 Det ses man skal definere to parametre:
 
 - Projektnavn: Som defineret i ``opret-sag``. Indkapslet i \" \"
-- Distriks- eller punktnavn(e): Her kan man fx. skrive 61-07 61-03 63-10 SULD
+- Distriksnavn(e): Her kan man fx. skrive 61-07 61-03 63-10
 
 I terminalen vil det se ud som følger:
 
-.. image:: figures/firenivudtrækrevision.PNG
-  :width: 800
-  :alt: Udtræk data til punktrevision
+.. code-block::
+
+    (fire) C:\>fire niv udtræk-revision Fjernkontrol_af_SULD 61-07 61-03 63-10
+    Punkt: 61-01-00008
+    Punkt: 61-03-00001
+    Punkt: 61-03-00002
+    Punkt: 61-03-00003
+    Punkt: 61-03-00010
+    Punkt: 61-03-00801
+    ...
+    Punkt: 63-10-09081
+    Punkt: 63-10-09082
+    Punkt: 63-10-09084
+    Skriver: {'Revision'}
+    Til filen 'Fjernkontrol_af_SULD-revision.xlsx'
+    Overskriver fanebladene {'Revision'}
+        med opdaterede versioner.
+    Foregående versioner beholdes i 'ex'-filen 'Fjernkontrol_af_SULD-revision-ex.xlsx'
+    Færdig!
 
 hvorefter punkterne udtrækkes og lægges i en ny excel-fil navngivet med
 "projektnavn"-revision.xlsx. Format er som vist nedenfor:
 
-.. image:: figures/firenivudtrækrevision2.PNG
+.. image:: figures/firenivudtrækrevision.PNG
   :width: 800
   :alt: Udtræk data til punktrevision, excelvisning
 
 I dette ark kan man nu rette attributterne til efter behov. Nedenfor er vist:
 
-1. rettelser for punkt K-63-09930 i attributterne *ATTR:beskrivelse* og
-   *AFM:højde_over_terræn*
-2. ændring i lokationskoordinaten (*OVERVEJ:lokation*)
-3. tilføjelse af og om punktet kunne være muligt datumstabilt
-   (*OVERVEJ:muligt_datumstabil*), at punktet nu er et restricted punkt
-   (*ATTR:restricted*) og dens GNSS-egnetheden (*ATTR:gnss_egnet*)
+1. ændring i lokationskoordinaten (*LOKATION*)
+2. rettelser for punkt 61-01-00008 i attributterne *ATTR:beskrivelse*,
+   *AFM:højde_over_terræn* og *ATTR:bemærkning*.
+3. at punktet nu er et restricted punkt (*ATTR:restricted*) og dens GNSS-egnethed (*ATTR:gnss_egnet*)
 4. at punktet er besøgt ved at fjerne kryds i kolonnen *Ikke besøgt*
 
-.. image:: figures/firenivudtrækrevision3.PNG
+.. image:: figures/firenivudtrækrevision2.PNG
   :width: 800
   :alt: Udtræk data til punktrevision, excelvisning
 
@@ -239,37 +327,82 @@ endnu ikke har været forbi... såfremt man husker at slette krydset fra de punk
 allerede HAR besøgt.
 
 
-Step 3) ilæg-revision
+Trin 3) ilæg-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
 .. note::
 
-    Steppet her kan springes over, såfremt man kun skal lave en beregning.
+    Dette trin kan springes over, såfremt man kun skal lave en beregning.
 
-*ENDNU IKKE FÆRDIGIMPLEMENTERET*
+Ændringer lavet i revisionsregnearket i trin 3 ovenfor lægges i databasen
+med kommandoen `fire niv ilæg-revision`.
 
-	> fire niv ilæg-revision --help
+.. command-output:: fire niv ilæg-revision --help
 
-.. image:: figures/firenivilægrevision.PNG
-  :width: 800
-  :alt: Ilæg data fra punktrevision
+Herunder vises et eksempel på hvordan en revision indlæses i databasen:
 
-*Der findes dog pt. en testfunktion (parameteren* --test *), som kan vise dig hvor der er registreret nye
-attributter på punkterne, men som ikke lægger noget i databasen.*
+.. code-block::
 
-.. image:: figures/firenivilægrevision2.PNG
-  :width: 800
-  :alt: Ilæg data fra punktrevision
+    (fire-dev) C:\>fire niv ilæg-revision Fjernkontrol_af_SULD
+    Sags/projekt-navn: Fjernkontrol_af_SULD  (aef7ae59-e2fd-4c5d-9bc1-99bc7ad82bb9)
+    Sagsbehandler:     B012349
 
 
-.. _step4:
+    Behandler 134 punkter
+    61-01-00008
+        Retter punktinfo-element: ATTR:beskrivelse
+        Retter punktinfo-element: AFM:højde_over_jordoverfladen
+        Retter punktinfo-element: ATTR:bemærkning
+        Opretter nyt punktinfo-element: ATTR:restricted
+        Opretter nyt punktinfo-element: ATTR:gnss_egnet
+    61-03-00001
+    61-03-00002
+    61-03-00003
+    61-03-00010
+    ...
+    63-10-09079
+    63-10-09080
+    63-10-09081
+    63-10-09082
+    63-10-09084
 
-Step 4) ilæg-nye-punkter
+    --------------------------------------------------
+    Punkter færdigbehandlet, klar til at
+    - oprette 2 attributter fordelt på 1 punkter
+    - slukke for 0 attributter fordelt på 0 punkter
+    - rette 3 attributter fordelt på 1 punkter
+    - rette 1 lokationskoordinater
+    Er du sikker på du vil indsætte ovenstående i prod-databasen (ja/NEJ):
+
+Tast "ja" til ovenståede og bekræft med endnu et "ja" for at indsætte i databasen.
+
+Det kan ske at der er blevet indtastet ugyldige værdier i regnearket. I så fald
+vil programmet skrive advarsler ud på skærmen og afslutningsvis komme med en
+fejlmelding der kan være lidt svær at forstå:
+
+.. code-block::
+
+    61-01-00008
+        Retter punktinfo-element: ATTR:beskrivelse
+        Retter punktinfo-element: AFM:højde_over_jordoverfladen
+        FEJL: AFM:højde_over_jordoverfladen forventer numerisk værdi [could not convert string to float: '0,1'].
+        Opretter nyt punktinfo-element: ATTR:restricted
+        BEMÆRK: ATTR:restricted er et flag. Ny værdi 'fejl' ignoreres
+        Opretter nyt punktinfo-element: ATTR:gnss_egnet
+    61-03-00001
+
+I langt de fleste tilfælde er
+løsningen at bladre tilbage i programmets output, finde advarslerne og rette dem
+i regnearket. Herefter køres ilægningskommandoen igen.
+
+
+.. _trin4:
+
+Trin 4) ilæg-nye-punkter
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
 
-    Dette step kan springes over hvis ingen nye punkter er tilføjet
-
+    Dette trin kan springes over hvis ingen nye punkter er tilføjet
 
 
 Nye punkter tilføjes i fanebladet "Nyetablerede punkter" i projektregnearket. Punkterne
@@ -289,14 +422,19 @@ følgende kolonner være udfyldt:
 1. Et foreløbigt navn
 2. En længdegrad/Y, Nord (UTM eller grader)
 3. En breddegrad/X, Øst (UTM eller grader)
+4. En angivelse af fikspunktets type (vælg mellem GI, MV, HØJDE, JESSEN og VANDSTANDSBRÆT)
 
-.. image:: figures/firenivopretsag4.PNG
+.. image:: figures/firenivilægpunkter.PNG
   :width: 800
   :alt: Opret nye punkter, excel-visning
 
 De resterende kolonner må meget gerne også fyldes ud, men den videre proces er ikke
 afhængig af dem. Det man ikke kan udfylde, er *Landsnummer* og *uuid*, da det først
 genereres det øjeblik punktet lægges i databasen.
+
+Fikspunktstypen afgør hvilket interval landsnummerets løbenummer placeres i. Hvis
+et punkt angives som værende et GI-punkt får det tildelt både et landsnummer og
+et GI-nummer. Det næste ledige GI-nummer vælges automatisk.
 
 .. note:: Koordinater kan skrives både med UTM-format og med gradetal. ``fire`` genkender
    selv formatet og transformerer til geografiske koordinater, som er standard i ``fire``.
@@ -309,33 +447,51 @@ Under afmærkning kan følgende typer indtastes:
 4. skruepløk
 5. ingen
 
-.. _step5:
+.. _trin5:
 
-Step 5) læs-observationer
+Trin 5) læs-observationer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Når man har lavet sin opmåling færdig, ender man med en råfil eller mere, som skal
 beregnes. Disse filnavne (og tilhørende sti) skal tastes ind i excel-arket under
-fanen *Filoversigt* med en opmålingstype (mgl eller mtl), en apriori-spredning (\sigma)
-og centreringsfejl(\delta).
+fanen *Filoversigt* med en opmålingstype (mgl eller mtl), en apriori-spredning (:math:`\sigma`)
+og centreringsfejl(:math:`\delta`).
 
 Herefter **GEMMES EXCEL-ARKET** og man vender tilbage til terminalen for
 at lave kaldet ``læs-observationer`` (man behøver ikke at lukke sin projektfil,
 da der ikke skrives til denne i kaldet, men blot læses herfra). Lad os se hvilke
 parametre det har brug for:
 
-	> fire niv læs-observationer --help.
+.. command-output:: fire niv læs-observationer --help
 
 Her vises at den obligatoriske parameter er *Projektnavn*, hvilket i vores eksempel
 vil se således ud:
 
-.. image:: figures/firenivlæsobservationer.PNG
-  :width: 800
-  :alt: Netopbygning ud fra inputfiler
+.. code-block::
 
-.. image:: figures/firenivlæsobservationer2.PNG
-  :width: 800
-  :alt: Netopbygning ud fra inputfiler - bund
+    (fire-dev) C:\>fire niv læs-observationer Fjernkontrol_af_SULD
+    Importerer observationer
+    Fandt 61-10-00009
+    Fandt SUL4
+    Fandt SUL1
+    Fandt SUL2
+    Fandt SUL3
+    Fandt 61-10-09023
+    Fandt 61-10-09024
+    Fandt 61-10-09025
+    Fandt 0 tabte punkter blandt 8 observerede punkter.
+    Opbygger punktoversigt
+    Finder kote for 61-10-00009
+    Finder kote for 61-10-09023
+    Finder kote for 61-10-09024
+    Finder kote for 61-10-09025
+    Finder kote for SUL1
+    Finder kote for SUL2
+    Finder kote for SUL3
+    Finder kote for SUL4
+    Skriver: {'Observationer', 'Punktoversigt'}
+    Til filen 'Fjernkontrol_af_SULD.xlsx'
+    Dataindlæsning afsluttet. Vælg nu fastholdte punkter i punktoversigten.
 
 Efter kaldet er færdigkørt, vil der være dannet tre nye filer;
 
@@ -349,46 +505,28 @@ De to .geojson-filer er til indlæsning i QGIS til visualisering af nettet. Se
 Når resultatfilen åbnes, ses to faneblade; et med observationerne og et med en
 punktoversigt:
 
-.. image:: figures/firenivlæsobservationer3.PNG
+.. image:: figures/firenivlæsobservationer.PNG
   :width: 800
-  :alt: Netopbygning ud fra inputfiler - observationsliste
+  :alt: Observationsliste
 
 Bemærk kolonnen *Sluk*, som indikerer en mulighed for at udelade enkelte observationer
 i den videre beregning.
 
-.. image:: figures/firenivlæsobservationer4.PNG
+.. image:: figures/firenivlæsobservationer2.PNG
   :width: 800
-  :alt: Netopbygning ud fra inputfiler - punktoversigt
+  :alt: Punktoversigt
 
 Bemærk også at nyetablerede punkter fra faneblad i projektfil fremgår med *År* lig 1800,
 *Kote* lig 0 og *Middelfejl* lig 1000000. I tilfældet her er et punkt etableret, men
 findes ikke i observationsfilen (Hjortholmvej 19), og det fremgår så også uden
 yderligere information.
 
-
-**Kontrol af journalsidefejl**
-
-Da journalnumrene typisk er fortløbende vil evt. fejl dukke op enten i top eller bund af kolonnen (journal).
-
-1. kontrol af at der ingen dubletter er, gøres ved at markere kolonne A (Journal) i fanen Observationer. Klik på Hjem > Betinget formatering > Fremhæv Celleregler > Dupliker Værdier.
-2. I feltet ud for "værdier med" skal du vælge den formatering, du vil anvende til dubletværdier, og klik derefter på OK. Sat som standard til ”Lys rød fyldfarve med mørkerød tekst”. Nem farve at se så forsæt med det.
-3. Hvis der er dubletter, så skal fejlen rettes i råfilen, og så køre de step man har kørt en gang til, sådan at fejlen er rettet alle steder.
-4. Hvis ingen markering så er der ingen dubletter.
-
-.. image:: figures/journalsidekontrol.png
-  :width: 800
-  :alt: Kontrol af journalsidenummer i inputfiler
-
-Slutteligt står der i terminalen hvad man skal gøre som det næste: *Kopiér nu
-faneblade fra 'Projektnavn-resultat.xlsx' til 'Projektsnavn.xlsx', og vælg
-fastholdte punkter i punktoversigten.* Så det gør vi!
-
-.. note:: For at flytte eller kopiere et faneblad til en anden excel-fil:
-   Åbn filen du ønsker at flytte faner til. Højreklik på fanebladet der skal
-   flyttes, vælg *Flyt eller kopier*, og udvælg hvor du vil have arket flyttet hen.
+Slutteligt står der i terminalen hvad man skal gøre som det næste:
+*Dataindlæsning afsluttet. Vælg nu fastholdte punkter i punktoversigten.*
+Så det gør vi!
 
 
-Step 6) regn
+Trin 6) regn
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Vi skal nu til at beregne nye koter til de observerede punkter.
@@ -397,28 +535,39 @@ I ens projektfil kan man notere hvilke punkter skal fastholdes, ved at, i fanebl
 *Punktoversigt*, skrive *x* ud for punktet i *Fasthold*-kolonnen. Gem derefter filen
 og vend tilbage til terminalen, hvor kaldet ``regn`` skal køres:
 
-	> fire niv regn --help
+.. command-output:: fire niv regn --help
 
-Herfra ses at man igen skal bruge *Projektnavn* som parameter, og har to valgmuligheder
-også; en kontrolberegning (1 punkt fastholdt) eller en endelig beregning. Hvis ingen tilvalg
-sættes, gætter scriptet selv på hvilken type beregning vi har, ud fra antal af fastholdte
-punkter. I terminalen vil det se således ud:
+Herfra ses at man igen skal bruge *Projektnavn* som parameter. Programmet afgør selv
+hvilken type beregning vi har med at gøre ud fra antal af fastholdte punkter. Første beregning
+udføres som kontrolberegning, efterfølgende beregningerne betragtes som den endelige
+beregning.
 
-.. image:: figures/firenivadj.PNG
-  :width: 800
-  :alt: Beregn nye koter
+I terminalen vil det se således ud:
 
-Det ses at der er valgt to punkter som fastholdt (G.I.1832 og G.I.1833), og et enkelt
-punkt er ikke med i nivellementslinjen (Hjortholmvej 19).
+.. code-block::
 
-Der er også genereret flere resultatfiler, bl.a.
+  (fire-dev) C:\>fire niv regn Fjernkontrol_af_SULD
+  Så regner vi
+  Analyserer net
+  Fastholder 2 og beregner nye koter for 6 punkter
+  Skriver: {'Singulære', 'Kontrolberegning', 'Netgeometri'}
+  Til filen 'Fjernkontrol_af_SULD.xlsx'
+  Færdig! - åbner regneark og resultatrapport for check.
+
+
+Det ses at der er valgt to punkter som fastholdt. Hvis der er subnet
+uden fastholdte punkter advarer FIRE om dette og foreslår et punkt
+til fastholdelse i hvert subnet.
+
+Derudover genereres
+flere resultatfiler, bl.a.
 
 - en *projektnavn*-resultat.xlsx (eller nye faner i eksisterende fil)
 - en *projektnavn*-resultat.xml (til intern brug for ``fire``)
 - en *projektnavn*-resultat.html
 
 I .html-filen findes diverse statistik over udjævningsberegningen, som det underliggende
-kode (GnuGama) genererer. Filen åbnes også default efter kørslen.
+kode (GNU Gama) genererer. Filen åbnes også default efter kørslen.
 
 I resultatfilen er der nu tre faner;
 
@@ -437,34 +586,23 @@ endelige vurdering af beregningen.
 
 Fanebladet *Kontrolberegning* flyttes nu over i projektfilen på samme måde som før, og i
 *Punktoversigt*-fanen kan man nu udvælge de fastholdte punkter til den endelige beregning.
-Derefter køres ``regn`` igen (husk at lukke resultatfilen), og en ny beregning udføres;
-denne gang vil det resulterende faneblad hedde *Endelig beregning*, som også kan flyttes
-over i projektfilen, såfremt man er tilfreds med beregningsresultatet.
+Derefter køres ``fire niv regn`` igen (husk at lukke resultatfilen), og en ny beregning udføres;
+denne gang vil det resulterende faneblad hedde *Endelig beregning*.
 
 
-Step 7) ilæg-observationer
+Trin 7) ilæg-observationer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-*ENDNU IKKE FÆRDIGIMPLEMENTERET*
+Observationer lægges i databasen med kommandoen ``fire niv ilæg-observationer``:
 
-	> fire niv ilæg-observationer --help
-
-.. image:: figures/firenivilægobs.PNG
-  :width: 800
-  :alt: Ilæg observationer i database
+.. command-output:: fire niv ilæg-observationer --help
 
 
-Step 8) ilæg-nye-koter
+
+Trin 8) ilæg-nye-koter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-*ENDNU IKKE FÆRDIGIMPLEMENTERET*
-
-	> fire niv ilæg-nye-koter --help
-
-.. image:: figures/firenivilægkoter.PNG
-  :width: 800
-  :alt: Ilæg nye koter i database
-
+.. command-output:: fire niv ilæg-nye-koter --help
 
 Punktoversigten fra resultatarket indeholder den info, som skal lægges i databasen:
 Koter, middelfejl osv. Hvis der er punkter, som man ikke ønsker skal have ny kote,
@@ -477,13 +615,34 @@ kan man sætte *x* i kolonnen *Udelad publikation*, som vist nedenfor:
 På den måde fremgår punktet stadig i projektfilen og det er tydeligt at punktet
 er valgt fra ved koteopdateringen.
 
+.. code-block::
 
-Step 9) luk-sag
+    (fire-dev) C:\>fire niv ilæg-nye-koter Fjernkontrol_af_SULD
+    Sags/projekt-navn: Fjernkontrol_af_SULD  (aef7ae59-e2fd-4c5d-9bc1-99bc7ad82bb9)
+    Sagsbehandler:     B012349
+    Opdatering af DVR90 kote til 61-10-09023, 61-10-09024, 61-10-09025, SUL1, SUL3, SUL4
+    Ialt 6 koter
+    Du indsætter nu 6 kote(r) i prod-databasen - er du sikker? (ja/NEJ):
+
+
+Trin 9) luk-sag
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-*ENDNU IKKE FÆRDIGIMPLEMENTERET*
+Når en sag er afsluttet skal den lukkes med ``fire niv luk-sag``.
+Det er simpelt og mønsteret fra de andre ``fire niv``-programmer følges:
 
+.. command-output:: fire niv luk-sag --help
 
+I praksis ser det ud som følger:
+
+.. code-block::
+
+  (fire-dev) C:\>fire niv luk-sag Fjernkontrol_af_SULD
+  Er du sikker på at du vil lukke sagen {projektnavn}? (ja/NEJ):
+  ja
+  Gentag svar for at bekræfte (ja/NEJ)
+  ja
+  Sag aef7ae59-e2fd-4c5d-9bc1-99bc7ad82bb9 for 'Fjernkontrol_af_SULD' lukket!
 
 .. _visualiseringQGIS:
 
@@ -497,7 +656,7 @@ via startmenuen i Windows eller ved at taste
 
 i sin terminal (såfremt det miljø man arbejder i har QGIS tilknyttet).
 
-I :ref:`step 5) <step5>` blev der genereret to .geojson-filer, en punktfil og en
+I :ref:`trin 5) <trin5>` blev der genereret to .geojson-filer, en punktfil og en
 observationslinjefil. Disse to kan direkte indlæses i QGIS, fx vha. *drag-and-drop*.
 Nedenfor ses hvordan nettet i eksemplet ovenfor ser ud. Der er en række punkter
 der er målt imellem, samt et singulært punkt; det nyetablerede ved Hjortholmvej 19.
