@@ -158,14 +158,7 @@ Installer FIRE
       Using cached click_plugins-1.1.1-py2.py3-none-any.whl (7.5 kB)
     Installing collected packages: click-plugins, fire
       Running setup.py develop for fire
-    Successfully installed click-plugins-1.1.1 fire-1.0.1
-
-Bekræft at installation er gennemført korrekt
-
-.. code-block::
-
-    (fire) C:\FIRE>fire --version
-    fire, version 1.0.1
+    Successfully installed click-plugins-1.1.1 fire-1.1.0
 
 
 Konfigurationsfil
@@ -215,6 +208,13 @@ og på et UNIX-baseret system placeres filen et af følgende steder::
     home/<brugernavn>/fire.ini
     home/<brugernavn>/.fire.ini
     /etc/fire.ini
+
+Bekræft at installation er gennemført korrekt
+
+.. code-block::
+
+    (fire) C:\FIRE>fire --version
+    fire, version 1.1.0
 
 
 Flame - QGIS plugin
