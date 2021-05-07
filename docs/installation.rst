@@ -145,7 +145,15 @@ Efter endt installation gør da som ``conda`` siger og aktiver dit nye "fire env
   Bemærk at ``(base)`` nu er ændret til ``(fire)`` i kommandolineprompten.
   Det betyder at dit fire-miljø nu er aktivt.
 
-Installer FIRE
+For at FIRE kan forbinde til databasen er det nødvendigt at tilføje en
+:ref:`konfigurationsfil <konfigurationsfil>` til systemet hvori adgangsinformation
+til databasen er registreret. Placer den i mappen ``C:\Users\<brugernavn>``.
+
+.. note::
+
+  Tag fat i en kollega for at få oplyst brugernavn, adgangskode osv.
+
+Med konfigurationsfilen på plads kan vi nu installere FIRE:
 
 .. code-block::
 
@@ -161,12 +169,13 @@ Installer FIRE
     Successfully installed click-plugins-1.1.1 fire-1.1.0
 
 
-Konfigurationsfil
-.................
+Bekræft at installation er gennemført korrekt
 
-For at FIRE kan forbinde til databasen er det nødvendigt at tilføje en
-:ref:`konfigurationsfil <konfiguration>` til systemet hvori adgangsinformation til databasen er
-registreret.
+    .. code-block::
+
+        (fire) C:\FIRE>fire --version
+        fire, version 1.1.0
+
 
 
 Flame - QGIS plugin
