@@ -13,7 +13,7 @@ import fiona
 from fire.api import FireDb
 from fire.api.model import Geometry
 
-firedb = FireDb()
+firedb = FireDb(db="ci")
 
 with fiona.open(Path(__file__).parent / "../data/herredsogn.shp") as herredsogn:
     for feature in herredsogn:
