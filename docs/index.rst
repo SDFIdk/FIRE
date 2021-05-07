@@ -5,6 +5,7 @@ FIRE - FIkspunktREgister
     :maxdepth: 2
     :caption: Contents:
 
+    konfiguration
     installation
     datamodel
     for_udviklere
