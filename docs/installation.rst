@@ -174,7 +174,7 @@ Bekræft at installation er gennemført korrekt
     .. code-block::
 
         (fire) C:\FIRE>fire --version
-        fire, version 1.1.0
+        fire, version {FIREVERSION}
 
 
 
