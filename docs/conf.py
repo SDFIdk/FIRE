@@ -190,3 +190,22 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ["search.html"]
+
+
+# Replacement macros for use in code-blocks etc. With inspiration from
+# https://github.com/sphinx-doc/sphinx/issues/4054#issuecomment-329097229
+def replace_words(app, docname, source):
+    result = source[0]
+    for key in app.config.replacements:
+        result = result.replace(key, app.config.replacements[key])
+    source[0] = result
+
+
+replacements = {
+    "{FIREVERSION}": f"{version}",
+}
+
+
+def setup(app):
+    app.add_config_value("replacements", {}, True)
+    app.connect("source-read", replace_words)
