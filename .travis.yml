@@ -42,4 +42,4 @@ deploy:
   commit_message: Deploy %{project_name} to %{url}:%{target_branch} [skip ci]
   edge: true
   on:
-      branch: master
+      branch: 8.1
