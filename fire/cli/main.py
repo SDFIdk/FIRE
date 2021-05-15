@@ -1,5 +1,5 @@
 """
-Hovedindgang for kommondalinjeinterface til FIRE.
+Hovedindgang for kommondolinjeinterface til FIRE.
 """
 from pkg_resources import iter_entry_points
 
@@ -11,12 +11,12 @@ import fire
 
 @with_plugins(iter_entry_points("fire.cli.fire_commands"))
 @click.group()
-@click.help_option(help="Vis denne hjælp tekst")
+@click.help_option(help="Vis denne hjælpetekst")
 @click.version_option(
     version=fire.__version__, prog_name="fire", help="Vis versionsnummer"
 )
 def fire():
     """
-    🔥 Kommandolinje adgang til FIRE.
+    🔥 Kommandolinjeadgang til FIRE.
     """
     pass
