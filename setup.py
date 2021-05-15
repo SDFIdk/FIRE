@@ -58,6 +58,7 @@ setup(
 
         [fire.cli.fire_commands]
         info=fire.cli.info:info
+        udst=fire.cli.udst:udst
         gama=fire.cli.gama:gama
         niv=fire.cli.niv:niv
         søg=fire.cli.søg:søg
