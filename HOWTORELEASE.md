@@ -11,5 +11,8 @@ Følg disse skridt i forbindelse med en ny release:
 - Commit ændring af versionsnummer
 - Tag dette commit med versionsnumre: `git tag fire-x.y.z` + `git push --tags`
 - Luk milestone på GitHub, opret ny til næste nummer i rækken
-- Send mail til kolleger om at der er en ny version klar. Inkluder brugervendt changelog.
-- Hvis denne release er en ny major eller minor release oprettes en ny branch til håndtering af bug fixes: `git checkout -b x.y` + `git push origin x.y`
+- Send mail til kolleger om at der er en ny version klar. Inkluder brugervendt changelog,
+  inkl. eventuelle ændringer i dataformater etc.
+- Hvis denne release er en ny major eller minor release:
+  - oprettes en maintenance branch til håndtering af bug fixes: `git checkout -b x.y` + `git push origin x.y`
+  - Opdateres ``branch`` i .travis.yml til den aktuelle maintenance branch
