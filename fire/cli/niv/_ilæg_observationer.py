@@ -53,12 +53,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     til_registrering = []
 
     observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
-    # Fjern blanklinjer
-    observationer = observationer[observationer["Fra"] != ""]
-    # Fjern allerede gemte
-    observationer = observationer[observationer["uuid"] != ""]
-    observationer = observationer.reset_index(drop=True)
-
     alle_kilder = ", ".join(sorted(list(set(observationer.Kilde))))
     alle_uuider = observationer.uuid.astype(str)
 
