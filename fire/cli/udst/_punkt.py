@@ -1,7 +1,7 @@
 import sys
 import requests
 from configparser import NoSectionError
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 import click
 import xmltodict
@@ -66,7 +66,7 @@ def punkt(ident: str, dump: bool, kanal: str, **kwargs):
     metadata = {tjeneste: {} for tjeneste in TJENESTER}
 
     for datatype in TYPER:
-        bid = False
+        der_var_bid = False
         for tjeneste in TJENESTER:
             forespørgsel = byg_forespørgsel(kanal_ini, tjeneste, datatype, bbox)
             members = hent_wfs_members(forespørgsel)
@@ -82,7 +82,7 @@ def punkt(ident: str, dump: bool, kanal: str, **kwargs):
                 koord = find_koordinater(mm)
                 if koord[0:3] == (None, None, None, None):
                     continue
-                bid = True
+                der_var_bid = True
                 fire.cli.print(
                     f"{TJENESTEMARKØR[tjeneste]} . {SYSTEMNAVN[datatype]} ", nl=False
                 )
@@ -90,8 +90,16 @@ def punkt(ident: str, dump: bool, kanal: str, **kwargs):
                     if k:
                         fire.cli.print(f"{k} ", nl=False)
                 fire.cli.print("")
-        if bid:
+        if der_var_bid:
             fire.cli.print(80 * "-")
+
+    # Kontroller at delmængderelaionerne "simpel ⊆ fuld ⊆ historik" er opfyldt
+    check_simpel = set(metadata["simpel"]) - set(metadata["fuld"])
+    if check_simpel:
+        fire.cli.print(f"Uventede elementer i 'simpel': {check_simpel}")
+    check_fuld = set(metadata["fuld"]) - set(metadata["historik"])
+    if check_fuld:
+        fire.cli.print(f"Uventede elementer i 'fuld': {check_fuld}")
 
     allerede = set()
     desuden = ", metadataregistreringer"
@@ -172,7 +180,7 @@ def byg_forespørgsel(config: Dict, tjeneste: str, datatype: str, bbox: str) -> 
     return forespørgsel
 
 
-def hent_wfs_members(forespørgsel: str):
+def hent_wfs_members(forespørgsel: str) -> List:
     """Udfør wfs-forespørgsel og udtræk `wfs:member`-delen af respons"""
     response = requests.get(forespørgsel)
     doc = xmltodict.parse(response.text)
