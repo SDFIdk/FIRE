@@ -274,5 +274,6 @@ def gama_beregning(
         if dt == 0:
             continue
         punktoversigt.at[punkt, "Opløft [mm/år]"] = Δ / dt
+        punktoversigt.at[punkt, "Hvornår"] = tg
     punktoversigt = punktoversigt.reset_index()
     return (punktoversigt, htmlrapportnavn)
