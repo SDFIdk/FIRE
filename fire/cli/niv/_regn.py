@@ -260,6 +260,7 @@ def gama_beregning(
     for punkt, ny_kote, var in zip(punkter, koter, varianser):
         punktoversigt.at[punkt, "Ny kote"] = ny_kote
         punktoversigt.at[punkt, "Ny σ"] = sqrt(var)
+        punktoversigt.at[punkt, "Hvornår"] = tg
         punktoversigt.at[punkt, "Fasthold"] = ""
 
         # Ændring i millimeter...
