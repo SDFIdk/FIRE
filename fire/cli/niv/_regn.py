@@ -268,7 +268,7 @@ def gama_beregning(
         if abs(Δ) < 0.001:
             Δ = 0
         punktoversigt.at[punkt, "Δ-kote [mm]"] = Δ
-        dt = punktoversigt.at[punkt, "Hvornår"] - tg
+        dt = tg - punktoversigt.at[punkt, "Hvornår"]
         dt = dt.total_seconds() / (365.25 * 86400)
         # t = 0 forekommer ved genberegning af allerede registrerede koter
         if dt == 0:
