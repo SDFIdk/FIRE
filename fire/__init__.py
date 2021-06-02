@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 
 def uuid():
