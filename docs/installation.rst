@@ -218,7 +218,21 @@ Måske får du undervejs en advarsel fra conda om at det skal opdateres:
 
 Gør som conda foreslår og kør kommandoen ``conda update -n base -c defaults conda``.
 
+Afinstaller FIRE
+----------------
 
+Det kan i visse tilfælde være nødvendigt at afinstallere FIRE. Det gøres i praksis
+ved at fjerne condamiljøet ``fire``:
+
+.. code-block::
+
+    C:\>conda env remove -n fire
+
+Herefter fjernes git repositoriet med FIRE kildekoden:
+
+.. code-block::
+
+    C:\>rmdir /s C:\FIRE
 
 Flame - QGIS plugin
 +++++++++++++++++++
