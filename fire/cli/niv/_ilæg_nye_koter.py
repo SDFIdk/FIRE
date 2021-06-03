@@ -161,7 +161,6 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             fire.cli.firedb.session.commit()
 
             # Skriv resultater til resultatregneark
-            ny_punktoversigt = ny_punktoversigt.replace("nan", "")
             resultater = {"Sagsgang": sagsgang, "Resultat": ny_punktoversigt}
             if skriv_ark(projektnavn, resultater):
                 fire.cli.print(

@@ -390,11 +390,11 @@ def skriv_ark(
     try:
         with pd.ExcelWriter(fil) as writer:
             for navn in nye_faneblade:
-                nye_faneblade[navn].to_excel(
+                nye_faneblade[navn].replace("nan", "").to_excel(
                     writer, sheet_name=navn, encoding="utf-8", index=False
                 )
             for navn in gamle_faneblade:
-                gamle_faneblade[navn].to_excel(
+                gamle_faneblade[navn].replace("nan", "").to_excel(
                     writer, sheet_name=navn, encoding="utf-8", index=False
                 )
     except Exception as ex:
