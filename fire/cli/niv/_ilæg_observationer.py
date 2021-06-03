@@ -173,7 +173,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             fire.cli.firedb.session.commit()
 
             # Skriv resultater til resultatregneark
-            observationer = observationer.replace("nan", "")
             resultater = {"Sagsgang": sagsgang, "Observationer": observationer}
             skriv_ark(projektnavn, resultater)
             fire.cli.print(
