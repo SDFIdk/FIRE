@@ -106,6 +106,12 @@ den med git
     Bemærk det afsluttende punktum i ``git clone`` kommandoen. Det sørger for at din installation placeres i C:\\FIRE.
 
 
+Sørg for at den seneste version af koden bruges:
+
+.. code-block::
+
+    (base) C:\FIRE>git checkout {FIREVERSION}
+
 Initialiser et "conda miljø" til FIRE (vær tålmodig, det kan godt tage lang tid)
 
 .. code-block::
@@ -176,7 +182,57 @@ Bekræft at installation er gennemført korrekt
         (fire) C:\FIRE>fire --version
         fire, version {FIREVERSION}
 
+Opdater FIRE
+-------------
 
+Ved opdatering til en ny version af FIRE køres følgende kommandoer
+fra et nyligt åbnet terminalvindue:
+
+.. code-block::
+
+    (base) C:\>cd C:\FIRE
+    (base) C:\FIRE>conda activate fire
+    (fire) C:\FIRE>git fetch origin
+    (fire) C:\FIRE>git checkout fire-{FIREVERSION}
+
+Hvis du vil opdatere til en version med et højere major eller minor-versionsnummer,
+altså x'et eller y'et i ``x.y.z``, bør du desuden lave en opdatering af dit conda
+miljø:
+
+.. code-block::
+
+    (fire) C:\FIRE>conda env update --file environment.yml
+
+
+Måske får du undervejs en advarsel fra conda om at det skal opdateres:
+
+.. code-block::
+
+    ==> WARNING: A newer version of conda exists. <==
+      current version: 4.5.11
+      latest version: 4.6.4
+
+    Please update conda by running
+
+        $ conda update -n base -c defaults conda
+
+Gør som conda foreslår og kør kommandoen ``conda update -n base -c defaults conda``.
+
+Afinstaller FIRE
+----------------
+
+Det kan i visse tilfælde være nødvendigt at afinstallere FIRE. Det gøres i praksis
+ved at fjerne condamiljøet ``fire``:
+
+.. code-block::
+
+    C:\>conda env remove -n fire
+
+Herefter fjernes git repositoriet med FIRE kildekoden:
+
+.. code-block::
+
+    C:\>rmdir /s C:\FIRE
 
 Flame - QGIS plugin
 +++++++++++++++++++
