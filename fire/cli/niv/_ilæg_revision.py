@@ -304,6 +304,10 @@ def ilæg_revision(
                 )
                 continue
 
+            if r["Tekstværdi"] != "" and r["Ny værdi"].strip() == "":
+                # Vi beholder den oprindelige værdi, videre!
+                continue
+
             if r["Tekstværdi"] != "" and r["Tekstværdi"] == r["Ny værdi"]:
                 fire.cli.print(
                     f"    ADVARSEL: Tekst i 'Ny værdi' identisk med udgangspunkt for {pitnavn}.",
