@@ -124,7 +124,7 @@ def ilæg_revision(
         _, _, dist = g.inv(λ1, φ1, λ2, φ2)
         if dist >= 25:
             fire.cli.print(
-                f"    ADVARSEL: Ny lokationskoordinat afviger {dist:.0f} m fra den gamle",
+                f"    ADVARSEL: Ny lokationskoordinat for {punkt.landsnummer} afviger {dist:.0f} m fra den gamle",
                 fg="yellow",
                 bold=True,
             )
