@@ -1,3 +1,5 @@
+import re
+import sys
 from typing import Tuple
 
 import click
@@ -25,10 +27,8 @@ from . import (
     nargs=1,
     type=str,
 )
-@click.argument("opmålingsdistrikter", nargs=-1, required=True)
-def udtræk_revision(
-    projektnavn: str, opmålingsdistrikter: Tuple[str], **kwargs
-) -> None:
+@click.argument("kriterier", nargs=-1, required=True)
+def udtræk_revision(projektnavn: str, kriterier: Tuple[str], **kwargs) -> None:
     """Gør klar til punktrevision: Udtræk eksisterende information.
 
     fire niv udtræk-revision projektnavn distrikts-eller-punktnavn(e)
@@ -61,31 +61,49 @@ def udtræk_revision(
         "ATTR:tinglysningsnr",
     ]
 
-    distrikter = ",".join([f"'{d.upper()}'" for d in opmålingsdistrikter])
-    uønsket = ",".join([f"'{p}'" for p in uønskede_punkter])
-    pkt_i_distrikter = f"""
-                SELECT p.*
-                FROM (
-                    SELECT DISTINCT g.punktid FROM geometriobjekt g
-                    JOIN herredsogn hs
-                    ON sdo_inside(g.geometri, hs.geometri) = 'TRUE'
-                    WHERE
-                        upper(hs.kode) IN ({distrikter})
-                      AND
-                        g.registreringtil IS NULL
-                ) a
-                LEFT JOIN (
-                    SELECT DISTINCT pi.punktid FROM punktinfo pi
-                    JOIN punktinfotype pit ON pit.infotypeid=pi.infotypeid
-                    WHERE pit.infotype IN ({uønsket}) AND pi.registreringtil IS NULL
-                ) b
-                ON a.punktid = b.punktid
-                JOIN punkt p ON p.id = a.punktid
-                WHERE b.punktid IS NULL AND p.registreringtil IS NULL
-                ORDER BY p.registreringfra"""
+    opmålingsdistrikter = []
+    løse_punkter = []
+    punkter = []
+    for kriterie in kriterier:
+        if re.match(r"^(\d{1,3}|[kK])-\d{2}$", kriterie):
+            opmålingsdistrikter.append(kriterie)
+        else:
+            løse_punkter.append(kriterie)
 
-    stmt = text(pkt_i_distrikter).columns(Punkt.objektid)
-    punkter = fire.cli.firedb.session.query(Punkt).from_statement(stmt).all()
+    if opmålingsdistrikter:
+        distrikter = ",".join([f"'{d.upper()}'" for d in opmålingsdistrikter])
+        uønsket = ",".join([f"'{p}'" for p in uønskede_punkter])
+        pkt_i_distrikter = f"""
+                    SELECT p.*
+                    FROM (
+                        SELECT DISTINCT g.punktid FROM geometriobjekt g
+                        JOIN herredsogn hs
+                        ON sdo_inside(g.geometri, hs.geometri) = 'TRUE'
+                        WHERE
+                            upper(hs.kode) IN ({distrikter})
+                        AND
+                            g.registreringtil IS NULL
+                    ) a
+                    LEFT JOIN (
+                        SELECT DISTINCT pi.punktid FROM punktinfo pi
+                        JOIN punktinfotype pit ON pit.infotypeid=pi.infotypeid
+                        WHERE pit.infotype IN ({uønsket}) AND pi.registreringtil IS NULL
+                    ) b
+                    ON a.punktid = b.punktid
+                    JOIN punkt p ON p.id = a.punktid
+                    WHERE b.punktid IS NULL AND p.registreringtil IS NULL
+                    ORDER BY p.registreringfra"""
+
+        stmt = text(pkt_i_distrikter).columns(Punkt.objektid)
+        punkter.extend(fire.cli.firedb.session.query(Punkt).from_statement(stmt).all())
+
+    try:
+        punkter.extend(
+            fire.cli.firedb.hent_punkt_liste(løse_punkter, ignorer_ukendte=False)
+        )
+    except ValueError as ex:
+        fire.cli.print(f"FEJL: {ex}", bg="red", fg="white")
+        sys.exit(1)
 
     for punkt in sorted(punkter):
         datumstabilt = False
