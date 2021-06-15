@@ -273,7 +273,7 @@ Til det formål kan man kalde en kommando, der hedder ``udtræk-revision`` under
 Det ses man skal definere to parametre:
 
 - Projektnavn: Som defineret i ``opret-sag``. Indkapslet i \" \"
-- Distriksnavn(e): Her kan man fx. skrive 61-07 61-03 63-10
+- Kriterier: Enten ident eller opmålingsmålingsdistrikt. Her kan man fx. skrive 61-07 61-03 G.I.902 BUDP
 
 I terminalen vil det se ud som følger:
 
