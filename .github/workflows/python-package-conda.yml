@@ -25,9 +25,17 @@ jobs:
         sed -i '/m2-zip/d' environment-dev.yml
         # Remove QGIS: Takes forever to install and is not used in currently implemented tests
         sed -i '/qgis/d' environment-dev.yml
-        conda init
+        hash -r
+        conda config --set always_yes yes --set changeps1 no
+        conda update -q conda
+        # Useful for debugging any issues with conda
+        conda info -a
+        #
+        hash -r
         conda env create --file environment-dev.yml
+        conda init
         conda activate fire-dev
+        #
         # Install fire
         pip install -e .
         # Copy config file to suitable location
