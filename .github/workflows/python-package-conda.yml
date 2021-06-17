@@ -20,6 +20,16 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install dependencies
       run: |
+        #
+        # Install Oracle Client software - cf. https://oracle.github.io/odpi/doc/installation.html#linux
+        wget https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basiclite-linux.x64-21.1.0.0.0.zip
+        mkdir -p /opt/oracle
+        pushd /opt/oracle
+        unzip instantclient-basic-linux.x64-21.1.0.0.0.zip
+        popd
+        echo /opt/oracle/instantclient_21_1 > /etc/ld.so.conf.d/oracle-instantclient.conf
+        ldconfig
+        #
         # Remove conda packages that are only available on Windows
         sed -i '/msys2/d' environment-dev.yml
         sed -i '/m2-zip/d' environment-dev.yml
