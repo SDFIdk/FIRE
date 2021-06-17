@@ -20,51 +20,40 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install dependencies
       run: |
-        #
-        # Install Oracle Client software - cf. https://oracle.github.io/odpi/doc/installation.html#linux
-        wget https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basiclite-linux.x64-21.1.0.0.0.zip
-        mkdir -p /opt/oracle
-        pushd /opt/oracle
-        unzip instantclient-basiclite-linux.x64-21.1.0.0.0.zip
-        popd
-        echo /opt/oracle/instantclient_21_1 > /etc/ld.so.conf.d/oracle-instantclient.conf
-        ldconfig
-        #
         # Remove conda packages that are only available on Windows
         sed -i '/msys2/d' environment-dev.yml
         sed -i '/m2-zip/d' environment-dev.yml
         # Remove QGIS: Takes forever to install and is not used in currently implemented tests
         sed -i '/qgis/d' environment-dev.yml
-        hash -r
+        #
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
         # Useful for debugging any issues with conda
         conda info -a
         #
         conda env create --file environment-dev.yml
-        conda init bash
-        hash -r
         source activate fire-dev
+        hash -r
         #
         # Install fire
         pip install -e .
         # Copy config file to suitable location
         cp .circleci/fire.ini ~/.fire.ini
         # Build docs
-        # sphinx-build -b html ./docs ./docs/_build
+        sphinx-build -b html ./docs ./docs/_build
         # GitHub pages ignores folder starting with _, can be avoid by
         # adding a .nojekyll file
-        # touch ./docs/_build/.nojekyll
+        touch ./docs/_build/.nojekyll
 
-    - name: Lint with flake8
+    - name: Deactivated lint with flake8
       run: |
-        conda install --name fire-dev flake8
-        source activate fire-dev
+        # conda install --name fire-dev flake8
+        # source activate fire-dev
         # stop the build if there are Python syntax errors or undefined names
         # flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         # flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
+    - name: Deactivated test with pytest
       run: |
-        source activate fire-dev
-        pytest
+        # source activate fire-dev
+        # pytest
