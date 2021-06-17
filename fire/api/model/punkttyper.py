@@ -165,6 +165,8 @@ class Punkt(FikspunktregisterObjekt):
         if not self._identer:
             temp = []
             for punktinfo in self.punktinformationer:
+                if punktinfo.registreringtil:
+                    continue
                 if punktinfo.infotype.name.startswith("IDENT:") and punktinfo.tekst:
                     temp.append(Ident(punktinfo))
 
