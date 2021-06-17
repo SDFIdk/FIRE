@@ -1,6 +1,6 @@
 from __future__ import annotations
 import enum
-from typing import List
+from typing import List, Union
 import functools
 
 from sqlalchemy import (
