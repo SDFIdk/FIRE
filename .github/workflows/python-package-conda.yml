@@ -32,7 +32,7 @@ jobs:
         conda info -a
         #
         conda env create --file environment-dev.yml
-        conda init
+        conda init bash
         hash -r
         conda activate fire-dev
         #
