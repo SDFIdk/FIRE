@@ -31,9 +31,9 @@ jobs:
         # Useful for debugging any issues with conda
         conda info -a
         #
-        hash -r
         conda env create --file environment-dev.yml
         conda init
+        hash -r
         conda activate fire-dev
         #
         # Install fire
