@@ -34,7 +34,7 @@ jobs:
         conda env create --file environment-dev.yml
         conda init bash
         hash -r
-        conda activate fire-dev
+        source activate fire-dev
         #
         # Install fire
         pip install -e .
