@@ -1,4 +1,4 @@
-name: Python Package using Conda
+name: Dokumentation
 
 on: [push]
 
@@ -6,14 +6,14 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 5
+      max-parallel: 2
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.7.9
+    - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
-        python-version: 3.7.9
+        python-version: 3.7
     - name: Add conda to system path
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
@@ -35,11 +35,13 @@ jobs:
         source activate fire-dev
         hash -r
         #
-        # Install fire
+    - name: Install fire
+      run: |
         pip install -e .
         # Copy config file to suitable location
         cp .circleci/fire.ini ~/.fire.ini
-        # Build docs
+    - name: Build docs
+      run: |
         sphinx-build -b html ./docs ./docs/_build
         # GitHub pages ignores folder starting with _, can be avoid by
         # adding a .nojekyll file
