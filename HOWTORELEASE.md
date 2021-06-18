@@ -15,4 +15,4 @@ Følg disse skridt i forbindelse med en ny release:
   inkl. eventuelle ændringer i dataformater etc.
 - Hvis denne release er en ny major eller minor release:
   - oprettes en maintenance branch til håndtering af bug fixes: `git checkout -b x.y` + `git push origin x.y`
-  - Opdateres ``branch`` i .travis.yml til den aktuelle maintenance branch
+  - Opdateres ``github.ref`` i .github/workflows/docs.yml til den aktuelle maintenance branch
