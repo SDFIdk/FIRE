@@ -35,13 +35,11 @@ jobs:
         source activate fire-dev
         hash -r
         #
-    - name: Install fire
-      run: |
+        # Install fire
         pip install -e .
         # Copy config file to suitable location
         cp .circleci/fire.ini ~/.fire.ini
-    - name: Build docs
-      run: |
+        # Build docs
         sphinx-build -b html ./docs ./docs/_build
         # GitHub pages ignores folder starting with _, can be avoid by
         # adding a .nojekyll file
@@ -49,6 +47,7 @@ jobs:
         #
     - name: Deploy docs
       uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/1.1'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs/_build
