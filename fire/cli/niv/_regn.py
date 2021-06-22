@@ -55,16 +55,19 @@ def regn(projektnavn: str, **kwargs) -> None:
 
     # ...og så kan vi vælge den korrekte fanebladsprogression
     if kontrol:
-        faneblad = "Punktoversigt"
+        aktuelt_faneblad = "Punktoversigt"
         næste_faneblad = "Kontrolberegning"
     else:
-        faneblad = "Kontrolberegning"
+        aktuelt_faneblad = "Kontrolberegning"
         næste_faneblad = "Endelig beregning"
 
     # Håndter fastholdte punkter og slukkede observationer.
     observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
-    punktoversigt = find_faneblad(projektnavn, faneblad, ARKDEF_PUNKTOVERSIGT)
-    fastholdte = find_fastholdte(punktoversigt)
+    punktoversigt = find_faneblad(projektnavn, "Punktoversigt", ARKDEF_PUNKTOVERSIGT)
+    fastholdte_faneblad = find_faneblad(
+        projektnavn, aktuelt_faneblad, ARKDEF_PUNKTOVERSIGT
+    )
+    fastholdte = find_fastholdte(fastholdte_faneblad)
     if 0 == len(fastholdte):
         fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
         sys.exit(1)
