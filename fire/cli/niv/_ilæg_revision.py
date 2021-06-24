@@ -286,17 +286,23 @@ def ilæg_revision(
         rev = revision.query(f"Punkt == '{ident}'")
 
         for r in rev.to_dict("records"):
-            if r["Attribut"] in sridnavne:
-                continue
-            if r["id"] == 999999:
-                continue
-            if r["id"] == -1:
-                continue
             pitnavn = r["Attribut"]
+            sluk = r["Sluk"].strip() != ""
+
+            # Tom attribut?
             if pitnavn == "":
                 continue
 
-            if r["Sluk"] and r["Ny værdi"]:
+            # Koordinatilægning?
+            if pitnavn in sridnavne:
+                continue
+
+            # Midlertidigt aflukket element?
+            if r["id"] < 0:
+                continue
+
+            # Det er en fejl at angive ny værdi for et element man slukker for.
+            if sluk and r["Ny værdi"].strip() != "":
                 fire.cli.print(
                     f"    * FEJL: 'Sluk' og 'Ny værdi' begge udfyldt: {r['Ny værdi']}",
                     fg="red",
@@ -304,17 +310,15 @@ def ilæg_revision(
                 )
                 continue
 
-            if r["Tekstværdi"] != "" and r["Ny værdi"].strip() == "":
-                # Vi beholder den oprindelige værdi, videre!
-                continue
+            if r["Tekstværdi"] != "" and not sluk:
+                # Undgå at overskrive en eksisterende værdi med en usynlig blankværdi
+                if r["Ny værdi"].strip() == "":
+                    continue
 
-            if r["Tekstværdi"] != "" and r["Tekstværdi"] == r["Ny værdi"]:
-                fire.cli.print(
-                    f"    ADVARSEL: Tekst i 'Ny værdi' identisk med udgangspunkt for {pitnavn}.",
-                    fg="yellow",
-                    bold=True,
-                )
-                continue
+                # Det er almindelig praksis ved revision at kopiere "Tekstværdi" til
+                # "Ny værdi", så hvis de to er ens går vi til næste element.
+                if r["Tekstværdi"] == r["Ny værdi"]:
+                    continue
 
             if pitnavn is None:
                 fire.cli.print(
@@ -337,6 +341,7 @@ def ilæg_revision(
             if pd.isna(r["id"]):
                 # ATTR:muligt_datumstabil+slukket == ikke eksisterende i DB
                 # Indsat af fire niv udtræk-revision
+
                 if pitnavn == "ATTR:muligt_datumstabil" and r["Sluk"]:
                     continue
 
@@ -379,14 +384,14 @@ def ilæg_revision(
                 continue
 
             # Ingen ændringer? - så afslutter vi og går til næste element.
-            if r["Sluk"] == r["Ny værdi"] == "":
+            if not sluk and r["Ny værdi"].strip() == "":
                 continue
 
             # Herfra håndterer vi kun punktinformationer med indførte ændringer
 
             # Nu kan vi bruge objektid som heltal (ovenfor havde vi brug for NaN-egenskaben)
             oid = int(r["id"])
-            if r["Sluk"] == "x":
+            if sluk:
                 try:
                     pi = punkt.punktinformationer[infonøgler[oid]]
                 except KeyError:
