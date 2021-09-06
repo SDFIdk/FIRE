@@ -17,6 +17,7 @@ from . import (
     normaliser_lokationskoordinat,
     skriv_ark,
     find_sag,
+    er_projekt_okay,
 )
 
 
@@ -33,6 +34,8 @@ def udtræk_revision(projektnavn: str, kriterier: Tuple[str], **kwargs) -> None:
 
     fire niv udtræk-revision projektnavn distrikts-eller-punktnavn(e)
     """
+    er_projekt_okay(projektnavn)
+
     # Kontroller at projektet er oprettet etc.
     find_sag(projektnavn)
     revision = pd.DataFrame(columns=tuple(ARKDEF_REVISION)).astype(ARKDEF_REVISION)

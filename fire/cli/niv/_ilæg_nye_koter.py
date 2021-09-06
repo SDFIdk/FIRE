@@ -29,6 +29,7 @@ from . import (
     gyldighedstidspunkt,
     niv,
     skriv_ark,
+    er_projekt_okay,
 )
 
 
@@ -47,6 +48,7 @@ from . import (
 )
 def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nyberegnede koter i databasen"""
+    er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 

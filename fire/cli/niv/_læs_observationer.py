@@ -21,6 +21,7 @@ from . import (
     normaliser_lokationskoordinat,
     punkter_geojson,
     skriv_ark,
+    er_projekt_okay,
 )
 
 
@@ -34,7 +35,7 @@ from . import (
 def læs_observationer(projektnavn: str, **kwargs) -> None:
     """Importer data fra observationsfiler og opbyg punktoversigt"""
     resultater = {}
-
+    er_projekt_okay(projektnavn)
     # Opbyg oversigt over nyetablerede punkter
     nyetablerede = find_faneblad(
         projektnavn, "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER

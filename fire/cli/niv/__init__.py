@@ -444,7 +444,7 @@ def find_parameter(projektnavn: str, parameter: str) -> str:
         fire.cli.print(f"FEJL: '{parameter}' ikke angivet under fanebladet 'Parametre'")
         sys.exit(1)
 
-    return param.loc[param["Navn"] == "Database"]["Værdi"].to_string(index=False)
+    return param.loc[param["Navn"] == f"{parameter}"]["Værdi"].to_string(index=False)
 
 
 # -----------------------------------------------------------------------------
@@ -453,15 +453,6 @@ def find_sag(projektnavn: str) -> Sag:
     if not os.path.isfile(f"{projektnavn}.xlsx"):
         fire.cli.print(
             f"FEJL: Filen '{projektnavn}.xlsx' ikke fundet - står du i den rigtige folder?",
-            bold=True,
-            bg="red",
-        )
-        sys.exit(1)
-
-    projekt_db = find_parameter(projektnavn, "Database")
-    if projekt_db != fire.cli.firedb.db:
-        fire.cli.print(
-            f"FEJL: '{projektnavn}' er oprettet i {projekt_db}-databasen - du forbinder til {fire.cli.firedb.db}-databasen!",
             bold=True,
             bg="red",
         )
@@ -601,6 +592,32 @@ def opret_region_punktinfo(punkt: Punkt) -> PunktInformation:
         sys.exit(1)
 
     return PunktInformation(infotype=pit, punkt=punkt)
+
+
+def er_projekt_okay(projektnavn: str):
+    """
+    Kontroller om det er okay at brug et givent projekt.
+
+    Afbryder programmet og udskriver en fejl hvis ikke projektet er okay.
+    Ellers gøres intet.
+    """
+    projekt_db = find_parameter(projektnavn, "Database")
+    if projekt_db != fire.cli.firedb.db:
+        fire.cli.print(
+            f"FEJL: '{projektnavn}' er oprettet i {projekt_db}-databasen - du forbinder til {fire.cli.firedb.db}-databasen!",
+            bold=True,
+            bg="red",
+        )
+        sys.exit(1)
+
+    versionsnummer = find_parameter(projektnavn, "Version")
+    if versionsnummer != fire.__version__:
+        fire.cli.print(
+            f"FEJL: '{projektnavn}' er oprettet med version {versionsnummer} - du har version {fire.__version__} installeret!",
+            bold=True,
+            bg="red",
+        )
+        sys.exit(1)
 
 
 # moduler præfikset med _ for at undgå konflikter, der i visse tilfælde

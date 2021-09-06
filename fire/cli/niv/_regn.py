@@ -27,6 +27,7 @@ from . import (
     niv,
     punkter_geojson,
     skriv_ark,
+    er_projekt_okay,
 )
 
 from ._netoversigt import netanalyse
@@ -44,6 +45,8 @@ def regn(projektnavn: str, **kwargs) -> None:
     'Kontrolberegning' (der skrives ved første kald til denne funktion),
     til 'Endelig beregning' (der skrives ved efterfølgende kald).
     """
+    er_projekt_okay(projektnavn)
+
     fire.cli.print("Så regner vi")
 
     # Hvis der ikke allerede findes et kontrolberegningsfaneblad, så er det en

@@ -24,6 +24,7 @@ from . import (
     find_sagsgang,
     niv,
     skriv_ark,
+    er_projekt_okay,
 )
 
 
@@ -42,6 +43,7 @@ from . import (
 )
 def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     """Registrer nye observationer i databasen"""
+    er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
