@@ -35,6 +35,7 @@ from . import (
     normaliser_lokationskoordinat,
     skriv_ark,
     opret_region_punktinfo,
+    er_projekt_okay,
 )
 
 
@@ -65,6 +66,7 @@ def ilæg_revision(
     **kwargs,
 ) -> None:
     """Læg reviderede punktdata i databasen"""
+    er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 

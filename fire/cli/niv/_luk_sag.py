@@ -25,6 +25,7 @@ from . import (
     find_sag,
     niv,
     bekræft,
+    er_projekt_okay,
 )
 
 
@@ -37,6 +38,7 @@ from . import (
 )
 def luk_sag(projektnavn: str, **kwargs) -> None:
     """Luk sag i databasen"""
+    er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
 
     # Find sagsmateriale og zip det for let indlæsning i databasen

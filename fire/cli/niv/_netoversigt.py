@@ -14,6 +14,7 @@ from . import (
     find_faneblad,
     niv,
     skriv_ark,
+    er_projekt_okay,
 )
 
 
@@ -26,6 +27,7 @@ from . import (
 )
 def netoversigt(projektnavn: str, **kwargs) -> None:
     """Opbyg netoversigt"""
+    er_projekt_okay(projektnavn)
     fire.cli.print("Så kører vi")
 
     resultater = netanalyse(projektnavn)
