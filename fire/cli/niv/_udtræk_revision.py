@@ -45,7 +45,6 @@ def udtræk_revision(projektnavn: str, kriterier: Tuple[str], **kwargs) -> None:
         "ATTR:hjælpepunkt",
         "ATTR:tabtgået",
         "ATTR:teknikpunkt",
-        "AFM:naturlig",
         "ATTR:MV_punkt",
     ]
 
