@@ -20,7 +20,7 @@ Start med at clone git repositoriet::
 
     > git clone https://github.com/Kortforsyningen/FIRE.git
 
-Et godt udviklingsmiljø at tage udgangspunkt i er `fire-dev.yaml`, som nemt
+Et godt udviklingsmiljø at tage udgangspunkt i er `environment-dev.yaml`, som nemt
 installeres med Conda. Fra fire git-repositoriet køres::
 
     > conda env create --file environment-dev.yml
@@ -31,6 +31,21 @@ Herefter burde alle de essentielle programmer og biblioteker være til rådighed
 Installer en udviklingsversion af fire med::
 
     > pip install -e .
+
+og installer git hooks::
+
+    > pre-commit install
+
+
+.. note::
+
+    ``pre-commit`` bruges til at afvikle forskellige "hooks"  inden et git commit.
+    ``pre-commit`` *kan* blive forvirret over SIT's noget aparte valg af ``%HOME%``
+    på ``H:\`` hvorfor det anbefales at sætte ``%PRE_COMMIT_HOME%`` som en global
+    miljøvariabel der peger på ``C:\Users\bxxxxx\.cache\pre-commit``. Søg efter
+    "Rediger miljøvariabler for din konto" i startmenuen.
+
+
 
 Test-suiten køres med::
 
@@ -66,17 +81,11 @@ Kodestil
 skrives ligeledes på dansk. Det er tilladt at skrive kommentarer, funktions- og
 variabelnavne på engelsk. git commits bør så vidt muligt skrives på dansk.
 
-Al kode i fire repositoriet skal køres gennem ``black`` inden det committes.
-Dette gøres for at skabe et ensartet udtryk på tværs af hele kodebasen. Desuden
-har black den bivirking at forstyrrende, overflødige ændringer typisk forsvinder
-fra diffs mellem to commits, hvilket gør det væsentligt nemmere at lave review
-af kodeændringer.
-
-Kør ``black`` med::
-
-    > black .
-
-Hvis ikke ``black`` er kørt inden kode pushes til GitHub vil CI tests fejle.
+Al kode i fire repositoriet skal køres automatisk gennem ``black`` via et git
+pre-commit hook inden det committes. Dette gøres for at skabe et ensartet udtryk
+på tværs af hele kodebasen. Desuden har black den bivirking at forstyrrende,
+overflødige ændringer typisk forsvinder fra diffs mellem to commits, hvilket gør
+det væsentligt nemmere at lave review af kodeændringer.
 
 
 Dokumentation
