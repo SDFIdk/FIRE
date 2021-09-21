@@ -223,6 +223,9 @@ def normaliser_lokationskoordinat(
     output: UTM-koordinater i traditionel lokationskoordinatorden)
     er indtil videre kun understøttet for `region=="DK"`.
     """
+    # Gem kopi af oprindeligt input til brug i fejlmelding
+    x, y = λ, φ
+
     global utm32
     if utm32 is None:
         utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
@@ -245,15 +248,14 @@ def normaliser_lokationskoordinat(
     # Heuristikken fejler kun for UTM-koordinater fra et lille
     # område på 6 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
     # Det er langt ude i Atlanterhavet, så det lever vi med.
-    if abs(λ) < 181 and abs(φ) < 91:
-        return (λ, φ)
+    if abs(λ) > 181 and abs(φ) > 91:
+        λ, φ = utm32(λ, φ, inverse=True)
 
-    # Hvis utm-koordinaterne ser ud til at ligge syd for Sahara,
-    # så er der nok byttet om på northing og easting.
-    if abs(φ) < 1e6:
-        λ, φ = φ, λ
+    if region == "DK":
+        if λ < 3.0 or λ > 15.5 or φ < 54.5 or φ > 58.0:
+            raise ValueError(f"Koordinat ({x}, {y}) uden for dansk territorie")
 
-    return utm32(λ, φ, inverse=True)
+    return (λ, φ)
 
 
 # Globalt transformationsobjekt til normaliser_lokationskoordinat
