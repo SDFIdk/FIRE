@@ -4,7 +4,7 @@ import sys
 import webbrowser
 from pathlib import Path
 from math import hypot, sqrt
-from typing import Dict, List, Set, Tuple
+from typing import Dict, Tuple
 
 import click
 import pandas as pd
@@ -12,13 +12,7 @@ import xmltodict
 
 import fire.cli
 
-from fire.api.model import (
-    Punkt,
-    Observation,
-)
-
 from . import (
-    ARKDEF_NYETABLEREDE_PUNKTER,
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
     anvendte,
@@ -63,11 +57,8 @@ def regn(projektnavn: str, **kwargs) -> None:
 
     # Håndter fastholdte punkter og slukkede observationer.
     observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
-    punktoversigt = find_faneblad(projektnavn, "Punktoversigt", ARKDEF_PUNKTOVERSIGT)
-    fastholdte_faneblad = find_faneblad(
-        projektnavn, aktuelt_faneblad, ARKDEF_PUNKTOVERSIGT
-    )
-    fastholdte = find_fastholdte(fastholdte_faneblad)
+    arbejdssæt = find_faneblad(projektnavn, aktuelt_faneblad, ARKDEF_PUNKTOVERSIGT)
+    fastholdte = find_fastholdte(arbejdssæt)
     if 0 == len(fastholdte):
         fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
         sys.exit(1)
@@ -82,7 +73,7 @@ def regn(projektnavn: str, **kwargs) -> None:
         f"Fastholder {len(fastholdte)} og beregner nye koter for {len(estimerede_punkter)} punkter"
     )
     beregning, htmlrapportnavn = gama_beregning(
-        projektnavn, observationer, punktoversigt, estimerede_punkter, kontrol
+        projektnavn, observationer, arbejdssæt, estimerede_punkter, kontrol
     )
     resultater[næste_faneblad] = beregning
 
@@ -149,11 +140,11 @@ def find_fastholdte(punktoversigt: pd.DataFrame) -> Dict[str, float]:
 def gama_beregning(
     projektnavn: str,
     observationer: pd.DataFrame,
-    punktoversigt: pd.DataFrame,
+    arbejdssæt: pd.DataFrame,
     estimerede_punkter: Tuple[str, ...],
     kontrol: bool,
 ) -> Tuple[pd.DataFrame, str]:
-    fastholdte = find_fastholdte(punktoversigt)
+    fastholdte = find_fastholdte(arbejdssæt)
 
     # Skriv Gama-inputfil i XML-format
     with open(f"{projektnavn}.xml", "wt") as gamafil:
@@ -248,35 +239,35 @@ def gama_beregning(
     varianser = [float(var) for var in varliste]
     assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
 
-    # Skriv resultaterne til punktoversigten
-    punktoversigt["uuid"] = ""
-    punktoversigt["Udelad publikation"] = ""
-    punktoversigt["Fasthold"] = "x"
-    punktoversigt["Ny kote"] = None
-    punktoversigt["Ny σ"] = None
-    punktoversigt["Δ-kote [mm]"] = None
-    punktoversigt["Opløft [mm/år]"] = float("NaN")
-    punktoversigt["System"] = "DVR90"
+    # Skriv resultaterne til arbejdssættet
+    arbejdssæt["uuid"] = ""
+    arbejdssæt["Udelad publikation"] = ""
+    arbejdssæt["Fasthold"] = "x"
+    arbejdssæt["Ny kote"] = None
+    arbejdssæt["Ny σ"] = None
+    arbejdssæt["Δ-kote [mm]"] = None
+    arbejdssæt["Opløft [mm/år]"] = float("NaN")
+    arbejdssæt["System"] = "DVR90"
     tg = gyldighedstidspunkt(projektnavn)
-    punktoversigt = punktoversigt.set_index("Punkt")
+    arbejdssæt = arbejdssæt.set_index("Punkt")
 
     for punkt, ny_kote, var in zip(punkter, koter, varianser):
-        punktoversigt.at[punkt, "Ny kote"] = ny_kote
-        punktoversigt.at[punkt, "Ny σ"] = sqrt(var)
-        punktoversigt.at[punkt, "Fasthold"] = ""
+        arbejdssæt.at[punkt, "Ny kote"] = ny_kote
+        arbejdssæt.at[punkt, "Ny σ"] = sqrt(var)
+        arbejdssæt.at[punkt, "Fasthold"] = ""
 
         # Ændring i millimeter...
-        Δ = (ny_kote - punktoversigt.at[punkt, "Kote"]) * 1000.0
+        Δ = (ny_kote - arbejdssæt.at[punkt, "Kote"]) * 1000.0
         # ...men vi ignorerer ændringer under mikrometerniveau
         if abs(Δ) < 0.001:
             Δ = 0
-        punktoversigt.at[punkt, "Δ-kote [mm]"] = Δ
-        dt = tg - punktoversigt.at[punkt, "Hvornår"]
+        arbejdssæt.at[punkt, "Δ-kote [mm]"] = Δ
+        dt = tg - arbejdssæt.at[punkt, "Hvornår"]
         dt = dt.total_seconds() / (365.25 * 86400)
         # t = 0 forekommer ved genberegning af allerede registrerede koter
         if dt == 0:
             continue
-        punktoversigt.at[punkt, "Opløft [mm/år]"] = Δ / dt
-        punktoversigt.at[punkt, "Hvornår"] = tg
-    punktoversigt = punktoversigt.reset_index()
-    return (punktoversigt, htmlrapportnavn)
+        arbejdssæt.at[punkt, "Opløft [mm/år]"] = Δ / dt
+        arbejdssæt.at[punkt, "Hvornår"] = tg
+    arbejdssæt = arbejdssæt.reset_index()
+    return (arbejdssæt, htmlrapportnavn)
