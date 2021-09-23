@@ -80,9 +80,19 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     h_over_terræn_pit = fire.cli.firedb.hent_punktinformationtype(
         "AFM:højde_over_terræn"
     )
+    attr_gi_pit = fire.cli.firedb.hent_punktinformationtype("ATTR:GI_punkt")
+    attr_mv_pit = fire.cli.firedb.hent_punktinformationtype("ATTR:MV_punkt")
+    attr_højde_pit = fire.cli.firedb.hent_punktinformationtype("ATTR:højdefikspunkt")
+    attr_vandstand_pit = fire.cli.firedb.hent_punktinformationtype(
+        "ATTR:vandstandsmåler"
+    )
     assert landsnummer_pit is not None, "IDENT:landsnr ikke fundet i database"
     assert beskrivelse_pit is not None, "ATTR:beskrivelse ikke fundet i database"
     assert h_over_terræn_pit is not None, "AFM:højde_over_terræn ikke fundet i database"
+    assert attr_gi_pit is not None, "ATTR:GI_punkt ikke fundet i database"
+    assert attr_mv_pit is not None, "ATTR:MV_punkt ikke fundet i database"
+    assert attr_højde_pit is not None, "ATTR:højdefikspunkt ikke fundet i database"
+    assert attr_vandstand_pit is not None, "ATTR:vandstandsmåler ikke fundet i database"
 
     punkter = {}
     fikspunktstyper = []
@@ -224,13 +234,21 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         # Tilknyt regionskode til punktet
         punktinfo.append(opret_region_punktinfo(punkt))
 
-    # tilknyt GI-identer til punkter
+    # tilknyt diverse punktinfo baseret på fikspunktstypen
     for punkt, fikspunktstype in zip(punkter.values(), fikspunktstyper):
-        if fikspunktstype != FikspunktsType.GI:
-            continue
-        gi = fire.cli.firedb.tilknyt_gi_nummer(punkt)
-        print(gi)
-        punktinfo.append(gi)
+        if fikspunktstype == FikspunktsType.GI:
+            gi = fire.cli.firedb.tilknyt_gi_nummer(punkt)
+            punktinfo.append(gi)
+            punktinfo.append(PunktInformation(infotype=attr_gi_pit, punkt=punkt))
+
+        if fikspunktstype == FikspunktsType.HØJDE:
+            punktinfo.append(PunktInformation(infotype=attr_højde_pit, punkt=punkt))
+
+        if fikspunktstype == FikspunktsType.MV:
+            punktinfo.append(PunktInformation(infotype=attr_mv_pit, punkt=punkt))
+
+        if fikspunktstype == FikspunktsType.VANDSTANDSBRÆT:
+            punktinfo.append(PunktInformation(infotype=attr_vandstand_pit, punkt=punkt))
 
     # Tilknyt landsnumre til punkter
     landsnumre = dict(
