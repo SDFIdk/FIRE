@@ -527,7 +527,7 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
         punkt = punkter.at[i, "Punkt"]
 
         # Fastholdte punkter har ingen ny kote, så vi viser den gamle
-        if punkter.at[i, "Fasthold"] == "x":
+        if punkter.at[i, "Ny kote"] is None:
             fastholdt = True
             delta = 0.0
             kote = float(punkter.at[i, "Kote"])
