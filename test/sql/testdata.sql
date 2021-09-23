@@ -49,6 +49,10 @@ INSERT INTO konfiguration (
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (347,'IDENT:GNSS','TEKST','GNNS Stationsnummer');
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (346,'IDENT:landsnr','TEKST','Landsnummer');
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (331,'ATTR:tabtgået','FLAG','Fysisk punkt ikke længere tilgængeligt');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (333, 'ATTR:vandstandsmåler', 'FLAG', 'Punktet er en vandstandsmåler');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (336, 'ATTR:højdefikspunkt', 'FLAG', 'Højdefikspunkt');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (337, 'ATTR:MV_punkt', 'FLAG', 'MV fikspunkter');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (338, 'ATTR:GI_punkt', 'FLAG', 'GI fikspunkter');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (360, 'ATTR:beskrivelse', 'TEKST', 'Tekstbeskrivelse af punktet');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (362, 'AFM:højde_over_terræn', 'TAL', 'Fikspunkts højde over terræn');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (363, 'AFM:4999', 'TEKST', 'Ukendt fikspunktstype');
