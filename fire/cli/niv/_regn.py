@@ -60,8 +60,14 @@ def regn(projektnavn: str, **kwargs) -> None:
 
     # Håndter fastholdte punkter og slukkede observationer.
     observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
+    punktoversigt = find_faneblad(projektnavn, "Punktoversigt", ARKDEF_PUNKTOVERSIGT)
     arbejdssæt = find_faneblad(projektnavn, aktuelt_faneblad, ARKDEF_PUNKTOVERSIGT)
-    fastholdte = find_fastholdte(arbejdssæt)
+
+    # Til den endelige beregning skal vi bruge de oprindelige observationsdatoer
+    if not kontrol:
+        arbejdssæt["Hvornår"] = punktoversigt["Hvornår"]
+
+    fastholdte = find_fastholdte(arbejdssæt, kontrol)
     if 0 == len(fastholdte):
         fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
         sys.exit(1)
@@ -132,8 +138,12 @@ def spredning(
 
 
 # ------------------------------------------------------------------------------
-def find_fastholdte(punktoversigt: pd.DataFrame) -> Dict[str, float]:
-    relevante = punktoversigt[punktoversigt["Fasthold"] == "x"]
+def find_fastholdte(punktoversigt: pd.DataFrame, kontrol: bool) -> Dict[str, float]:
+    if kontrol:
+        relevante = punktoversigt[punktoversigt["Fasthold"] == "x"]
+    else:
+        relevante = punktoversigt[punktoversigt["Fasthold"] != ""]
+
     fastholdte_punkter = tuple(relevante["Punkt"])
     fastholdteKoter = tuple(relevante["Kote"])
     return dict(zip(fastholdte_punkter, fastholdteKoter))
@@ -147,7 +157,7 @@ def gama_beregning(
     estimerede_punkter: Tuple[str, ...],
     kontrol: bool,
 ) -> Tuple[pd.DataFrame, str]:
-    fastholdte = find_fastholdte(arbejdssæt)
+    fastholdte = find_fastholdte(arbejdssæt, kontrol)
 
     # Skriv Gama-inputfil i XML-format
     with open(f"{projektnavn}.xml", "wt") as gamafil:
@@ -242,6 +252,10 @@ def gama_beregning(
     varianser = [float(var) for var in varliste]
     assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
 
+    # Vi overskriver midlertidigt "Fasthold"-søjlen nedenfor, så vi tager en
+    # kopi og retablerer søjlen før resultatreturnering
+    fastholdsøjle = arbejdssæt["Fasthold"].copy()
+
     # Skriv resultaterne til arbejdssættet
     arbejdssæt["uuid"] = ""
     arbejdssæt["Udelad publikation"] = ""
@@ -273,4 +287,6 @@ def gama_beregning(
         arbejdssæt.at[punkt, "Opløft [mm/år]"] = Δ / dt
         arbejdssæt.at[punkt, "Hvornår"] = tg
     arbejdssæt = arbejdssæt.reset_index()
+
+    arbejdssæt["Fasthold"] = fastholdsøjle
     return (arbejdssæt, htmlrapportnavn)
