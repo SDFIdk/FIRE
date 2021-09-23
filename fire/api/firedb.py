@@ -169,8 +169,10 @@ class FireDb(object):
 
         Kun punkter i Danmark kan tildeles et landsnummer. Det forudsættes at punktet
         har et tilhørende geometriobjekt og er indlæst i databasen i forvejen.
-        """
 
+        Den returnerede liste er sorteret på samme vis som inputlisterne, dvs at det n'te
+        element i outputlisten hører sammen med de n'te punkter i inputlisterne.
+        """
         landsnr = self.hent_punktinformationtype("IDENT:landsnr")
 
         uuider = []
@@ -182,7 +184,7 @@ class FireDb(object):
             # Ignorer punkter, der allerede har et landsnummer
             if landsnr in [pi.infotype for pi in punkt.punktinformationer]:
                 continue
-            uuider.append(f"'{punkt.id}'")
+            uuider.append(f"{punkt.id}")
             punkttyper[punkt.id] = fikspunktstype
 
         if not uuider:
@@ -206,6 +208,9 @@ class FireDb(object):
                     landsnumre[punktid] = f"{distrikt}-{kandidat}"
                     brugte_løbenumre.append(kandidat)
                     break
+
+        # reorganiser landsnumre-dict så rækkefølgen matcher inputlisten "punkter"
+        landsnumre = {p.id: landsnumre[p.id] for p in punkter}
 
         punktinfo = []
         for punktid, landsnummer in landsnumre.items():
@@ -354,11 +359,19 @@ class FireDb(object):
                 FROM geometriobjekt go
                 JOIN herredsogn hs ON sdo_relate(hs.geometri, go.geometri, 'mask=contains') = 'TRUE'
                 WHERE
-                go.punktid IN ({','.join(uuider)})
+                go.punktid IN ({','.join([f"'{uuid}'" for uuid in uuider])})
             """
         )
 
-        return self.session.execute(statement)
+        # sørg for at output returneres i samme rækkefølge som inputlisten, sikrer at tilknyt_landsnumre()
+        # kan levere sit endelige output i samme orden som inputlisterne
+        temp = {
+            punktid: distrikt
+            for distrikt, punktid in self.session.execute(statement).fetchall()
+        }
+        distrikter = [(temp[u], u) for u in uuider]
+
+        return distrikter
 
     def _løbenumre_i_distrikt(self, distrikt: str):
         """
