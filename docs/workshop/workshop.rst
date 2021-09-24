@@ -11,7 +11,7 @@ nede i maven på databasen, hvilket gør FIRE til en markant forbedring af et af
 vores vigtigste dataarkiver.
 
 Dog er alt vores nuværende udjævnings- og datahåndteringssoftware (fx. ADJ,
-``valde`` og ``vedl.pl``) tilpasset refgeo og det famøse KSM-format, hvilket ikke kan
+``valde`` og ``vedl.pl``) tilpasset refgeo og det famøse KMS-format, hvilket ikke kan
 bruges i det nye setup.
 Derfor har vi udviklet adskillige kommandolinjekald, som har til formål at lade
 brugeren se ned i databasen, udtrække det data der er relevant, putte ny data
@@ -525,21 +525,28 @@ Slutteligt står der i terminalen hvad man skal gøre som det næste:
 *Dataindlæsning afsluttet. Vælg nu fastholdte punkter i punktoversigten.*
 Så det gør vi!
 
+.. _trin6:
 
 Trin 6) regn
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Vi skal nu til at beregne nye koter til de observerede punkter.
+Det sker i tre skridt:
 
-I ens projektfil kan man notere hvilke punkter skal fastholdes, ved at, i fanebladet
-*Punktoversigt*, skrive *x* ud for punktet i *Fasthold*-kolonnen. Gem derefter filen
-og vend tilbage til terminalen, hvor kaldet ``regn`` skal køres:
+1. *Observationsindlæsning*
+2. *Kontrolberegning* og
+3. *Endelig beregning*
+
+Første skridt har vi allerede udført i afsnittet :ref:`læs-observationer <trin5>`, ovenfor,
+som bl.a. gav os fanebladet "Punktoversigt". Det er her, i fanebladets søjle "Fasthold" at
+man markerer hvilke punkter der skal fastholdes i kontrolberegningen: Sæt et *x* ud for de
+punkter du vil fastholde, gem regnearket, vend tilbage til terminalen og kør ``fire niv regn``:
 
 .. command-output:: fire niv regn --help
 
 Herfra ses at man igen skal bruge *Projektnavn* som parameter. Programmet afgør selv
-hvilken type beregning vi har med at gøre ud fra antal af fastholdte punkter. Første beregning
-udføres som kontrolberegning, efterfølgende beregningerne betragtes som den endelige
+hvilken type beregning vi har med at gøre: Første beregning
+udføres som kontrolberegning, efterfølgende beregninger betragtes som den endelige
 beregning.
 
 I terminalen vil det se således ud:
@@ -550,8 +557,11 @@ I terminalen vil det se således ud:
   Så regner vi
   Analyserer net
   Fastholder 2 og beregner nye koter for 6 punkter
-  Skriver: {'Singulære', 'Kontrolberegning', 'Netgeometri'}
+  Skriver: {'Singulære', 'Netgeometri', 'Kontrolberegning'}
   Til filen 'Fjernkontrol_af_SULD.xlsx'
+  Overskriver fanebladene {'Singulære', 'Netgeometri'}
+      med opdaterede versioner.
+  Foregående versioner beholdes i 'ex'-filen 'Fjernkontrol_af_SULD-ex.xlsx'
   Færdig! - åbner regneark og resultatrapport for check.
 
 
@@ -559,17 +569,16 @@ Det ses at der er valgt to punkter som fastholdt. Hvis der er subnet
 uden fastholdte punkter advarer FIRE om dette og foreslår et punkt
 til fastholdelse i hvert subnet.
 
-Derudover genereres
+Udover beregningsresultatet i projektregnearket genereres
 flere resultatfiler, bl.a.
 
-- en *projektnavn*-resultat.xlsx (eller nye faner i eksisterende fil)
 - en *projektnavn*-resultat.xml (til intern brug for ``fire``)
 - en *projektnavn*-resultat.html
 
 I .html-filen findes diverse statistik over udjævningsberegningen, som det underliggende
 kode (GNU Gama) genererer. Filen åbnes også default efter kørslen.
 
-I resultatfilen er der nu tre faner;
+I resultatfilen er der nu tre nye faner;
 
 - *Netgeometri*,
 - *Singulære* og
@@ -582,12 +591,26 @@ til.
 
 Kontrolberegningen viser det egentlige beregningsresultat. Kolonner er nu fyldt ud med
 nyberegnede koter, middelfejl og differencen fra gældende kote, og man kan lave sin
-endelige vurdering af beregningen.
+endelige vurdering af beregningen. Er man ikke tilfreds med kontrolberegningen kan man
+slette fanebladet, rette de fastholdte punkter til i fanebladet *Punktoversigt*, og
+køre beregningen endnu en gang.
 
-Fanebladet *Kontrolberegning* flyttes nu over i projektfilen på samme måde som før, og i
-*Punktoversigt*-fanen kan man nu udvælge de fastholdte punkter til den endelige beregning.
-Derefter køres ``fire niv regn`` igen (husk at lukke resultatfilen), og en ny beregning udføres;
-denne gang vil det resulterende faneblad hedde *Endelig beregning*.
+Fanebladet *Kontrolberegning* er indrettet på samme måde som *Punktoversigt*, og benyttes
+på samme måde - nu til at udvælge de punkter, der skal fastholdes i den endelige beregning.
+
+På forhånd er de fastholdte punkter fra kontrolberegningen afmærket med *x*.
+Ved den endelige beregning fastholdes alle de punkter der har et **vilkårligt tegn** i
+"Fasthold"-søjlen i fanebladet *Kontrolberegning*. Dvs. alle dem, der allerede har et *x*
+fra kontrolberegningen, *og derudover* alle dem man selv tilføjer inden den endelige beregning
+udføres.
+
+For at kunne skelne mellem de to klasser af fastholdte punkter anbefales det at benytte
+markeringen *e* (for *endelig*) for de yderligere punkter man vil fastholde i den endelige
+beregning. Derefter køres ``fire niv regn`` igen.
+
+Denne gang vil resultatfanebladet hedde *Endelig beregning*. Er man ikke tilfreds med den
+kan man slette (eller omdøbe) fanebladet, tilpasse sine fastholdte punkter i fanebladet
+*Kontrolberegning*, og køre beregningen en gang til.
 
 
 Trin 7) ilæg-observationer
