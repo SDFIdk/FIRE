@@ -1,4 +1,3 @@
-import sys
 import getpass
 
 import click
@@ -9,9 +8,7 @@ import fire.cli
 from fire import uuid
 from fire.api.model import (
     EventType,
-    Punkt,
     Koordinat,
-    Sag,
     Sagsevent,
     SagseventInfo,
     SagseventInfoHtml,
@@ -20,8 +17,6 @@ from fire.api.model import (
 
 from . import (
     ARKDEF_PUNKTOVERSIGT,
-    ARKDEF_OBSERVATIONER,
-    anvendte,
     bekræft,
     find_faneblad,
     find_sag,
@@ -64,7 +59,6 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     ny_punktoversigt = punktoversigt[0:0]
 
     DVR90 = fire.cli.firedb.hent_srid("EPSG:5799")
-    registreringstidspunkt = func.current_timestamp()
     tid = gyldighedstidspunkt(projektnavn)
 
     # Generer sagsevent

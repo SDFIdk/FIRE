@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import List, Optional, Iterator
 from pathlib import Path
 from itertools import chain

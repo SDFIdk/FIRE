@@ -1,11 +1,7 @@
-import os
-import os.path
 from io import BytesIO
 from zipfile import ZipFile
 
 import click
-import pandas as pd
-import sys
 
 from fire import uuid
 import fire.cli
@@ -19,7 +15,6 @@ from fire.api.model import (
 
 
 from . import (
-    ARKDEF_PARAM,
     ARKDEF_FILOVERSIGT,
     find_faneblad,
     find_sag,

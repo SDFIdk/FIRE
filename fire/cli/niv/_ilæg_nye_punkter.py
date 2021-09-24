@@ -2,7 +2,6 @@ import sys
 import getpass
 import math
 from itertools import chain
-from typing import List
 
 import click
 import pandas as pd
@@ -14,7 +13,6 @@ from fire.api.model import (
     Point,
     Punkt,
     PunktInformation,
-    Sag,
     Sagsevent,
     SagseventInfo,
     EventType,
