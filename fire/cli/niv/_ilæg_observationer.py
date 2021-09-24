@@ -10,7 +10,6 @@ from fire import uuid
 from fire.api.model import (
     EventType,
     Observation,
-    Sag,
     Sagsevent,
     SagseventInfo,
 )

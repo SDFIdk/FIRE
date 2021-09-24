@@ -5,16 +5,11 @@ metoder fra klassen. Dette gøres for at splitte klassen op over
 flere filer og gøre det mere overskueligt at finde rundt i.
 """
 
-from typing import List
-
 from sqlalchemy import func
 
 from fire.api.model import (
     Sag,
-    Punkt,
-    PunktInformation,
     PunktInformationType,
-    Observation,
     ObservationsType,
     Sagsevent,
     EventType,

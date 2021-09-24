@@ -2,7 +2,7 @@ import json
 import re
 import sys
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 import click
 import pandas as pd
@@ -15,7 +15,6 @@ from . import (
     ARKDEF_NYETABLEREDE_PUNKTER,
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
-    anvendte,
     find_faneblad,
     niv,
     normaliser_lokationskoordinat,

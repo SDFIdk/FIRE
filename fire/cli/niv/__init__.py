@@ -12,7 +12,6 @@ from pyproj import Proj
 
 import fire.cli
 from fire.api.model import (
-    Point,
     Punkt,
     PunktInformation,
     Sag,

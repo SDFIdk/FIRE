@@ -15,7 +15,6 @@ import fire.cli
 from . import (
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
-    anvendte,
     find_faneblad,
     gyldighedstidspunkt,
     niv,
