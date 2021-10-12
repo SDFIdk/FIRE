@@ -4,7 +4,13 @@ import os
 import os.path
 import sys
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import (
+    Dict,
+    Tuple,
+    List,
+    Mapping,
+    Union,
+)
 
 import click
 import pandas as pd
@@ -30,15 +36,15 @@ niv_help = f"""Nivellement: Arbejdsflow, beregning og analyse
 
 Underkommandoerne:
 
-    opret-sag
-
-    udtræk-revision
-
-    ilæg-revision
-
-    ilæg-nye-punkter
-
-    læs-observationer
+    opret-sag ------------------------+
+                                      |
+    udtræk-revision                   |
+                                      |
+    ilæg-revision                     |
+                                      |
+    ilæg-nye-punkter                  |
+                                      |
+    læs-observationer        udtræk-observationer
 
     regn
 
@@ -108,9 +114,16 @@ def niv():
 # Regnearksdefinitioner (søjlenavne og -typer)
 # ------------------------------------------------------------------------------
 
-ARKDEF_FILOVERSIGT = {"Filnavn": str, "Type": str, "σ": float, "δ": float}
+ArkDefinitionType = Mapping[str, Union[type, str]]
 
-ARKDEF_NYETABLEREDE_PUNKTER = {
+ARKDEF_FILOVERSIGT: ArkDefinitionType = {
+    "Filnavn": str,
+    "Type": str,
+    "σ": float,
+    "δ": float,
+}
+
+ARKDEF_NYETABLEREDE_PUNKTER: ArkDefinitionType = {
     "Foreløbigt navn": str,
     "Landsnummer": str,
     "Nord": float,
@@ -122,46 +135,72 @@ ARKDEF_NYETABLEREDE_PUNKTER = {
     "uuid": str,
 }
 
-ARKDEF_OBSERVATIONER = {
+ARKDEF_OBSERVATIONER: ArkDefinitionType = {
+    # Journalnummer for observationen
     "Journal": str,
+    # Indikerer, om punktet skal udelades i beregningen?
+    # Markeres med et lille 'x', hvis det er tilfældet.
     "Sluk": str,
+    # Fra-dato for observationens gyldighed
     "Fra": str,
+    # Til-dato for observationens gyldighed
     "Til": str,
+    # Koteforskel mellem opstillingspunktet og sigtepunktet
     "ΔH": float,
+    # Nivellementlængde
     "L": float,
     "Opst": int,
+    # Empirisk spredning per afstandsenhed [mm * km ** -1/2]
     "σ": float,
+    # Empirisk centreringsfejl per opstilling [ppm]
     "δ": float,
+    # Kommentar i regnearket
     "Kommentar": str,
+    # Observationstidspunkt
     "Hvornår": "datetime64[ns]",
+    #
     "T": float,
     "Sky": int,
     "Sol": int,
     "Vind": int,
     "Sigt": int,
+    # Projekt
     "Kilde": str,
+    #
     "Type": str,
+    # Observationspostens ID i databasen
     "uuid": str,
 }
+"Kolonnenavne og datatyper for nivellement-observationer"
 
-ARKDEF_PUNKTOVERSIGT = {
+ARKDEF_PUNKTOVERSIGT: ArkDefinitionType = {
+    # Punktets ident
     "Punkt": str,
+    # Fastholder punktets data i beregninger
     "Fasthold": str,
+    # Observationstidspunkt for målte kote, etc.
     "Hvornår": "datetime64[ns]",
+    # Vinkelret højde fra geoiden
     "Kote": float,
+    # Empirisk spredning per afstand
     "σ": float,
-    "Ny kote": float,
     "Ny σ": float,
     "Δ-kote [mm]": float,
     "Opløft [mm/år]": float,
+    "Ny kote": float,
+    # Referencesystem
     "System": str,
+    # Northing
     "Nord": float,
+    # Easting
     "Øst": float,
+    # Punktets ID i databasen
     "uuid": str,
+    #
     "Udelad publikation": str,
 }
 
-ARKDEF_REVISION = {
+ARKDEF_REVISION: ArkDefinitionType = {
     "Punkt": str,
     "Attribut": str,
     "Talværdi": float,
@@ -172,7 +211,7 @@ ARKDEF_REVISION = {
     "Ikke besøgt": str,
 }
 
-ARKDEF_SAG = {
+ARKDEF_SAG: ArkDefinitionType = {
     "Dato": "datetime64[ns]",
     "Hvem": str,
     "Hændelse": str,
@@ -180,7 +219,7 @@ ARKDEF_SAG = {
     "uuid": str,
 }
 
-ARKDEF_PARAM = {
+ARKDEF_PARAM: ArkDefinitionType = {
     "Navn": str,
     "Værdi": str,
 }
@@ -633,17 +672,30 @@ def er_projekt_okay(projektnavn: str):
         sys.exit(1)
 
 
-# moduler præfikset med _ for at undgå konflikter, der i visse tilfælde
-# kan opstå. Med nedenstående kan man entydigt kende forskel på modulet
-# fire.cli.niv._opret-sag og Click kommandoobjektet fire.cli.niv.opret-sag.
-# Uden præfix kan der ikke skælnes mellem de to.
-from ._opret_sag import opret_sag
-from ._læs_observationer import læs_observationer
-from ._ilæg_observationer import ilæg_observationer
-from ._udtræk_revision import udtræk_revision
-from ._ilæg_revision import ilæg_revision
-from ._regn import regn
+# TODO: Flyt/gentag nedenstående i udvikler-vejledningen.
+"""
+Modulnavne starter med `_` for at undgå konflikter,
+der i visse tilfælde kan opstå.
+
+Med nedenstående kan man entydigt kende forskel på modulet
+
+    fire.cli.niv._opret-sag
+
+og Click-kommandoobjektet
+
+    fire.cli.niv.opret-sag
+
+. Uden præfix kan der ikke skelnes mellem de to.
+
+"""
 from ._ilæg_nye_koter import ilæg_nye_koter
 from ._ilæg_nye_punkter import ilæg_nye_punkter
-from ._netoversigt import netoversigt
+from ._ilæg_observationer import ilæg_observationer
+from ._ilæg_revision import ilæg_revision
 from ._luk_sag import luk_sag
+from ._læs_observationer import læs_observationer
+from ._netoversigt import netoversigt
+from ._opret_sag import opret_sag
+from ._regn import regn
+from ._udtræk_observationer import udtræk_observationer
+from ._udtræk_revision import udtræk_revision

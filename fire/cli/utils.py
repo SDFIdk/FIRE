@@ -1,10 +1,19 @@
 """
 Diverse redskaber til brug i fire.cli.
 """
-import re
 
 import click
 from datetime import datetime
+
+from fire.util.ident import (
+    kan_være_landsnummer,
+    kan_være_købstadsnummer,
+    kan_være_gnssid,
+    reformater_landsnummer,
+    reformater_købstadsnummer,
+    reformater_gnssid,
+    reformater_forstavelser,
+)
 
 
 class Datetime(click.ParamType):
@@ -49,36 +58,15 @@ def klargør_ident_til_søgning(ident: str) -> str:
     """
     ident = ident.strip()
 
-    # Vær mindre pedantisk mht. foranstillede nuller hvis identen er et landsnummer
-    landsnummermønster = re.compile("^[0-9]*-[0-9]*-[0-9]*$")
-    if landsnummermønster.match(ident):
-        dele = ident.split("-")
-        herred = int(dele[0])
-        sogn = int(dele[1])
-        lbnr = int(dele[2])
-        ident = f"{herred}-{sogn:02}-{lbnr:05}"
+    if kan_være_landsnummer(ident):
+        ident = reformater_landsnummer(ident)
 
-    # Næsten samme procedure for købstadsnumre
-    købstadsnummermønster = re.compile("^[Kk][ ]*-[0-9]*-[0-9]*$")
-    if købstadsnummermønster.match(ident):
-        dele = ident.split("-")
-        stad = int(dele[1])
-        lbnr = int(dele[2])
-        ident = f"K-{stad:02}-{lbnr:05}"
+    if kan_være_købstadsnummer(ident):
+        ident = reformater_købstadsnummer(ident)
 
-    # GNSS-id'er er indeholder pr. def. kun A-Z0-9, så her kan vi også lette lidt på stringensen
-    gnssid = re.compile("^[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]$")
-    if gnssid.match(ident):
-        ident = str(ident).upper()
+    if kan_være_gnssid(ident):
+        ident = reformater_gnssid(ident)
 
-    # Og nogle hjørneafskæringer for hyppigt brugte navne
-    if ident.startswith("gi"):
-        ident = ident.replace("gi", "G.I.", 1)
-    if ident.startswith("GI"):
-        ident = ident.replace("GI", "G.I.", 1)
-    if ident.startswith("gm"):
-        ident = ident.replace("gm", "G.M.", 1)
-    if ident.startswith("GM"):
-        ident = ident.replace("GM", "G.M.", 1)
+    ident = reformater_forstavelser(ident)
 
     return ident

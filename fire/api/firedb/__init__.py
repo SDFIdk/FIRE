@@ -5,10 +5,9 @@ from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 
+from fire.api.firedb.hent import FireDbHent
 from fire.api.firedb.indset import FireDbIndset
 from fire.api.firedb.luk import FireDbLuk
-from fire.api.firedb.hent import FireDbHent
-
 from fire.api.model import (
     Punkt,
     Koordinat,

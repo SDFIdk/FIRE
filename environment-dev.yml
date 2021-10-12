@@ -8,25 +8,25 @@ dependencies:
   - cx_oracle=7.0.*
   - fiona=1.8.*
   - gama=2.13.*
+  - graphviz=2.46.*
   - m2-zip=3.0.*
   - openpyxl=3.0.*
-  - pandas=1.2.*
+  - pandas=1.3.*
   - pip=21.0.*
   - pre-commit=2.15.*
   - pylint=2.6.*
   - pyproj=2.6.*
-  - pytest=6.2.*
   - pytest-cov=2.11.*
   - pytest-mock=3.5.*
+  - pytest=6.2.*
   - python=3.7.*
   - qgis=3.16.*
-  - graphviz=2.46.*
-  - sphinx=3.4.*
   - sphinx-click=2.5.*
+  - sphinx=3.4.*
   - sphinx_rtd_theme=0.5.*
   - sphinxcontrib-programoutput=0.16.*
-  - sqlalchemy_schemadisplay=1.3.*
   - sqlalchemy=1.2.*
+  - sqlalchemy_schemadisplay=1.3.*
   - xmltodict=0.12.*
   - pip:
      - pb_tool==3.1.*
