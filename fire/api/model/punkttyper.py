@@ -518,6 +518,44 @@ class Observation(FikspunktregisterObjekt):
         "Beregning", secondary=beregning_observation, back_populates="observationer"
     )
 
+    __mapper_args__ = {
+        "polymorphic_identity": "observation",
+        "polymorphic_on": observationstypeid,
+    }
+
+
+class GeometriskKoteforskel(Observation):
+
+    __mapper_args__ = {"polymorphic_identity": 1}
+
+    @property
+    def koteforskel(self) -> float:
+        return self.value1
+
+    @property
+    def nivlængde(self) -> float:
+        return self.value2
+
+    @property
+    def opstillinger(self) -> int:
+        return self.value3
+
+    @property
+    def eta_l(self) -> float:
+        return self.value4
+
+    @property
+    def spredning_afstand(self) -> float:
+        return self.value5
+
+    @property
+    def spredning_centrering(self) -> float:
+        return self.value6
+
+    @property
+    def præcisionsnivellement(self) -> int:
+        return self.value7
+
 
 class Srid(DeclarativeBase):
     __tablename__ = "sridtype"
