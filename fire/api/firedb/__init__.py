@@ -1,19 +1,20 @@
-from datetime import datetime
-from typing import List, Optional, Iterator
+from typing import List, Iterator
 from itertools import chain
 
-from sqlalchemy import create_engine, func, and_, inspect
+from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 
-from fire.api import FireDbHent, FireDbIndset, FireDbLuk
+from fire.api.firedb.indset import FireDbIndset
+from fire.api.firedb.luk import FireDbLuk
+from fire.api.firedb.hent import FireDbHent
+
 from fire.api.model import (
     Punkt,
     Koordinat,
     PunktInformation,
     PunktInformationType,
     GeometriObjekt,
-    Observation,
     Bbox,
     Sagsevent,
     FikspunktsType,
@@ -295,23 +296,3 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         )
 
         return [løbenummer[0] for løbenummer in self.session.execute(sql)]
-
-    def _filter_observationer(
-        self,
-        g1,
-        g2,
-        distance: float,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None,
-    ):
-        exps = [
-            func.sdo_within_distance(
-                g1, g2, "distance=" + str(distance) + " unit=meter"
-            )
-            == "TRUE"
-        ]
-        if from_date:
-            exps.append(Observation.observationstidspunkt >= from_date)
-        if to_date:
-            exps.append(Observation.observationstidspunkt <= to_date)
-        return and_(*exps)

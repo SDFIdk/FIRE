@@ -9,8 +9,8 @@ import re
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.orm.exc import NoResultFound
-from fire.api import BaseFireDb
 
+from fire.api.firedb.base import FireDbBase
 from fire.api.model import (
     Sag,
     Punkt,
@@ -24,7 +24,7 @@ from fire.api.model import (
 )
 
 
-class FireDbHent(BaseFireDb):
+class FireDbHent(FireDbBase):
     def hent_punkt(self, ident: str) -> Punkt:
         """
         Returnerer det første punkt der matcher 'ident'
