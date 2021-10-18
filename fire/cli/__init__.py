@@ -72,7 +72,7 @@ def print(*args, **kwargs):
     click.secho(*args, **kwargs)
 
 
-def override_firedb(new_firedb):
+def override_firedb(new_firedb: FireDb):
     """
     Tillad at bruge en anden firedb end den der oprettes automatisk af
     fire.cli.
