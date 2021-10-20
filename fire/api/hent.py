@@ -94,6 +94,7 @@ class FireDbHent(BaseFireDb):
                 .join(PunktInformationType)
                 .filter(
                     PunktInformationType.name.startswith("IDENT:"),
+                    PunktInformation._registreringtil == None,  # NOQA
                     or_(
                         PunktInformation.tekst == ident,
                         PunktInformation.tekst == f"FO  {ident}",
