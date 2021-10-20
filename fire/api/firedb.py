@@ -355,7 +355,7 @@ class FireDb(object):
         med henblik på at kunne mocke den i unit tests.
         """
         statement = text(
-            f"""SELECT hs.kode, go.punktid
+            f"""SELECT upper(hs.kode), go.punktid
                 FROM geometriobjekt go
                 JOIN herredsogn hs ON sdo_relate(hs.geometri, go.geometri, 'mask=contains') = 'TRUE'
                 WHERE
