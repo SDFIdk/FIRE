@@ -13,18 +13,18 @@ from fire.api.model import (
     geometry,
 )
 
-WKT_POINT = "POINT (10.200000 56.100000)"
+WKT_POINT = "POINT (10.20000000 56.10000000)"
 DICT_POINT = {
     "coordinates": [10.2, 56.1],
     "type": "Point",
 }
 
 WKT_POLYGON = (
-    "POLYGON ((10.000000 55.000000,"
-    "12.000000 55.000000,"
-    "12.000000 56.000000,"
-    "10.000000 56.000000,"
-    "10.000000 55.000000))"
+    "POLYGON ((10.00000000 55.00000000,"
+    "12.00000000 55.00000000,"
+    "12.00000000 56.00000000,"
+    "10.00000000 56.00000000,"
+    "10.00000000 55.00000000))"
 )
 
 DICT_POLYGON = {
@@ -134,3 +134,13 @@ def test_geometriobjekt_afregistrering(firedb: FireDb, sag: Sag):
     assert n + 1 == len(p.geometriobjekter)
     assert geom[-2].registreringtil == geom[-1].registreringfra
     assert geom[-2].sagseventtilid == geom[-1].sagseventfraid
+
+
+def test_to_wkt_precision():
+    """Test at der medtages 8 koordinatdecimaler ved oprettelse af WKT-strenge"""
+    x = 0.9876543210
+    y = 1.9876543210
+    wkt = geometry.to_wkt({"coordinates": [x, y], "type": "Point"})
+    print(wkt)
+
+    assert wkt == f"POINT (0.98765432 1.98765432)"
