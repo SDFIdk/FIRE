@@ -232,7 +232,10 @@ class Punkt(FikspunktregisterObjekt):
     def landsnummer(self) -> str:
         landsnumre = []
         for punktinfo in self.punktinformationer:
-            if punktinfo.infotype.name == "IDENT:landsnr":
+            if (
+                punktinfo.infotype.name == "IDENT:landsnr"
+                and not punktinfo.registreringtil
+            ):
                 landsnumre.append(punktinfo.tekst)
 
         if landsnumre:
