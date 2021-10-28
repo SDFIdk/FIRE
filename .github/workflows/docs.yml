@@ -38,7 +38,7 @@ jobs:
         # Install fire
         pip install -e .
         # Copy config file to suitable location
-        cp .circleci/fire.ini ~/.fire.ini
+        cp test/ci/fire.ini ~/.fire.ini
         # Build docs
         sphinx-build -b html ./docs ./docs/_build
         # GitHub pages ignores folder starting with _, can be avoid by
