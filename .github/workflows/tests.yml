@@ -72,6 +72,7 @@ jobs:
           python-version: 3.7
           auto-activate-base: false
           activate-environment: fire-dev
+          use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
     - run: |
         conda info
         conda list
