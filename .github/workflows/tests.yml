@@ -1,0 +1,100 @@
+name: API/CLI
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    services:
+      oracledb:
+        image: septimaps/oracle-12c-bootstrapped
+        ports:
+          - 1521:1521
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Cache Oracle instantclient
+      uses: actions/cache@v2
+      id: oracle_cache
+      env:
+        # Increase this value to reset cache if environment-dev.yml has not changed
+        CACHE_NUMBER: 0
+      with:
+        path: ~/oracle
+        key:
+          ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('scripts/get_oracle_pkgs.sh') }}
+
+    - name: Download Oracle .rpm'er og oversæt til .deb
+      if: steps.oracle_cache.outputs.cache-hit != 'true'
+      run: |
+        sudo apt-get install alien libaio1
+
+        mkdir -p ~/oracle
+        cd ~/oracle
+
+        sh $GITHUB_WORKSPACE/scripts/get_oracle_pkgs.sh
+
+        cd $GITHUB_WORKSPACE
+
+    - name: Installer Oracle instantclient et al
+      run: |
+        sudo dpkg -i ~/oracle/oracle-instantclient19.13-basic_19.13.0.0.0-2_amd64.deb
+        sudo dpkg -i ~/oracle/oracle-instantclient19.13-sqlplus_19.13.0.0.0-2_amd64.deb
+
+        sudo sh -c "echo /usr/lib/oracle/19.13/client64/lib > /etc/ld.so.conf.d/oracle-instantclient.conf"
+        sudo ldconfig
+
+    - name: Forbered conda environment
+      run: |
+        sed -i '/msys2/d' environment-dev.yml
+        sed -i '/m2-zip/d' environment-dev.yml
+        sed -i '/qgis/d' environment-dev.yml
+
+    - name: Cache conda
+      uses: actions/cache@v2
+      env:
+        # Increase this value to reset cache if environment-dev.yml has not changed
+        CACHE_NUMBER: 0
+      with:
+        path: ~/conda_pkgs_dir
+        key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment-dev.yml') }}
+
+    - name: Setup conda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+          environment-file: environment-dev.yml
+          python-version: 3.7
+          auto-activate-base: false
+          activate-environment: fire-dev
+    - run: |
+        conda info
+        conda list
+
+    - name: Installer FIRE
+      run: |
+        pip install -e .
+        cp test/ci/fire.ini ~/fire.ini
+
+    - name: Populer database
+      run: |
+        sqlplus64 -V
+        # Opsæt database
+        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S system/oracle@//localhost:1521/xe @test/ci/init.sql
+        # Indlæs DDL
+        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @sql/ddl.sql
+        # Indlæs testdata
+        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @test/sql/testdata.sql
+        # Indlæst opmålingsdistrikter
+        python scripts/load_shapefile.py
+
+    - name: Testsuite
+      run: |
+        pytest --cov=fire --cov-report=xml --ignore=test/read/ --ignore=test/write/
+        bash <(curl -s https://codecov.io/bash)
+
