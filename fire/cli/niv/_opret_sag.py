@@ -65,7 +65,11 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
     fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag['uuid']})")
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
     fire.cli.print(f"Beskrivelse:       {beskrivelse}")
-    sagsinfo = Sagsinfo(aktiv="true", behandler=sagsbehandler, beskrivelse=beskrivelse)
+    sagsinfo = Sagsinfo(
+        aktiv="true",
+        behandler=sagsbehandler,
+        beskrivelse=f"{projektnavn}: {beskrivelse}",
+    )
     fire.cli.firedb.indset_sag(Sag(id=sag["uuid"], sagsinfos=[sagsinfo]), commit=False)
     try:
         fire.cli.firedb.session.flush()
