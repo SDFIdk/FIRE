@@ -146,7 +146,7 @@ def to_wkt(geom):
     """Konverter en GeoJSON-agtig geometri til WKT."""
 
     def coords_to_wkt(coords):
-        format_str = " ".join(("%f",) * len(coords[0]))
+        format_str = " ".join(("%.8f",) * len(coords[0]))
         return ",".join([format_str % tuple(c) for c in coords])
 
     coords = geom["coordinates"]

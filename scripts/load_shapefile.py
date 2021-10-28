@@ -22,15 +22,23 @@ with fiona.open(Path(__file__).parent / "../data/herredsogn.shp") as herredsogn:
 
         # Fjollet hack for at omgå begrænsninger i Oracle.
         # Tilsyneladende må strenge ikke være længere end 4000 tegn, så her omgår vi begrænsningen
-        # ved at splitte wkt-strengen i to dele og sammensætte den med ||-operatoren i SQL udtrykket.
+        # ved at splitte wkt-strengen i flere dele og sammensætte den med ||-operatoren i SQL udtrykket.
         # Idioti, men det virker.
-        wkt1, wkt2 = g.wkt[: len(g.wkt) // 2], g.wkt[len(g.wkt) // 2 :]
-        statement = text(
-            f"""INSERT INTO herredsogn (kode, geometri)
-                VALUES ('{kode}', SDO_GEOMETRY(TO_CLOB('{wkt1}') || TO_CLOB('{wkt2}'), 4326)
+        n = len(g.wkt) // 3
+        wkt1, wkt2, wkt3 = g.wkt[:n], g.wkt[n : 2 * n + 1], g.wkt[2 * n + 1 :]
+
+        try:
+            sql = f"""INSERT INTO herredsogn (kode, geometri)
+                      VALUES ('{kode}', SDO_GEOMETRY(TO_CLOB('{wkt1}') || TO_CLOB('{wkt2}') || TO_CLOB('{wkt3}'), 4326)
             )"""
-        )
-        firedb.session.execute(statement)
+            statement = text(sql)
+            firedb.session.execute(statement)
+        except:
+            # debug
+            print(g.wkt)
+            print(f"{wkt1}{wkt2}{wkt3}")
+            print(sql)
+            raise SystemExit
 
 firedb.session.commit()
 
