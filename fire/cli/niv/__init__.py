@@ -221,6 +221,18 @@ def normaliser_lokationskoordinat(
     Den omvendte vej (`invers==True`, input: geografiske koordinater,
     output: UTM-koordinater i traditionel lokationskoordinatorden)
     er indtil videre kun understøttet for `region=="DK"`.
+
+    Parameters
+    ----------
+        λ
+            Antaget længdegrad/Øst-koordinat
+        φ
+            Antaget breddegrad/Nor-koordinat
+        region
+            Region. Hvis ikke denne er kendt af programmet, returneres koordinaterne uændret.
+        invers
+            Koordinaterne i omvendt rækkefølge. Se docstring for mere.
+
     """
     # Gem kopi af oprindeligt input til brug i fejlmelding
     x, y = λ, φ
@@ -252,7 +264,7 @@ def normaliser_lokationskoordinat(
 
     if region == "DK":
         if λ < 3.0 or λ > 15.5 or φ < 54.5 or φ > 58.0:
-            raise ValueError(f"Koordinat ({x}, {y}) uden for dansk territorie")
+            raise ValueError(f"Koordinat ({x}, {y}) uden for dansk territorium.")
 
     return (λ, φ)
 
@@ -348,8 +360,8 @@ def skriv_ark(
 
         # Så læser vi de eksisterende faneblade.
         #
-        # NB: Her er der er en mikroskopisk chance for en race-condition (hvad hedder det
-        # på dansk?): Vi holder ikke en lås på exfilen når den opstår ved omdøbning af
+        # NB: Her er der risiko for en race condition (da konkurrence-tilstand?):
+        # Vi holder ikke en lås på exfilen når den opstår ved omdøbning af
         # projektfilen, så den kan overskrives af eksterne processer *efter* at vi har
         # omdøbt projektfilen og *inden* vi når videre hertil.
         #
@@ -557,18 +569,17 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
 
 def bekræft(spørgsmål: str, gentag=True) -> bool:
     """
-    Bed bruger om at tage stilling til spørgsmålet.
+    Anmod bruger om at tage stilling til spørgsmålet.
     """
     fire.cli.print(f"{spørgsmål} (ja/NEJ):")
-    svar = input()
-    if svar in ("ja", "JA", "Ja"):
-        if gentag:
-            if input("Gentag svar for at bekræfte (ja/NEJ)\n") in ("ja", "JA", "Ja"):
-                return True
-        else:
-            return True
 
-    return False
+    if input().strip().lower() != "ja":
+        return False
+
+    if not gentag:
+        return True
+
+    return input("Gentag svar for at bekræfte (ja/NEJ)\n").strip().lower() == "ja"
 
 
 def opret_region_punktinfo(punkt: Punkt) -> PunktInformation:
@@ -597,9 +608,10 @@ def opret_region_punktinfo(punkt: Punkt) -> PunktInformation:
 
 def er_projekt_okay(projektnavn: str):
     """
-    Kontroller om det er okay at brug et givent projekt.
+    Kontroller om det er okay at bruge et givet projekt.
 
-    Afbryder programmet og udskriver en fejl hvis ikke projektet er okay.
+    Afbryder programmet og udskriver en fejl, hvis ikke projektet er okay.
+
     Ellers gøres intet.
     """
     projekt_db = find_parameter(projektnavn, "Database")

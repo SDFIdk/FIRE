@@ -5,7 +5,7 @@ from fire.api import FireDb
 firedb = FireDb()
 _show_colors = True
 
-# Create decorator that handles all default options
+
 def _set_monochrome(ctx, param, value):
     """
     Anvend værdien af --monokrom og sæt den globale værdi af _show_colors.
@@ -46,13 +46,24 @@ _default_options = [
         callback=_set_monochrome,
         help="Vis ikke farver i terminalen",
     ),
-    click.option("--debug", is_flag=True, callback=_set_debug, help="Vis debug output"),
+    click.option(
+        "--debug",
+        is_flag=True,
+        callback=_set_debug,
+        help="Vis debug output fra FIRE-databasen.",
+    ),
     click.help_option(help="Vis denne hjælp tekst"),
 ]
 
 
 def default_options(**kwargs):
+    """Create decorator that handles all default options"""
+
     def _add_options(func):
+        # Click-produced help text shows arguments and options
+        # in the order they were added.
+        # Reversing the order to have it shown in same order in
+        # the help text as items were defined in the list.
         for option in reversed(_default_options):
             func = option(func)
         return func
