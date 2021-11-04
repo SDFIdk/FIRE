@@ -5,16 +5,6 @@ Diverse redskaber til brug i fire.cli.
 import click
 from datetime import datetime
 
-from fire.util.ident import (
-    kan_være_landsnummer,
-    kan_være_købstadsnummer,
-    kan_være_gnssid,
-    reformater_landsnummer,
-    reformater_købstadsnummer,
-    reformater_gnssid,
-    reformater_forstavelser,
-)
-
 
 class Datetime(click.ParamType):
     """
@@ -49,24 +39,3 @@ class Datetime(click.ParamType):
                 param,
                 ctx,
             )
-
-
-def klargør_ident_til_søgning(ident: str) -> str:
-    """
-    Oversættelse af almindelige "fejl"-stavelser af identer, fx gi istedet for G.I.,
-    forud for søgning efter punkter.
-    """
-    ident = ident.strip()
-
-    if kan_være_landsnummer(ident):
-        ident = reformater_landsnummer(ident)
-
-    if kan_være_købstadsnummer(ident):
-        ident = reformater_købstadsnummer(ident)
-
-    if kan_være_gnssid(ident):
-        ident = reformater_gnssid(ident)
-
-    ident = reformater_forstavelser(ident)
-
-    return ident

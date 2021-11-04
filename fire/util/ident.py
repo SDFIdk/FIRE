@@ -86,3 +86,24 @@ def reformater_forstavelser(ident: str) -> str:
     if ident.startswith("GM"):
         ident = ident.replace("GM", "G.M.", 1)
     return ident
+
+
+def klargør_ident_til_søgning(ident: str) -> str:
+    """
+    Oversættelse af almindelige "fejl"-stavelser af identer, fx gi istedet for G.I.,
+    forud for søgning efter punkter.
+    """
+    ident = ident.strip()
+
+    if kan_være_landsnummer(ident):
+        ident = reformater_landsnummer(ident)
+
+    if kan_være_købstadsnummer(ident):
+        ident = reformater_købstadsnummer(ident)
+
+    if kan_være_gnssid(ident):
+        ident = reformater_gnssid(ident)
+
+    ident = reformater_forstavelser(ident)
+
+    return ident

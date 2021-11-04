@@ -44,10 +44,8 @@ from fire.cli.niv import (
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
 )
-from fire.cli.utils import (
-    Datetime,
-    klargør_ident_til_søgning,
-)
+from fire.cli.click_types import Datetime
+from fire.ident import klargør_ident_til_søgning
 from fire.io.regneark import (
     observationsrække,
     punktrække,

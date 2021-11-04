@@ -5,7 +5,7 @@ import click
 from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
-from fire.cli.utils import klargør_ident_til_søgning
+from fire.ident import klargør_ident_til_søgning
 from . import søg
 
 
