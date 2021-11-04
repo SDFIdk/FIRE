@@ -135,20 +135,25 @@ def timestamp():
 @click.option(
     "-b",
     "--buffer",
-    help="""Positiv afstand i meter fra geometri eller identer, som skal medtages under udvælgelsen af observationer.
+    help="""Positiv afstand i meter fra geometri eller identer.
 
-Der skelnes generelt mellem de to tilfælde i) `buffer` = 0 og ii) `buffer` > 0.
+Et område på en bredde af bufferens størrelse føjes til identers placering
+og geometrier, som søgningen skal medtage under udvælgelsen af observationer.
 
-For identer bliver fremsøgningsprocessen forskellig i de to tilfælde:
+Søgefremgangsmåden styres af, om `buffer` = 0 og `buffer` > 0:
 
-    i)  Fremsøg observationer med identen som opstillingspunkt.
-    ii) Fremsøg observationer inden for `buffer` meter af identens placering.
+For identer sker det på følgende måde:
 
-For geometrifiler bliver fremsøgningsprocessen:
+    `buffer` == 0: Fremsøg observationer med identen som opstillingspunkt.
 
-    i)  Fremsøg observationer på eller inden for geometrien.
-    ii) Fremsøg observationer inden for `buffer` meter af geometriens omfang.\
-    """,
+    `buffer` >= 0: Fremsøg observationer inden for `buffer` meter af identens placering.
+
+For geometrifiler sker det således:
+
+    `buffer` == 0: Fremsøg observationer på eller inden for geometrien.
+
+    `buffer` >= 0: Fremsøg observationer inden for `buffer` meter af geometriens omfang.
+""",
     required=False,
     type=int,
     default=0,
@@ -157,10 +162,12 @@ For geometrifiler bliver fremsøgningsprocessen:
 @click.option(
     "-n",
     "--nøjagtighed",
-    help="""Målenøjagtighed på observationer. Vælg mellem [P]ræcision, [K]valitet eller [D]etail.
-    
-Er nøjagtighed ikke angivet, bliver det mildeste kriterium valgt (detail).\
-    """,
+    help="""Målenøjagtighed på observationer.
+
+Vælg mellem [P]ræcision, [K]valitet eller [D]etail.
+
+Er nøjagtighed ikke angivet, bliver det mildeste kriterium valgt (detail).
+""",
     required=False,
     # Ville være rart, hvis click havde implementeret mulighed for at anvende Enum'er.
     # Mere info: https://github.com/pallets/click/issues/605
@@ -171,10 +178,12 @@ Er nøjagtighed ikke angivet, bliver det mildeste kriterium valgt (detail).\
 @click.option(
     "-M",
     "--metode",
-    help="""Målemetode. Vælg mellem `MGL` (motoriseret geometrisk nivellement) eller `MTL` (motoriseret trigonometrisk nivellement).
+    help="""Målemetode.
 
-Er metode ikke angivet, søger programmet blandt begge observationstyper.\
-    """,
+Vælg mellem `MGL` (motoriseret geometrisk nivellement) eller `MTL` (motoriseret trigonometrisk nivellement).
+
+Er metode ikke angivet, søger programmet blandt begge observationstyper.
+""",
     required=False,
     # Ville være rart, hvis click havde implementeret mulighed for at anvende Enum'er.
     # Mere info: https://github.com/pallets/click/issues/605
@@ -192,7 +201,7 @@ Er metode ikke angivet, søger programmet blandt begge observationstyper.\
 @click.option(
     "-dt",
     "--til",
-    help="Hent observationer til (men ikke med) denne dato.",
+    help="Hent observationer til, men ikke med, denne dato.",
     required=False,
     type=Datetime(format=DATE_FORMAT),
 )
@@ -213,14 +222,9 @@ def udtræk_observationer(
     Udtræk nivellement-observationer for et eksisterende projekt ud fra søgekriterier.
 
     KRITERIER kan være både identer (landsnumre) og geometri-filer.
-
-        Programmet skelner automatisk de oplyste kriterier i følgende grupper:
-
-        *   Identer
-        *   Geometrifiler
-
-        Kriterier, der ikke passer i disse grupper, bliver vist i terminal-
-        outputtet og derefter ignoreret.
+    
+    Programmet skelner automatisk kriterierne fra hinanden. Kriterier, der ikke
+    passer i disse kategorier, bliver vist i terminal-output og derefter ignoreret.
 
         BEMÆRK: Geometrifiler skal være i WGS84
 
@@ -234,13 +238,16 @@ def udtræk_observationer(
         inden for et givet tidsrum (fra og til), givet standard kvalitets-
         kriterier samt observationsmetode og afstand til identer/geometri.
 
+        Det er kombinationen af valgt nøjagtighed og metode, der afgør valget
+        af kriterium, hvormed fundne observationer skal filtreres fra.
+
         Resultatet af søgningen er samtlige, aktive observationer i databasen,
         der opfylder ovenstående.
 
         Resultatet skrives til det eksisterende projekt-regneark i fanerne
         `Observationer` og `Punktoversigt`.
 
-        BEMÆRK: Eksisterende data i disse ark overskrives!
+            BEMÆRK: Eksisterende data i disse ark overskrives!
 
     Fremsøgningsproces:
 
