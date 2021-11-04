@@ -4,6 +4,7 @@ Ident-værktøjer
 """
 
 import re
+from typing import Iterable
 
 
 # Vær mindre pedantisk mht. foranstillede nuller hvis identen er et landsnummer
@@ -107,3 +108,8 @@ def klargør_ident_til_søgning(ident: str) -> str:
     ident = reformater_forstavelser(ident)
 
     return ident
+
+
+def klargør_identer_til_søgning(identer: Iterable[str]):
+    """Klargør flere identer til søgning."""
+    return [klargør_ident_til_søgning(ident) for ident in identer]

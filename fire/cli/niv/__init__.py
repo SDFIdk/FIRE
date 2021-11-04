@@ -36,15 +36,15 @@ niv_help = f"""Nivellement: Arbejdsflow, beregning og analyse
 
 Underkommandoerne:
 
-    opret-sag ------------------------+
-                                      |
-    udtræk-revision                   |
-                                      |
-    ilæg-revision                     |
-                                      |
-    ilæg-nye-punkter                  |
-                                      |
-    læs-observationer        udtræk-observationer
+    opret-sag
+
+    udtræk-revision
+
+    ilæg-revision
+
+    ilæg-nye-punkter
+
+    læs-observationer
 
     regn
 
@@ -56,6 +56,21 @@ Underkommandoerne:
 
 definerer, i den anførte rækkefølge, nogenlunde arbejdsskridtene i et
 almindeligt opmålingsprojekt.
+
+Til beregning af eksisterende observationer, findes en alternativ underkommando
+til `læs-observationer`, kaldet `udtræk-observationer`. En arbejdsgang med denne
+kommando kan se ud på følgende måde:
+
+    opret-sag
+
+    udtræk-observationer
+
+    regn
+
+    luk-sag
+
+Underkommandoer
+---------------
 
 OPRET-SAG registrerer sagen (projektet) i databasen og skriver det regneark,
 som bruges til at holde styr på arbejdet.
@@ -70,6 +85,9 @@ bl.a. landsnumre til punkterne.
 
 LÆS-OBSERVATIONER læser råfilerne og skriver observationerne til regnearket så de
 er klar til brug i beregninger.
+
+UDTRÆK-OBSERVATIONER henter observationer ud af databasen på baggrund af udvalgte
+søgekriterier og skrives til regnearket, så de kan bruges i beregninger.
 
 REGN beregner nye koter til alle punkter, og genererer rapporter og
 visualiseringsmateriale.
@@ -138,7 +156,7 @@ ARKDEF_NYETABLEREDE_PUNKTER: ArkDefinitionType = {
 ARKDEF_OBSERVATIONER: ArkDefinitionType = {
     # Journalnummer for observationen
     "Journal": str,
-    # Indikerer, om punktet skal udelades i beregningen?
+    # Indikerer, om punktet skal udelades i beregningen.
     # Markeres med et lille 'x', hvis det er tilfældet.
     "Sluk": str,
     # Fra-dato for observationens gyldighed
@@ -158,7 +176,7 @@ ARKDEF_OBSERVATIONER: ArkDefinitionType = {
     "Kommentar": str,
     # Observationstidspunkt
     "Hvornår": "datetime64[ns]",
-    #
+    # Meteorologiske parametre
     "T": float,
     "Sky": int,
     "Sol": int,
@@ -184,10 +202,10 @@ ARKDEF_PUNKTOVERSIGT: ArkDefinitionType = {
     "Kote": float,
     # Empirisk spredning per afstand
     "σ": float,
+    "Ny kote": float,
     "Ny σ": float,
     "Δ-kote [mm]": float,
     "Opløft [mm/år]": float,
-    "Ny kote": float,
     # Referencesystem
     "System": str,
     # Northing
@@ -672,7 +690,6 @@ def er_projekt_okay(projektnavn: str):
         sys.exit(1)
 
 
-# TODO: Flyt/gentag nedenstående i udvikler-vejledningen.
 """
 Modulnavne starter med `_` for at undgå konflikter,
 der i visse tilfælde kan opstå.

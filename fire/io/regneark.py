@@ -25,6 +25,7 @@ from fire.api.model.punkttyper import (
 )
 from fire.api.niv import (
     NivMetode,
+    DVR90_navn,
 )
 from fire.cli.niv import (
     ARKDEF_OBSERVATIONER,
@@ -75,24 +76,24 @@ OBSERVATIONER_KONSTANTE_FELTER = {
 
 
 def observations_data(
-    o: Union[GeometriskKoteforskel, TrigonometriskKoteforskel]
+    observation: Union[GeometriskKoteforskel, TrigonometriskKoteforskel]
 ) -> dict:
     return {
-        "Fra": o.opstillingspunkt.ident,
-        "Til": o.sigtepunkt.ident,
-        "L": o.nivlængde,
-        "ΔH": o.koteforskel,
-        "Opst": o.opstillinger,
-        "σ": o.spredning_afstand,
-        "δ": o.spredning_centrering,
-        "Hvornår": o.observationstidspunkt,
-        "Type": MAPPER.get(o.observationstypeid, ""),
-        "uuid": o.id,
+        "Fra": observation.opstillingspunkt.ident,
+        "Til": observation.sigtepunkt.ident,
+        "L": observation.nivlængde,
+        "ΔH": observation.koteforskel,
+        "Opst": observation.opstillinger,
+        "σ": observation.spredning_afstand,
+        "δ": observation.spredning_centrering,
+        "Hvornår": observation.observationstidspunkt,
+        "Type": MAPPER.get(observation.observationstypeid, ""),
+        "uuid": observation.id,
     }
 
 
 def observationsrække(
-    o: Union[GeometriskKoteforskel, TrigonometriskKoteforskel]
+    observation: Union[GeometriskKoteforskel, TrigonometriskKoteforskel]
 ) -> dict:
     """
     Oversætter atributter på en observationstype til en post,
@@ -103,7 +104,7 @@ def observationsrække(
     return {
         **basisrække(ARKDEF_OBSERVATIONER),
         **OBSERVATIONER_KONSTANTE_FELTER,
-        **observations_data(o),
+        **observations_data(observation),
     }
 
 
@@ -126,11 +127,10 @@ def punkt_data(punkt: Punkt) -> dict:
 
 
 def gældende_DVR90_koordinat(punkt: Punkt) -> Optional[Koordinat]:
-    DVR90_sridid = 8
     koordinatsæt = [
         k
         for k in punkt.koordinater
-        if k.sridid == DVR90_sridid and k.registreringtil is None
+        if k.srid.name == DVR90_navn and k.registreringtil is None
     ]
     if not koordinatsæt:
         return

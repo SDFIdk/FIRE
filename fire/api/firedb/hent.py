@@ -178,8 +178,8 @@ class FireDbHent(FireDbBase):
     def hent_observationer_fra_opstillingspunkt(
         self,
         punkt: Punkt,
-        tidfra: Optional[datetime] = None,
-        tidtil: Optional[datetime] = None,
+        tid_fra: Optional[datetime] = None,
+        tid_til: Optional[datetime] = None,
         srid: Srid = None,
         kun_aktive: bool = True,
         observationsklasse: Observation = Observation,
@@ -190,11 +190,11 @@ class FireDbHent(FireDbBase):
         """
         k = aliased(Koordinat)
         filtre = [observationsklasse.opstillingspunktid == punkt.id]
-        if tidfra is not None:
-            filtre.append(observationsklasse.observationstidspunkt >= tidfra)
+        if tid_fra is not None:
+            filtre.append(observationsklasse.observationstidspunkt >= tid_fra)
 
-        if tidtil is not None:
-            filtre.append(observationsklasse.observationstidspunkt <= tidtil)
+        if tid_til is not None:
+            filtre.append(observationsklasse.observationstidspunkt <= tid_til)
 
         if kun_aktive:
             filtre.append(observationsklasse._registreringtil == None)
@@ -213,8 +213,8 @@ class FireDbHent(FireDbBase):
         self,
         punkt: Punkt,
         afstand: float,
-        tidfra: Optional[datetime] = None,
-        tidtil: Optional[datetime] = None,
+        tid_fra: Optional[datetime] = None,
+        tid_til: Optional[datetime] = None,
     ) -> List[Observation]:
         g1 = aliased(GeometriObjekt)
         g2 = aliased(GeometriObjekt)
@@ -224,7 +224,7 @@ class FireDbHent(FireDbBase):
             .join(g2, g2.punktid == punkt.id)
             .filter(
                 self._filter_observationer(
-                    g1.geometri, g2.geometri, afstand, tidfra, tidtil
+                    g1.geometri, g2.geometri, afstand, tid_fra, tid_til
                 )
             )
             .all()
@@ -234,8 +234,8 @@ class FireDbHent(FireDbBase):
         self,
         geometri: Geometry,
         afstand: float,
-        tidfra: Optional[datetime] = None,
-        tidtil: Optional[datetime] = None,
+        tid_fra: Optional[datetime] = None,
+        tid_til: Optional[datetime] = None,
         observationsklasse: Observation = Observation,
     ) -> List[Observation]:
         """
@@ -246,9 +246,9 @@ class FireDbHent(FireDbBase):
             sig inden for en given afstand af denne geometri.
         afstand
             Bufferafstand omkring geometri i meter.
-        tidfra
+        tid_fra
             Tidspunkt hvorfra observationerne skal have fundet sted.
-        tidtil
+        tid_til
             Tidspunkt hvortil observationerne skal have fundet sted.
 
         Returns
@@ -258,7 +258,7 @@ class FireDbHent(FireDbBase):
         """
         g = aliased(GeometriObjekt)
         filtre = self._filter_observationer(
-            g.geometri, geometri, afstand, tidfra, tidtil
+            g.geometri, geometri, afstand, tid_fra, tid_til
         )
         return (
             self.session.query(observationsklasse)

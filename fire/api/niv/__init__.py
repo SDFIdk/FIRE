@@ -20,3 +20,6 @@ class Nøjagtighed(Enum):
     Kvalitet = 2
     D = 3
     Detail = 3
+
+
+DVR90_navn = "EPSG:5799"

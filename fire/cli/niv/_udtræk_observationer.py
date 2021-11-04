@@ -4,6 +4,8 @@ import json
 import pathlib
 import datetime as dt
 from typing import (
+    Any,
+    Callable,
     List,
     Tuple,
 )
@@ -14,10 +16,8 @@ import fiona
 from shapely import geometry
 import pandas as pd
 
-# from IPython import embed
-
-from fire.util.ident import kan_være_ident
-from fire.util.enumtools import (
+from fire.ident import kan_være_ident
+from fire.enumtools import (
     enum_names,
     selected_or_default,
 )
@@ -30,6 +30,7 @@ from fire.api.model.punkttyper import (
     TrigonometriskKoteforskel,
 )
 from fire.api.niv import (
+    DVR90_navn,
     NivMetode,
     Nøjagtighed,
 )
@@ -259,23 +260,16 @@ def udtræk_observationer(
     # Validering
     # ----------
 
-    # TODO: Fjern, når er klar til brugertest etc.
-    # er_projekt_okay(projektnavn)
+    er_projekt_okay(projektnavn)
 
     ofname = pathlib.Path(f"{projektnavn}.xlsx").absolute()
     assert ofname.is_file(), f"{ofname!r} eksisterer ikke."
 
     # Buffer
-    # TODO: Brug clicks typer til at lave valideringen.
-    if buffer is not None:
-        assert buffer >= 0, f"Buffer kan ikke være mindre end nul. Fik {buffer!r} ."
+    if buffer < 0:
+        fire.cli.print(f"Buffer kan ikke være mindre end nul. Fik {buffer!r} .", fg='red')
+        raise SystemExit
 
-    """
-    Nøjagtighed og metode
-    
-    Det er kombinationen af valgt nøjagtighed og metode, der afgør valget
-    af kriterium, hvormed fundne observationer skal filtreres fra.
-    """
     metoder = selected_or_default(metode, NivMetode)
     nøjagtigheder = selected_or_default(nøjagtighed, Nøjagtighed)
 
@@ -293,32 +287,35 @@ def udtræk_observationer(
     }
 
     # Tag brugbare kriterier og advar eventuelt om ubrugelige.
-    # TODO: Brug clicks typer til at lave valideringen.
     identer, geometrifiler, ubrugelige = adskil_kriterier(kriterier)
 
     # Check resultaterne
-    assert (
-        len(geometrifiler) <= 1
-    ), "Det er indtil videre forventet, at der kun bliver oplyst én geometrifil ad gangen."
+    if len(geometrifiler) > 1:
+        fire.cli.print("Det er indtil videre forventet, at der kun bliver oplyst én geometrifil ad gangen.", fg='red')
+        raise SystemExit
+    if len(ubrugelige) > 0:
+        fire.cli.print(f"Følgende kriterier er hverken en korrekt-formuleret ident eller geometrifil: {ubrugelige!r}", bold=True)
 
-    assert (
-        len(ubrugelige) == 0
-    ), f"Følgende kriterier er hverken en korrekt-formuleret ident eller geometrifil: {ubrugelige!r}"
+    # Klargør søgninger
+    # -----------------
+
+    DVR90 = fire.cli.firedb.hent_srid(DVR90_navn)
+    OBSKLASSE = {
+        NivMetode.MGL: GeometriskKoteforskel,
+        NivMetode.MTL: TrigonometriskKoteforskel,
+    }
+
+    # Her gemmes alle observationer
+    resultatsæt = set()
 
     # Genvejsvariabel
     db = fire.cli.firedb
 
     fire.cli.print("Klargør identer", bold=True)
-    identer: List[str] = [klargør_ident_til_søgning(ident) for ident in identer]
+    identer_klargjort: List[str] = [klargør_ident_til_søgning(ident) for ident in identer]
 
     fire.cli.print("Søg i databasen efter punkter til hver ident", fg="yellow")
-    punkter: List[Punkt] = [db.hent_punkt(ident) for ident in identer]
-
-    DVR90 = fire.cli.firedb.hent_srid("EPSG:5799")
-    OBSKLASSE = {
-        NivMetode.MGL: GeometriskKoteforskel,
-        NivMetode.MTL: TrigonometriskKoteforskel,
-    }
+    punkter: List[Punkt] = db.hent_punkt_liste(identer_klargjort)
 
     # Punkt-scenarium 1 - Buffer == 0
     # Vi søger kun observationer med identerne som opstillingspunkter.
@@ -327,8 +324,8 @@ def udtræk_observationer(
         fire.cli.print("Hent observationer for identerne", fg="yellow")
         hent_observationer = partial(
             db.hent_observationer_fra_opstillingspunkt,
-            tidfra=fra,
-            tidtil=til,
+            tid_fra=fra,
+            tid_til=til,
             srid=DVR90,
             kun_aktive=True,
         )
@@ -336,12 +333,9 @@ def udtræk_observationer(
             partial(hent_observationer, observationsklasse=OBSKLASSE[metode])
             for metode in metoder
         ]
-        resultatsæt = set()
-        for hent in hentere:
-            for punkt in punkter:
-                resultatsæt |= set(hent(punkt))
+        resultatsæt |= set(brug_alle_på_alle(hentere, punkter))
 
-    # / Scenarium 1
+    # / Punkt-scenarium 1
 
     # Punkt-scenarium 2: Buffer er angivet
     # Vi søger observationer og punkter i nærheden af identernes placering.
@@ -369,19 +363,16 @@ def udtræk_observationer(
         hent_observationer = partial(
             db.hent_observationer_naer_geometri,
             afstand=0,
-            tidfra=fra,
-            tidtil=til,
+            tid_fra=fra,
+            tid_til=til,
         )
         hentere = [
             partial(hent_observationer, observationsklasse=OBSKLASSE[metode])
             for metode in metoder
         ]
-        resultatsæt = set()
-        for hent in hentere:
-            for geometri in søge_geometrier:
-                resultatsæt |= set(hent(geometri))
+        resultatsæt |= set(brug_alle_på_alle(hentere, søge_geometrier))
 
-    # / Scenarium 2
+    # / Punkt-scenarium 2
 
     if geometrifiler:
         fire.cli.print("Klargør geometrifiler", bold=True)
@@ -398,25 +389,23 @@ def udtræk_observationer(
         hent_observationer = partial(
             db.hent_observationer_naer_geometri,
             afstand=buffer,
-            tidfra=fra,
-            tidtil=til,
+            tid_fra=fra,
+            tid_til=til,
         )
         hentere = [
             partial(hent_observationer, observationsklasse=OBSKLASSE[metode])
             for metode in metoder
         ]
-        for hent in hentere:
-            for geometri_objekt in klargjorte_geometrier:
-                resultatsæt |= set(hent(geometri_objekt))
+        resultatsæt |= set(brug_alle_på_alle(hentere, klargjorte_geometrier))
 
     fire.cli.print("Filtrér observationer")
     observationer = [
-        o
-        for o in list(resultatsæt)
-        if o.spredning_afstand <= SPREDNING[o.observationstypeid]
+        observation
+        for observation in list(resultatsæt)
+        if observation.spredning_afstand <= SPREDNING[observation.observationstypeid]
     ]
 
-    fire.cli.print("Udtræk opstillingspunkter fra observationerne")
+    fire.cli.print("Indsaml opstillingspunkter fra observationer")
     punkter = opstillingspunkter(observationer)
 
     fire.cli.print("Gem observationer og punkter i projekt-regnearket")
@@ -424,9 +413,13 @@ def udtræk_observationer(
         observationer, ARKDEF_OBSERVATIONER, observationsrække, "Hvornår"
     )
     ark_punktoversigt = til_nyt_ark(punkter, ARKDEF_PUNKTOVERSIGT, punktrække, "Punkt")
-    assert all(
-        ark_punktoversigt["Punkt"].isin(ark_observationer["Fra"])
-    ), "Ikke alle punkter i oversigten er med i Fra-kolonnen for observationsarket"
+    fire.cli.print('Check: Alle punkter i regnearket Punktoversigt findes i Observationer[Fra]: ', nl=False)
+    if not all(ark_punktoversigt["Punkt"].isin(ark_observationer["Fra"])):
+        fire.cli.print("Nej", fg='red')
+    else:
+        fire.cli.print("Ja", fg='green')
+
+    # Forbered ark-skrivning
     faner = {
         "Observationer": ark_observationer,
         "Punktoversigt": ark_punktoversigt,
@@ -437,22 +430,25 @@ def udtræk_observationer(
     with open(ofname, read_and_update) as output:
         skriv_data(output, faner)
 
-    fire.cli.print(f"Skriver data til .geojson-fil...")
-    kolonner = [
-        "Punkt",
-        # "Hvornår",
-        "Type",
-        "Nord",
-        "Øst",
-    ]
+    fire.cli.print(f"Gem punkter som .geojson-fil...")
+    kolonner = ["Punkt", "Type", "Nord", "Øst"]
     flettet = ark_observationer.merge(
         ark_punktoversigt[["Punkt", "Nord", "Øst"]],
         left_on="Fra",
         right_on="Punkt",
     )[kolonner]
-    # flettet['Hvornår'] = flettet['Hvornår'].dt.to_pydatetime()
-    # flettet['Hvornår'].dtype = 'O'
     ofname = f"{projektnavn}-{timestamp()}.geojson"
     fire.cli.print(f"Skriver punkter til {ofname} ...")
     with open(ofname, "w+") as f:
         json.dump(punkter_til_geojson(flettet), f, indent=2)
+
+
+def brug_alle_på_alle(operationer: List[Callable], objekter: List[Any]):
+    """
+    For hver henter og hvert søgeobjekt hentes resultater.
+    """
+    return (
+        operation(objekt)
+        for operation in operationer
+        for objekt in objekter
+    )

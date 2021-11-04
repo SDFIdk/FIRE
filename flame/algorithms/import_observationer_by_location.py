@@ -144,7 +144,7 @@ class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
             wkt = feature.geometry().asWkt().upper()
             geometry = Geometry(wkt)
             observations = fireDb.hent_observationer_naer_geometri(
-                geometri=geometry, afstand=0, tidfra=from_date, tidtil=to_date
+                geometri=geometry, afstand=0, tid_fra=from_date, tid_til=to_date
             )
 
             pid_list = self.get_pids_from_observations(observations)
