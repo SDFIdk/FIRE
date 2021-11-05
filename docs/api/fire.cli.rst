@@ -29,7 +29,7 @@ Submodules
    :show-inheritance:
 
 
-.. automodule:: fire.cli.utils
+.. automodule:: fire.cli.click_types
    :members:
    :undoc-members:
    :show-inheritance:

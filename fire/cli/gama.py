@@ -1,7 +1,7 @@
 import click
 
 import fire.cli
-from fire.cli.utils import Datetime
+from fire.cli.click_types import Datetime
 from fire.api.model import Geometry
 from fire.api.gama import GamaReader, GamaWriter
 
