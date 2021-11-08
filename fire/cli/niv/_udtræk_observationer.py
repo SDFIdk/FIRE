@@ -275,7 +275,7 @@ def udtræk_observationer(
     # -------------------------
 
     fire.cli.print("Filtrér observationer")
-    observationer = observationer_inden_for_spredning(resultatsæt, spredning)
+    observationer = list(observationer_inden_for_spredning(resultatsæt, spredning))
 
     fire.cli.print("Indsaml opstillingspunkter fra observationer")
     punkter = opstillingspunkter(observationer)

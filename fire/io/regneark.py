@@ -1,5 +1,5 @@
 """
-I/O-modul til hånderting af regneark
+I/O-modul til håndtering af regneark
 
 """
 
@@ -33,6 +33,10 @@ from fire.cli.niv import (
 )
 
 
+# Annoteringstyper
+RækkeType = Mapping[str, None]
+
+
 # TODO: TO-BE
 # import abc
 # class Ark(metaclass=abc.ABCMeta):
@@ -43,12 +47,12 @@ from fire.cli.niv import (
 #         pass
 
 
-def nyt_ark(ark_definition: ArkDefinitionType) -> pd.DataFrame:
-    columns = ark_definition.keys()
-    return pd.DataFrame(columns=columns).astype(ark_definition)
+def nyt_ark(arkdefinition: ArkDefinitionType) -> pd.DataFrame:
+    columns = arkdefinition.keys()
+    return pd.DataFrame(columns=columns).astype(arkdefinition)
 
 
-def basisrække(arkdefinition: ArkDefinitionType) -> Mapping[str, None]:
+def basisrække(arkdefinition: ArkDefinitionType) -> RækkeType:
     """
     Returnerer en dict-instans med arkdefinitionens nøgler
     og `None` som standard-værdi
