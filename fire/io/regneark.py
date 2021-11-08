@@ -36,20 +36,13 @@ from fire.cli.niv import (
 # Annoteringstyper
 RækkeType = Mapping[str, None]
 
-
-# TODO: TO-BE
-# import abc
-# class Ark(metaclass=abc.ABCMeta):
-#     def __init__(self, definition: ArkDefinitionType):
-#         self.definition = definition
-#     @abc.abstractmethod
-#     def gem(self, filename, orm_entities):
-#         pass
+_basisrækker: Mapping[str, RækkeType] = dict()
+"Cache til u-initialiserede rækker for en given arkdefinition."
 
 
-def nyt_ark(arkdefinition: ArkDefinitionType) -> pd.DataFrame:
-    columns = arkdefinition.keys()
-    return pd.DataFrame(columns=columns).astype(arkdefinition)
+def _hashable_from_keys(arkdefinition: ArkDefinitionType) -> str:
+    """Return string of all dict keys as hashable object for caching"""
+    return ''.join(arkdefinition.keys())
 
 
 def basisrække(arkdefinition: ArkDefinitionType) -> RækkeType:
@@ -58,7 +51,12 @@ def basisrække(arkdefinition: ArkDefinitionType) -> RækkeType:
     og `None` som standard-værdi
 
     """
-    return {key: None for key in arkdefinition}
+    # Rationale: en dict er ikke hashable (immutable),
+    # så vi skal bruge noget andet unikt som nøgle.
+    h = _hashable_from_keys(arkdefinition)
+    if not h in _basisrækker:
+        _basisrækker[h] = {key: None for key in arkdefinition}
+    return _basisrækker[h]
 
 
 MAPPER = {
@@ -164,6 +162,12 @@ def punktrække(punkt: Punkt) -> dict:
         **punkt_data(punkt),
         **kote_data(punkt),
     }
+
+
+def nyt_ark(arkdefinition: ArkDefinitionType) -> pd.DataFrame:
+    """Returnerer en tom pandas.dataframe med kolonner baseret på arkdefinition."""
+    columns = arkdefinition.keys()
+    return pd.DataFrame(columns=columns).astype(arkdefinition)
 
 
 def til_nyt_ark(
