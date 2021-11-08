@@ -18,6 +18,7 @@ from shapely import geometry
 import pandas as pd
 
 from fire.ident import kan_være_ident
+from fire.srid import SRID
 from fire.api.model import Geometry
 from fire.api.model.punkttyper import (
     Punkt,
@@ -112,10 +113,7 @@ def klargør_geometrifiler(geometrifiler: List[str]) -> List[Geometry]:
 
         # Validér
         crs = geometri_data.crs.get("init")
-        if crs.lower() != "epsg:4326":
-            # fire.cli.print("Kan kun læse geometrifiler i EPSG:4326.", fg='red')
-            # fire.cli.print(f"Modtog {crs!r} fra {filnavn!r}.")
-            # fire.cli.print('Skipper filen.')
+        if crs.upper() != SRID.WGS84:
             continue
 
         # Konvertér indhold til shapely-objekter

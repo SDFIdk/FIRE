@@ -23,10 +23,8 @@ from fire.api.model.punkttyper import (
     GeometriskKoteforskel,
     TrigonometriskKoteforskel,
 )
-from fire.api.niv import (
-    NivMetode,
-    DVR90_navn,
-)
+from fire.api.niv import NivMetode
+from fire.srid import SRID
 from fire.cli.niv import (
     ARKDEF_OBSERVATIONER,
     ARKDEF_PUNKTOVERSIGT,
@@ -130,7 +128,7 @@ def gældende_DVR90_koordinat(punkt: Punkt) -> Optional[Koordinat]:
     koordinatsæt = [
         k
         for k in punkt.koordinater
-        if k.srid.name == DVR90_navn and k.registreringtil is None
+        if k.srid.name == SRID.DVR90 and k.registreringtil is None
     ]
     if not koordinatsæt:
         return
