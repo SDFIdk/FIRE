@@ -15,9 +15,12 @@ from fire.api.model import (
     Koordinat,
     EventType,
     Srid,
-    PunktInformationType,
-    PunktInformationTypeAnvendelse,
     Boolean,
+)
+from fire.io.regneark import (
+    arkdef,
+    nyt_ark,
+    basisrække,
 )
 
 
@@ -164,3 +167,54 @@ def punktinformationtype(firedb):
     pi = firedb.hent_punktinformationtype("ATTR:test")
 
     return pi
+
+
+@pytest.fixture
+def identer_gyldige():
+    return (
+        "125-03-09001",
+        "125-03-09003",
+    )
+
+
+@pytest.fixture
+def identer_ugyldige():
+    return (
+        "ikke-en-ident",
+        "f-o-o-b-a-r",
+    )
+
+
+@pytest.fixture
+def geojson_rectangle():
+    return {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [10.073776245117188, 56.0900440736966],
+                            [10.286636352539062, 56.0900440736966],
+                            [10.286636352539062, 56.224649602556184],
+                            [10.073776245117188, 56.224649602556184],
+                            [10.073776245117188, 56.0900440736966],
+                        ]
+                    ],
+                },
+            }
+        ],
+    }
+
+
+@pytest.fixture
+def ark_punktoversigt():
+    return nyt_ark(arkdef.PUNKTOVERSIGT)
+
+
+@pytest.fixture
+def række_punktoversigt():
+    return basisrække(arkdef.PUNKTOVERSIGT)

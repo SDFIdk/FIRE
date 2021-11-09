@@ -1,4 +1,7 @@
-# API: fire niv udtræk-observationer
+"""
+Funktionalitet til `fire niv udtræk-observationer`
+
+"""
 
 import pathlib
 import datetime as dt
@@ -24,12 +27,12 @@ from fire.srid import SRID
 from fire.api.model import Geometry
 from fire.api.model.punkttyper import (
     Punkt,
-    ObservationsTypeID,
+    ObservationstypeID,
     Observation,
     GeometriskKoteforskel,
     TrigonometriskKoteforskel,
 )
-from fire.api.niv import (
+from fire.api.niv.enums import (
     NivMetode,
     Nøjagtighed,
 )
@@ -42,7 +45,9 @@ from fire.api.niv.kriterier import (
 # Typer til annotation
 NivellementObservation = Union[GeometriskKoteforskel, TrigonometriskKoteforskel]
 ResultatSæt = Set[NivellementObservation]
-Spredning = Mapping[int, float]
+ObservationstypeIDType = int
+Spredning = float
+Spredninger = Mapping[ObservationstypeIDType, Spredning]
 
 OBSKLASSE = {
     NivMetode.MGL: GeometriskKoteforskel,
@@ -55,7 +60,9 @@ def timestamp() -> str:
     return dt.datetime.now().isoformat()[:19].replace(":", "")
 
 
-def brug_alle_på_alle(operationer: Iterable[Callable], objekter: Iterable[Any]) -> Iterator[Any]:
+def brug_alle_på_alle(
+    operationer: Iterable[Callable], objekter: Iterable[Any]
+) -> Iterator[Any]:
     """
     Udfør hver operation på hvert objekt og returnér resultaterne.
 
@@ -68,7 +75,7 @@ def brug_alle_på_alle(operationer: Iterable[Callable], objekter: Iterable[Any])
     )
 
 
-def filterkriterier(nøjagtigheder: Iterable[Nøjagtighed]) -> Spredning:
+def filterkriterier(nøjagtigheder: Iterable[Nøjagtighed]) -> Spredninger:
     """
     Returnerer en dictionary med en spredning for hver
     kombination af nivellementsmetode og valgte nøjagtigheder.
@@ -80,8 +87,8 @@ def filterkriterier(nøjagtigheder: Iterable[Nøjagtighed]) -> Spredning:
         mapping=EMPIRISK_SPREDNING,
     )
     return {
-        ObservationsTypeID.geometrisk_koteforskel: krav(metoder=[NivMetode.MGL]),
-        ObservationsTypeID.trigonometrisk_koteforskel: krav(metoder=[NivMetode.MTL]),
+        ObservationstypeID.geometrisk_koteforskel: krav(metoder=[NivMetode.MGL]),
+        ObservationstypeID.trigonometrisk_koteforskel: krav(metoder=[NivMetode.MTL]),
     }
 
 
@@ -98,9 +105,7 @@ def adskil_filnavne(tekststrenge: Iterable[str]) -> Tuple[str, str]:
 def adskil_identer(tekststrenge: Iterable[str]) -> Tuple[str, str]:
     tekststrenge = set(tekststrenge)
     identer = {
-        tekststreng
-        for tekststreng in tekststrenge
-        if kan_være_ident(tekststreng)
+        tekststreng for tekststreng in tekststrenge if kan_være_ident(tekststreng)
     }
     return list(identer), list(tekststrenge - identer)
 
@@ -108,11 +113,11 @@ def adskil_identer(tekststrenge: Iterable[str]) -> Tuple[str, str]:
 def klargør_geometrifiler(geometrifiler: Iterable[str]) -> List[Geometry]:
     """
     Returnerer samlet liste med hvert lag i hver fil.
-    
+
     Hver geometrifil kan have flere features eller lag.
 
     Åbn og konvertér indhold af geometrifiler.
-    
+
     """
     klargjorte_geometrier: List[Geometry] = []
     for filnavn in geometrifiler:
@@ -125,8 +130,7 @@ def klargør_geometrifiler(geometrifiler: Iterable[str]) -> List[Geometry]:
 
         # Konvertér indhold til shapely-objekter
         delgeometrier = [
-            geometry.shape(delgeometri.get("geometry"))
-            for delgeometri in geometri_data
+            geometry.shape(delgeometri.get("geometry")) for delgeometri in geometri_data
         ]
         # Opret Geometry-instanser
         klargjorte_geometrier.extend([Geometry(dgb.wkt) for dgb in delgeometrier])
@@ -144,7 +148,7 @@ def punkter_til_geojson(data: pd.DataFrame) -> dict:
     """Konvertér punkter til geojson-tekststreng."""
     return {
         "type": "FeatureCollection",
-        "Features": [
+        "features": [
             {
                 "type": "Feature",
                 "properties": {k: v for k, v in row.iteritems()},
@@ -158,7 +162,9 @@ def punkter_til_geojson(data: pd.DataFrame) -> dict:
     }
 
 
-def søgefunktioner_med_valgte_metoder(forberedt_søgefunktion: Callable, metoder: List[NivMetode]) -> Iterator[Callable]:
+def søgefunktioner_med_valgte_metoder(
+    forberedt_søgefunktion: Callable, metoder: List[NivMetode]
+) -> Iterator[Callable]:
     """Returnerer en søgefunktion med fastsatte argumenter for hver metode."""
     return (
         partial(forberedt_søgefunktion, observationsklasse=OBSKLASSE[metode])
@@ -184,9 +190,11 @@ def polygoner(punkter: Iterable[Punkt], buffer: int) -> Iterator[Geometry]:
     return (Geometry(polygon.wkt) for polygon in shapely_polygoner)
 
 
-def observationer_inden_for_spredning(resultatsæt: ResultatSæt, spredning: Spredning) -> Iterator[NivellementObservation]:
+def observationer_inden_for_spredning(
+    resultatsæt: ResultatSæt, spredninger: Spredninger
+) -> Iterator[NivellementObservation]:
     return (
         observation
         for observation in list(resultatsæt)
-        if observation.spredning_afstand <= spredning[observation.observationstypeid]
+        if observation.spredning_afstand <= spredninger[observation.observationstypeid]
     )

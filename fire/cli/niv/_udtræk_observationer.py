@@ -1,4 +1,7 @@
-# CLI: fire niv udtræk-observationer
+"""
+Implementerer kommandoen `fire niv udtræk-observationer`
+
+"""
 
 import json
 import pathlib
@@ -15,26 +18,19 @@ from fire.enumtools import (
     enum_names,
     selected_or_default,
 )
+from fire.ident import klargør_identer_til_søgning
+from fire.io.regneark import (
+    til_nyt_ark_observationer,
+    til_nyt_ark_punktoversigt,
+    skriv_data,
+)
+from fire.srid import SRID
 from fire.api.model.punkttyper import (
     Punkt,
 )
-from fire.api.niv import (
-    DVR90_navn,
+from fire.api.niv.enums import (
     NivMetode,
     Nøjagtighed,
-)
-import fire.cli
-from fire.cli.niv import (
-    niv as niv_command_group,
-    ARKDEF_OBSERVATIONER,
-    ARKDEF_PUNKTOVERSIGT,
-)
-from fire.ident import klargør_identer_til_søgning
-from fire.io.regneark import (
-    observationsrække,
-    punktrække,
-    til_nyt_ark,
-    skriv_data,
 )
 from fire.api.niv.udtræk_observationer import (
     filterkriterier,
@@ -50,8 +46,12 @@ from fire.api.niv.udtræk_observationer import (
     punkter_til_geojson,
     ResultatSæt,
 )
+import fire.cli
+from fire.cli.niv import (
+    niv as niv_command_group,
+    er_projekt_okay,
+)
 from fire.cli.click_types import Datetime
-from fire.cli.niv import er_projekt_okay
 
 
 DATE_FORMAT = "%d-%m-%Y"
@@ -163,7 +163,7 @@ def udtræk_observationer(
     Udtræk nivellement-observationer for et eksisterende projekt ud fra søgekriterier.
 
     KRITERIER kan være både identer (landsnumre) og geometri-filer.
-    
+
     Programmet skelner automatisk kriterierne fra hinanden. Kriterier, der ikke
     passer i disse kategorier, bliver vist i terminal-output og derefter ignoreret.
 
@@ -237,9 +237,11 @@ def udtræk_observationer(
             fire.cli.print("Søg med punkterne som opstillingspunkt", fg="yellow")
             objekter = punkter
             # Forbereder søgefunktion med argumenter fastsat.
-            DVR90 = db.hent_srid(DVR90_navn)
+            DVR90 = db.hent_srid(SRID.DVR90)
             funktion = db.hent_observationer_fra_opstillingspunkt
-            fastholdte_argumenter = dict(tid_fra=fra, tid_til=til, srid=DVR90, kun_aktive=True)
+            fastholdte_argumenter = dict(
+                tid_fra=fra, tid_til=til, srid=DVR90, kun_aktive=True
+            )
             forberedt_søgefunktion = partial(funktion, **fastholdte_argumenter)
 
         else:  # Buffer > 0
@@ -252,7 +254,9 @@ def udtræk_observationer(
             forberedt_søgefunktion = partial(funktion, **fastholdte_argumenter)
 
         # Byg søgefunktioner (én for hver valgt metode)
-        søgefunktioner = søgefunktioner_med_valgte_metoder(forberedt_søgefunktion, metoder)
+        søgefunktioner = søgefunktioner_med_valgte_metoder(
+            forberedt_søgefunktion, metoder
+        )
 
         # Hent observationerne
         resultatsæt |= set(brug_alle_på_alle(søgefunktioner, objekter))
@@ -268,7 +272,9 @@ def udtræk_observationer(
         funktion = db.hent_observationer_naer_geometri
         fastholdte_argumenter = dict(afstand=buffer, tid_fra=fra, tid_til=til)
         forberedt_søgefunktion = partial(funktion, **fastholdte_argumenter)
-        søgefunktioner = søgefunktioner_med_valgte_metoder(forberedt_søgefunktion, metoder)
+        søgefunktioner = søgefunktioner_med_valgte_metoder(
+            forberedt_søgefunktion, metoder
+        )
         resultatsæt |= set(brug_alle_på_alle(søgefunktioner, klargjorte_geometrier))
 
     # Anvend kvalitetskriterier
@@ -285,25 +291,17 @@ def udtræk_observationer(
 
     # Regneark
     fire.cli.print("Gem observationer og punkter i projekt-regnearket")
-    ark_observationer = til_nyt_ark(
-        observationer,
-        ARKDEF_OBSERVATIONER,
-        observationsrække,
-        "Hvornår",
-    )
-    ark_punktoversigt = til_nyt_ark(
-        punkter,
-        ARKDEF_PUNKTOVERSIGT,
-        punktrække,
-        "Punkt",
-    )
+    ark_observationer = til_nyt_ark_observationer(observationer)
+    ark_punktoversigt = til_nyt_ark_punktoversigt(punkter)
 
     # Kontrol
-    fire.cli.print('Check: Punktoversigt har alle punkter i Observationer[Fra]: ', nl=False)
+    fire.cli.print(
+        "Check: Punktoversigt har alle punkter i Observationer[Fra]: ", nl=False
+    )
     if not all(ark_punktoversigt["Punkt"].isin(ark_observationer["Fra"])):
-        fire.cli.print("Nej", fg='red')
+        fire.cli.print("Nej", fg="red")
     else:
-        fire.cli.print("Ja", fg='green')
+        fire.cli.print("Ja", fg="green")
 
     # Forbered ark-skrivning
     faner = {

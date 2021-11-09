@@ -8,16 +8,15 @@ import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
 
+from fire.io.regneark import arkdef
+from fire.api.model.geometry import (
+    normaliser_lokationskoordinat,
+)
 import fire.cli
 
 from . import (
-    ARKDEF_FILOVERSIGT,
-    ARKDEF_NYETABLEREDE_PUNKTER,
-    ARKDEF_OBSERVATIONER,
-    ARKDEF_PUNKTOVERSIGT,
     find_faneblad,
     niv,
-    normaliser_lokationskoordinat,
     punkter_geojson,
     skriv_ark,
     er_projekt_okay,
@@ -37,7 +36,7 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     er_projekt_okay(projektnavn)
     # Opbyg oversigt over nyetablerede punkter
     nyetablerede = find_faneblad(
-        projektnavn, "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
+        projektnavn, "Nyetablerede punkter", arkdef.NYETABLEREDE_PUNKTER
     )
     try:
         nyetablerede = nyetablerede.set_index("Landsnummer")
@@ -222,7 +221,7 @@ def opbyg_punktoversigt(
     nyetablerede: pd.DataFrame,
     alle_punkter: Tuple[str, ...],
 ) -> pd.DataFrame:
-    punktoversigt = pd.DataFrame(columns=list(ARKDEF_PUNKTOVERSIGT))
+    punktoversigt = pd.DataFrame(columns=list(arkdef.PUNKTOVERSIGT))
     fire.cli.print("Opbygger punktoversigt")
 
     # Forlæng punktoversigt, så der er plads til alle punkter
@@ -312,8 +311,8 @@ def læs_observationsstrenge(
 ) -> pd.DataFrame:
     """Pil observationsstrengene ud fra en række råfiler"""
 
-    observationer = pd.DataFrame(columns=list(ARKDEF_OBSERVATIONER)).astype(
-        ARKDEF_OBSERVATIONER
+    observationer = pd.DataFrame(columns=list(arkdef.OBSERVATIONER)).astype(
+        arkdef.OBSERVATIONER
     )
     for fil in filinfo.itertuples(index=False):
         if fil.Type.upper() not in ["MGL", "MTL", "NUL"]:
@@ -403,5 +402,5 @@ def læs_observationsstrenge(
 # ------------------------------------------------------------------------------
 def find_inputfiler(navn: str) -> pd.DataFrame:
     """Opbyg oversigt over alle input-filnavne og deres tilhørende spredning og centreringsfejl"""
-    inputfiler = find_faneblad(navn, "Filoversigt", ARKDEF_FILOVERSIGT)
+    inputfiler = find_faneblad(navn, "Filoversigt", arkdef.FILOVERSIGT)
     return inputfiler[inputfiler["Filnavn"].notnull()]  # Fjern blanklinjer

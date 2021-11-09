@@ -3,19 +3,16 @@ from zipfile import ZipFile
 
 import click
 
-from fire import uuid
 import fire.cli
-
 from fire.api.model import (
     Sagsevent,
     SagseventInfo,
     SagseventInfoMateriale,
     EventType,
 )
-
+from fire.io.regneark import arkdef
 
 from . import (
-    ARKDEF_FILOVERSIGT,
     find_faneblad,
     find_sag,
     niv,
@@ -38,7 +35,7 @@ def luk_sag(projektnavn: str, **kwargs) -> None:
 
     # Find sagsmateriale og zip det for let indlæsning i databasen
     sagsmaterialer = [f"{projektnavn}.xlsx"]
-    filoversigt = find_faneblad(projektnavn, "Filoversigt", ARKDEF_FILOVERSIGT)
+    filoversigt = find_faneblad(projektnavn, "Filoversigt", arkdef.FILOVERSIGT)
     sagsmaterialer.extend(list(filoversigt["Filnavn"]))
     zipped = BytesIO()
     with ZipFile(zipped, "w") as zipobj:
@@ -70,7 +67,9 @@ def luk_sag(projektnavn: str, **kwargs) -> None:
         )
     else:
         spørgsmål = click.style(
-            "Er du sikker på at du vil lukke sagen {projektnavn}?", bg="red", fg="white"
+            f"Er du sikker på at du vil lukke sagen {projektnavn}?",
+            bg="red",
+            fg="white",
         )
         if bekræft(spørgsmål):
             fire.cli.firedb.session.commit()

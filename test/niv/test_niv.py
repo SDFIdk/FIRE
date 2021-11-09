@@ -1,18 +1,12 @@
-from shutil import copy
-import os
 from pathlib import Path
 
-import click
-import pytest
-
 from click.testing import CliRunner
-import fire.cli.niv
+
+from fire.io.regneark import arkdef
 from fire.cli.niv import (
     niv,
     find_faneblad,
     skriv_ark,
-    ARKDEF_NYETABLEREDE_PUNKTER,
-    ARKDEF_FILOVERSIGT,
 )
 
 
@@ -40,7 +34,7 @@ def test_revision(mocker):
 
         # fire niv ilæg-nye-punkter test
         nyetablerede = find_faneblad(
-            "testsag", "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
+            "testsag", "Nyetablerede punkter", arkdef.NYETABLEREDE_PUNKTER
         )
 
         nyt_punkt = {
@@ -90,7 +84,7 @@ def test_observationer(mocker):
         assert result.exit_code == 0
 
         # fire niv læs-observationer test
-        inputfiler = find_faneblad("testsag", "Filoversigt", ARKDEF_FILOVERSIGT)
+        inputfiler = find_faneblad("testsag", "Filoversigt", arkdef.FILOVERSIGT)
         fil = {
             "Filnavn": "obs_mgl",
             "Type": "MGL",

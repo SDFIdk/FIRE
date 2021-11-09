@@ -7,12 +7,10 @@ import pandas as pd
 import sys
 
 from fire import uuid
+from fire.io.regneark import arkdef
 import fire.cli
 
 from fire.cli.niv import (
-    ARKDEF_FILOVERSIGT,
-    ARKDEF_NYETABLEREDE_PUNKTER,
-    ARKDEF_SAG,
     niv,
     skriv_ark,
     bekræft,
@@ -60,7 +58,7 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
         "Tekst": f"{projektnavn}: {beskrivelse}",
         "uuid": uuid(),
     }
-    sagsgang = pd.DataFrame([sag], columns=tuple(ARKDEF_SAG))
+    sagsgang = pd.DataFrame([sag], columns=tuple(arkdef.SAG))
 
     fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag['uuid']})")
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
@@ -100,11 +98,11 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
 
     # Dummyopsætninger til sagsregnearkets sider
     forside = pd.DataFrame()
-    nyetablerede = pd.DataFrame(columns=tuple(ARKDEF_NYETABLEREDE_PUNKTER)).astype(
-        ARKDEF_NYETABLEREDE_PUNKTER
+    nyetablerede = pd.DataFrame(columns=tuple(arkdef.NYETABLEREDE_PUNKTER)).astype(
+        arkdef.NYETABLEREDE_PUNKTER
     )
     notater = pd.DataFrame([{"Dato": pd.Timestamp.now(), "Hvem": "", "Tekst": ""}])
-    filoversigt = pd.DataFrame(columns=tuple(ARKDEF_FILOVERSIGT))
+    filoversigt = pd.DataFrame(columns=tuple(arkdef.FILOVERSIGT))
     param = pd.DataFrame(
         columns=["Navn", "Værdi"],
         data=[("Version", fire.__version__), ("Database", fire.cli.firedb.db)],

@@ -478,7 +478,7 @@ class ObservationsType(DeclarativeBase):
     )
 
 
-class ObservationsTypeID:
+class ObservationstypeID:
     """ID for eksisterende observationstyper i FIREDB-databasen."""
 
     geometrisk_koteforskel = 1
@@ -510,7 +510,7 @@ class ObservationsTypeID:
 #
 #     class GeometriskKoteforskel(Observation):
 #         __mapper_args__ = {
-#             "polymorphic_identity": ObservationsTypeID.geometrisk_koteforskel,
+#             "polymorphic_identity": ObservationstypeID.geometrisk_koteforskel,
 #         }
 #
 #         koteforskel = Column('value1', Float, nullable=False)
@@ -646,7 +646,7 @@ class GeometriskKoteforskel(Observation):
     """
 
     __mapper_args__ = {
-        "polymorphic_identity": ObservationsTypeID.geometrisk_koteforskel,
+        "polymorphic_identity": ObservationstypeID.geometrisk_koteforskel,
     }
 
     @declared_attr
@@ -692,7 +692,7 @@ class TrigonometriskKoteforskel(Observation):
     """
 
     __mapper_args__ = {
-        "polymorphic_identity": ObservationsTypeID.trigonometrisk_koteforskel
+        "polymorphic_identity": ObservationstypeID.trigonometrisk_koteforskel
     }
 
     @declared_attr
@@ -727,7 +727,7 @@ class Retning(Observation):
 
     """
 
-    __mapper_args__ = {"polymorphic_identity": ObservationsTypeID.retning}
+    __mapper_args__ = {"polymorphic_identity": ObservationstypeID.retning}
 
     @declared_attr
     def retning(cls):
@@ -753,7 +753,7 @@ class Horisontalafstand(Observation):
 
     """
 
-    __mapper_args__ = {"polymorphic_identity": ObservationsTypeID.horisontalafstand}
+    __mapper_args__ = {"polymorphic_identity": ObservationstypeID.horisontalafstand}
 
     @declared_attr
     def afstand(cls):
@@ -777,7 +777,7 @@ class Skråafstand(Observation):
 
     """
 
-    __mapper_args__ = {"polymorphic_identity": ObservationsTypeID.skråafstand}
+    __mapper_args__ = {"polymorphic_identity": ObservationstypeID.skråafstand}
 
     @declared_attr
     def afstand(cls):
@@ -801,7 +801,7 @@ class Zenitvinkel(Observation):
 
     """
 
-    __mapper_args__ = {"polymorphic_identity": ObservationsTypeID.zenitvinkel}
+    __mapper_args__ = {"polymorphic_identity": ObservationstypeID.zenitvinkel}
 
     @declared_attr
     def vinkel(cls):
@@ -835,7 +835,7 @@ class Vektor(Observation):
 
     """
 
-    __mapper_args__ = {"polymorphic_identity": ObservationsTypeID.vektor}
+    __mapper_args__ = {"polymorphic_identity": ObservationstypeID.vektor}
 
     @declared_attr
     def dx(cls):
@@ -901,7 +901,7 @@ class Nulobservation(Observation):
 
     """
 
-    __mapper_args__ = {"polymorphic_identity": ObservationsTypeID.nulobservation}
+    __mapper_args__ = {"polymorphic_identity": ObservationstypeID.nulobservation}
 
 
 class Srid(DeclarativeBase):

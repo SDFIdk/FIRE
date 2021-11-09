@@ -18,15 +18,17 @@ from fire.api.model import (
     EventType,
     FikspunktsType,
 )
+from fire.io.regneark import arkdef
+from fire.api.model.geometry import (
+    normaliser_lokationskoordinat,
+)
 
 from . import (
-    ARKDEF_NYETABLEREDE_PUNKTER,
     bekræft,
     find_faneblad,
     find_sag,
     find_sagsgang,
     niv,
-    normaliser_lokationskoordinat,
     skriv_ark,
     opret_region_punktinfo,
     er_projekt_okay,
@@ -65,7 +67,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     # Opbyg oversigt over nyetablerede punkter
     nyetablerede = find_faneblad(
-        projektnavn, "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
+        projektnavn, "Nyetablerede punkter", arkdef.NYETABLEREDE_PUNKTER
     )
     n = nyetablerede.shape[0]
 

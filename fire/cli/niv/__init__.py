@@ -6,22 +6,18 @@ import sys
 from pathlib import Path
 from typing import (
     Dict,
-    Tuple,
-    List,
-    Mapping,
-    Union,
 )
 
 import click
 import pandas as pd
-from pyproj import Proj
 
-import fire.cli
 from fire.api.model import (
     Punkt,
     PunktInformation,
     Sag,
 )
+from fire.io.regneark import arkdef
+import fire.cli
 
 
 # Undgå ANSI farvekoder i Sphinx HTML docs
@@ -129,120 +125,6 @@ def niv():
 
 
 # ------------------------------------------------------------------------------
-# Regnearksdefinitioner (søjlenavne og -typer)
-# ------------------------------------------------------------------------------
-
-ArkDefinitionType = Mapping[str, Union[type, str]]
-
-ARKDEF_FILOVERSIGT: ArkDefinitionType = {
-    "Filnavn": str,
-    "Type": str,
-    "σ": float,
-    "δ": float,
-}
-
-ARKDEF_NYETABLEREDE_PUNKTER: ArkDefinitionType = {
-    "Foreløbigt navn": str,
-    "Landsnummer": str,
-    "Nord": float,
-    "Øst": float,
-    "Fikspunktstype": str,
-    "Beskrivelse": str,
-    "Afmærkning": str,
-    "Højde over terræn": float,
-    "uuid": str,
-}
-
-ARKDEF_OBSERVATIONER: ArkDefinitionType = {
-    # Journalnummer for observationen
-    "Journal": str,
-    # Indikerer, om punktet skal udelades i beregningen.
-    # Markeres med et lille 'x', hvis det er tilfældet.
-    "Sluk": str,
-    # Fra-dato for observationens gyldighed
-    "Fra": str,
-    # Til-dato for observationens gyldighed
-    "Til": str,
-    # Koteforskel mellem opstillingspunktet og sigtepunktet
-    "ΔH": float,
-    # Nivellementlængde
-    "L": float,
-    "Opst": int,
-    # Empirisk spredning per afstandsenhed [mm * km ** -1/2]
-    "σ": float,
-    # Empirisk centreringsfejl per opstilling [ppm]
-    "δ": float,
-    # Kommentar i regnearket
-    "Kommentar": str,
-    # Observationstidspunkt
-    "Hvornår": "datetime64[ns]",
-    # Meteorologiske parametre
-    "T": float,
-    "Sky": int,
-    "Sol": int,
-    "Vind": int,
-    "Sigt": int,
-    # Projekt
-    "Kilde": str,
-    #
-    "Type": str,
-    # Observationspostens ID i databasen
-    "uuid": str,
-}
-"Kolonnenavne og datatyper for nivellement-observationer"
-
-ARKDEF_PUNKTOVERSIGT: ArkDefinitionType = {
-    # Punktets ident
-    "Punkt": str,
-    # Fastholder punktets data i beregninger
-    "Fasthold": str,
-    # Observationstidspunkt for målte kote, etc.
-    "Hvornår": "datetime64[ns]",
-    # Vinkelret højde fra geoiden
-    "Kote": float,
-    # Empirisk spredning per afstand
-    "σ": float,
-    "Ny kote": float,
-    "Ny σ": float,
-    "Δ-kote [mm]": float,
-    "Opløft [mm/år]": float,
-    # Referencesystem
-    "System": str,
-    # Northing
-    "Nord": float,
-    # Easting
-    "Øst": float,
-    # Punktets ID i databasen
-    "uuid": str,
-    #
-    "Udelad publikation": str,
-}
-
-ARKDEF_REVISION: ArkDefinitionType = {
-    "Punkt": str,
-    "Attribut": str,
-    "Talværdi": float,
-    "Tekstværdi": str,
-    "Sluk": str,
-    "Ny værdi": str,
-    "id": float,
-    "Ikke besøgt": str,
-}
-
-ARKDEF_SAG: ArkDefinitionType = {
-    "Dato": "datetime64[ns]",
-    "Hvem": str,
-    "Hændelse": str,
-    "Tekst": str,
-    "uuid": str,
-}
-
-ARKDEF_PARAM: ArkDefinitionType = {
-    "Navn": str,
-    "Værdi": str,
-}
-
-# ------------------------------------------------------------------------------
 # Hjælpefunktioner
 # ------------------------------------------------------------------------------
 
@@ -255,79 +137,6 @@ def anvendte(arkdef: Dict) -> str:
         return ""
     return "A:" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[n - 1]
 
-
-# ------------------------------------------------------------------------------
-def normaliser_lokationskoordinat(
-    λ: float, φ: float, region: str = "DK", invers: bool = False
-) -> Tuple[float, float]:
-    """Check op på lokationskoordinaterne.
-    En normaliseret lokationskoordinat er en koordinat der egner sig som
-    WKT- og/eller geojson-geometriobjekt. Dvs. en koordinat anført i en
-    afart af WGS84 og med akseorden længde, bredde (λ, φ).
-
-    Hvis det ser ud som om akseordenen er gal, så bytter vi om på dem.
-
-    Hvis input ligner UTM, så regner vi om til geografiske koordinater.
-    NaN og 0 flyttes ud i Kattegat, så man kan få øje på dem.
-
-    Disse korrektioner udføres med brug af bredt gyldige heuristikker,
-    der dog er nødt til at gøre antagelser om hvor i verden vi befinder os.
-    Dette kan eksplicit anføres med argumentet `region`, der som standard
-    sættes til `"DK"`.
-
-    Den omvendte vej (`invers==True`, input: geografiske koordinater,
-    output: UTM-koordinater i traditionel lokationskoordinatorden)
-    er indtil videre kun understøttet for `region=="DK"`.
-
-    Parameters
-    ----------
-        λ
-            Antaget længdegrad/Øst-koordinat
-        φ
-            Antaget breddegrad/Nor-koordinat
-        region
-            Region. Hvis ikke denne er kendt af programmet, returneres koordinaterne uændret.
-        invers
-            Koordinaterne i omvendt rækkefølge. Se docstring for mere.
-
-    """
-    # Gem kopi af oprindeligt input til brug i fejlmelding
-    x, y = λ, φ
-
-    global utm32
-    if utm32 is None:
-        utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
-        assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
-
-    # Begrænset understøttelse af FO, GL, hvor UTM32 er meningsløst.
-    # Der er gjort plads til indførelse af UTM24 og UTM29 hvis der skulle
-    # vise sig behov, men det kræver en væsentlig algoritmeudvidelse.
-    if region not in ("DK", ""):
-        return (λ, φ)
-
-    # Geometri-til-lokationskoordinat
-    if invers:
-        return utm32(λ, φ, inverse=False)
-
-    if pd.isna(λ) or pd.isna(φ) or 0 == λ or 0 == φ:
-        return (11.0, 56.0)
-
-    # Heuristik til at skelne mellem UTM og geografiske koordinater.
-    # Heuristikken fejler kun for UTM-koordinater fra et lille
-    # område på 6 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
-    # Det er langt ude i Atlanterhavet, så det lever vi med.
-    if abs(λ) > 181 and abs(φ) > 91:
-        λ, φ = utm32(λ, φ, inverse=True)
-
-    if region == "DK":
-        if λ < 3.0 or λ > 15.5 or φ < 54.5 or φ > 58.0:
-            raise ValueError(f"Koordinat ({x}, {y}) uden for dansk territorium.")
-
-    return (λ, φ)
-
-
-# Globalt transformationsobjekt til normaliser_lokationskoordinat
-utm32 = None
 
 # -----------------------------------------------------------------------------
 def skriv_ark(
@@ -502,14 +311,14 @@ def find_faneblad(
 # ------------------------------------------------------------------------------
 def gyldighedstidspunkt(projektnavn: str) -> datetime.datetime:
     """Tid for sidste observation der har været brugt i beregningen"""
-    obs = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
+    obs = find_faneblad(projektnavn, "Observationer", arkdef.OBSERVATIONER)
     obs = obs[obs["Sluk"] != "x"]
     return max(obs["Hvornår"])
 
 
 def find_parameter(projektnavn: str, parameter: str) -> str:
     """Find parameter fra et projektregneark"""
-    param = find_faneblad(projektnavn, "Parametre", ARKDEF_PARAM)
+    param = find_faneblad(projektnavn, "Parametre", arkdef.PARAM)
     if parameter not in list(param["Navn"]):
         fire.cli.print(f"FEJL: '{parameter}' ikke angivet under fanebladet 'Parametre'")
         sys.exit(1)

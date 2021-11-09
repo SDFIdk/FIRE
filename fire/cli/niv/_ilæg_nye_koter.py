@@ -2,7 +2,6 @@ import getpass
 
 import click
 import pandas as pd
-from sqlalchemy import func
 
 import fire.cli
 from fire import uuid
@@ -13,10 +12,9 @@ from fire.api.model import (
     SagseventInfo,
     SagseventInfoHtml,
 )
-
+from fire.io.regneark import arkdef
 
 from . import (
-    ARKDEF_PUNKTOVERSIGT,
     bekræft,
     find_faneblad,
     find_sag,
@@ -54,7 +52,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
 
     punktoversigt = find_faneblad(
-        projektnavn, "Endelig beregning", ARKDEF_PUNKTOVERSIGT
+        projektnavn, "Endelig beregning", arkdef.PUNKTOVERSIGT
     )
     ny_punktoversigt = punktoversigt[0:0]
 

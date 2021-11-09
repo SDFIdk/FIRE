@@ -26,7 +26,7 @@ from typing import (
     Tuple,
 )
 
-from fire.api.niv import (
+from fire.api.niv.enums import (
     NivMetode,
     Nøjagtighed,
 )
