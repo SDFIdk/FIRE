@@ -21,6 +21,9 @@ def test_mildeste_kvalitetskrav():
 
     # Test medlemmer
     test_data = (
+
+        # EMPIRISK_SPREDNING
+
         ([P, K, D], [MGL], EMPIRISK_SPREDNING, 1.5),
         ([P, D], [MGL], EMPIRISK_SPREDNING, 1.5),
         ([K, D], [MGL], EMPIRISK_SPREDNING, 1.5),
@@ -43,19 +46,21 @@ def test_mildeste_kvalitetskrav():
         ([P_alias, K_alias], [MTL_alias], EMPIRISK_SPREDNING, 2.0),
         ([P_alias], [MTL_alias], EMPIRISK_SPREDNING, 1.5),
 
-        ([P, K, D], [MGL], FORKASTELSESKRITERIUM, 5.0),
+        # FORKASTELSESKRITERIUM
+
+        ([P, K, D], [MGL], FORKASTELSESKRITERIUM, 3.0),
         ([P, K], [MGL], FORKASTELSESKRITERIUM, 2.5),
         ([P], [MGL], FORKASTELSESKRITERIUM, 2.0),
 
-        ([P_alias, K_alias, D_alias], [MGL_alias], FORKASTELSESKRITERIUM, 5.0),
+        ([P_alias, K_alias, D_alias], [MGL_alias], FORKASTELSESKRITERIUM, 3.0),
         ([P_alias, K_alias], [MGL_alias], FORKASTELSESKRITERIUM, 2.5),
         ([P_alias], [MGL_alias], FORKASTELSESKRITERIUM, 2.0),
 
-        ([P, K, D], [MTL], FORKASTELSESKRITERIUM, 5.0),
+        ([P, K, D], [MTL], FORKASTELSESKRITERIUM, 3.0),
         ([P, K], [MTL], FORKASTELSESKRITERIUM, 2.5),
         ([P], [MTL], FORKASTELSESKRITERIUM, 2.0),
 
-        ([P_alias, K_alias, D_alias], [MTL_alias], FORKASTELSESKRITERIUM, 5.0),
+        ([P_alias, K_alias, D_alias], [MTL_alias], FORKASTELSESKRITERIUM, 3.0),
         ([P_alias, K_alias], [MTL_alias], FORKASTELSESKRITERIUM, 2.5),
         ([P_alias], [MTL_alias], FORKASTELSESKRITERIUM, 2.0),
     )

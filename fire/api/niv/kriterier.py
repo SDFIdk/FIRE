@@ -14,7 +14,7 @@ Nøjagtighedskrav:
 |-----------|-----------------|--------------------|---------------|--------------------|
 | Præcision |             2.0 |                0.6 |           2.0 |                1.5 |
 | Kvalitet  |             2.5 |                1.0 |           2.5 |                2.0 |
-| Detail    |             5.0 |                1.5 |           5.0 |                3.0 |
+| Detail    |             3.0 |                1.5 |           3.0 |                3.0 |
 | Eksternt  |             5.0 |                    |               |                    |
 
 """
@@ -35,10 +35,10 @@ from fire.api.niv import (
 FORKASTELSESKRITERIUM: Mapping[Tuple[Nøjagtighed, NivMetode], float] = {
     (Nøjagtighed.Præcision, NivMetode.MotoriseretGeometriskNivellement): 2.0,
     (Nøjagtighed.Kvalitet, NivMetode.MotoriseretGeometriskNivellement): 2.5,
-    (Nøjagtighed.Detail, NivMetode.MotoriseretGeometriskNivellement): 5.0,
+    (Nøjagtighed.Detail, NivMetode.MotoriseretGeometriskNivellement): 3.0,
     (Nøjagtighed.Præcision, NivMetode.MotoriseretTrigonometriskNivellement): 2.0,
     (Nøjagtighed.Kvalitet, NivMetode.MotoriseretTrigonometriskNivellement): 2.5,
-    (Nøjagtighed.Detail, NivMetode.MotoriseretTrigonometriskNivellement): 5.0,
+    (Nøjagtighed.Detail, NivMetode.MotoriseretTrigonometriskNivellement): 3.0,
 }
 "Implementerer forkastelseskriterier jævnfør nøjagtighedskrav i modulets dokumentation."
 
