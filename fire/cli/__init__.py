@@ -1,3 +1,8 @@
+"""
+Kommandoliniebrugergrænsefladen (en command-line interface, CLI) til FIREs API.
+
+"""
+
 import click
 
 from fire.api import FireDb

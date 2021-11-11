@@ -1,10 +1,10 @@
-fire.cli package
-================
+fire.api.firedb package
+=======================
 
 Module contents
 ---------------
 
-.. automodule:: fire.cli
+.. automodule:: fire.api.firedb
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,31 +12,22 @@ Module contents
 Submodules
 ----------
 
-.. automodule:: fire.cli.gama
+.. automodule:: fire.api.firedb.base
    :members:
    :undoc-members:
    :show-inheritance:
 
-
-.. automodule:: fire.cli.info
+.. automodule:: fire.api.firedb.hent
    :members:
    :undoc-members:
    :show-inheritance:
 
-
-.. automodule:: fire.cli.main
+.. automodule:: fire.api.firedb.indset
    :members:
    :undoc-members:
    :show-inheritance:
 
-
-.. automodule:: fire.cli.niv
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-.. automodule:: fire.cli.click_types
+.. automodule:: fire.api.firedb.luk
    :members:
    :undoc-members:
    :show-inheritance:

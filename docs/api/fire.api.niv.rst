@@ -1,10 +1,10 @@
-fire.api.gama package
+fire.api.niv package
 =====================
 
 Module contents
 ---------------
 
-.. automodule:: fire.api.gama
+.. automodule:: fire.api.niv
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,19 +12,17 @@ Module contents
 Submodules
 ----------
 
-.. automodule:: fire.api.gama.networkdoc
+.. automodule:: fire.api.niv.udtræk_observationer
    :members:
    :undoc-members:
    :show-inheritance:
 
-
-.. automodule:: fire.api.gama.reader
+.. automodule:: fire.api.niv.enums
    :members:
    :undoc-members:
    :show-inheritance:
 
-
-.. automodule:: fire.api.gama.writer
+.. automodule:: fire.api.niv.kriterier
    :members:
    :undoc-members:
    :show-inheritance:
