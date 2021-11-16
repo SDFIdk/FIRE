@@ -197,6 +197,14 @@ def udtræk_observationer(
         Se de enkelte kommando-linie-argumenters dokumentation for flere
         detaljer om deres betydning for fremsøgningsprocessen.
 
+    Geometrifiler:
+
+        Det er muligt at søge inden for en vilkårlig polygon, i punkter
+        og langs linier. Sidstnævnte kan eksempelvis bruges sammen med en
+        bufferafstand til at søge langs en vej, hvis forløb er angivet
+        liniestykker i geometrifilen. Man kan altså søge langs vilkårlige
+        vejsegmenter eller hvad som helst andet, man ønsker.
+
     """
 
     # Arrangér kommandolinie-inputtet
@@ -220,7 +228,6 @@ def udtræk_observationer(
     # Her gemmes alle observationer
     resultatsæt: ResultatSæt = set()
 
-    # Genvej
     db = fire.cli.firedb
 
     # Søg baseret på identer

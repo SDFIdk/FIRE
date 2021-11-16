@@ -258,6 +258,10 @@ Hvert faneblad kan nu redigeres til det formål man ønsker.
    projekt med det navn allerede, ellers vil ``fire`` brokke sig. ``fire`` kan ligeledes
    ikke skrive til et allerede åbent excel-ark.
 
+Herfra kan man nu vælge at fortsætte til Trin 2 og foretage revisions-arbejde med
+nye data, eller gå til Trin 5a, hvor man udtrækker eksisterende observationer til
+regnearket baseret på en række søgekriterier, geometrifiler eller identer.
+
 
 Trin 2) udtræk-revision
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -528,6 +532,20 @@ Slutteligt står der i terminalen hvad man skal gøre som det næste:
 *Dataindlæsning afsluttet. Vælg nu fastholdte punkter i punktoversigten.*
 Så det gør vi!
 
+Trin 5a) Udtræk eksisterende observationer til beregning
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Som nævnt er det muligt at gå direkte fra sagsoprettelse til udtræk af observationer
+fra fire-databasen. Nedenfor er et eksempel på, hvordan dette kan gøres.
+
+Når du har oprettet en sag som i Trin 1 ovenfor, kan du trække eksisterende
+observationer ud med kommandoen ``fire niv udtræk-observationer``.
+
+.. command-output:: fire niv udtræk-observationer --help
+
+Herefter kan du fortsætte med resten af trinene i sagsforløbet fra Trin 6.
+
+
 .. _trin6:
 
 Trin 6) regn
@@ -669,21 +687,6 @@ I praksis ser det ud som følger:
   Gentag svar for at bekræfte (ja/NEJ)
   ja
   Sag aef7ae59-e2fd-4c5d-9bc1-99bc7ad82bb9 for 'Fjernkontrol_af_SULD' lukket!
-
-
-Udtræk af eksisterende observationer til beregning
-++++++++++++++++++++++++++++++++++++++++++++++++++
-
-Som nævnt er det muligt at gå direkte fra sagsoprettelse til udtræk af observationer fra fire-databasen. Nedenfor er et eksempel på, hvordan dette kan gøres.
-
-Trin 5a) Udtræk observationer
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Når du har oprettet en sag som i Trin 1 ovenfor, kan du trække eksisterende observationer ud med kommandoen ``fire niv udtræk-observationer``.
-
-.. command-output:: fire niv udtræk-observationer --help
-
-Herefter kan du fortsætte med resten af trinene i sagsforløbet fra Trin 6.
 
 
 .. _visualiseringQGIS:

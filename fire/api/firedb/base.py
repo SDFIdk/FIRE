@@ -64,12 +64,9 @@ class FireDbBase:
         self.debug = debug
         self._cache = new_cache()
 
-        # Bliver oprettet her, fordi gama-modulerne
-        # skal have adgang til konfigurationsfilen.
-        # Ellers kan man undlade at oprette
-        # self.config, da konfigurationsfilen
-        # kun anvendes til at bygge en connection string
-        # når denne ikke er givet ved instantiering.
+        # Bliver oprettet her, fordi gama-modulerne skal have adgang til konfigurationsfilen.
+        # Ellers kan man undlade at oprette `self.config`, da konfigurationsfilen kun anvendes
+        # til at bygge en connection string når denne ikke er givet ved instantiering.
         self.config = get_configuration()
 
         if connectionstring:

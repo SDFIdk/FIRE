@@ -1,4 +1,5 @@
 import json
+import shutil
 
 import pytest
 
@@ -90,7 +91,7 @@ def test_adskil_filnavne(tmp_path, identer_gyldige, identer_ugyldige):
     # Filnavnene
     filnavne = [f"{fname}" for fname in filenames]
 
-    # Smid nogle gyldige og ugyldige identer med, i.e. nogle ikke-filer
+    # Smid nogle gyldige og ugyldige identer med, altså nogle ikke-filer.
     identer = identer_gyldige + identer_ugyldige
 
     # Saml det hele
@@ -101,6 +102,8 @@ def test_adskil_filnavne(tmp_path, identer_gyldige, identer_ugyldige):
         assert result in filnavne, f"Forventede, at {result!r} var blandt {filnavne}."
     for result in result_identer:
         assert result in identer, f"Forventede, at {result!r} var blandt {identer}."
+
+    shutil.rmtree(subdir)
 
 
 def test_adskil_identer(identer_gyldige, identer_ugyldige):
@@ -124,6 +127,7 @@ def test_klargør_geometrifiler(tmp_path, geojson_rectangle):
         json.dump(geojson_rectangle, f, indent=2)
     klargjort = klargør_geometrifiler([geometrifil])[0]
     assert isinstance(klargjort, Geometry), f""
+    shutil.rmtree(subdir)
 
 
 def test_søgefunktioner_med_valgte_metoder():
@@ -145,6 +149,35 @@ def test_brug_alle_på_alle():
     results = brug_alle_på_alle([operation], objekter)
     for result, expected in zip(results, results_expected):
         assert result == expected, f"Forventede, at {result!r} var {expected!r}."
+
+    operationer = [
+        lambda s: range(int(s)),
+    ]
+    objekter = (
+        "1",
+        "5",
+        "10",
+    )
+    expected = (
+        0,
+        0,
+        1,
+        2,
+        3,
+        4,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+    )
+    result = tuple(brug_alle_på_alle(operationer, objekter))
+    assert result == expected, f"Forventede, at {result!r} var {expected!r}."
 
 
 def test_observationer_inden_for_spredning():

@@ -479,7 +479,14 @@ class ObservationsType(DeclarativeBase):
 
 
 class ObservationstypeID:
-    """ID for eksisterende observationstyper i FIREDB-databasen."""
+    """
+    ID for eksisterende observationstyper i FIREDB-databasen.
+
+    Notes
+    -----
+    ID'erne er fastsat i DDL-filerne for databasen og kan derfor fastsættes her.
+
+    """
 
     geometrisk_koteforskel = 1
     trigonometrisk_koteforskel = 2
@@ -493,18 +500,18 @@ class ObservationstypeID:
 
 # Her bruger vi SQLAlchemy's Single Inheritance-funktionalitet:
 #
-# En instans af Observation har kolonnerne value1..15, hvor indholdets betydning
-# er defineret af observationstypen givet ved informationerne i entiteten Observationstype.
+# En instans af `Observation` har kolonnerne `value1..15`, hvor indholdets betydning
+# er defineret af observationstypen givet ved informationerne i entiteten `Observationstype`.
 #
-# Med ovennævnte funktionalitet kan man nedarve fra en entitet, her Observation, og angive
-# meningsfulde navne for de pågældende kolonner. Ved hjælp af __mapper_args__-indgangene
-# `polymorphic_on` og `polymorphic_identity` kan man skelne mellem observationstyperne
-# med hver sin observationsklasse---e.g. GeometriskKoteforskel, når polymorphic_identity
-# er 1, da 1 er det faste ID i ObservationsType, der angiver en geometrisk koteforskel.
+# Med ovennævnte funktionalitet kan man nedarve fra en entitet, her `Observation`, og angive
+# meningsfulde navne for de pågældende kolonner. Ved hjælp af `__mapper_args__`-indgangene
+# `polymorphic_on` og `polymorphic_identity` kan man skelne mellem observationstyperne med hver
+# sin observationsklasse---eksempelvis `GeometriskKoteforskel`, når `polymorphic_identity`
+# er 1, da 1 er det faste ID i `ObservationstypeID`, der angiver en geometrisk koteforskel.
 #
 # Endelig løsning, erfaringer og rationale:
 #
-# Med kun én nedarvning, i.e. én observationsklasse, e.g. GeometriskKoteforskel,
+# Med kun én nedarvning (observationsklasse), eksempelvis `GeometriskKoteforskel`,
 # fungerer nedarvningen fint. Man kan lave en simpel mapping med en linie som
 # følgende i den nedarvede klasse:
 #
@@ -521,39 +528,41 @@ class ObservationstypeID:
 #
 #         (...)
 #
-# Men med to eller flere nedarvninger af Observation, e.g med klassen
-# TrigonometriskKoteforskel, kommer der sammenstød mellem attribut-navnene.
+# Men med to eller flere nedarvninger af `Observation`, e.g med klassen
+# `TrigonometriskKoteforskel`, kommer der sammenstød mellem attribut-navnene.
 #
-# Løsningen på er ud fra [SQLAlchemy: Single Table Inheritance, same column in childs](https://stackoverflow.com/a/17140952,
-# hvis svar er skrevet af zzzeek, der er vedligeholder på SQLAlchemy,
-# at man bruger SQLAlchemy's class decorator `declared_attr` og laver en
-# form for property for hver kolonne, der skal være i den nedarvede klasse.
+# Ifølge [SQLAlchemy: Single Table Inheritance, same column in childs][single-table-inheritance],
+# hvis svar er skrevet af zzzeek, der er vedligeholder på SQLAlchemy, er løsningen,
+# at man bruger SQLAlchemy's class decorator `declared_attr` og laver en form for
+# property for hver kolonne, der skal være i den nedarvede klasse.
 #
-# Følger man dette svar får man dog problemer, der ligner dét, der skulle løses,
-# her ved at TrigonometriskKoteforskel definerer et felt, e.g. `koreforskel`,
-# der allerede er defineret på Observation (ja, Observation, ikke klassen GeometriskKoteforskel).
+# [single-table-inheritance]: https://stackoverflow.com/a/17140952
 #
-# Vi havde håbet på, at man med denne løsning (Single Inheritance) kan fjerne attributerne
-# `value1..15` fra Observation. Men ved at beholde dem forsvinder problemet, der opstår,
-# når to eller flere nedarvende klasser, her GeometriskKoteforskel og TriginometriskKoteforskel,
-# begge bruger e.g. value1 på entiteten til en attribut koteforskel.
+# Følger man dette svar får man dog problemer, der ligner dét, der skulle løses, her
+# ved at `TrigonometriskKoteforskel` definerer et felt, her `koteforskel`, der allerede
+# er defineret på Observation (ja, Observation, ikke klassen GeometriskKoteforskel).
+#
+# Vi håbede, at man med Single Inheritance kunne fjerne attributerne `value1..15`
+# fra `Observation`. Beholde man dem, forsvinder problemet, hvor to eller flere
+# nedarvende klasser, her `GeometriskKoteforskel` og `TrigonometriskKoteforskel`,
+# begge anvender eksempelvis `value1` på entiteten til en attribut `koteforskel`.
 #
 # I løsningen fra SO er det tilsyneladende muligt ikke at have en komplet mapping
 # i moder-klassen og samtidig have flere nedarvende klasser lave en attribut
 # med samme navn og samme kolonne i entiteten. Det virker bare ikke.
 #
-# To fremgangsmåder løser problemet:
+# To fremgangsmåder løser altså problemet:
 #
 # 1. Fortsæt med at lade klasserne nedarve fra samme moderklasse, og behold
-#    attributterne value1..15. Dette virker, og man kan falde tilbage til
+#    attributterne `value1..15`. Dette virker, og man kan falde tilbage til
 #    moderklassen som standard observationsklasse.
 #
-#    En bagdel ved denne fremgangsmåde er, at man får alle value1..15
+#    En ulempe ved denne fremgangsmåde er, at man får alle `value1..15`
 #    attributter med i hvert objekt, hvilket kan være kostbart i hukommelse.
 #
-# 2. Efter definition af klassen GeometriskKoteforskel kan denne bruges i
-#    e.g. TrigonomiskKoteforskel istedet for Observation, når man definerer
-#    sine properties.
+# 2. Efter definition af klassen `GeometriskKoteforskel` kan denne bruges i
+#    eksempelvis `TrigonomiskKoteforskel` istedet for Observation, når man
+#    definerer sine properties.
 #
 #    Eksempel:
 #
@@ -574,17 +583,20 @@ class ObservationstypeID:
 #                # Dette virker for os.
 #                return GeometriskKoteforskel.__table__.c.get('value1', Column(Float))
 #
-# Vælger vi mulighed 2, bliver koden for kompleks at vedligeholde.
+# Vælger vi mulighed 2, bliver koden for besværlig at vedligeholde, fordi
+# de enkelte observationsklasser afhænger af hinanden i en lang kæde fra
+# modeklassen `Observation`.
 #
-# Mulighed er simplere at vedligeholde:
+# Mulighed 1 er simplere at vedligeholde:
 #
 # * man kan fjerne en underklasse uden at det ødelægger funktionaliteten
 #   af en underklasse, defineret efter denne.
-# * man kan stadig bruge moderklassen, her Observation, da alle kolonnerne
-#   i entiteten er tilgæmgelige fra denne klasse, selvom de ikke har
+#
+# * man kan stadig bruge moderklassen `Observation`, da alle kolonnerne
+#   i entiteten er tilgængelige fra denne klasse, selvom de ikke har
 #   forklarende navne.
 #
-# Derfor bruger vi fremgangsmåden beskrevet som mulighed nummer 1 ovenfor.
+# Derfor bruger vi fremgangsmåde 1.
 #
 
 
@@ -737,13 +749,11 @@ class Retning(Observation):
     @declared_attr
     def varians_retning(cls):
         """Varians [for] retning hidrørende fra instrument, pr. sats / [rad^2]"""
-        # TODO: Mangler der et ord mellem `Varians` og `retning` i docstring/database-beskrivelse?
         return Observation.__table__.c.get("value2", Column(Float))
 
     @declared_attr
     def varians_samlet(cls):
-        """Samlet centreringsvarians for instrument prisme [m^2]"""
-        # TODO: Mangler der et ord mellem `instrument` og `prisme` i docstring/database-beskrivelse?
+        """Samlet centreringsvarians for instrumentprisme / [m^2]"""
         return Observation.__table__.c.get("value3", Column(Integer))
 
 

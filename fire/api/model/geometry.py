@@ -219,9 +219,9 @@ def normaliser_lokationskoordinat(
     Parameters
     ----------
         λ
-            Antaget længdegrad/Øst-koordinat
+            Antaget længdegrad (Easting)
         φ
-            Antaget breddegrad/Nor-koordinat
+            Antaget breddegrad (Northing)
         region
             Region. Hvis ikke denne er kendt af programmet, returneres koordinaterne uændret.
         invers
@@ -258,6 +258,6 @@ def normaliser_lokationskoordinat(
 
     if region == "DK":
         if λ < 3.0 or λ > 15.5 or φ < 54.5 or φ > 58.0:
-            raise ValueError(f"Koordinat ({x}, {y}) uden for dansk territorium.")
+            raise ValueError(f"Koordinat ({x}, {y}) uden for dansk territorie.")
 
     return (λ, φ)
