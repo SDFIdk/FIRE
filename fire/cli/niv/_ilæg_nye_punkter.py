@@ -98,7 +98,10 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     # Opret punkter
     fire.cli.print(f"Behandler punkter")
-    for i in range(n):
+    # Index frasorterer automatisk blanke linjer og er dermed mere robust.
+    # Bemærkes, at felter med usynlige tegn som mellemrum IKKE resulterer
+    # i en tom linje og en sådan vil fremtvinge en fejl pga ugyldigt input
+    for i in nyetablerede.index:
         # Et tomt tekstfelt kan repræsenteres på en del forskellige måder...
         # Punkter udstyret med uuid er allerede registrerede
         if str(nyetablerede.uuid[i]) not in ["", "None", "nan"]:
