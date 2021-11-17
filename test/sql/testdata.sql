@@ -54,6 +54,7 @@ INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (337, 'ATTR:MV_punkt', 'FLAG', 'MV fikspunkter');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (338, 'ATTR:GI_punkt', 'FLAG', 'GI fikspunkter');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (360, 'ATTR:beskrivelse', 'TEKST', 'Tekstbeskrivelse af punktet');
+INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (361, 'ATTR:bemærkning', 'TEKST', 'Bemærkning i forbindelse med punktrevision');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (362, 'AFM:højde_over_terræn', 'TAL', 'Fikspunkts højde over terræn');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (363, 'AFM:4999', 'TEKST', 'Ukendt fikspunktstype');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (364, 'AFM:2700', 'TEKST', 'Bolt');

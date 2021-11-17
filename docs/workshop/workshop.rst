@@ -447,6 +447,11 @@ Under afmærkning kan følgende typer indtastes:
 4. skruepløk
 5. ingen
 
+Ved oprettelse af punktet indsættes automatisk en `ATTR:bemærkning` med info om
+nyetablering i indeværende år af den givne sagsbehandler. Sidstnævnte fremstår som
+brugerens B-nummer medmindre andet er angivet med `--sagsbehandler` når kommandoen
+kaldes.
+
 .. _trin5:
 
 Trin 5) læs-observationer
