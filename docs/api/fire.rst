@@ -1,6 +1,14 @@
 fire package
 ============
 
+Module contents
+---------------
+
+.. automodule:: fire
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Subpackages
 -----------
 
@@ -9,11 +17,4 @@ Subpackages
 
    fire.api
    fire.cli
-
-Module contents
----------------
-
-.. automodule:: fire
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   fire.io

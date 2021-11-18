@@ -1,25 +1,6 @@
 fire.api package
 ================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 3
-
-   fire.api.gama
-   fire.api.model
-
-Submodules
-----------
-
-
-.. automodule:: fire.api.firedb
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 Module contents
 ---------------
 
@@ -27,3 +8,14 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 3
+
+   fire.api.firedb
+   fire.api.gama
+   fire.api.model
+   fire.api.niv

@@ -14,6 +14,7 @@
 #
 import os
 import sys
+import datetime as dt
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -23,8 +24,8 @@ import fire
 # -- Project information -----------------------------------------------------
 
 project = "FIRE"
-copyright = "2019, Asger Sigurd Skovbo Petersen, Björn Harrtell, Kristian Evers"
-author = "Asger Sigurd Skovbo Petersen, Björn Harrtell, Kristian Evers"
+copyright = f"2019-{dt.date.today().year} {fire.__author__}"
+author = fire.__author__
 
 # The short X.Y version
 version = fire.__version__
@@ -143,7 +144,7 @@ latex_documents = [
         master_doc,
         "fireapi.tex",
         "fireapi Documentation",
-        "Asger Sigurd Skovbo Petersen, Björn Harrtell, Kristian Evers",
+        fire.__author__,
         "manual",
     )
 ]

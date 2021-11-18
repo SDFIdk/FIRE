@@ -6,11 +6,11 @@ from datetime import datetime
 from typing import List, Optional
 import re
 
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.orm.exc import NoResultFound
-from fire.api import BaseFireDb
 
+from fire.api.firedb.base import FireDbBase
 from fire.api.model import (
     Sag,
     Punkt,
@@ -21,10 +21,11 @@ from fire.api.model import (
     ObservationsType,
     Geometry,
     Srid,
+    Koordinat,
 )
 
 
-class FireDbHent(BaseFireDb):
+class FireDbHent(FireDbBase):
     def hent_punkt(self, ident: str) -> Punkt:
         """
         Returnerer det første punkt der matcher 'ident'
@@ -174,12 +175,46 @@ class FireDbHent(BaseFireDb):
         """
         return self.session.query(Observation).filter(Observation.id.in_(ids)).all()
 
+    def hent_observationer_fra_opstillingspunkt(
+        self,
+        punkt: Punkt,
+        tid_fra: Optional[datetime] = None,
+        tid_til: Optional[datetime] = None,
+        srid: Srid = None,
+        kun_aktive: bool = True,
+        observationsklasse: Observation = Observation,
+    ) -> List[Observation]:
+        """
+        Hent observationer, hvor `punkt` var opstillingspunktet.
+
+        """
+        k = aliased(Koordinat)
+        filtre = [observationsklasse.opstillingspunktid == punkt.id]
+        if tid_fra is not None:
+            filtre.append(observationsklasse.observationstidspunkt >= tid_fra)
+
+        if tid_til is not None:
+            filtre.append(observationsklasse.observationstidspunkt <= tid_til)
+
+        if kun_aktive:
+            filtre.append(observationsklasse._registreringtil == None)
+
+        query = self.session.query(observationsklasse)
+
+        if srid is not None:
+            query.join(k, k.punktid == observationsklasse.opstillingspunktid)
+            filtre.append(k.sridid == srid.sridid)
+
+        filtre_and = and_(*filtre)
+        query = query.filter(filtre_and)
+        return query.all()
+
     def hent_observationer_naer_opstillingspunkt(
         self,
         punkt: Punkt,
         afstand: float,
-        tidfra: Optional[datetime] = None,
-        tidtil: Optional[datetime] = None,
+        tid_fra: Optional[datetime] = None,
+        tid_til: Optional[datetime] = None,
     ) -> List[Observation]:
         g1 = aliased(GeometriObjekt)
         g2 = aliased(GeometriObjekt)
@@ -189,7 +224,7 @@ class FireDbHent(BaseFireDb):
             .join(g2, g2.punktid == punkt.id)
             .filter(
                 self._filter_observationer(
-                    g1.geometri, g2.geometri, afstand, tidfra, tidtil
+                    g1.geometri, g2.geometri, afstand, tid_fra, tid_til
                 )
             )
             .all()
@@ -199,22 +234,22 @@ class FireDbHent(BaseFireDb):
         self,
         geometri: Geometry,
         afstand: float,
-        tidfra: Optional[datetime] = None,
-        tidtil: Optional[datetime] = None,
+        tid_fra: Optional[datetime] = None,
+        tid_til: Optional[datetime] = None,
+        observationsklasse: Observation = Observation,
     ) -> List[Observation]:
         """
         Parameters
         ----------
         geometri
-            Enten en WKT-streng eller en instans af Geometry, der bruges til
-            udvælge alle geometriobjekter der befinder sig inden for en given
-            afstand af denne geometri.
+            Forespørgslen udvælger alle geometriobjekter, der befinder
+            sig inden for en given afstand af denne geometri.
         afstand
-            Bufferafstand omkring geometri.
-        tidfra
-
-        tidtil
-            asd
+            Bufferafstand omkring geometri i meter.
+        tid_fra
+            Tidspunkt hvorfra observationerne skal have fundet sted.
+        tid_til
+            Tidspunkt hvortil observationerne skal have fundet sted.
 
         Returns
         -------
@@ -222,18 +257,17 @@ class FireDbHent(BaseFireDb):
             En liste af alle de Observation'er der matcher søgekriterierne.
         """
         g = aliased(GeometriObjekt)
+        filtre = self._filter_observationer(
+            g.geometri, geometri, afstand, tid_fra, tid_til
+        )
         return (
-            self.session.query(Observation)
+            self.session.query(observationsklasse)
             .join(
                 g,
-                g.punktid == Observation.opstillingspunktid
-                or g.punktid == Observation.sigtepunktid,
+                g.punktid == observationsklasse.opstillingspunktid
+                or g.punktid == observationsklasse.sigtepunktid,
             )
-            .filter(
-                self._filter_observationer(
-                    g.geometri, geometri, afstand, tidfra, tidtil
-                )
-            )
+            .filter(filtre)
             .all()
         )
 

@@ -2,8 +2,14 @@
 # Otherwise based on
 # https://github.com/zzzeek/sqlalchemy/blob/master/examples/postgis/postgis.py
 import re
+from typing import (
+    Tuple,
+)
 
 from sqlalchemy.sql import expression
+from pyproj import Proj
+import pandas as pd
+
 from fire.api.model import columntypes
 
 __all__ = ["Geometry", "Point", "Bbox"]
@@ -182,3 +188,76 @@ def to_wkt(geom):
                 "Kun Point, Line og Polygon er understøttet."
             )
         )
+
+
+utm32 = None
+"Globalt transformationsobjekt til normaliser_lokationskoordinat"
+
+
+def normaliser_lokationskoordinat(
+    λ: float, φ: float, region: str = "DK", invers: bool = False
+) -> Tuple[float, float]:
+    """Check op på lokationskoordinaterne.
+    En normaliseret lokationskoordinat er en koordinat der egner sig som
+    WKT- og/eller geojson-geometriobjekt. Dvs. en koordinat anført i en
+    afart af WGS84 og med akseorden længde, bredde (λ, φ).
+
+    Hvis det ser ud som om akseordenen er gal, så bytter vi om på dem.
+
+    Hvis input ligner UTM, så regner vi om til geografiske koordinater.
+    NaN og 0 flyttes ud i Kattegat, så man kan få øje på dem.
+
+    Disse korrektioner udføres med brug af bredt gyldige heuristikker,
+    der dog er nødt til at gøre antagelser om hvor i verden vi befinder os.
+    Dette kan eksplicit anføres med argumentet `region`, der som standard
+    sættes til `"DK"`.
+
+    Den omvendte vej (`invers==True`, input: geografiske koordinater,
+    output: UTM-koordinater i traditionel lokationskoordinatorden)
+    er indtil videre kun understøttet for `region=="DK"`.
+
+    Parameters
+    ----------
+        λ
+            Antaget længdegrad (Easting)
+        φ
+            Antaget breddegrad (Northing)
+        region
+            Region. Hvis ikke denne er kendt af programmet, returneres koordinaterne uændret.
+        invers
+            Koordinaterne i omvendt rækkefølge. Se docstring for mere.
+
+    """
+    # Gem kopi af oprindeligt input til brug i fejlmelding
+    x, y = λ, φ
+
+    global utm32
+    if utm32 is None:
+        utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
+        assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
+
+    # Begrænset understøttelse af FO, GL, hvor UTM32 er meningsløst.
+    # Der er gjort plads til indførelse af UTM24 og UTM29 hvis der skulle
+    # vise sig behov, men det kræver en væsentlig algoritmeudvidelse.
+    if region not in ("DK", ""):
+        return (λ, φ)
+
+    # Geometri-til-lokationskoordinat
+    if invers:
+        return utm32(λ, φ, inverse=False)
+
+    if pd.isna(λ) or pd.isna(φ) or 0 == λ or 0 == φ:
+        return (11.0, 56.0)
+
+    # Heuristik til at skelne mellem UTM og geografiske koordinater.
+    # Heuristikken fejler kun for UTM-koordinater fra et lille
+    # område på 6 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
+    # Det er langt ude i Atlanterhavet, så det lever vi med.
+    if abs(λ) > 181 and abs(φ) > 91:
+        λ, φ = utm32(λ, φ, inverse=True)
+
+    if region == "DK":
+        if λ < 3.0 or λ > 15.5 or φ < 54.5 or φ > 58.0:
+            raise ValueError(f"Koordinat ({x}, {y}) uden for dansk territorie.")
+
+    return (λ, φ)

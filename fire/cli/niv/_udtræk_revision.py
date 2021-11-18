@@ -8,13 +8,15 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 
-import fire.cli
 from fire.api.model import Punkt
+from fire.api.model.geometry import (
+    normaliser_lokationskoordinat,
+)
+from fire.io.regneark import arkdef
+import fire.cli
 
 from . import (
-    ARKDEF_REVISION,
     niv,
-    normaliser_lokationskoordinat,
     skriv_ark,
     find_sag,
     er_projekt_okay,
@@ -38,7 +40,7 @@ def udtræk_revision(projektnavn: str, kriterier: Tuple[str], **kwargs) -> None:
 
     # Kontroller at projektet er oprettet etc.
     find_sag(projektnavn)
-    revision = pd.DataFrame(columns=tuple(ARKDEF_REVISION)).astype(ARKDEF_REVISION)
+    revision = pd.DataFrame(columns=tuple(arkdef.REVISION)).astype(arkdef.REVISION)
 
     # Punkter med bare EN af disse attributter ignoreres
     uønskede_punkter = [

@@ -1,18 +1,14 @@
 """
 Funktionalitet til at indsætte diverse FIRE objekter
+
 """
 
-from typing import List
-
 from sqlalchemy import func
-from fire.api import BaseFireDb
+from fire.api.firedb.base import FireDbBase
 
 from fire.api.model import (
     Sag,
-    Punkt,
-    PunktInformation,
     PunktInformationType,
-    Observation,
     ObservationsType,
     Sagsevent,
     EventType,
@@ -20,7 +16,7 @@ from fire.api.model import (
 )
 
 
-class FireDbIndset(BaseFireDb):
+class FireDbIndset(FireDbBase):
     def indset_sag(self, sag: Sag, commit: bool = True):
         if not self._is_new_object(sag):
             raise Exception(f"Sag allerede tilføjet databasen: {sag}")

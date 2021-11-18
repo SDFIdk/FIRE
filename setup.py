@@ -8,9 +8,6 @@ from setuptools import find_packages
 import fire
 
 
-SHORT_DESCR = "FIRE - FIkspunktREgister"
-
-
 def readme():
     """
     Return a properly formatted readme text that can be used as the long
@@ -21,13 +18,13 @@ def readme():
             readme = f.read()
         return readme
     except:
-        return SHORT_DESCR
+        return fire.__doc__
 
 
 setup(
     name="fire",
     version=fire.__version__,
-    description=SHORT_DESCR,
+    description=fire.__doc__,
     long_description=readme(),
     long_description_content_type="text/markdown",
     classifiers=[
@@ -45,9 +42,9 @@ setup(
     packages=find_packages(exclude=["test", "flame"]),
     keywords="levelling database geodesy",
     url="https://github.com/Kortforsyningen/fire",
-    author="SDFE, Septima",
-    author_email="grf@sdfe.dk",
-    license="MIT",
+    author=fire.__author__,
+    author_email=fire.__author_email__,
+    license=fire.__license__,
     test_suite="pytest",
     tests_require=["pytest>=3.1"],
     install_requires=["cx_Oracle>=7.0", "sqlalchemy>=1.2.13", "click", "click_plugins"],

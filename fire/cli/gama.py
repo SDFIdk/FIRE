@@ -1,7 +1,7 @@
 import click
 
 import fire.cli
-from fire.cli.utils import Datetime
+from fire.cli.click_types import Datetime
 from fire.api.model import Geometry
 from fire.api.gama import GamaReader, GamaWriter
 
@@ -54,7 +54,9 @@ def gama():
 @click.option(
     "-dt",
     "--til",
-    help="Til-dato, som bruges i udvælgelsen af observationer",
+    help="""Til-dato, som bruges i udvælgelsen af observationer.
+
+    Datoen har tidspunktet 00:00:00, så hvis observationer til og med denne dato, skal dagen efter angives.""",
     required=False,
     type=Datetime(format="%d-%m-%Y"),
 )

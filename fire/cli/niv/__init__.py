@@ -4,18 +4,20 @@ import os
 import os.path
 import sys
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import (
+    Dict,
+)
 
 import click
 import pandas as pd
-from pyproj import Proj
 
-import fire.cli
 from fire.api.model import (
     Punkt,
     PunktInformation,
     Sag,
 )
+from fire.io.regneark import arkdef
+import fire.cli
 
 
 # Undgå ANSI farvekoder i Sphinx HTML docs
@@ -51,6 +53,21 @@ Underkommandoerne:
 definerer, i den anførte rækkefølge, nogenlunde arbejdsskridtene i et
 almindeligt opmålingsprojekt.
 
+Til beregning af eksisterende observationer, findes en alternativ underkommando
+til `læs-observationer`, kaldet `udtræk-observationer`. En arbejdsgang med denne
+kommando kan se ud på følgende måde:
+
+    opret-sag
+
+    udtræk-observationer
+
+    regn
+
+    luk-sag
+
+Underkommandoer
+---------------
+
 OPRET-SAG registrerer sagen (projektet) i databasen og skriver det regneark,
 som bruges til at holde styr på arbejdet.
 
@@ -64,6 +81,9 @@ bl.a. landsnumre til punkterne.
 
 LÆS-OBSERVATIONER læser råfilerne og skriver observationerne til regnearket så de
 er klar til brug i beregninger.
+
+UDTRÆK-OBSERVATIONER henter observationer ud af databasen på baggrund af udvalgte
+søgekriterier og skrives til regnearket, så de kan bruges i beregninger.
 
 REGN beregner nye koter til alle punkter, og genererer rapporter og
 visualiseringsmateriale.
@@ -105,87 +125,6 @@ def niv():
 
 
 # ------------------------------------------------------------------------------
-# Regnearksdefinitioner (søjlenavne og -typer)
-# ------------------------------------------------------------------------------
-
-ARKDEF_FILOVERSIGT = {"Filnavn": str, "Type": str, "σ": float, "δ": float}
-
-ARKDEF_NYETABLEREDE_PUNKTER = {
-    "Foreløbigt navn": str,
-    "Landsnummer": str,
-    "Nord": float,
-    "Øst": float,
-    "Fikspunktstype": str,
-    "Beskrivelse": str,
-    "Afmærkning": str,
-    "Højde over terræn": float,
-    "uuid": str,
-}
-
-ARKDEF_OBSERVATIONER = {
-    "Journal": str,
-    "Sluk": str,
-    "Fra": str,
-    "Til": str,
-    "ΔH": float,
-    "L": float,
-    "Opst": int,
-    "σ": float,
-    "δ": float,
-    "Kommentar": str,
-    "Hvornår": "datetime64[ns]",
-    "T": float,
-    "Sky": int,
-    "Sol": int,
-    "Vind": int,
-    "Sigt": int,
-    "Kilde": str,
-    "Type": str,
-    "uuid": str,
-}
-
-ARKDEF_PUNKTOVERSIGT = {
-    "Punkt": str,
-    "Fasthold": str,
-    "Hvornår": "datetime64[ns]",
-    "Kote": float,
-    "σ": float,
-    "Ny kote": float,
-    "Ny σ": float,
-    "Δ-kote [mm]": float,
-    "Opløft [mm/år]": float,
-    "System": str,
-    "Nord": float,
-    "Øst": float,
-    "uuid": str,
-    "Udelad publikation": str,
-}
-
-ARKDEF_REVISION = {
-    "Punkt": str,
-    "Attribut": str,
-    "Talværdi": float,
-    "Tekstværdi": str,
-    "Sluk": str,
-    "Ny værdi": str,
-    "id": float,
-    "Ikke besøgt": str,
-}
-
-ARKDEF_SAG = {
-    "Dato": "datetime64[ns]",
-    "Hvem": str,
-    "Hændelse": str,
-    "Tekst": str,
-    "uuid": str,
-}
-
-ARKDEF_PARAM = {
-    "Navn": str,
-    "Værdi": str,
-}
-
-# ------------------------------------------------------------------------------
 # Hjælpefunktioner
 # ------------------------------------------------------------------------------
 
@@ -198,67 +137,6 @@ def anvendte(arkdef: Dict) -> str:
         return ""
     return "A:" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[n - 1]
 
-
-# ------------------------------------------------------------------------------
-def normaliser_lokationskoordinat(
-    λ: float, φ: float, region: str = "DK", invers: bool = False
-) -> Tuple[float, float]:
-    """Check op på lokationskoordinaterne.
-    En normaliseret lokationskoordinat er en koordinat der egner sig som
-    WKT- og/eller geojson-geometriobjekt. Dvs. en koordinat anført i en
-    afart af WGS84 og med akseorden længde, bredde (λ, φ).
-
-    Hvis det ser ud som om akseordenen er gal, så bytter vi om på dem.
-
-    Hvis input ligner UTM, så regner vi om til geografiske koordinater.
-    NaN og 0 flyttes ud i Kattegat, så man kan få øje på dem.
-
-    Disse korrektioner udføres med brug af bredt gyldige heuristikker,
-    der dog er nødt til at gøre antagelser om hvor i verden vi befinder os.
-    Dette kan eksplicit anføres med argumentet `region`, der som standard
-    sættes til `"DK"`.
-
-    Den omvendte vej (`invers==True`, input: geografiske koordinater,
-    output: UTM-koordinater i traditionel lokationskoordinatorden)
-    er indtil videre kun understøttet for `region=="DK"`.
-    """
-    # Gem kopi af oprindeligt input til brug i fejlmelding
-    x, y = λ, φ
-
-    global utm32
-    if utm32 is None:
-        utm32 = Proj("proj=utm zone=32 ellps=GRS80", preserve_units=False)
-        assert utm32 is not None, "Kan ikke initialisere projektionselelement utm32"
-
-    # Begrænset understøttelse af FO, GL, hvor UTM32 er meningsløst.
-    # Der er gjort plads til indførelse af UTM24 og UTM29 hvis der skulle
-    # vise sig behov, men det kræver en væsentlig algoritmeudvidelse.
-    if region not in ("DK", ""):
-        return (λ, φ)
-
-    # Geometri-til-lokationskoordinat
-    if invers:
-        return utm32(λ, φ, inverse=False)
-
-    if pd.isna(λ) or pd.isna(φ) or 0 == λ or 0 == φ:
-        return (11.0, 56.0)
-
-    # Heuristik til at skelne mellem UTM og geografiske koordinater.
-    # Heuristikken fejler kun for UTM-koordinater fra et lille
-    # område på 6 hektar ca. 500 km syd for Ghanas hovedstad, Accra.
-    # Det er langt ude i Atlanterhavet, så det lever vi med.
-    if abs(λ) > 181 and abs(φ) > 91:
-        λ, φ = utm32(λ, φ, inverse=True)
-
-    if region == "DK":
-        if λ < 3.0 or λ > 15.5 or φ < 54.5 or φ > 58.0:
-            raise ValueError(f"Koordinat ({x}, {y}) uden for dansk territorie")
-
-    return (λ, φ)
-
-
-# Globalt transformationsobjekt til normaliser_lokationskoordinat
-utm32 = None
 
 # -----------------------------------------------------------------------------
 def skriv_ark(
@@ -348,8 +226,8 @@ def skriv_ark(
 
         # Så læser vi de eksisterende faneblade.
         #
-        # NB: Her er der er en mikroskopisk chance for en race-condition (hvad hedder det
-        # på dansk?): Vi holder ikke en lås på exfilen når den opstår ved omdøbning af
+        # NB: Her er der risiko for en race condition (da konkurrence-tilstand?):
+        # Vi holder ikke en lås på exfilen når den opstår ved omdøbning af
         # projektfilen, så den kan overskrives af eksterne processer *efter* at vi har
         # omdøbt projektfilen og *inden* vi når videre hertil.
         #
@@ -433,14 +311,14 @@ def find_faneblad(
 # ------------------------------------------------------------------------------
 def gyldighedstidspunkt(projektnavn: str) -> datetime.datetime:
     """Tid for sidste observation der har været brugt i beregningen"""
-    obs = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
+    obs = find_faneblad(projektnavn, "Observationer", arkdef.OBSERVATIONER)
     obs = obs[obs["Sluk"] != "x"]
     return max(obs["Hvornår"])
 
 
 def find_parameter(projektnavn: str, parameter: str) -> str:
     """Find parameter fra et projektregneark"""
-    param = find_faneblad(projektnavn, "Parametre", ARKDEF_PARAM)
+    param = find_faneblad(projektnavn, "Parametre", arkdef.PARAM)
     if parameter not in list(param["Navn"]):
         fire.cli.print(f"FEJL: '{parameter}' ikke angivet under fanebladet 'Parametre'")
         sys.exit(1)
@@ -557,18 +435,17 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
 
 def bekræft(spørgsmål: str, gentag=True) -> bool:
     """
-    Bed bruger om at tage stilling til spørgsmålet.
+    Anmod bruger om at tage stilling til spørgsmålet.
     """
     fire.cli.print(f"{spørgsmål} (ja/NEJ):")
-    svar = input()
-    if svar in ("ja", "JA", "Ja"):
-        if gentag:
-            if input("Gentag svar for at bekræfte (ja/NEJ)\n") in ("ja", "JA", "Ja"):
-                return True
-        else:
-            return True
 
-    return False
+    if input().strip().lower() != "ja":
+        return False
+
+    if not gentag:
+        return True
+
+    return input("Gentag svar for at bekræfte (ja/NEJ)\n").strip().lower() == "ja"
 
 
 def opret_region_punktinfo(punkt: Punkt) -> PunktInformation:
@@ -597,9 +474,10 @@ def opret_region_punktinfo(punkt: Punkt) -> PunktInformation:
 
 def er_projekt_okay(projektnavn: str):
     """
-    Kontroller om det er okay at brug et givent projekt.
+    Kontroller om det er okay at bruge et givet projekt.
 
-    Afbryder programmet og udskriver en fejl hvis ikke projektet er okay.
+    Afbryder programmet og udskriver en fejl, hvis ikke projektet er okay.
+
     Ellers gøres intet.
     """
     projekt_db = find_parameter(projektnavn, "Database")
@@ -621,17 +499,29 @@ def er_projekt_okay(projektnavn: str):
         sys.exit(1)
 
 
-# moduler præfikset med _ for at undgå konflikter, der i visse tilfælde
-# kan opstå. Med nedenstående kan man entydigt kende forskel på modulet
-# fire.cli.niv._opret-sag og Click kommandoobjektet fire.cli.niv.opret-sag.
-# Uden præfix kan der ikke skælnes mellem de to.
-from ._opret_sag import opret_sag
-from ._læs_observationer import læs_observationer
-from ._ilæg_observationer import ilæg_observationer
-from ._udtræk_revision import udtræk_revision
-from ._ilæg_revision import ilæg_revision
-from ._regn import regn
+"""
+Modulnavne starter med `_` for at undgå konflikter,
+der i visse tilfælde kan opstå.
+
+Med nedenstående kan man entydigt kende forskel på modulet
+
+    fire.cli.niv._opret-sag
+
+og Click-kommandoobjektet
+
+    fire.cli.niv.opret-sag
+
+. Uden præfix kan der ikke skelnes mellem de to.
+
+"""
 from ._ilæg_nye_koter import ilæg_nye_koter
 from ._ilæg_nye_punkter import ilæg_nye_punkter
-from ._netoversigt import netoversigt
+from ._ilæg_observationer import ilæg_observationer
+from ._ilæg_revision import ilæg_revision
 from ._luk_sag import luk_sag
+from ._læs_observationer import læs_observationer
+from ._netoversigt import netoversigt
+from ._opret_sag import opret_sag
+from ._regn import regn
+from ._udtræk_observationer import udtræk_observationer
+from ._udtræk_revision import udtræk_revision

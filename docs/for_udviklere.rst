@@ -87,6 +87,20 @@ på tværs af hele kodebasen. Desuden har black den bivirking at forstyrrende,
 overflødige ændringer typisk forsvinder fra diffs mellem to commits, hvilket gør
 det væsentligt nemmere at lave review af kodeændringer.
 
+Underkommandoernes modulnavne starter med `_` for at undgå navnekonflikter med
+click-kommando-objekter.
+
+Eksempel: Det betyder, at man for entydigt at kunne kende forskel på modulet
+
+    fire.cli.niv._opret-sag
+
+og Click-kommandoobjektet
+
+    fire.cli.niv.opret-sag
+
+skal have ovennævnte præfiks i modulnavnet, så funktionen (og dermed Click-
+kommandoen) i modulet kan få det ønskede navn.
+
 
 Dokumentation
 -------------

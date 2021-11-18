@@ -10,11 +10,10 @@ import click
 import pandas as pd
 import xmltodict
 
+from fire.io.regneark import arkdef
 import fire.cli
 
 from . import (
-    ARKDEF_OBSERVATIONER,
-    ARKDEF_PUNKTOVERSIGT,
     find_faneblad,
     gyldighedstidspunkt,
     niv,
@@ -45,7 +44,7 @@ def regn(projektnavn: str, **kwargs) -> None:
     # Hvis der ikke allerede findes et kontrolberegningsfaneblad, så er det en
     # kontrolberegning vi skal i gang med.
     kontrol = (
-        find_faneblad(projektnavn, "Kontrolberegning", ARKDEF_PUNKTOVERSIGT, True)
+        find_faneblad(projektnavn, "Kontrolberegning", arkdef.PUNKTOVERSIGT, True)
         is None
     )
 
@@ -58,9 +57,9 @@ def regn(projektnavn: str, **kwargs) -> None:
         næste_faneblad = "Endelig beregning"
 
     # Håndter fastholdte punkter og slukkede observationer.
-    observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
-    punktoversigt = find_faneblad(projektnavn, "Punktoversigt", ARKDEF_PUNKTOVERSIGT)
-    arbejdssæt = find_faneblad(projektnavn, aktuelt_faneblad, ARKDEF_PUNKTOVERSIGT)
+    observationer = find_faneblad(projektnavn, "Observationer", arkdef.OBSERVATIONER)
+    punktoversigt = find_faneblad(projektnavn, "Punktoversigt", arkdef.PUNKTOVERSIGT)
+    arbejdssæt = find_faneblad(projektnavn, aktuelt_faneblad, arkdef.PUNKTOVERSIGT)
 
     # Til den endelige beregning skal vi bruge de oprindelige observationsdatoer
     if not kontrol:

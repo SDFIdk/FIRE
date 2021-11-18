@@ -24,15 +24,17 @@ from fire.api.model import (
     SagseventInfo,
     FikspunktsType,
 )
+from fire.io.regneark import arkdef
+from fire.api.model.geometry import (
+    normaliser_lokationskoordinat,
+)
 
 from . import (
-    ARKDEF_REVISION,
     bekræft,
     find_faneblad,
     find_sag,
     find_sagsgang,
     niv,
-    normaliser_lokationskoordinat,
     skriv_ark,
     opret_region_punktinfo,
     er_projekt_okay,
@@ -74,7 +76,7 @@ def ilæg_revision(
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
     fire.cli.print("")
 
-    revision = find_faneblad(f"{projektnavn}-revision", "Revision", ARKDEF_REVISION)
+    revision = find_faneblad(f"{projektnavn}-revision", "Revision", arkdef.REVISION)
 
     # Tildel navne til endnu ikke oprettede punkter
     oprettelse = revision.query("Attribut == 'OPRET'")

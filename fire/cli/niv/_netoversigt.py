@@ -5,12 +5,10 @@ from typing import Dict, List, Set, Tuple
 import click
 import pandas as pd
 
+from fire.io.regneark import arkdef
 import fire.cli
 
 from . import (
-    ARKDEF_NYETABLEREDE_PUNKTER,
-    ARKDEF_OBSERVATIONER,
-    ARKDEF_PUNKTOVERSIGT,
     find_faneblad,
     niv,
     skriv_ark,
@@ -42,10 +40,10 @@ def netoversigt(projektnavn: str, **kwargs) -> None:
 def netanalyse(
     projektnavn: str, faneblad: str = "Punktoversigt"
 ) -> Dict[str, pd.DataFrame]:
-    observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
-    punktoversigt = find_faneblad(projektnavn, faneblad, ARKDEF_PUNKTOVERSIGT)
+    observationer = find_faneblad(projektnavn, "Observationer", arkdef.OBSERVATIONER)
+    punktoversigt = find_faneblad(projektnavn, faneblad, arkdef.PUNKTOVERSIGT)
     nyetablerede = find_faneblad(
-        projektnavn, "Nyetablerede punkter", ARKDEF_NYETABLEREDE_PUNKTER
+        projektnavn, "Nyetablerede punkter", arkdef.NYETABLEREDE_PUNKTER
     )
 
     observationer = observationer[observationer["Sluk"] != "x"]

@@ -11,7 +11,7 @@ from pyproj import CRS
 from pyproj.exceptions import CRSError
 
 import fire.cli
-from fire.cli.utils import klargør_ident_til_søgning
+from fire.ident import klargør_ident_til_søgning
 from fire.api.model import (
     Punkt,
     PunktInformation,

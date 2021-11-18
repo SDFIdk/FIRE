@@ -1,9 +1,16 @@
 fire.api.model package
 ======================
 
+Module contents
+---------------
+
+.. automodule:: fire.api.model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
-
 
 .. automodule:: fire.api.model.columntypes
    :members:
@@ -24,15 +31,6 @@ Submodules
 
 
 .. automodule:: fire.api.model.sagstyper
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: fire.api.model
    :members:
    :undoc-members:
    :show-inheritance:

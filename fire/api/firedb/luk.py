@@ -1,7 +1,8 @@
 """
 Funktionalitet til at lukke diverse FIRE objekter
+
 """
-from fire.api import BaseFireDb
+from fire.api.firedb.base import FireDbBase
 from fire.api.model import (
     Sag,
     Punkt,
@@ -15,7 +16,7 @@ from fire.api.model import (
 )
 
 
-class FireDbLuk(BaseFireDb):
+class FireDbLuk(FireDbBase):
     def luk_sag(self, sag: Sag, commit: bool = True):
         """Sætter en sags status til inaktiv"""
         if not isinstance(sag, Sag):

@@ -13,10 +13,9 @@ from fire.api.model import (
     Sagsevent,
     SagseventInfo,
 )
-
+from fire.io.regneark import arkdef
 
 from . import (
-    ARKDEF_OBSERVATIONER,
     bekræft,
     find_faneblad,
     find_sag,
@@ -53,7 +52,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     obstype_geom = fire.cli.firedb.hent_observationstype("geometrisk_koteforskel")
     til_registrering = []
 
-    observationer = find_faneblad(projektnavn, "Observationer", ARKDEF_OBSERVATIONER)
+    observationer = find_faneblad(projektnavn, "Observationer", arkdef.OBSERVATIONER)
     alle_kilder = ", ".join(sorted(list(set(observationer.Kilde))))
     alle_uuider = observationer.uuid.astype(str)
 
