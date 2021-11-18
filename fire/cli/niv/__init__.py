@@ -465,6 +465,7 @@ def obs_feature(
                 "Opstillinger": int(observationer.at[i, "Opst"]),
                 "Journal": observationer.at[i, "Journal"],
                 "Type": observationer.at[i, "Type"],
+                "Slukket": observationer.at[i, "Sluk"],
             },
             "geometry": {
                 "type": "LineString",
