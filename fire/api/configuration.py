@@ -13,7 +13,7 @@ APPDATADIR = Path("C:\\Users\\Default\\AppData\\Local\\fire")
 
 RC_PATHS = (
     lambda: HOME / RC_NAME,
-    lambda: HOME / "." + RC_NAME,
+    lambda: HOME / ("." + RC_NAME),
     lambda: ETC / RC_NAME,
     lambda: USERS / getpass.getuser() / RC_NAME,
     lambda: APPDATADIR / RC_NAME,
