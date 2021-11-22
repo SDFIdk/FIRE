@@ -593,11 +593,14 @@ til fastholdelse i hvert subnet.
 Udover beregningsresultatet i projektregnearket genereres
 flere resultatfiler, bl.a.
 
-- en *projektnavn*-resultat.xml (til intern brug for ``fire``)
-- en *projektnavn*-resultat.html
+- *projektnavn*-resultat.xml (til intern brug for ``fire``)
+- *projektnavn*-resultat.html
+- *projektnavn*-kon-observationer.geojson
+- *projektnavn*-kon-punkter.geojson
 
 I .html-filen findes diverse statistik over udjævningsberegningen, som det underliggende
-kode (GNU Gama) genererer. Filen åbnes også default efter kørslen.
+kode (GNU Gama) genererer. Filen åbnes også default efter kørslen. De to geojson-filer
+kan bruges til at visualisere beregningen i fx QGIS.
 
 I resultatfilen er der nu tre nye faner;
 
@@ -632,6 +635,13 @@ beregning. Derefter køres ``fire niv regn`` igen.
 Denne gang vil resultatfanebladet hedde *Endelig beregning*. Er man ikke tilfreds med den
 kan man slette (eller omdøbe) fanebladet, tilpasse sine fastholdte punkter i fanebladet
 *Kontrolberegning*, og køre beregningen en gang til.
+
+Efter den endelige beregning opdateres de to geojson-filer der blev genereret med
+`fire niv læs-observationer`, så beregningsresultatet også fremgår af disse. Det
+drejer sig om filerne:
+
+- *projektnavn*-observationer.geojson
+- *projektnavn*-punkter.geojson
 
 
 Trin 7) ilæg-observationer

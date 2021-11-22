@@ -17,7 +17,8 @@ from . import (
     find_faneblad,
     gyldighedstidspunkt,
     niv,
-    punkter_geojson,
+    skriv_punkter_geojson,
+    skriv_observationer_geojson,
     skriv_ark,
     er_projekt_okay,
 )
@@ -52,9 +53,11 @@ def regn(projektnavn: str, **kwargs) -> None:
     if kontrol:
         aktuelt_faneblad = "Punktoversigt"
         næste_faneblad = "Kontrolberegning"
+        infiks = "-kon"
     else:
         aktuelt_faneblad = "Kontrolberegning"
         næste_faneblad = "Endelig beregning"
+        infiks = ""
 
     # Håndter fastholdte punkter og slukkede observationer.
     observationer = find_faneblad(projektnavn, "Observationer", arkdef.OBSERVATIONER)
@@ -85,7 +88,13 @@ def regn(projektnavn: str, **kwargs) -> None:
     resultater[næste_faneblad] = beregning
 
     # ...og beret om resultaterne
-    punkter_geojson(projektnavn, resultater[næste_faneblad])
+    skriv_punkter_geojson(projektnavn, resultater[næste_faneblad], infiks=infiks)
+    skriv_observationer_geojson(
+        projektnavn,
+        resultater[næste_faneblad].set_index("Punkt"),
+        observationer,
+        infiks=infiks,
+    )
     skriv_ark(projektnavn, resultater)
     webbrowser.open_new_tab(htmlrapportnavn)
     if "startfile" in dir(os):

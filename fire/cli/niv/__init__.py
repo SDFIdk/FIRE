@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import (
     Dict,
+    Tuple,
 )
 
 import click
@@ -375,20 +376,11 @@ def find_sagsid(sagsgang: pd.DataFrame) -> str:
 
 
 # ------------------------------------------------------------------------------
-def punkter_geojson(
-    projektnavn: str,
-    punkter: pd.DataFrame,
-) -> None:
-    """Skriv punkter/koordinater i geojson-format"""
-    with open(f"{projektnavn}-punkter.geojson", "wt") as punktfil:
-        til_json = {
-            "type": "FeatureCollection",
-            "Features": list(punkt_feature(punkter)),
-        }
-        json.dump(til_json, punktfil, indent=4)
+def _geojson_filnavn(projektnavn: str, infiks: str, variant: str):
+    """Generer filnavn på geojson-fil"""
+    return f"{projektnavn}{infiks}-{variant}.geojson"
 
 
-# ------------------------------------------------------------------------------
 def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
     """Omsæt punktinformationer til JSON-egnet dict"""
     for i in range(punkter.shape[0]):
@@ -431,6 +423,98 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
             },
         }
         yield feature
+
+
+def punkter_geojson(
+    punkter: pd.DataFrame,
+) -> str:
+    """Returner punkter/koordinater som geojson-streng"""
+    # with open(f"{projektnavn}{infiks}-punkter.geojson", "wt") as punktfil:
+    til_json = {
+        "type": "FeatureCollection",
+        "Features": list(punkt_feature(punkter)),
+    }
+    return json.dumps(til_json, indent=4)
+
+
+def skriv_punkter_geojson(projektnavn: str, punkter: pd.DataFrame, infiks: str = ""):
+    """Skriv geojson-fil med punktdata til disk"""
+    geojson = punkter_geojson(punkter)
+    filnavn = _geojson_filnavn(projektnavn, infiks, "punkter")
+    with open(filnavn, "wt") as punktfil:
+        punktfil.write(geojson)
+
+
+# ------------------------------------------------------------------------------
+def obs_feature(
+    punkter: pd.DataFrame, observationer: pd.DataFrame, antal_målinger: Dict[Tuple, int]
+) -> Dict[str, str]:
+    """Omsæt observationsinformationer til JSON-egnet dict"""
+    for i in range(observationer.shape[0]):
+        fra = observationer.at[i, "Fra"]
+        til = observationer.at[i, "Til"]
+        feature = {
+            "type": "Feature",
+            "properties": {
+                "Fra": fra,
+                "Til": til,
+                "Målinger": antal_målinger[tuple(sorted([fra, til]))],
+                "Afstand": observationer.at[i, "L"],
+                "ΔH": observationer.at[i, "ΔH"],
+                # konvertering, da json.dump ikke uderstøtter int64
+                "Opstillinger": int(observationer.at[i, "Opst"]),
+                "Journal": observationer.at[i, "Journal"],
+                "Type": observationer.at[i, "Type"],
+                "Slukket": observationer.at[i, "Sluk"],
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [punkter.at[fra, "Øst"], punkter.at[fra, "Nord"]],
+                    [punkter.at[til, "Øst"], punkter.at[til, "Nord"]],
+                ],
+            },
+        }
+        yield feature
+
+
+def observationer_geojson(
+    punkter: pd.DataFrame,
+    observationer: pd.DataFrame,
+) -> None:
+    """Skriv observationer til geojson-fil"""
+
+    fra = observationer["Fra"]
+    til = observationer["Til"]
+
+    # Optæl antal frem-og/eller-tilbagemålinger pr. strækning: Vi starter
+    # med en dict med et nul for hver strækning
+    par = [tuple(p) for p in zip(fra, til)]
+    antal_målinger = dict((tuple(sorted(p)), 0) for p in par)
+    # ...og så tæller vi det relevante element op for hver observation
+    for p in par:
+        # Indeksering med tuple(sorted(p)) da set(p) ikke kan hashes
+        antal_målinger[tuple(sorted(p))] += 1
+
+    til_json = {
+        "type": "FeatureCollection",
+        "Features": list(obs_feature(punkter, observationer, antal_målinger)),
+    }
+
+    return json.dumps(til_json, indent=4)
+
+
+def skriv_observationer_geojson(
+    projektnavn: str,
+    punkter: pd.DataFrame,
+    observationer: pd.DataFrame,
+    infiks: str = "",
+) -> None:
+    """Skriv geojson-fil med observationsdata til disk"""
+    filnavn = _geojson_filnavn(projektnavn, infiks, "observationer")
+    geojson = observationer_geojson(punkter, observationer)
+    with open(filnavn, "wt") as obsfil:
+        obsfil.write(geojson)
 
 
 def bekræft(spørgsmål: str, gentag=True) -> bool:

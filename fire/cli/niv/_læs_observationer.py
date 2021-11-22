@@ -17,7 +17,8 @@ import fire.cli
 from . import (
     find_faneblad,
     niv,
-    punkter_geojson,
+    skriv_punkter_geojson,
+    skriv_observationer_geojson,
     skriv_ark,
     er_projekt_okay,
 )
@@ -68,8 +69,10 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
         f"Dataindlæsning afsluttet. Vælg nu fastholdte punkter i punktoversigten."
     )
 
-    punkter_geojson(projektnavn, punktoversigt)
-    observationer_geojson(projektnavn, punktoversigt.set_index("Punkt"), observationer)
+    skriv_punkter_geojson(projektnavn, punktoversigt)
+    skriv_observationer_geojson(
+        projektnavn, punktoversigt.set_index("Punkt"), observationer
+    )
 
 
 # ------------------------------------------------------------------------------
@@ -153,66 +156,6 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
             )
 
     return observationer
-
-
-# ------------------------------------------------------------------------------
-def observationer_geojson(
-    projektnavn: str,
-    punkter: pd.DataFrame,
-    observationer: pd.DataFrame,
-) -> None:
-    """Skriv observationer til geojson-fil"""
-
-    fra = observationer["Fra"]
-    til = observationer["Til"]
-
-    # Optæl antal frem-og/eller-tilbagemålinger pr. strækning: Vi starter
-    # med en dict med et nul for hver strækning
-    par = [tuple(p) for p in zip(fra, til)]
-    antal_målinger = dict((tuple(sorted(p)), 0) for p in par)
-    # ...og så tæller vi det relevante element op for hver observation
-    for p in par:
-        # Indeksering med tuple(sorted(p)) da set(p) ikke kan hashes
-        antal_målinger[tuple(sorted(p))] += 1
-
-    with open(f"{projektnavn}-observationer.geojson", "wt") as obsfil:
-        til_json = {
-            "type": "FeatureCollection",
-            "Features": list(obs_feature(punkter, observationer, antal_målinger)),
-        }
-        json.dump(til_json, obsfil, indent=4)
-
-
-# ------------------------------------------------------------------------------
-def obs_feature(
-    punkter: pd.DataFrame, observationer: pd.DataFrame, antal_målinger: Dict[Tuple, int]
-) -> Dict[str, str]:
-    """Omsæt observationsinformationer til JSON-egnet dict"""
-    for i in range(observationer.shape[0]):
-        fra = observationer.at[i, "Fra"]
-        til = observationer.at[i, "Til"]
-        feature = {
-            "type": "Feature",
-            "properties": {
-                "Fra": fra,
-                "Til": til,
-                "Målinger": antal_målinger[tuple(sorted([fra, til]))],
-                "Afstand": observationer.at[i, "L"],
-                "ΔH": observationer.at[i, "ΔH"],
-                # konvertering, da json.dump ikke uderstøtter int64
-                "Opstillinger": int(observationer.at[i, "Opst"]),
-                "Journal": observationer.at[i, "Journal"],
-                "Type": observationer.at[i, "Type"],
-            },
-            "geometry": {
-                "type": "LineString",
-                "coordinates": [
-                    [punkter.at[fra, "Øst"], punkter.at[fra, "Nord"]],
-                    [punkter.at[til, "Øst"], punkter.at[til, "Nord"]],
-                ],
-            },
-        }
-        yield feature
 
 
 # ------------------------------------------------------------------------------
