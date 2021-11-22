@@ -1,5 +1,6 @@
 from typing import List, Iterator
 from itertools import chain
+import collections as cs
 
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
@@ -72,51 +73,44 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         Den returnerede liste er sorteret på samme vis som inputlisterne, dvs at det n'te
         element i outputlisten hører sammen med de n'te punkter i inputlisterne.
         """
-        landsnr = self.hent_punktinformationtype("IDENT:landsnr")
-
-        uuider = []
-        punkttyper = {}
-        for punkt, fikspunktstype in zip(punkter, fikspunktstyper):
+        for punkt in punkter:
             if not punkt.geometri:
                 raise AttributeError("Geometriobjekt ikke tilknyttet Punkt")
 
-            # Ignorer punkter, der allerede har et landsnummer
-            if landsnr in [pi.infotype for pi in punkt.punktinformationer]:
-                continue
-            uuider.append(f"{punkt.id}")
-            punkttyper[punkt.id] = fikspunktstype
-
-        if not uuider:
+        landsnr = self.hent_punktinformationtype("IDENT:landsnr")
+        punktinfo = {
+            punkt.id: fikspunktstype
+            for punkt, fikspunktstype in zip(punkter, fikspunktstyper)
+            if landsnr in [pi.infotype for pi in punkt.punktinformationer]
+        }
+        if not punktinfo:
             return []
 
-        distrikter = self._opmålingsdistrikt_fra_punktid(uuider)
-        distrikt_punkter = {}
-        for (distrikt, pktid) in distrikter:
-            if distrikt not in distrikt_punkter.keys():
-                distrikt_punkter[distrikt] = []
-            distrikt_punkter[distrikt].append(pktid)
+        distrikter = self._opmålingsdistrikt_fra_punktid(list(punktinfo))
+        distrikt_punkter = cs.defaultdict(list)
+        for (distrikt, punkt_id) in distrikter:
+            distrikt_punkter[distrikt].append(punkt_id)
 
         landsnumre = {}
-        for distrikt, pkt_ider in distrikt_punkter.items():
-            brugte_løbenumre = self._løbenumre_i_distrikt(distrikt)
-            for punktid in pkt_ider:
-                for kandidat in self._generer_tilladte_løbenumre(punkttyper[punktid]):
-                    if kandidat in brugte_løbenumre:
+        for distrikt, punkt_id_liste in distrikt_punkter.items():
+            eksisterende_løbenumre = self._hent_eksisterende_løbenumre(distrikt)
+            for punkt_id in punkt_id_liste:
+                for kandidat in self._generer_tilladte_løbenumre(punktinfo[punkt_id]):
+                    if kandidat in eksisterende_løbenumre:
                         continue
 
-                    landsnumre[punktid] = f"{distrikt}-{kandidat}"
-                    brugte_løbenumre.append(kandidat)
+                    landsnumre[punkt_id] = f"{distrikt}-{kandidat}"
+                    eksisterende_løbenumre.append(kandidat)
                     break
 
         # reorganiser landsnumre-dict så rækkefølgen matcher inputlisten "punkter"
+        # TODO: BUG her, hvis nogen af punkterne givet til denne metode blev taget ud, fordi de allerede havde et landsnummer?
         landsnumre = {p.id: landsnumre[p.id] for p in punkter}
 
-        punktinfo = []
-        for punktid, landsnummer in landsnumre.items():
-            pi = PunktInformation(punktid=punktid, infotype=landsnr, tekst=landsnummer)
-            punktinfo.append(pi)
-
-        return punktinfo
+        return [
+            PunktInformation(punktid=punkt_id, infotype=landsnr, tekst=landsnummer)
+            for punkt_id, landsnummer in landsnumre.items()
+        ]
 
     def tilknyt_gi_nummer(self, punkt: Punkt) -> PunktInformation:
         """
@@ -272,7 +266,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
 
         return distrikter
 
-    def _løbenumre_i_distrikt(self, distrikt: str):
+    def _hent_eksisterende_løbenumre(self, distrikt: str):
         """
         For et givent opmålingsdistrikt findes alle landsnumre på formen
         xx-yyy-*****, hvorefter løbenummrene (*****) udskilles og returneres
