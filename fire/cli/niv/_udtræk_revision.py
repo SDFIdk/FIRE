@@ -82,7 +82,7 @@ def udtræk_revision(projektnavn: str, kriterier: Tuple[str], **kwargs) -> None:
                     FROM (
                         SELECT DISTINCT g.punktid FROM geometriobjekt g
                         JOIN herredsogn hs
-                        ON sdo_inside(g.geometri, hs.geometri) = 'TRUE'
+                        ON sdo_inside(g.geometri, SDO_GEOM.SDO_BUFFER(hs.geometri, 50, 0.1)) = 'TRUE'
                         WHERE
                             upper(hs.kode) IN ({distrikter})
                         AND
