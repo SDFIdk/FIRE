@@ -1,4 +1,9 @@
-from typing import List, Iterator
+from typing import (
+    List,
+    Iterator,
+    Mapping,
+    Tuple,
+)
 from itertools import chain
 import collections as cs
 
@@ -19,6 +24,26 @@ from fire.api.model import (
     Sagsevent,
     FikspunktsType,
 )
+
+
+def informationstyper(punkt: Punkt) -> List[PunktInformationType]:
+    """Returnerer punktets informationstyper."""
+    return [pi.infotype for pi in punkt.punktinformationer]
+
+
+def forespørgsel_landsnumre(punkt_id_liste: List[str]) -> text:
+    """
+    Byg forespørgsel, der henter punkt-ID og landsnummerdistrikt for givne punkt-ID'er.
+
+    """
+    return text(
+        f"""SELECT go.punktid, upper(hs.kode)
+            FROM geometriobjekt go
+            JOIN herredsogn hs ON sdo_relate(hs.geometri, go.geometri, 'mask=contains') = 'TRUE'
+            WHERE
+            go.punktid IN ({','.join([f"'{punkt_id}'" for punkt_id in punkt_id_liste])})
+        """
+    )
 
 
 class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
@@ -72,35 +97,53 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
 
         Den returnerede liste er sorteret på samme vis som inputlisterne, dvs at det n'te
         element i outputlisten hører sammen med de n'te punkter i inputlisterne.
+
         """
         for punkt in punkter:
             if not punkt.geometri:
                 raise AttributeError("Geometriobjekt ikke tilknyttet Punkt")
 
         landsnr = self.hent_punktinformationtype("IDENT:landsnr")
-        punktinfo = {
+        punkter_uden_landsnr = {
             punkt.id: fikspunktstype
             for punkt, fikspunktstype in zip(punkter, fikspunktstyper)
-            if landsnr in [pi.infotype for pi in punkt.punktinformationer]
+            if landsnr in informationstyper(punkt)
         }
-        if not punktinfo:
+        if not punkter_uden_landsnr:
             return []
 
-        distrikter = self._opmålingsdistrikt_fra_punktid(list(punktinfo))
+        distrikter = self._opmålingsdistrikt_fra_punktid(list(punkter_uden_landsnr))
+        # Gruppér punkt-ID'er efter distrikt
         distrikt_punkter = cs.defaultdict(list)
-        for (distrikt, punkt_id) in distrikter:
+        for (punkt_id, distrikt) in distrikter.items():
             distrikt_punkter[distrikt].append(punkt_id)
 
+        # Opbyg ny tabel med punkt-ID til næste ledige landsnummer.
         landsnumre = {}
-        for distrikt, punkt_id_liste in distrikt_punkter.items():
-            eksisterende_løbenumre = self._løbenumre_i_distrikt(distrikt)
+        # Løb over hvert enkelt distrikt.
+        for (distrikt, punkt_id_liste) in distrikt_punkter.items():
+
+            # Hent eksisterende, aktive løbenumre inden for distriktet.
+            løbenumre_i_distrikt = self._løbenumre_i_distrikt(distrikt)
+
+            # Løb over hvert nyetableret punkt i distriktet.
             for punkt_id in punkt_id_liste:
-                for kandidat in self._generer_tilladte_løbenumre(punktinfo[punkt_id]):
-                    if kandidat in eksisterende_løbenumre:
+
+                # Punktets fikspunktstype afgør, hvordan løbenumrene dannes.
+                fikspunktstype = punkter_uden_landsnr[punkt_id]
+
+                # Løb over alle tilladte løbenumre fra det første til det næste ledige.
+                for kandidat in self._generer_tilladte_løbenumre(fikspunktstype):
+
+                    # Er det ikke ledigt, så fortsæt til det næste løbenummer i rækkefølgen
+                    if kandidat in løbenumre_i_distrikt:
                         continue
 
+                    # Løbenummeret er ledigt. Knyt det til punktet
                     landsnumre[punkt_id] = f"{distrikt}-{kandidat}"
-                    eksisterende_løbenumre.append(kandidat)
+                    løbenumre_i_distrikt.append(kandidat)
+
+                    # Afbryd tildelingen og fortsæt til det næste nyetablerede punkt
                     break
 
         # reorganiser landsnumre-dict så rækkefølgen matcher inputlisten "punkter"
@@ -239,14 +282,18 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
 
         raise ValueError("Ukendt fikspunktstype")
 
-    def _opmålingsdistrikt_fra_punktid(self, uuider: List[str]):
+    def _opmålingsdistrikt_fra_punktid(
+        self, punkt_id_liste: List[str]
+    ) -> Mapping[str, str]:
         """
         Udtræk relevante opmålingsdistrikter, altså dem hvor de adspurgte punkter
         befinder sig i.
 
         Hjælpefunktion til tilknyt_landsnumre(). Defineret i seperat funktion
         med henblik på at kunne mocke den i unit tests.
+
         """
+<<<<<<< HEAD
         statement = text(
             f"""SELECT upper(hs.kode), go.punktid
                 FROM geometriobjekt go
@@ -254,17 +301,15 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
                 WHERE
                 go.punktid IN ({','.join([f"'{uuid}'" for uuid in uuider])})
             """
+=======
+        # Returnér (distrikt, punkt-ID)-poster i samme rækkefølge som inputlisten.
+        # Détte sikrer, at tilknyt_landsnumre() kan levere sit output i samme
+        # orden som inputlisterne i regnearket.
+        resultater = dict(
+            self.session.execute(forespørgsel_landsnumre(punkt_id_liste)).fetchall()
+>>>>>>> 624999f (Uddyb og refaktorisér tilnyt_landsnumre(). Tilføj kommentarer, så det er klart, hvad metoden gør.)
         )
-
-        # sørg for at output returneres i samme rækkefølge som inputlisten, sikrer at tilknyt_landsnumre()
-        # kan levere sit endelige output i samme orden som inputlisterne
-        temp = {
-            punktid: distrikt
-            for distrikt, punktid in self.session.execute(statement).fetchall()
-        }
-        distrikter = [(temp[u], u) for u in uuider]
-
-        return distrikter
+        return {punkt_id: resultater[punkt_id] for punkt_id in punkt_id_liste}
 
     def _løbenumre_i_distrikt(self, distrikt: str):
         """

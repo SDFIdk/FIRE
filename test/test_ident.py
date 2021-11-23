@@ -96,14 +96,15 @@ def test_unit_tilknyt_landsnumre(dummydb, mocker):
     Test at løbenumre tildeles korrekt med afsæt i allerede tildelte
     løbenumre.
     """
-    punkt_ider = [fire.uuid() for _ in range(3)]
-
-    se = (("K-63", pid) for pid in punkt_ider)
+    punkt_id_liste = [fire.uuid() for _ in range(3)]
     mocker.patch(
         "fire.api.FireDb.hent_punktinformationtype",
         return_value=PunktInformationType(name="IDENT:landsnr"),
     )
-    mocker.patch("fire.api.FireDb._opmålingsdistrikt_fra_punktid", return_value=se)
+    distrikter = {pid: "K-63" for pid in punkt_id_liste}
+    mocker.patch(
+        "fire.api.FireDb._opmålingsdistrikt_fra_punktid", return_value=distrikter
+    )
     mocker.patch(
         "fire.api.FireDb._løbenumre_i_distrikt",
         return_value=["09001", "09002", "09003"],
@@ -111,9 +112,10 @@ def test_unit_tilknyt_landsnumre(dummydb, mocker):
 
     punkter = [
         Punkt(
-            id=pktid, geometriobjekter=[GeometriObjekt(geometri=Point((56.15, 10.20)))]
+            id=punk_id,
+            geometriobjekter=[GeometriObjekt(geometri=Point((56.15, 10.20)))],
         )
-        for pktid in punkt_ider
+        for punk_id in punkt_id_liste
     ]
 
     fikspunktstyper = [
