@@ -93,7 +93,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
 
         landsnumre = {}
         for distrikt, punkt_id_liste in distrikt_punkter.items():
-            eksisterende_løbenumre = self._hent_eksisterende_løbenumre(distrikt)
+            eksisterende_løbenumre = self._løbenumre_i_distrikt(distrikt)
             for punkt_id in punkt_id_liste:
                 for kandidat in self._generer_tilladte_løbenumre(punktinfo[punkt_id]):
                     if kandidat in eksisterende_løbenumre:
@@ -266,7 +266,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
 
         return distrikter
 
-    def _hent_eksisterende_løbenumre(self, distrikt: str):
+    def _løbenumre_i_distrikt(self, distrikt: str):
         """
         For et givent opmålingsdistrikt findes alle landsnumre på formen
         xx-yyy-*****, hvorefter løbenummrene (*****) udskilles og returneres
