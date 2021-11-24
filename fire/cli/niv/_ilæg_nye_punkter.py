@@ -2,6 +2,7 @@ import sys
 import getpass
 import math
 from itertools import chain
+from datetime import datetime
 
 import click
 import pandas as pd
@@ -77,6 +78,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     landsnummer_pit = fire.cli.firedb.hent_punktinformationtype("IDENT:landsnr")
     beskrivelse_pit = fire.cli.firedb.hent_punktinformationtype("ATTR:beskrivelse")
+    bemærkning_pit = fire.cli.firedb.hent_punktinformationtype("ATTR:bemærkning")
     h_over_terræn_pit = fire.cli.firedb.hent_punktinformationtype(
         "AFM:højde_over_terræn"
     )
@@ -88,6 +90,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     )
     assert landsnummer_pit is not None, "IDENT:landsnr ikke fundet i database"
     assert beskrivelse_pit is not None, "ATTR:beskrivelse ikke fundet i database"
+    assert bemærkning_pit is not None, "ATTR:bemærkning ikke fundet i database"
     assert h_over_terræn_pit is not None, "AFM:højde_over_terræn ikke fundet i database"
     assert attr_gi_pit is not None, "ATTR:GI_punkt ikke fundet i database"
     assert attr_mv_pit is not None, "ATTR:MV_punkt ikke fundet i database"
@@ -236,6 +239,15 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
         # Tilknyt regionskode til punktet
         punktinfo.append(opret_region_punktinfo(punkt))
+
+        # Tilknyt ATTR:bemærkning
+        punktinfo.append(
+            PunktInformation(
+                infotype=bemærkning_pit,
+                punkt=punkt,
+                tekst=f"Nyetb. {datetime.now().year} {sagsbehandler}",
+            )
+        )
 
     # tilknyt diverse punktinfo baseret på fikspunktstypen
     for punkt, fikspunktstype in zip(punkter.values(), fikspunktstyper):
