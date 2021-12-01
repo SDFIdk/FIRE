@@ -69,7 +69,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v2
       with:
           environment-file: environment-dev.yml
-          python-version: 3.7
+          python-version: 3.9
           auto-activate-base: false
           activate-environment: fire-dev
           use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
