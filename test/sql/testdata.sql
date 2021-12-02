@@ -46,7 +46,7 @@ INSERT INTO konfiguration (
 --  'IDENT:GNSS',
 --  'ATTR:tabtgået'
 --);
-Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (347,'IDENT:GNSS','TEKST','GNNS Stationsnummer');
+Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (347,'IDENT:GNSS','TEKST','GNSS Stationsnummer');
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (346,'IDENT:landsnr','TEKST','Landsnummer');
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (331,'ATTR:tabtgået','FLAG','Fysisk punkt ikke længere tilgængeligt');
 INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES (333, 'ATTR:vandstandsmåler', 'FLAG', 'Punktet er en vandstandsmåler');
