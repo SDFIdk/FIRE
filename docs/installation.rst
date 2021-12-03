@@ -110,7 +110,7 @@ Sørg for at den seneste version af koden bruges:
 
 .. code-block::
 
-    (base) C:\FIRE>git checkout {FIREVERSION}
+    (base) C:\FIRE>git checkout fire-{FIREVERSION}
 
 Initialiser et "conda miljø" til FIRE (vær tålmodig, det kan godt tage lang tid)
 
