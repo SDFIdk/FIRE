@@ -288,7 +288,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
                     SELECT
                         regexp_substr(tekst, '.*-.*-(.+)', 1, 1, '', 1) lbnr
                     FROM punktinfo
-                    WHERE infotypeid={landsnr.infotypeid} AND REGEXP_LIKE(tekst, '{distrikt}-.+$')
+                    WHERE infotypeid={landsnr.infotypeid} AND REGEXP_LIKE(tekst, '^{distrikt}-.+$')
                 )
                 ORDER BY lbnr ASC
                 """
