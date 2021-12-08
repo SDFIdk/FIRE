@@ -31,7 +31,15 @@ from . import (
     type=str,
 )
 @click.argument("kriterier", nargs=-1, required=True)
-def udtræk_revision(projektnavn: str, kriterier: Tuple[str], **kwargs) -> None:
+@click.option(
+    "--alle-attributter",
+    is_flag=True,
+    type=bool,
+    help="Inkludér alle attributter",
+)
+def udtræk_revision(
+    projektnavn: str, kriterier: Tuple[str], alle_attributter: bool, **kwargs
+) -> None:
     """Gør klar til punktrevision: Udtræk eksisterende information.
 
     fire niv udtræk-revision projektnavn distrikts-eller-punktnavn(e)
@@ -64,6 +72,8 @@ def udtræk_revision(projektnavn: str, kriterier: Tuple[str], **kwargs) -> None:
         "ATTR:fundamentalpunkt",
         "ATTR:tinglysningsnr",
     ]
+    if alle_attributter:
+        ignorerede_attributter = []
 
     opmålingsdistrikter = []
     løse_punkter = []
