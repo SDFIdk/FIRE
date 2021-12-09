@@ -228,8 +228,9 @@ def enumeration():
         alias1 = 1
         medlem2 = 2
         alias2 = 2
-        medlem3 = 'test'
-        alias3 = 'test'
-        medlem4 = 'bob'
-        alias4 = 'bob'
+        medlem3 = "test"
+        alias3 = "test"
+        medlem4 = "bob"
+        alias4 = "bob"
+
     return Enumeration
