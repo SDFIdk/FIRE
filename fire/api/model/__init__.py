@@ -1,8 +1,12 @@
 """SQLAlchemy models for the application
 """
+import enum
+
 import sqlalchemy.ext.declarative
 from sqlalchemy import Column, Integer, DateTime, String, func
 from sqlalchemy.dialects.oracle import TIMESTAMP
+
+from fire.enumtools import enum_values
 
 
 class BetterBehavedEnum(sqlalchemy.types.TypeDecorator):
@@ -13,7 +17,7 @@ class BetterBehavedEnum(sqlalchemy.types.TypeDecorator):
     Boolean.FALSE oversættes til 'false' og ikke 'FALSE'.
     """
 
-    def __init__(self, enumtype, *args, **kwargs):
+    def __init__(self, enumtype: enum.Enum, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._enumtype = enumtype
 
@@ -24,6 +28,8 @@ class BetterBehavedEnum(sqlalchemy.types.TypeDecorator):
             return value
 
     def process_result_value(self, value, dialect):
+        if value not in enum_values(self._enumtype):
+            return
         return self._enumtype(value)
 
 

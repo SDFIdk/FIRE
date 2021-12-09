@@ -1,5 +1,6 @@
-import pytest
+from enum import Enum
 
+import pytest
 from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
@@ -218,3 +219,17 @@ def ark_punktoversigt():
 @pytest.fixture
 def række_punktoversigt():
     return basisrække(arkdef.PUNKTOVERSIGT)
+
+
+@pytest.fixture
+def enumeration():
+    class Enumeration(Enum):
+        medlem1 = 1
+        alias1 = 1
+        medlem2 = 2
+        alias2 = 2
+        medlem3 = 'test'
+        alias3 = 'test'
+        medlem4 = 'bob'
+        alias4 = 'bob'
+    return Enumeration
