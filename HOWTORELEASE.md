@@ -41,7 +41,7 @@ Følg disse skridt i forbindelse med en ny release:
   - Send direkte til `master` på `origin`:
 
     ```sh
-    git push --tags origin/master
+    git push --tags origin master
     ```
 
 * På GitHub luk milestone og opret ny til næste nummer i rækken.
