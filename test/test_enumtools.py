@@ -32,10 +32,6 @@ def test_default_enums(enumeration):
     assert result == expected, f'Expected {result!r} to be {expected!r}'
 
 
-# def test_selected_or_default(enumeration):
-#     pass
-
-
 def test_enum_values(enumeration):
     expected = {1, 2, 'test', 'bob'}
     result = enum_values(enumeration)
