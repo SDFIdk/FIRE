@@ -29,7 +29,7 @@ def enum_members(enum_class: Enum, names: List[str]) -> List[Enum]:
     return [enum_class[name] for name in names]
 
 
-def default_enums(enum):
+def default_enums(enum: Enum):
     """Returnerer liste med standard-enum-medlemmer for en given enum."""
     return enum_members(enum, enum_names(enum))
 
@@ -44,3 +44,9 @@ def selected_or_default(selected: str, enum: Enum) -> List[Enum]:
     if selected is None:
         return default_enums(enum)
     return [enum[selected]]
+
+
+def enum_values(enum: Enum) -> set:
+    """Returnerer de unikke værdier for enumerations-medlemmers for en given enum."""
+    return {item.value for item in enum}
+
