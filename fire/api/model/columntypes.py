@@ -10,6 +10,8 @@ class Geometry(UserDefinedType):
 
     name = "GEOMETRY"
 
+    cache_ok = True
+
     def __init__(self, dimension=None, srid=-1):
         self.dimension = dimension
         self.srid = srid
@@ -55,10 +57,16 @@ class Geometry(UserDefinedType):
 class Point(Geometry):
     name = "POINT"
 
+    cache_ok = True
+
 
 class Curve(Geometry):
     name = "CURVE"
 
+    cache_ok = True
+
 
 class LineString(Curve):
     name = "LINESTRING"
+
+    cache_ok = True
