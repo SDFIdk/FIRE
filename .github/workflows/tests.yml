@@ -11,9 +11,19 @@ jobs:
 
     services:
       oracledb:
-        image: septimaps/oracle-12c-bootstrapped
+        image: gvenzl/oracle-xe:full
+
+        env:
+          ORACLE_PASSWORD: oracle
+
         ports:
           - 1521:1521
+
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
     - name: Checkout repository
@@ -86,11 +96,11 @@ jobs:
       run: |
         sqlplus64 -V
         # Opsæt database
-        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S system/oracle@//localhost:1521/xe @test/ci/init.sql
+        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S system/oracle@//localhost:1521/XEPDB1 @test/ci/init.sql
         # Indlæs DDL
-        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @sql/ddl.sql
+        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/XEPDB1 @sql/ddl.sql
         # Indlæs testdata
-        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/xe @test/sql/testdata.sql
+        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/XEPDB1 @test/sql/testdata.sql
         # Indlæst opmålingsdistrikter
         python scripts/load_shapefile.py
 
