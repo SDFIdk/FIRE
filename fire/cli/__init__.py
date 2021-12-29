@@ -6,8 +6,12 @@ import sys
 import os
 
 import click
+import rich.traceback
+import sqlalchemy
 
 from fire.api import FireDb
+
+rich.traceback.install(show_locals=True, suppress=[click, sqlalchemy])
 
 firedb = FireDb()
 _show_colors = True
