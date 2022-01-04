@@ -1,7 +1,0 @@
-
-version: 1
-task_definition:
-  services:
-    oracle-12c-bootstrapped:
-      mem_limit: 2147483648
-      mem_reservation: 536870912

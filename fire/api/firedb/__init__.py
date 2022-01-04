@@ -256,7 +256,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         statement = text(
             f"""SELECT upper(hs.kode), go.punktid
                 FROM geometriobjekt go
-                JOIN herredsogn hs ON sdo_relate(hs.geometri, go.geometri, 'mask=contains') = 'TRUE'
+                JOIN herredsogn hs ON sdo_inside(go.geometri, hs.geometri) = 'TRUE'
                 WHERE
                 go.punktid IN ({','.join([f"'{uuid}'" for uuid in uuider])})
             """
