@@ -54,7 +54,7 @@ Test-suiten køres med::
 .. warning::
 
     Test-suiten kræver adgang til en Oracle database hvor DDL og testdata er
-    indlæst. Normalvis er det ikke filfældet på SIT arbejdsstationer hvorfor
+    indlæst. Normalvis er det ikke tilfældet på SIT arbejdsstationer hvorfor
     tests som udgangspunkt ikke kan afvikles lokalt. Test-suiten kører automatisk
     på pull requests mod https://github.com/Kortforsyningen/FIRE.
 
@@ -117,7 +117,7 @@ fald kan placeringen til denne angives som følger::
     sphinx-build -b html -D graphviz_dot=C:\Users\<USERNAME>\AppData\Local\Continuum\miniconda3\envs\fire-dev\Library\bin\graphviz\dot.exe ./docs ./docs/_build
 
 Når der tilføjes eller fjernes moduler til API koden skal dokumentationen
-opdaters (filer i ``docs/api``). Dette kan gøres med::
+opdateres (filer i ``docs/api``). Dette kan gøres med::
 
     sphinx-apidoc -E -d 3 -o docs\api fire
 
@@ -152,7 +152,7 @@ Lokalt testmiljø
 ----------------
 
 Forudsat du har Docker og nogle Oracle-værktøjer (instaclient og SQLplus) installeret
-er det muligt at sætte en lokal testdatbase op. Fremgangsmåden er nogenlunde som følger.
+er det muligt at sætte en lokal testdatabase op. Fremgangsmåden er nogenlunde som følger.
 Først startes en Oracle-database med ``docker-compose``. Fra roden af repositoryet
 køres::
 
