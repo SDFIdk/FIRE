@@ -37,14 +37,13 @@ def forespørgsel_landsnumre(punkt_id_liste: List[str]) -> text:
 
     """
     return text(
-        f"""SELECT go.punktid, upper(hs.kode)
+        f"""SELECT upper(hs.kode), go.punktid
             FROM geometriobjekt go
-            JOIN herredsogn hs ON sdo_relate(hs.geometri, go.geometri, 'mask=contains') = 'TRUE'
+            JOIN herredsogn hs ON sdo_inside(go.geometri, hs.geometri) = 'TRUE'
             WHERE
             go.punktid IN ({','.join([f"'{punkt_id}'" for punkt_id in punkt_id_liste])})
         """
     )
-
 
 class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
     def soeg_geometriobjekt(self, bbox) -> List[GeometriObjekt]:
@@ -293,21 +292,11 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         med henblik på at kunne mocke den i unit tests.
 
         """
-<<<<<<< HEAD
-        statement = text(
-            f"""SELECT upper(hs.kode), go.punktid
-                FROM geometriobjekt go
-                JOIN herredsogn hs ON sdo_inside(go.geometri, hs.geometri) = 'TRUE'
-                WHERE
-                go.punktid IN ({','.join([f"'{uuid}'" for uuid in uuider])})
-            """
-=======
         # Returnér (distrikt, punkt-ID)-poster i samme rækkefølge som inputlisten.
         # Détte sikrer, at tilknyt_landsnumre() kan levere sit output i samme
         # orden som inputlisterne i regnearket.
         resultater = dict(
             self.session.execute(forespørgsel_landsnumre(punkt_id_liste)).fetchall()
->>>>>>> 624999f (Uddyb og refaktorisér tilnyt_landsnumre(). Tilføj kommentarer, så det er klart, hvad metoden gør.)
         )
         return {punkt_id: resultater[punkt_id] for punkt_id in punkt_id_liste}
 
