@@ -223,6 +223,24 @@ CREATE TABLE punktinfotype (
 );
 
 
+CREATE TABLE grafik (
+  objektid INTEGER GENERATED ALWAYS AS IDENTITY (
+    START WITH
+      1 INCREMENT BY 1 ORDER NOCACHE
+  ) PRIMARY KEY,
+  registreringfra TIMESTAMP WITH TIME ZONE NOT NULL,
+  registreringtil TIMESTAMP WITH TIME ZONE,
+  sagseventfraid VARCHAR2(36) NOT NULL,
+  sagseventtilid VARCHAR2(36),
+
+  grafik BLOB NOT NULL,
+  type VARCHAR2(10),
+  mimetype VARCHAR(100),
+  filnavn VARCHAR(100),
+
+  punktid VARCHAR2(36) NOT NULL
+);
+
 CREATE TABLE sag (
   objektid INTEGER GENERATED ALWAYS AS IDENTITY (
     START WITH
@@ -336,6 +354,16 @@ ALTER TABLE
 ADD
   CONSTRAINT sagsinfo_aktiv_chk CHECK (aktiv IN ('true', 'false'));
 
+ALTER TABLE
+  grafik
+ADD
+  CONSTRAINT grafik_type_chk CHECK (type IN ('skitse', 'foto'));
+
+ALTER TABLE
+  grafik
+ADD
+  CONSTRAINT grafik_mimetype_chk CHECK (mimetype IN ('image/png', 'image/jpeg'));
+
 -- Constraints der sikrer at namespacedelen er korrekt i PUNKTINFOTYPE
 ALTER TABLE
   punktinfotype
@@ -367,6 +395,8 @@ CREATE INDEX herredsogn_geometri_idx ON herredsogn (geometri) INDEXTYPE IS MDSYS
 
 -- Unique index på alle kolonner med ID'er.
 CREATE UNIQUE INDEX punkt_id_idx ON punkt (id);
+
+CREATE INDEX grafik_punktid_idx ON grafik (punktid);
 
 ALTER TABLE
   punkt
@@ -460,6 +490,11 @@ ALTER TABLE
   punktinfo
 ADD
   CONSTRAINT punktinfo_infotypeid_fk FOREIGN KEY (infotypeid) REFERENCES punktinfotype (infotypeid) ENABLE VALIDATE;
+
+ALTER TABLE
+ grafik
+ADD
+  CONSTRAINT grafik_punktid_fk FOREIGN KEY (punktid) REFERENCES punkt (id) ENABLE VALIDATE;
 
 ALTER TABLE
   sagsinfo
@@ -572,6 +607,19 @@ ALTER TABLE
   punktinfo
 ADD
   CONSTRAINT punktinfo_regtil_ck CHECK (
+    nvl(
+      registreringtil,
+      to_timestamp_tz(
+        '2099-12-31T00:00.0000000+01:00',
+        'YYYY-MM-DD"t"HH24:MI:SS.FF7TZR'
+      )
+    ) >= registreringfra
+  ) ENABLE VALIDATE;
+
+ALTER TABLE
+  grafik
+ADD
+  CONSTRAINT grafik_registeringtil_ck CHECK (
     nvl(
       registreringtil,
       to_timestamp_tz(
@@ -736,6 +784,13 @@ COMMENT ON COLUMN punktinfotype.anvendelse IS 'Er det reelTal, tekst, eller inge
 COMMENT ON COLUMN punktinfotype.beskrivelse IS 'Beskrivelse af denne informationstypes art.';
 COMMENT ON COLUMN punktinfotype.infotype IS 'Arten af dette informationselement';
 COMMENT ON COLUMN punktinfotype.infotypeid IS 'Unik ID for typen af Punktinfo.';
+
+COMMENT ON TABLE grafik IS 'Grafik tilhørende et Punkt, eksempelvis skitser eller fotos af punktet.';
+COMMENT ON COLUMN grafik.grafik IS 'BLOB med grafikfilens indhold.';
+COMMENT ON COLUMN grafik.type IS 'Angivelse af grafikkens type. Enten "skitse" eller "foto".';
+COMMENT ON COLUMN grafik.mimetype IS 'MIME type på grafikfilen. "image/png" og "image/jpeg" tilladt.';
+COMMENT ON COLUMN grafik.filnavn IS 'Navn på filen der er indlæst i databasen.';
+COMMENT ON COLUMN grafik.punktid IS 'Punktet som grafikken er tilknyttet.';
 
 COMMENT ON TABLE sag IS 'Samling af administrativt relaterede sagshændelser.';
 COMMENT ON COLUMN sag.id IS 'Persistent unik nøgle.';
@@ -1008,6 +1063,47 @@ BEGIN
   IF (:new.Z IS NULL OR :new.SZ IS NULL) AND valZ IS NOT NULL THEN
     RAISE_APPLICATION_ERROR(-20002, 'Hverken Z eller SZ må ikke være NULL');
   END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER grafik_au_trg
+AFTER UPDATE ON grafik
+FOR EACH ROW
+BEGIN
+	IF :new.objektid != :old.objektid THEN
+    RAISE_APPLICATION_ERROR(-20000,'grafik.objektid må ikke opdateres ');
+  END IF;
+
+  IF :new.registreringfra != :old.registreringfra THEN
+    RAISE_APPLICATION_ERROR(-20000,'grafik.registreringfra må ikke opdateres ');
+  END IF;
+
+  IF :new.sagseventfraid != :old.sagseventfraid THEN
+    RAISE_APPLICATION_ERROR(-20000,'grafik.sagseventfraid må ikke opdateres ');
+  END IF;
+
+-- Denne del fejler i et samspil mellem grafik_au_trg og grafik_bi_trg,
+-- uklart hvorfor det sker. Udkommenteret indtil videre.
+--  IF :new.grafik != :old.grafik THEN
+--    RAISE_APPLICATION_ERROR(-20000,'grafik.grafik må ikke opdateres ');
+--  END IF;
+
+  IF :new.type != :old.type THEN
+    RAISE_APPLICATION_ERROR(-20000, 'grafik.type må ikke opdateres');
+  END IF;
+
+  IF :new.mimetype != :old.mimetype THEN
+    RAISE_APPLICATION_ERROR(-20000, 'grafik.mimetype må ikke opdateres');
+  END IF;
+
+  IF :new.filnavn != :old.filnavn THEN
+    RAISE_APPLICATION_ERROR(-20000, 'grafik.filnavn må ikke opdateres');
+  END IF;
+
+  IF :new.punktid != :old.punktid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'grafik.punktid må ikke opdateres');
+  END IF;
+
 END;
 /
 
@@ -1459,6 +1555,74 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE TRIGGER grafik_bi_trg
+BEFORE INSERT ON grafik
+FOR EACH ROW
+DECLARE
+  cnt NUMBER;
+BEGIN
+  IF :new.registreringfra = :new.registreringtil THEN
+    SELECT
+      count(*) INTO cnt
+    FROM
+      grafik
+    WHERE
+      registreringtil = :new.registreringfra;
+
+    if cnt = 0 THEN
+      RAISE_APPLICATION_ERROR(-20006,'Manglende forudgående grafik');
+    END IF;
+  END IF;
+
+  IF :new.registreringtil IS NULL THEN
+    SELECT
+      count(*) INTO cnt
+    FROM
+      grafik
+    WHERE
+      punktid != :new.punktid
+      AND filnavn = :new.filnavn;
+
+    IF cnt > 0 THEN
+        RAISE_APPLICATION_ERROR(-20008, 'Filnavn allerede registreret!');
+    END IF;
+
+
+    SELECT
+      count(*) INTO cnt
+    FROM
+      grafik
+    WHERE
+      punktid = :new.punktid
+      AND filnavn = :new.filnavn
+      AND registreringtil IS NULL;
+
+    IF cnt = 1 THEN
+      UPDATE
+        grafik
+      SET
+        registreringtil = :new.registreringfra,
+        sagseventtilid = :new.sagseventfraid
+      WHERE
+        objektid = (
+          SELECT
+            objektid
+          FROM
+            grafik
+          WHERE
+            punktid = :new.punktid
+            AND filnavn = :new.filnavn
+            AND registreringtil IS NULL
+        );
+    END IF;
+  END IF;
+
+END;
+/
+
+
+
+
 CREATE OR REPLACE TRIGGER sagsinfo_bi_trg
 BEFORE INSERT ON sagsinfo
 FOR EACH ROW
@@ -1666,3 +1830,9 @@ VALUES ('Bruges når et punkt og tilhørende geometri nedlægges.', 'punkt_nedla
 
 INSERT INTO eventtype (beskrivelse, event, eventtypeid)
 VALUES ('Bruges til at tilføje fritekst-kommentarer til sagen i tilfælde af at der er behov for at påhæfte sagen yderligere information, som ikke passer i andre hændelser. Bruges fx også til påhæftning af materiale på sagen.', 'kommentar', 9);
+
+INSERT INTO eventtype (beskrivelse, event, eventtypeid)
+VALUES ('Bruges når en ny grafik indlæses i databasen.', 'grafik_indsat', 10);
+
+INSERT INTO eventtype (beskrivelse, event, eventtypeid)
+VALUES ('Bruges når en grafik i databasen nedlægges.', 'grafik_nedlagt', 11);
