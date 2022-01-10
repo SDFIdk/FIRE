@@ -59,7 +59,16 @@ class ReprBase(object):
         attrs = []
         for col in self.__table__.columns:
             try:
-                attrs.append((col.name, getattr(self, col.name)))
+                name = col.name
+                attr = getattr(self, name)
+                # Nogle attributter har en MEGET lang tekstrepræsentation,
+                # fx en blob fra Grafik-klassen. Vi korter den ned for at holde
+                # overblikket simpelt
+                if attr.__len__:
+                    if len(attr) > 20:
+                        attr = f"{attr[0:20]}..."
+
+                attrs.append((name, attr))
             except AttributeError:
                 # Der er ikke altid et en til en match mellem kolonnenavn og attributnavn
                 try:

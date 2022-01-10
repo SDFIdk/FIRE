@@ -9,6 +9,7 @@ from fire.api.model import (
     PunktInformation,
     Koordinat,
     Observation,
+    Grafik,
     Sagsevent,
     Sagsinfo,
     Beregning,
@@ -127,3 +128,11 @@ class FireDbLuk(FireDbBase):
         for koordinat in beregning.koordinater:
             self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
         self._luk_fikspunkregisterobjekt(beregning, sagsevent, commit=commit)
+
+    def luk_grafik(self, grafik: Grafik, sagsevent: Sagsevent, commit: bool = True):
+        """Luk et Grafik objekt."""
+        if not isinstance(grafik, Grafik):
+            raise TypeError("'grafik' er ikke en instans af Grafik")
+
+        sagsevent.eventtype = EventType.GRAFIK_NEDLAGT
+        self._luk_fikspunkregisterobjekt(grafik, sagsevent, commit=commit)
