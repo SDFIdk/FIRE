@@ -17,6 +17,7 @@ from fire.api.model import (
     PunktInformation,
     PunktInformationType,
     GeometriObjekt,
+    Grafik,
     Observation,
     ObservationsType,
     Geometry,
@@ -330,4 +331,12 @@ class FireDbHent(FireDbBase):
             self.session.query(PunktInformationType)
             .filter(PunktInformationType.name.ilike(like_filter))
             .all()
+        )
+
+    def hent_grafik(self, filnavn: str) -> Grafik:
+        g = aliased(Grafik)
+        return (
+            self.session.query(g)
+            .filter(g.filnavn == filnavn, g._registreringtil == None)  # NOQA
+            .one()
         )

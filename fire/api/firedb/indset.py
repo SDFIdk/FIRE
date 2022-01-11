@@ -98,6 +98,7 @@ class FireDbIndset(FireDbBase):
             for grafik in sagsevent.grafikker:
                 if not self._is_new_object(grafik):
                     raise Exception(f"Grafik allerede tilføjet datbasen: {grafik}")
+                grafik.sagsevent = sagsevent
 
         if sagsevent.eventtype == EventType.GRAFIK_NEDLAGT:
             self._check_and_prepare_sagsevent(sagsevent, EventType.GRAFIK_NEDLAGT)

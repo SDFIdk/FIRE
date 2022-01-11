@@ -161,3 +161,24 @@ def test_grafik_luk(firedb: FireDb, punkt: Punkt, sagsevent: Sagsevent):
     firedb.luk_grafik(g, sagsevent)
     assert g.registreringtil is not None
     assert g.sagsevent.eventtype == EventType.GRAFIK_NEDLAGT
+
+
+def test_grafik_hent(firedb: FireDb, punkt: Punkt, sagsevent: Sagsevent):
+    """Test FireDb.hent_grafik"""
+    filnavn = f"{fire.uuid()}.png"
+    g = Grafik(
+        punkt=punkt,
+        filnavn=filnavn,
+        mimetype="image/png",
+        type="skitse",
+        grafik=b"\xf3\xf5\xf8\x98",
+    )
+    sagsevent.grafikker = [g]
+    firedb.session.add(g)
+    firedb.session.commit()
+
+    gg = firedb.hent_grafik(filnavn)
+
+    assert g.grafik == gg.grafik
+    assert g.mimetype == gg.mimetype
+    assert g.objektid == gg.objektid

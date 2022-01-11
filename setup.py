@@ -58,5 +58,6 @@ setup(
         gama=fire.cli.gama:gama
         niv=fire.cli.niv:niv
         søg=fire.cli.søg:søg
+        grafik=fire.cli.grafik:grafik
     """,
 )

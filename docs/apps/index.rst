@@ -6,5 +6,6 @@ Kommandolinjeprogrammer
 
     info
     niv
+    grafik
     gama
-    
+

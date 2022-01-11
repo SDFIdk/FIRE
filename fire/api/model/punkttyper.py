@@ -103,7 +103,7 @@ class FikspunktsType(enum.Enum):
 
 class GrafikType(enum.Enum):
     SKITSE = "skitse"
-    BILLEDE = "billede"
+    FOTO = "foto"
 
 
 beregning_koordinat = Table(
@@ -972,9 +972,9 @@ class Grafik(FikspunktregisterObjekt):
             )
         # antag at en png-fil er en skitse
         if mimetype == "image/png":
-            grafiktype = GrafikType.SKITSE
+            grafiktype = GrafikType.SKITSE.value
         else:
-            grafiktype = GrafikType.BILLEDE
+            grafiktype = GrafikType.FOTO.value
 
         filnavn = sti.name
 
