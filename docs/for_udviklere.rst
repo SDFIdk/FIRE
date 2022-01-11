@@ -152,28 +152,15 @@ Lokalt testmiljø
 ----------------
 
 Forudsat du har Docker og nogle Oracle-værktøjer (instaclient og SQLplus) installeret
-er det muligt at sætte en lokal testdatabase op. Fremgangsmåden er nogenlunde som følger.
-Først startes en Oracle-database med ``docker-compose``. Fra roden af repositoryet
+er det muligt at sætte en lokal testdatabase op. Fra roden af repositoryet
 køres::
 
-    > docker-compose up
+    > ./scripts/init-db.sh
 
 Først gang kommandoen køres downloades en række Docker images. Det tager sin tid, så
-vær tålmodig. Når databasen er færdig installeret og startet op får du besked herom.
+vær tålmodig.
 
-Start en ny terminal op og initialiser databasen med brugerrettigheder, DDL og
-testdata::
-
-    ORACLE_PATH=misc/oracle sqlplus -S system/oracle@//localhost:1521/xe @.circleci/init.sql
-    ORACLE_PATH=misc/oracle sqlplus -S fire/fire@//localhost:1521/xe @sql/ddl.sql
-    ORACLE_PATH=misc/oracle sqlplus -S fire/fire@//localhost:1521/xe @test/sql/testdata.sql
-
-.. note::
-
-    Databasen skal initialiseres hver gang den startes op. Det anbefales at lave et
-    script der automatiserer processen.
-
-Kopier opsætningsfilen ``.circleci/fire_settings.json`` til din :envvar:`HOME`-mappe.
+Kopier opsætningsfilen ``test/ci/fire.ini`` til din :envvar:`HOME`-mappe.
 Herefter burde det være muligt at køre test-suiten.
 
 
