@@ -3,6 +3,7 @@ import enum
 from typing import List, Union
 import functools
 import mimetypes
+from pathlib import Path
 
 from sqlalchemy import (
     Table,
@@ -47,6 +48,7 @@ __all__ = [
     "Ident",
     "FikspunktsType",
     "Grafik",
+    "GrafikType",
 ]
 
 
@@ -97,6 +99,11 @@ class FikspunktsType(enum.Enum):
     JESSEN = 4
     HJÆLPEPUNKT = 5
     VANDSTANDSBRÆT = 6
+
+
+class GrafikType(enum.Enum):
+    SKITSE = "skitse"
+    BILLEDE = "billede"
 
 
 beregning_koordinat = Table(
@@ -946,7 +953,7 @@ class Grafik(FikspunktregisterObjekt):
 
     objektid = Column(Integer, primary_key=True)
     grafik = Column(LargeBinary, nullable=False)
-    type = Column(String(10), nullable=False)
+    type = Column(StringEnum(GrafikType), nullable=False)
     mimetype = Column(String(3), nullable=False)
     filnavn = Column(String(100), nullable=False)
     punktid = Column(String(36), ForeignKey("punkt.id"), nullable=False)
@@ -960,12 +967,14 @@ class Grafik(FikspunktregisterObjekt):
 
         (mimetype, _) = mimetypes.guess_type(sti)
         if mimetype not in ("image/png", "image/jpeg"):
-            raise ValueError(f"Filen {sti} kan ikke læses, forkert MIME type: {mt}")
+            raise ValueError(
+                f"Filen {sti} kan ikke læses, forkert MIME type: {mimetype}"
+            )
         # antag at en png-fil er en skitse
         if mimetype == "image/png":
-            grafiktype = "skitse"
+            grafiktype = GrafikType.SKITSE
         else:
-            grafiktype = "billede"
+            grafiktype = GrafikType.BILLEDE
 
         filnavn = sti.name
 

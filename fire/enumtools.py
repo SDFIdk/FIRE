@@ -49,4 +49,3 @@ def selected_or_default(selected: str, enum: Enum) -> List[Enum]:
 def enum_values(enum: Enum) -> set:
     """Returnerer de unikke værdier for enumerations-medlemmers for en given enum."""
     return {item.value for item in enum}
-
