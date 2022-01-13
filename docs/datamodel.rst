@@ -469,6 +469,101 @@ præcist hvilke observationer der ligger til grund for en bestemt Koordinat.
 
         }
 
+
+Tidsserier og PunktSamlinger
+-----------
+
+Til understøttelse af tidsserieanalyser findes der i FIRE objekterne Tidsserie
+og PunktSamling. En tidsserie kan stå alene eller flere tidsserier kan grupperes
+ved hjælp af en PunktSamling. Funktionaliteten af de to objekter forklares nemmest
+med afsæt i to forskellige slags tidsserieanalyser: GNSS og Nivellement. En GNSS-
+tidsserie er relativt simpel, da den udelukkende består af en række koordinater knyttet
+til samme Punkt. Nivellementstidsserien derimod vil involvere flere punkter, hvoraf et
+er udpeget som Jessenpunkt hvis stabilitet analyseres. Det vil sige at vi for hvert
+punkt i PunktSamlingen har en Tidsserie bestående af koter relative til Jessenpunktet.
+Herunder ses sammenhængene mellem tabellerne der ligger til grund for Tidsserie- og
+Punktsamlingobjekterne.
+
+.. graphviz::
+    :name: Tidsserie
+    :caption: Tidsserier og PunktSamlinger
+    :align: center
+
+        digraph "Tidsserier" {
+            node [shape=record, fontname="Verdana", fontsize="12"];
+            graph [splines=ortho];
+
+            Tidsserie [
+                fillcolor = lightskyblue
+                style = filled
+                label = "{Tidsserie|\l
+                        + objektid : Integer\l
+                        + punktid : UUID\l
+                        + punktsamlingsid : Integer\l
+                        + navn : String\l
+                        + formaal : String\l
+                        + referenceramme : String\l
+                        + sridid : Integer
+                }"
+            ]
+
+            Tidsserie_koordinat [
+                fillcolor = yellow
+                style = filled
+                label = "{Tidsserie_koordinat|\l
+                        + tidsserieobjektid : Integer\l
+                        + koordinatobjektid : Integer\l
+                }"
+            ]
+
+            Koordinat [
+                fillcolor = lightskyblue
+                style = filled
+                label = "{Koordinat|\l
+                        + objektid : Integer\l
+                }"
+            ]
+
+            PunktSamling [
+                fillcolor = lightskyblue
+                style = filled
+                label = "{PunktSamling|\l
+                    + objektid : Integer\l
+                    + jessenpunktid : UUID\l
+                    + jessenkoordinatid : Integer\l
+                    + navn : String\l
+                    + formaal : String\l
+
+                }"
+            ]
+
+            Punkt [
+                fillcolor = lightskyblue
+                style = filled
+                label = "{Punkt|\l
+                    + id : UUID\l
+
+                }"
+            ]
+
+            Punktsamling_punkt [
+                fillcolor = yellow
+                style = filled
+                label = "{Punktsamling_punkt|\l
+                        + punktsamlingobjektid : Integer\l
+                        + punktid : UUID\l
+                }"
+            ]
+
+            Tidsserie -> Tidsserie_koordinat;
+            Tidsserie_koordinat -> Koordinat;
+            PunktSamling -> Punktsamling_punkt -> Punkt:n;
+            PunktSamling -> Punkt
+            PunktSamling -> Koordinat
+            Tidsserie -> PunktSamling [taillabel = "0..1"]
+
+        }
+
 .. _sager_og_historik:
 
 Sager og historik

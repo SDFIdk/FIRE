@@ -14,6 +14,7 @@ from fire.api.firedb.base import FireDbBase
 from fire.api.model import (
     Sag,
     Punkt,
+    PunktSamling,
     PunktInformation,
     PunktInformationType,
     GeometriObjekt,
@@ -23,6 +24,7 @@ from fire.api.model import (
     Geometry,
     Srid,
     Koordinat,
+    Tidsserie,
 )
 
 
@@ -114,6 +116,34 @@ class FireDbHent(FireDbBase):
 
     def hent_alle_punkter(self) -> List[Punkt]:
         return self.session.query(Punkt).all()
+
+    def hent_punktsamling(self, navn: str) -> PunktSamling:
+        """
+        Hent en punktsamling ud fra dens navn.
+
+        Punktsamlingsnavne er unikke i FIRE, så der kan højest returneres
+        en punktsamling ad gangen med denne metode.
+        """
+        return (
+            self.session.query(PunktSamling)
+            .filter(
+                PunktSamling.navn == navn, PunktSamling._registreringtil == None
+            )  # NOQA
+            .one()
+        )
+
+    def hent_tidsserie(self, navn: str) -> Tidsserie:
+        """
+        Hent en tidsserie ud fra dens navn.
+
+        Tidsserienavne er unikke i FIRE, så der kan højest returneres
+        en tidsserie ad gangen med denne metode.
+        """
+        return (
+            self.session.query(Tidsserie)
+            .filter(Tidsserie.navn == navn, Tidsserie._registreringtil == None)  # NOQA
+            .one()
+        )
 
     def hent_geometri_objekt(self, punktid: str) -> GeometriObjekt:
         go = aliased(GeometriObjekt)

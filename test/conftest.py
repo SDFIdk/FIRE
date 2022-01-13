@@ -9,11 +9,14 @@ from fire.api.model import (
     func,
     Sag,
     Punkt,
+    PunktSamling,
     Observation,
     Sagsevent,
+    SagseventInfo,
     Sagsinfo,
     Beregning,
     Koordinat,
+    Tidsserie,
     EventType,
     Srid,
     Boolean,
@@ -63,36 +66,100 @@ def sag(firedb):
 
 
 @pytest.fixture()
-def sagsevent(firedb, sag):
-    e0 = Sagsevent(sag=sag, eventtype=EventType.KOMMENTAR)
-    firedb.session.add(e0)
-    return e0
+def sagseventfabrik(firedb, sag):
+    """Sagseventfabrik til oprettelse af flere sagevents i samme test case."""
+
+    def fabrik():
+        e0 = Sagsevent(
+            sag=sag,
+            eventtype=EventType.KOMMENTAR,
+            sagseventinfos=[SagseventInfo(beskrivelse="test")],
+        )
+        firedb.session.add(e0)
+        return e0
+
+    return fabrik
 
 
 @pytest.fixture()
-def punkt(firedb, sagsevent):
-    sagsevent.eventtype = EventType.PUNKT_OPRETTET
-    p0 = Punkt(sagsevent=sagsevent)
-    firedb.session.add(p0)
-    return p0
+def sagsevent(sagseventfabrik):
+    return sagseventfabrik()
 
 
 @pytest.fixture()
-def koordinat(firedb, sagsevent, punkt, srid):
-    sagsevent.eventtype = EventType.KOORDINAT_BEREGNET
-    k0 = Koordinat(
+def punktfabrik(firedb, sagsevent: Sagsevent):
+    """Punktfabrik til oprettelse af flere punkter i samme test case."""
+
+    def fabrik():
+        sagsevent.eventtype = EventType.PUNKT_OPRETTET
+        p = Punkt(sagsevent=sagsevent)
+        firedb.session.add(p)
+        return p
+
+    return fabrik
+
+
+@pytest.fixture()
+def punkt(punktfabrik):
+    return punktfabrik()
+
+
+@pytest.fixture()
+def punktsamling(firedb, sagsevent, punktfabrik, koordinat):
+    sagsevent.eventtype = EventType.PUNKTGRUPPE_MODIFICERET
+    pg = PunktSamling(
+        sagsevent=sagsevent,
+        navn=f"test-{fire.uuid()[0:9]}",
+        formål="Test",
+        jessenpunkt=punktfabrik(),
+        jessenkoordinat=koordinat,
+        punkter=[punktfabrik() for _ in range(5)],
+    )
+    return pg
+
+
+@pytest.fixture()
+def koordinatfabrik(firedb, sagsevent, punkt, srid):
+    """Koordinatfabrik til oprettelse af flere koordinater i samme test case."""
+
+    def fabrik():
+        sagsevent.eventtype = EventType.KOORDINAT_BEREGNET
+        k0 = Koordinat(
+            sagsevent=sagsevent,
+            punkt=punkt,
+            srid=srid,
+            x=0,
+            y=0,
+            z=0,
+            sx=0,
+            sy=0,
+            sz=0,
+        )
+        firedb.session.add(k0)
+        return k0
+
+    return fabrik
+
+
+@pytest.fixture()
+def koordinat(koordinatfabrik):
+    return koordinatfabrik()
+
+
+@pytest.fixture()
+def tidsserie(firedb, sagsevent, punkt, punktsamling, koordinatfabrik, srid):
+    ts = Tidsserie(
         sagsevent=sagsevent,
         punkt=punkt,
+        punktsamling=punktsamling,
+        navn=f"{fire.uuid()}",
+        formål="Test",
+        referenceramme="FIRE",
         srid=srid,
-        x=0,
-        y=0,
-        z=0,
-        sx=0,
-        sy=0,
-        sz=0,
+        koordinater=[koordinatfabrik() for _ in range(5)],
     )
-    firedb.session.add(k0)
-    return k0
+    firedb.session.add(ts)
+    return ts
 
 
 @pytest.fixture()

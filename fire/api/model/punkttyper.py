@@ -32,7 +32,9 @@ from fire.api.model import (
 __all__ = [
     "FikspunktregisterObjekt",
     "Punkt",
+    "PunktSamling",
     "Koordinat",
+    "Tidsserie",
     "Artskode",
     "GeometriObjekt",
     "Beregning",
@@ -121,6 +123,20 @@ beregning_observation = Table(
     Column("observationobjektid", Integer, ForeignKey("observation.objektid")),
 )
 
+punktsamling_punkt = Table(
+    "punktsamling_punkt",
+    DeclarativeBase.metadata,
+    Column("punktsamlingsid", Integer, ForeignKey("punktsamling.objektid")),
+    Column("punktid", String, ForeignKey("punkt.id")),
+)
+
+tidsserie_koordinat = Table(
+    "tidsserie_koordinat",
+    DeclarativeBase.metadata,
+    Column("tidsserieobjektid", Integer, ForeignKey("tidsserie.objektid")),
+    Column("koordinatobjektid", Integer, ForeignKey("koordinat.objektid")),
+)
+
 
 class FikspunktregisterObjekt(RegisteringTidObjekt):
     __abstract__ = True
@@ -138,8 +154,18 @@ class Punkt(FikspunktregisterObjekt):
     slettet = relationship(
         "Sagsevent", foreign_keys=[sagseventtilid], back_populates="punkter_slettede"
     )
+    punktsamlinger = relationship(
+        "PunktSamling",
+        order_by="PunktSamling.objektid",
+        viewonly=True,
+    )
     koordinater = relationship(
         "Koordinat", order_by="Koordinat.objektid", back_populates="punkt"
+    )
+    tidsserier = relationship(
+        "Tidsserie",
+        order_by="Tidsserie.objektid",
+        viewonly=True,
     )
     geometriobjekter = relationship(
         "GeometriObjekt",
@@ -266,6 +292,34 @@ class Punkt(FikspunktregisterObjekt):
 
     def __hash__(self) -> int:
         return hash(self.id)
+
+
+class PunktSamling(FikspunktregisterObjekt):
+    __tablename__ = "punktsamling"
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="punktsamlinger"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent",
+        foreign_keys=[sagseventtilid],
+        back_populates="punktsamlinger_slettede",
+    )
+    jessenpunktid = Column(String(36), ForeignKey("punkt.id"))
+    jessenpunkt = relationship("Punkt")
+
+    jessenkoordinatid = Column(Integer, ForeignKey("koordinat.objektid"))
+    jessenkoordinat = relationship("Koordinat")
+
+    navn = Column(String, nullable=False)
+    formål = Column("formaal", String, nullable=False)
+
+    punkter = relationship(
+        "Punkt", secondary=punktsamling_punkt, back_populates="punktsamlinger"
+    )
+
+    tidsserier = relationship("Tidsserie", back_populates="punktsamling")
 
 
 class PunktInformation(FikspunktregisterObjekt):
@@ -408,6 +462,13 @@ class Koordinat(FikspunktregisterObjekt):
         "Beregning", secondary=beregning_koordinat, back_populates="koordinater"
     )
 
+    tidsserier = relationship(
+        "Tidsserie",
+        order_by="Tidsserie.objektid",
+        viewonly=True,
+        secondary=tidsserie_koordinat,
+    )
+
     @property
     def fejlmeldt(self):
         return self._fejlmeldt == Boolean.TRUE
@@ -418,6 +479,37 @@ class Koordinat(FikspunktregisterObjekt):
             self._fejlmeldt = Boolean.TRUE
         else:
             self._fejlmeldt = Boolean.FALSE
+
+
+class Tidsserie(FikspunktregisterObjekt):
+    __tablename__ = "tidsserie"
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="tidsserier"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent",
+        foreign_keys=[sagseventtilid],
+        back_populates="tidsserier_slettede",
+    )
+
+    punktid = Column(String(36), ForeignKey("punkt.id"))
+    punkt = relationship("Punkt")
+
+    punktsamlingsid = Column(Integer, ForeignKey("punktsamling.objektid"))
+    punktsamling = relationship("PunktSamling", back_populates="tidsserier")
+
+    navn = Column(String, nullable=False)
+    formål = Column("formaal", String, nullable=False)
+
+    referenceramme = Column(String, nullable=False)
+    sridid = Column(Integer, ForeignKey("sridtype.sridid"), nullable=False)
+    srid = relationship("Srid", lazy="joined")
+
+    koordinater = relationship(
+        "Koordinat", secondary=tidsserie_koordinat, back_populates="tidsserier"
+    )
 
 
 class GeometriObjekt(FikspunktregisterObjekt):
