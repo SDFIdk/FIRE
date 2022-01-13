@@ -1836,3 +1836,126 @@ VALUES ('Bruges når en ny grafik indlæses i databasen.', 'grafik_indsat', 10);
 
 INSERT INTO eventtype (beskrivelse, event, eventtypeid)
 VALUES ('Bruges når en grafik i databasen nedlægges.', 'grafik_nedlagt', 11);
+
+-- udvidelse - flyttes "på plads" senere
+-------------------------------------------------------
+
+-- PUNKTGRUPPE
+-------------------------------------------------------
+-- Usecases:
+-- * Opret punktgruppe ud fra n punktid'er
+-- * Tilføj punkter til punktgruppe, via punktgruppe_punkt
+-- * Punkter fjernes IKKE fra punktgruppe
+-- * Ingen versionering - punktgruppe kan ift reg.fra/til og sagsevents
+--   oprettes og lukkes, ikke opdaterres
+CREATE TABLE punktgruppe (
+  objektid INTEGER GENERATED ALWAYS AS IDENTITY (
+    START WITH
+    1 INCREMENT BY 1 ORDER NOCACHE
+  ) PRIMARY KEY,
+
+  registreringfra TIMESTAMP WITH TIME ZONE NOT NULL,
+  registreringtil TIMESTAMP WITH TIME ZONE,
+  sagseventfraid VARCHAR2(36) NOT NULL,
+  sagseventtilid VARCHAR2(36),
+
+  jessenpunktid VARCHAR2(36) NOT NULL, -- Det fastholdte punkt i gruppen
+  -- har vi også brug for den specifikke kote for jessenpunktet? Fx
+  -- jessenkoordinatid INTEGER, med foreign key på koordinat.objektid
+  navn VARCHAR(4000) NOT NULL UNIQUE
+);
+
+ALTER TABLE punktgruppe
+ADD CONSTRAINT punktgruppe_sagseventfraid_fk
+FOREIGN KEY (sagseventfraid) REFERENCES sagsevent (id) ENABLE VALIDATE;
+
+ALTER TABLE punktgruppe
+ADD CONSTRAINT punktgruppe_sagseventtilid_fk
+FOREIGN KEY (sagseventtilid) REFERENCES sagsevent (id) ENABLE VALIDATE;
+
+ALTER TABLE punktgruppe
+ADD CONSTRAINT punktgruppe_jessenpunktid_fk
+FOREIGN KEY (jessenpunktid) REFERENCES punkt (id) ENABLE VALIDATE;
+
+CREATE TABLE punktgruppe_punkt (
+  punktgruppeid INTEGER,
+  punktid VARCHAR2(36)
+);
+
+ALTER TABLE punktgruppe_punkt
+ADD CONSTRAINT punktgruppe_punkt_punktid_fk
+FOREIGN KEY (punktid) REFERENCES punkt (id) ENABLE VALIDATE;
+
+ALTER TABLE punktgruppe_punkt
+ADD CONSTRAINT punktgruppe_punkt_punktgruppeobjektid_fk
+FOREIGN KEY (punktgruppeid) REFERENCES punktgruppe (objektid) ENABLE VALIDATE;
+
+-- TIDSSERIER
+------------------------------------------------------------------------------------------
+-- Usecases:
+-- * Tilføjelse af nye koordinater til tidsserien, via tidsserie_koordinat
+-- *
+
+CREATE TABLE tidsserie (
+  objektid INTEGER GENERATED ALWAYS AS IDENTITY (
+    START WITH
+      1 INCREMENT BY 1 ORDER NOCACHE
+  ) PRIMARY KEY,
+  punktid VARCHAR2(36) NOT NULL,
+  punktgruppeid INTEGER, -- Kan være NULL, fx tilfældet ved GNSS tidsserie
+
+  registreringfra TIMESTAMP WITH TIME ZONE NOT NULL,
+  registreringtil TIMESTAMP WITH TIME ZONE,
+  sagseventfraid VARCHAR2(36) NOT NULL,
+  sagseventtilid VARCHAR2(36),
+
+  jessenkoordinatid INTEGER, -- fk til koordinat, constraint på punktgruppe.jessenpunkt+koordinat?
+  referenceramme VARCHAR2(50) NOT NULL, -- Løs fritekstbeskrivelse af referencerammen, der ikke altid vil være en stringent SRID genkendt i fx proj.db eller lign,
+  sridid INTEGER NOT NULL -- pointen her er, at have et target-crs ifm transformationer. Måske er den for rigid!
+);
+
+ALTER TABLE tidsserie
+ADD CONSTRAINT tidsserie_sagseventfraid_fk
+FOREIGN KEY (sagseventfraid) REFERENCES sagsevent (id) ENABLE VALIDATE;
+
+ALTER TABLE tidsserie
+ADD CONSTRAINT tidsserie_sagseventtilid_fk
+FOREIGN KEY (sagseventtilid) REFERENCES sagsevent (id) ENABLE VALIDATE;
+
+ALTER TABLE tidsserie
+ADD CONSTRAINT tidsserie_punktid_fk FOREIGN KEY (punktid)
+REFERENCES punkt (id);
+
+ALTER TABLE tidsserie
+ADD CONSTRAINT tidsserie_punktgruppeid_fk FOREIGN KEY (punktgruppeid)
+REFERENCES punktgruppe (objektid);
+
+ALTER TABLE tidsserie
+ADD CONSTRAINT tidsserie_jessenkoordinatid_fk FOREIGN KEY (jessenkoordinatid)
+REFERENCES koordinat (objektid);
+
+ALTER TABLE tidsserie
+ADD CONSTRAINT tidsserie_sridid_fk FOREIGN KEY (sridid)
+REFERENCES sridtype (sridid);
+
+CREATE TABLE tidsserie_koordinat (
+  tidsserieobjektid INTEGER NOT NULL,
+  koordinatobjektid INTEGER NOT NULL
+);
+
+ALTER TABLE
+  tidsserie_koordinat
+ADD
+  CONSTRAINT tidsserie_koordinat_koordinatobjektid_fk
+  FOREIGN KEY (koordinatobjektid) REFERENCES koordinat (objektid)
+  ENABLE VALIDATE;
+
+ALTER TABLE tidsserie_koordinat
+ADD CONSTRAINT tidsserie_koordinat_tidssserieobjektid_fk
+FOREIGN KEY (tidsserieobjektid) REFERENCES tidsserie (objektid)
+ENABLE VALIDATE;
+
+INSERT INTO eventtype (beskrivelse, event, eventtypeid) VALUES ('Bruges når en punktgruppe i databasen oprettes ellers opdateres.', 'punktgruppe_modificeret', 12);
+INSERT INTO eventtype (beskrivelse, event, eventtypeid) VALUES ('Bruges når en punktgruppe i databasen nedlægges.', 'punktgruppe_nedlagt', 13);
+INSERT INTO eventtype (beskrivelse, event, eventtypeid) VALUES ('Bruges når en tidsserie i databasen oprettes ellers opdateres.', 'tidsserie_modificeret', 14);
+INSERT INTO eventtype (beskrivelse, event, eventtypeid) VALUES ('Bruges når en tidsserie i databasen nedlægges.', 'tidsserie_nedlagt', 15);
