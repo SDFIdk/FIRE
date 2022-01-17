@@ -9,8 +9,10 @@ from fire.api.model import (
     func,
     Sag,
     Punkt,
+    PunktGruppe,
     Observation,
     Sagsevent,
+    SagseventInfo,
     Sagsinfo,
     Beregning,
     Koordinat,
@@ -62,19 +64,62 @@ def sag(firedb):
     return s0
 
 
-@pytest.fixture()
-def sagsevent(firedb, sag):
-    e0 = Sagsevent(sag=sag, eventtype=EventType.KOMMENTAR)
-    firedb.session.add(e0)
-    return e0
+# @pytest.fixture()
+# def sagsevent(firedb, sag):
+#     e0 = Sagsevent(sag=sag, eventtype=EventType.KOMMENTAR)
+#     firedb.session.add(e0)
+#     return e0
 
 
 @pytest.fixture()
-def punkt(firedb, sagsevent):
-    sagsevent.eventtype = EventType.PUNKT_OPRETTET
-    p0 = Punkt(sagsevent=sagsevent)
-    firedb.session.add(p0)
-    return p0
+def sagsevent(sagseventfabrik):
+    return sagseventfabrik()
+
+
+@pytest.fixture()
+def sagseventfabrik(firedb, sag):
+    """Sagseventfabrik til oprettelse af flere sagevents i samme test case."""
+
+    def fabrik():
+        e0 = Sagsevent(
+            sag=sag,
+            eventtype=EventType.KOMMENTAR,
+            sagseventinfos=[SagseventInfo(beskrivelse="test")],
+        )
+        firedb.session.add(e0)
+        return e0
+
+    return fabrik
+
+
+@pytest.fixture()
+def punktfabrik(firedb, sagsevent: Sagsevent):
+    """Punktfabrik til oprettelse af flere punkter i samme test case."""
+
+    def fabrik():
+        sagsevent.eventtype = EventType.PUNKT_OPRETTET
+        p = Punkt(sagsevent=sagsevent)
+        firedb.session.add(p)
+        return p
+
+    return fabrik
+
+
+@pytest.fixture()
+def punkt(punktfabrik):
+    return punktfabrik()
+
+
+@pytest.fixture()
+def punktgruppe(firedb, sagsevent, punktfabrik):
+    sagsevent.eventtype = EventType.PUNKTGRUPPE_MODIFICERET
+    pg = PunktGruppe(
+        sagsevent=sagsevent,
+        navn=f"test-{fire.uuid()[0:9]}",
+        jessenpunkt=punktfabrik(),
+        punkter=[punktfabrik() for _ in range(5)],
+    )
+    return pg
 
 
 @pytest.fixture()

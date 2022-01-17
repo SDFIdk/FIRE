@@ -25,6 +25,8 @@ class EventType(enum.Enum):
     KOMMENTAR = 9
     GRAFIK_INDSAT = 10
     GRAFIK_NEDLAGT = 11
+    PUNKTGRUPPE_MODIFICERET = 12
+    PUNKTGRUPPE_NEDLAGT = 13
 
 
 class Sag(RegisteringFraObjekt):
@@ -87,6 +89,18 @@ class Sagsevent(RegisteringFraObjekt):
         order_by="Punkt.objektid",
         back_populates="slettet",
         foreign_keys="Punkt.sagseventtilid",
+    )
+    punktgrupper = relationship(
+        "PunktGruppe",
+        order_by="PunktGruppe.objektid",
+        back_populates="sagsevent",
+        foreign_keys="PunktGruppe.sagseventfraid",
+    )
+    punktgrupper_slettede = relationship(
+        "PunktGruppe",
+        order_by="PunktGruppe.objektid",
+        back_populates="slettet",
+        foreign_keys="PunktGruppe.sagseventtilid",
     )
     koordinater = relationship(
         "Koordinat",

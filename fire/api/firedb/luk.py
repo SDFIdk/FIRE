@@ -6,6 +6,7 @@ from fire.api.firedb.base import FireDbBase
 from fire.api.model import (
     Sag,
     Punkt,
+    PunktGruppe,
     PunktInformation,
     Koordinat,
     Observation,
@@ -69,6 +70,20 @@ class FireDbLuk(FireDbBase):
 
         if commit:
             self.session.commit()
+
+    def luk_punktgruppe(
+        self, punktgruppe: PunktGruppe, sagsevent: Sagsevent, commit: bool = True
+    ):
+        """
+        Luk en punktgruppe.
+
+        Hvis ikke allerede sat, ændres sagseventtypen til EventType.PUNKTGRUPPE_NEDLAGT.
+        """
+        if not isinstance(punktgruppe, PunktGruppe):
+            raise TypeError("'punktgruppe' er ikke en instans af PunktGruppe")
+
+        sagsevent.eventtype = EventType.PUNKTGRUPPE_NEDLAGT
+        self._luk_fikspunkregisterobjekt(punktgruppe, sagsevent, commit=commit)
 
     def luk_koordinat(
         self, koordinat: Koordinat, sagsevent: Sagsevent, commit: bool = True

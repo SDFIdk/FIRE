@@ -32,6 +32,7 @@ from fire.api.model import (
 __all__ = [
     "FikspunktregisterObjekt",
     "Punkt",
+    "PunktGruppe",
     "Koordinat",
     "Artskode",
     "GeometriObjekt",
@@ -121,6 +122,13 @@ beregning_observation = Table(
     Column("observationobjektid", Integer, ForeignKey("observation.objektid")),
 )
 
+punktgruppe_punkt = Table(
+    "punktgruppe_punkt",
+    DeclarativeBase.metadata,
+    Column("punktgruppeid", Integer, ForeignKey("punktgruppe.objektid")),
+    Column("punktid", String, ForeignKey("punkt.id")),
+)
+
 
 class FikspunktregisterObjekt(RegisteringTidObjekt):
     __abstract__ = True
@@ -137,6 +145,11 @@ class Punkt(FikspunktregisterObjekt):
     sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
     slettet = relationship(
         "Sagsevent", foreign_keys=[sagseventtilid], back_populates="punkter_slettede"
+    )
+    punktgrupper = relationship(
+        "PunktGruppe",
+        order_by="PunktGruppe.objektid",
+        viewonly=True,
     )
     koordinater = relationship(
         "Koordinat", order_by="Koordinat.objektid", back_populates="punkt"
@@ -266,6 +279,27 @@ class Punkt(FikspunktregisterObjekt):
 
     def __hash__(self) -> int:
         return hash(self.id)
+
+
+class PunktGruppe(FikspunktregisterObjekt):
+    __tablename__ = "punktgruppe"
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="punktgrupper"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent",
+        foreign_keys=[sagseventtilid],
+        back_populates="punktgrupper_slettede",
+    )
+    jessenpunktid = Column(String(36), ForeignKey("punkt.id"))
+    jessenpunkt = relationship("Punkt")
+    navn = Column(String, nullable=False)
+
+    punkter = relationship(
+        "Punkt", secondary=punktgruppe_punkt, back_populates="punktgrupper"
+    )
 
 
 class PunktInformation(FikspunktregisterObjekt):

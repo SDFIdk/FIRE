@@ -14,6 +14,7 @@ from fire.api.firedb.base import FireDbBase
 from fire.api.model import (
     Sag,
     Punkt,
+    PunktGruppe,
     PunktInformation,
     PunktInformationType,
     GeometriObjekt,
@@ -114,6 +115,21 @@ class FireDbHent(FireDbBase):
 
     def hent_alle_punkter(self) -> List[Punkt]:
         return self.session.query(Punkt).all()
+
+    def hent_punktgruppe(self, navn: str) -> PunktGruppe:
+        """
+        Hent en punktgruppe ud fra dens navn.
+
+        Punktgruppenavne er unikke i FIRE, så der kan højest returneres
+        en punktgruppe ad gangen med denne metode.
+        """
+        return (
+            self.session.query(PunktGruppe)
+            .filter(
+                PunktGruppe.navn == navn, PunktGruppe._registreringtil == None
+            )  # NOQA
+            .one()
+        )
 
     def hent_geometri_objekt(self, punktid: str) -> GeometriObjekt:
         go = aliased(GeometriObjekt)
