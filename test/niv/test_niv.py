@@ -2,7 +2,7 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
-from fire.io.regneark import arkdef
+from fire.io import arkdef
 from fire.cli.niv import (
     niv,
     find_faneblad,

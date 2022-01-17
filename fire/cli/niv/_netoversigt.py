@@ -5,7 +5,7 @@ from typing import Dict, List, Set, Tuple
 import click
 import pandas as pd
 
-from fire.io.regneark import arkdef
+from fire.io import arkdef
 import fire.cli
 
 from . import (
@@ -82,6 +82,10 @@ def netgraf(
     alle_punkter: Tuple[str, ...],
     fastholdte_punkter: Tuple[str, ...],
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Analysér netværk og returnér netf og ensomme.
+
+    """
     fire.cli.print("Analyserer net")
     assert len(fastholdte_punkter) > 0, "Netanalyse kræver mindst et fastholdt punkt"
     # Initialiser
@@ -98,7 +102,7 @@ def netgraf(
             )
             afbryd = True
     if afbryd:
-        sys.exit(1)
+        Raise SystemExit(1)
 
     for punkt in alle_punkter:
         net[punkt] = set()

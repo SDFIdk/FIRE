@@ -12,7 +12,7 @@ from fire.api.model import (
     SagseventInfoMateriale,
     EventType,
 )
-from fire.io.regneark import arkdef
+from fire.io import arkdef
 
 from fire.cli.niv import (
     find_faneblad,

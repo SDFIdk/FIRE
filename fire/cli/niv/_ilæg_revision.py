@@ -24,7 +24,7 @@ from fire.api.model import (
     SagseventInfo,
     FikspunktsType,
 )
-from fire.io.regneark import arkdef
+from fire.io import arkdef
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )

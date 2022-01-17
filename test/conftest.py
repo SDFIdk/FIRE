@@ -21,8 +21,8 @@ from fire.api.model import (
     Srid,
     Boolean,
 )
+from fire.io import arkdef
 from fire.io.regneark import (
-    arkdef,
     nyt_ark,
     basisrække,
 )

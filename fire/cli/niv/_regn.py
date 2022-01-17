@@ -10,7 +10,7 @@ import click
 import pandas as pd
 import xmltodict
 
-from fire.io.regneark import arkdef
+from fire.io import arkdef
 import fire.cli
 
 from . import (

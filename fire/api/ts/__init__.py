@@ -1,4 +1,3 @@
-
 """
 Modul til tidserie-håndtering.
 
@@ -17,7 +16,7 @@ from fire.api.firedb import FireDb
 # --- TEMP
 
 # ENV_DB = 'test'
-ENV_DB = 'prod'
+ENV_DB = "prod"
 DB = None
 
 
@@ -29,14 +28,16 @@ def dataframe(datacls):
     """
     Class decorator adding classmethod to create a new
     empty Pandas DataFrame based on dataclass annotations.
-    
+
     """
+
     def method(cls, rows: Iterable = None) -> pd.DataFrame:
         typedict = cls.__annotations__
         if rows is None:
             return pd.DataFrame(columns=typedict).astype(typedict)
         data = (cls(*row) for row in rows)
         return pd.DataFrame(data=data, columns=typedict).astype(typedict)
+
     datacls.new_df = classmethod(method)
     return datacls
 
@@ -72,6 +73,7 @@ def get_db():
 def fetchall(sql):
     return get_db().session.execute(sql).all()
 
+
 # --- / TEMP
 
 
@@ -95,7 +97,7 @@ def hent_tidsserie(jessen_id: str, *, get_raw_values=False) -> pd.DataFrame:
         *   kote i tidsseriens lokale kotesystem (`TS:[JESSEN_ID]`)
         *   Jessen-ID
         *   True hvis punkt er Jessenpunktet ellers 0
-    
+
     """
     sql = f"""\
 WITH jessen_punkter AS (
@@ -150,11 +152,16 @@ ORDER BY
     # return ny_df(TidsseriePost).append(data) # .astype(TidsseriePost)
 
 
-def hent_observationer_af_punktgruppe(punktgruppe: Iterable[str], dato_fra: dt.datetime = None, dato_til: dt.datetime = None, full_print: bool = False) -> pd.DataFrame:
+def hent_observationer_af_punktgruppe(
+    punktgruppe: Iterable[str],
+    dato_fra: dt.datetime = None,
+    dato_til: dt.datetime = None,
+    full_print: bool = False,
+) -> pd.DataFrame:
     """
     Antagelser
     ----------
-    *   Punkgruppen er større end to punkter, da nedenstående forespørgsel ikke dur uden mindst to punkter, der er observeret mellem i løbet af det angivne tidsrum.    
+    *   Punkgruppen er større end to punkter, da nedenstående forespørgsel ikke dur uden mindst to punkter, der er observeret mellem i løbet af det angivne tidsrum.
     """
     # Start et halvt år tilbage, hvis én eller begge datoer i tidsrummet mangler.
     # TODO: Genbesøg detaljer, når resten er klar.
@@ -164,8 +171,8 @@ def hent_observationer_af_punktgruppe(punktgruppe: Iterable[str], dato_fra: dt.d
         dato_fra = fra.isoformat()
         dato_til = til.isoformat()
 
-    comma_separated = '\', \''.join(punktgruppe)
-    sql_tuple = f'(\n\'{comma_separated}\'\n)'
+    comma_separated = "', '".join(punktgruppe)
+    sql_tuple = f"(\n'{comma_separated}'\n)"
     sql = f"""\
 SELECT DISTINCT
     o.registreringfra,
@@ -191,14 +198,14 @@ ORDER BY
     if full_print:
         print(sql)
     else:
-        print(sql.replace(sql_tuple, '(...)'))
+        print(sql.replace(sql_tuple, "(...)"))
     return ObservationsPost.new_df(fetchall(sql))
 
 
-def hent_observationer_for_tidsserie(jessen_id: str, dato_fra: dt.datetime = None, dato_til: dt.datetime = None) -> pd.DataFrame:
-    """
-
-    """
+def hent_observationer_for_tidsserie(
+    jessen_id: str, dato_fra: dt.datetime = None, dato_til: dt.datetime = None
+) -> pd.DataFrame:
+    """ """
     # Start et halvt år tilbage, hvis én eller begge datoer i tidsrummet mangler.
     # TODO: Genbesøg detaljer, når resten er klar.
     if dato_fra is None or dato_til is None:
@@ -262,6 +269,7 @@ ORDER BY
 
 # SQL-eksempler fra KE
 
+
 def hent_mulige_tidsserier(punktid: str) -> list:
     sql = f"""\
 SELECT
@@ -280,6 +288,7 @@ ORDER BY
 
 
 # --- Under opbygning
+
 
 def hent_punkt_geometri(punkt_id: str) -> object:
     sql = f"""\

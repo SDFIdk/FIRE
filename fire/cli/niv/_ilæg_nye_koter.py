@@ -12,7 +12,7 @@ from fire.api.model import (
     SagseventInfo,
     SagseventInfoHtml,
 )
-from fire.io.regneark import arkdef
+from fire.io import arkdef
 
 from . import (
     bekræft,
