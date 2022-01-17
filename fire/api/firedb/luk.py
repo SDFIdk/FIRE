@@ -9,6 +9,7 @@ from fire.api.model import (
     PunktGruppe,
     PunktInformation,
     Koordinat,
+    Tidsserie,
     Observation,
     Grafik,
     Sagsevent,
@@ -98,6 +99,20 @@ class FireDbLuk(FireDbBase):
 
         sagsevent.eventtype = EventType.KOORDINAT_NEDLAGT
         self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=commit)
+
+    def luk_tidsserie(
+        self, tidsserie: Tidsserie, sagsevent: Sagsevent, commit: bool = True
+    ):
+        """
+        Luk en tidsserie.
+
+        Hvis ikke allerede sat, ændres sagseventtypen til EventType.TIDSSERIE_NEDLAGT.
+        """
+        if not isinstance(tidsserie, Tidsserie):
+            raise TypeError("'tidsserie' er ikke en instans af Tidsserie")
+
+        sagsevent.eventtype = EventType.TIDSSERIE_NEDLAGT
+        self._luk_fikspunkregisterobjekt(tidsserie, sagsevent, commit=commit)
 
     def luk_observation(
         self, observation: Observation, sagsevent: Sagsevent, commit: bool = True

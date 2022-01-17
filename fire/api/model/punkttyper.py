@@ -34,6 +34,7 @@ __all__ = [
     "Punkt",
     "PunktGruppe",
     "Koordinat",
+    "Tidsserie",
     "Artskode",
     "GeometriObjekt",
     "Beregning",
@@ -129,6 +130,13 @@ punktgruppe_punkt = Table(
     Column("punktid", String, ForeignKey("punkt.id")),
 )
 
+tidsserie_koordinat = Table(
+    "tidsserie_koordinat",
+    DeclarativeBase.metadata,
+    Column("tidsserieobjektid", Integer, ForeignKey("tidsserie.objektid")),
+    Column("koordinatobjektid", Integer, ForeignKey("koordinat.objektid")),
+)
+
 
 class FikspunktregisterObjekt(RegisteringTidObjekt):
     __abstract__ = True
@@ -153,6 +161,11 @@ class Punkt(FikspunktregisterObjekt):
     )
     koordinater = relationship(
         "Koordinat", order_by="Koordinat.objektid", back_populates="punkt"
+    )
+    tidsserier = relationship(
+        "Tidsserie",
+        order_by="Tidsserie.objektid",
+        viewonly=True,
     )
     geometriobjekter = relationship(
         "GeometriObjekt",
@@ -442,6 +455,12 @@ class Koordinat(FikspunktregisterObjekt):
         "Beregning", secondary=beregning_koordinat, back_populates="koordinater"
     )
 
+    tidsserier = relationship(
+        "Tidsserie",
+        order_by="Tidsserie.objektid",
+        viewonly=True,
+    )
+
     @property
     def fejlmeldt(self):
         return self._fejlmeldt == Boolean.TRUE
@@ -452,6 +471,37 @@ class Koordinat(FikspunktregisterObjekt):
             self._fejlmeldt = Boolean.TRUE
         else:
             self._fejlmeldt = Boolean.FALSE
+
+
+class Tidsserie(FikspunktregisterObjekt):
+    __tablename__ = "tidsserie"
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="tidsserier"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent",
+        foreign_keys=[sagseventtilid],
+        back_populates="tidsserier_slettede",
+    )
+
+    punktid = Column(String(36), ForeignKey("punkt.id"))
+    punkt = relationship("Punkt")
+
+    punktgruppeid = Column(Integer, ForeignKey("punktgruppe.objektid"))
+    punktgruppe = relationship("PunktGruppe")
+
+    jessenkoordinatid = Column(Integer, ForeignKey("koordinat.objektid"))
+    jessenkoordinat = relationship("Koordinat")
+
+    referenceramme = Column(String, nullable=False)
+    sridid = Column(Integer, ForeignKey("sridtype.sridid"), nullable=False)
+    srid = relationship("Srid", lazy="joined")
+
+    koordinater = relationship(
+        "Koordinat", secondary=tidsserie_koordinat, back_populates="tidsserier"
+    )
 
 
 class GeometriObjekt(FikspunktregisterObjekt):

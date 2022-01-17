@@ -27,6 +27,8 @@ class EventType(enum.Enum):
     GRAFIK_NEDLAGT = 11
     PUNKTGRUPPE_MODIFICERET = 12
     PUNKTGRUPPE_NEDLAGT = 13
+    TIDSSERIE_MODIFICERET = 14
+    TIDSSERIE_NEDLAGT = 15
 
 
 class Sag(RegisteringFraObjekt):
@@ -113,6 +115,18 @@ class Sagsevent(RegisteringFraObjekt):
         order_by="Koordinat.objektid",
         back_populates="slettet",
         foreign_keys="Koordinat.sagseventtilid",
+    )
+    tidsserier = relationship(
+        "Tidsserie",
+        order_by="Tidsserie.objektid",
+        back_populates="sagsevent",
+        foreign_keys="Tidsserie.sagseventfraid",
+    )
+    tidsserier_slettede = relationship(
+        "Tidsserie",
+        order_by="Tidsserie.objektid",
+        back_populates="slettet",
+        foreign_keys="Tidsserie.sagseventtilid",
     )
     geometriobjekter = relationship(
         "GeometriObjekt",

@@ -16,6 +16,7 @@ from fire.api.model import (
     Sagsinfo,
     Beregning,
     Koordinat,
+    Tidsserie,
     EventType,
     Srid,
     Boolean,
@@ -64,18 +65,6 @@ def sag(firedb):
     return s0
 
 
-# @pytest.fixture()
-# def sagsevent(firedb, sag):
-#     e0 = Sagsevent(sag=sag, eventtype=EventType.KOMMENTAR)
-#     firedb.session.add(e0)
-#     return e0
-
-
-@pytest.fixture()
-def sagsevent(sagseventfabrik):
-    return sagseventfabrik()
-
-
 @pytest.fixture()
 def sagseventfabrik(firedb, sag):
     """Sagseventfabrik til oprettelse af flere sagevents i samme test case."""
@@ -90,6 +79,11 @@ def sagseventfabrik(firedb, sag):
         return e0
 
     return fabrik
+
+
+@pytest.fixture()
+def sagsevent(sagseventfabrik):
+    return sagseventfabrik()
 
 
 @pytest.fixture()
@@ -123,21 +117,46 @@ def punktgruppe(firedb, sagsevent, punktfabrik):
 
 
 @pytest.fixture()
-def koordinat(firedb, sagsevent, punkt, srid):
-    sagsevent.eventtype = EventType.KOORDINAT_BEREGNET
-    k0 = Koordinat(
+def koordinatfabrik(firedb, sagsevent, punkt, srid):
+    """Koordinatfabrik til oprettelse af flere koordinater i samme test case."""
+
+    def fabrik():
+        sagsevent.eventtype = EventType.KOORDINAT_BEREGNET
+        k0 = Koordinat(
+            sagsevent=sagsevent,
+            punkt=punkt,
+            srid=srid,
+            x=0,
+            y=0,
+            z=0,
+            sx=0,
+            sy=0,
+            sz=0,
+        )
+        firedb.session.add(k0)
+        return k0
+
+    return fabrik
+
+
+@pytest.fixture()
+def koordinat(koordinatfabrik):
+    return koordinatfabrik()
+
+
+@pytest.fixture()
+def tidsserie(firedb, sagsevent, punkt, punktgruppe, koordinatfabrik, srid):
+    ts = Tidsserie(
         sagsevent=sagsevent,
         punkt=punkt,
+        punktgruppe=punktgruppe,
+        jessenkoordinat=koordinatfabrik(),
+        referenceramme="FIRE",
         srid=srid,
-        x=0,
-        y=0,
-        z=0,
-        sx=0,
-        sy=0,
-        sz=0,
+        koordinater=[koordinatfabrik() for _ in range(5)],
     )
-    firedb.session.add(k0)
-    return k0
+    firedb.session.add(ts)
+    return ts
 
 
 @pytest.fixture()
