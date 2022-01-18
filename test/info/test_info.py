@@ -12,7 +12,9 @@ def test_info_srid_alle():
     assert result.exit_code == 0
 
     forventet_output = """DK:TEST             SRID til brug i test-suite
-EPSG:5799           Kotesystem: Dansk Vertikal Reference 1990\n"""
+EPSG:5799           Kotesystem: Dansk Vertikal Reference 1990
+IGS:IGS14           Geocentrisk: IGS14
+IGS:IGb08           Geocentrisk: IGb08\n"""
 
     assert result.output == forventet_output
 
