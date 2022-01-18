@@ -1,6 +1,7 @@
 from __future__ import annotations
 import enum
 from typing import List, Union
+from datetime import datetime
 import functools
 import mimetypes
 from pathlib import Path
@@ -19,8 +20,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, reconstructor
 from sqlalchemy.dialects.oracle import TIMESTAMP
 from sqlalchemy.ext.declarative import declared_attr
+from pyproj import Transformer
 
 import fire
+from fire.geodæsi import xyz2neu, datetime2decimalår
 from fire.api.model import (
     IntEnum,
     StringEnum,
@@ -502,6 +505,202 @@ class Tidsserie(FikspunktregisterObjekt):
     koordinater = relationship(
         "Koordinat", secondary=tidsserie_koordinat, back_populates="tidsserier"
     )
+
+    @reconstructor
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._x0 = None
+
+    @property
+    def t(self) -> List[datetime.Datetime]:
+        """Liste med tider for alle tidsseriens tidsskridt."""
+        return [k.t for k in self.koordinater]
+
+    @property
+    def T(self) -> List[float]:
+        """Liste med decimalårfor alle tidsseriens tidsskridt."""
+        return [datetime2decimalår(t) for t in self.t]
+
+    def _transformer(self, k: Koordinat) -> (float, float, float):
+        """Transformer en Koordinat til self.srid.
+
+        Transformerer tidsseriens koordinater til self.srid, altså
+        den referenceramme tidsserien er oprettet med henblik på at
+        repræsentere data i.
+
+        Det vil ikke altid lade sig gøre, men i en del tilfælde
+        kan vi mappe FIREs SRID'er til en EPSG-kode eller lign. der
+        kan forstås af PROJ. Det oplagte eksempel er IGb08 og IGS14
+        der med god samvittighed kan betragtes som ITRF2008 og ITRF2014
+        i transformationer. Det giver os altså muligheden for at
+        kombinere koordinater i to forskellige referencerammer med
+        hinanden.
+        """
+        _srid_lookup = {
+            "IGS:IGb08": "EPSG:5332",  # ITRF2008
+            "IGS:IGS14": "EPSG:7789",  # ITRF2014
+        }
+        try:
+            src_crs = _srid_lookup[k.srid.name]
+            dst_crs = _srid_lookup[self.srid.name]
+            if src_crs == dst_crs:
+                raise LookupError  # samme retur som ved manglende lookup_srid
+        except LookupError:
+            return (k.x, k.y, k.z)
+
+        T = Transformer.from_crs(src_crs, dst_crs)
+        (x, y, z, t) = T.transform(k.x, k.y, k.z, datetime2decimalår(k.t))
+        return (x, y, z)
+
+    @functools.cache
+    def _XYZ(self):
+        return [self._transformer(k) for k in self.koordinater]
+
+    @property
+    def x0(self) -> float:
+        """
+        X-værdien i tidsseriens første koordinat.
+
+        None hvis tidsseriens kooordinater ikke har en x-værdi.
+        """
+        if self.srid.x is None:
+            return None
+        if self._x0 is not None:
+            return self._x0
+
+        return self.X[0]
+
+    @x0.setter
+    def x0(self, værdi: float) -> None:
+        self._x0 = værdi
+
+    @property
+    def X(self):
+        """
+        Liste med tidsseriens x-værdier.
+
+        None hvis tidsseriens kooordinater ikke har en x-værdi.
+        """
+        if self.srid.x is None:
+            return None
+        return [x for (x, _, _) in self._XYZ()]
+
+    @property
+    def x(self):
+        """
+        Liste med tidsseriens x-værdier normaliseret til tidsseriens første koordinat.
+
+        None hvis tidsseriens kooordinater ikke har en x-værdi.
+        """
+        if self.srid.x is None:
+            return None
+        return [x - self.x0 for x in self.X]
+
+    @property
+    def y0(self):
+        """
+        Y-værdien i tidsseriens første koordinat.
+
+        None hvis tidsseriens kooordinater ikke har en x-værdi.
+        """
+        if self.srid.y is None:
+            return None
+        return self.Y[0]
+
+    @property
+    def Y(self):
+        """
+        Liste med tidsseriens y-værdier.
+
+        None hvis tidsseriens kooordinater ikke har en y-værdi.
+        """
+        if self.srid.y is None:
+            return None
+        return [y for (_, y, _) in self._XYZ()]
+
+    @property
+    def y(self):
+        """
+        Liste med tidsseriens y-værdier normaliseret til tidsseriens første koordinat.
+
+        None hvis tidsseriens kooordinater ikke har en y-værdi.
+        """
+        if self.srid.y is None:
+            return None
+        return [y - self.y0 for y in self.Y]
+
+    @property
+    def z0(self):
+        """
+        Z-værdien i tidsseriens første koordinat.
+
+        None hvis tidsseriens kooordinater ikke har en x-værdi.
+        """
+        if self.srid.z is None:
+            return None
+        return self.Z[0]
+
+    @property
+    def Z(self):
+        """
+        Liste med tidsseriens Z-værdier.
+
+        None hvis tidsseriens kooordinater ikke har en Z-værdi.
+        """
+        if self.srid.z is None:
+            return None
+        return [z for (_, _, z) in self._XYZ()]
+
+    @property
+    def z(self):
+        """
+        Liste med tidsseriens z-værdier normaliseret til tidsseriens første koordinat.
+
+        None hvis tidsseriens kooordinater ikke har en z-værdi.
+        """
+        if self.srid.z is None:
+            return None
+        return [z - self.z0 for z in self.Z]
+
+    @functools.cache
+    def _neu(self):
+        """
+        Beregn neu for alle koordinater.
+
+        Bruger fire.geodæsi.xyz2neu hvilket ikke nødvendigvis er den
+        bedste løsning. Alternativt kan alle koordinater omregnes
+        til længde, bredde og ellipsoidehøjde hvorefter
+        storcirkelafstande mellem første og n'te punkte regnes med geod.
+        Eller en version af xyz2neu der tager højde for ellipsoiden kan
+        udvikles. Options, options, options...
+        """
+        # omtrentlig position, godt nok?
+        lon, lat = self.punkt.geometri.koordinater
+        return [xyz2neu(x, y, z, lon, lat) for x, y, z in zip(self.x, self.y, self.z)]
+
+    @property
+    def n(self):
+        """
+        Tidsseriens udvikling i nordlig retning, normaliseret.
+        """
+        lon, lat = self.punkt.geometri.koordinater
+        return [n for n, _, _ in self._neu()]
+
+    @property
+    def e(self):
+        """
+        Tidsseriens udvikling i nordlig retning, normaliseret.
+        """
+        lon, lat = self.punkt.geometri.koordinater
+        return [e for _, e, _ in self._neu()]
+
+    @property
+    def u(self):
+        """
+        Tidsseriens udvikling i nordlig retning, normaliseret.
+        """
+        lon, lat = self.punkt.geometri.koordinater
+        return [u for _, _, u in self._neu()]
 
 
 class GeometriObjekt(FikspunktregisterObjekt):

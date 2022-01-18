@@ -377,7 +377,7 @@ ALTER TABLE
   sridtype
 ADD
   CONSTRAINT sridtype_namespace_chk CHECK (
-    substr(SRID, 1, instr(SRID, ':') -1) IN ('DK', 'EPSG', 'GL', 'TS')
+    substr(SRID, 1, instr(SRID, ':') -1) IN ('DK', 'EPSG', 'GL', 'TS', 'IGS')
   ) ENABLE VALIDATE;
 
 
