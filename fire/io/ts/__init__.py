@@ -60,7 +60,13 @@ class ObservationsPost:
     opstillingspunkt_id: str = None
     sigtepunkt_id: str = None
     koteforskel: float = None
+    nivlaengde: float = None
+    opstillinger: int = None
+    spredning_afstand: float = None
+    spredning_centrering: float = None
+    observationstidspunkt: dt.datetime = None
     observationstype_id: str = None
+    id: str = None
 
 
 def get_db():
@@ -227,7 +233,9 @@ SELECT DISTINCT
     o.opstillingspunktid,
     o.sigtepunktid,
     o.value1 AS koteforskel,
-    o.observationstypeid
+    o.value2 AS nivlaengde,
+    o.observationstypeid,
+    o.observationstidspunkt,
 FROM tidsserie_punkter tp
 JOIN observation o ON tp.id = o.opstillingspunktid OR tp.id = o.sigtepunktid
 WHERE
