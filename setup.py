@@ -59,5 +59,6 @@ setup(
         niv=fire.cli.niv:niv
         søg=fire.cli.søg:søg
         grafik=fire.cli.grafik:grafik
+        ts=fire.cli.ts:ts
     """,
 )
