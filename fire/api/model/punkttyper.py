@@ -317,6 +317,8 @@ class PunktGruppe(FikspunktregisterObjekt):
         "Punkt", secondary=punktgruppe_punkt, back_populates="punktgrupper"
     )
 
+    tidsserier = relationship("Tidsserie", back_populates="punktgruppe")
+
 
 class PunktInformation(FikspunktregisterObjekt):
     __tablename__ = "punktinfo"
@@ -493,7 +495,7 @@ class Tidsserie(FikspunktregisterObjekt):
     punkt = relationship("Punkt")
 
     punktgruppeid = Column(Integer, ForeignKey("punktgruppe.objektid"))
-    punktgruppe = relationship("PunktGruppe")
+    punktgruppe = relationship("PunktGruppe", back_populates="tidsserier")
 
     jessenkoordinatid = Column(Integer, ForeignKey("koordinat.objektid"))
     jessenkoordinat = relationship("Koordinat")
