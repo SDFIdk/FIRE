@@ -92,6 +92,20 @@ class FireDbIndset(FireDbBase):
                     punktinformation, sagsevent, commit=commit
                 )
 
+        if sagsevent.eventtype == EventType.GRAFIK_INDSAT:
+            self._check_and_prepare_sagsevent(sagsevent, EventType.GRAFIK_INDSAT)
+
+            for grafik in sagsevent.grafikker:
+                if not self._is_new_object(grafik):
+                    raise Exception(f"Grafik allerede tilføjet datbasen: {grafik}")
+                grafik.sagsevent = sagsevent
+
+        if sagsevent.eventtype == EventType.GRAFIK_NEDLAGT:
+            self._check_and_prepare_sagsevent(sagsevent, EventType.GRAFIK_NEDLAGT)
+
+            for grafik in sagsevent.grafikker:
+                self._luk_fikspunktsregisterobjekt(grafik, sagsevent, commit=commit)
+
         self.session.add(sagsevent)
         if commit:
             self.session.commit()

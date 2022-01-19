@@ -2,6 +2,8 @@ from __future__ import annotations
 import enum
 from typing import List, Union
 import functools
+import mimetypes
+from pathlib import Path
 
 from sqlalchemy import (
     Table,
@@ -11,6 +13,7 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     Enum,
+    LargeBinary,
     func,
 )
 from sqlalchemy.orm import relationship, reconstructor
@@ -44,6 +47,8 @@ __all__ = [
     "Boolean",
     "Ident",
     "FikspunktsType",
+    "Grafik",
+    "GrafikType",
 ]
 
 
@@ -94,6 +99,11 @@ class FikspunktsType(enum.Enum):
     JESSEN = 4
     HJÆLPEPUNKT = 5
     VANDSTANDSBRÆT = 6
+
+
+class GrafikType(enum.Enum):
+    SKITSE = "skitse"
+    FOTO = "foto"
 
 
 beregning_koordinat = Table(
@@ -153,6 +163,9 @@ class Punkt(FikspunktregisterObjekt):
         order_by="Observation.sigtepunktid",
         back_populates="sigtepunkt",
         foreign_keys="Observation.sigtepunktid",
+    )
+    grafikker = relationship(
+        "Grafik", order_by="Grafik.objektid", back_populates="punkt"
     )
 
     @reconstructor
@@ -923,3 +936,52 @@ class Srid(DeclarativeBase):
     x = Column(String(4000))
     y = Column(String(4000))
     z = Column(String(4000))
+
+
+class Grafik(FikspunktregisterObjekt):
+    __tablename__ = "grafik"
+    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
+    sagsevent = relationship(
+        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="grafikker"
+    )
+    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
+    slettet = relationship(
+        "Sagsevent",
+        foreign_keys=[sagseventtilid],
+        back_populates="grafikker_slettede",
+    )
+
+    objektid = Column(Integer, primary_key=True)
+    grafik = Column(LargeBinary, nullable=False)
+    type = Column(StringEnum(GrafikType), nullable=False)
+    mimetype = Column(String(3), nullable=False)
+    filnavn = Column(String(100), nullable=False)
+    punktid = Column(String(36), ForeignKey("punkt.id"), nullable=False)
+    punkt = relationship("Punkt", back_populates="grafikker")
+
+    @classmethod
+    def fra_fil(cls, punkt: Punkt, sti: Path):
+        """Opret Grafik ud fra en billedfil."""
+        with open(sti, "rb") as f:
+            blob = f.read()
+
+        (mimetype, _) = mimetypes.guess_type(sti)
+        if mimetype not in ("image/png", "image/jpeg"):
+            raise ValueError(
+                f"Filen {sti} kan ikke læses, forkert MIME type: {mimetype}"
+            )
+        # antag at en png-fil er en skitse
+        if mimetype == "image/png":
+            grafiktype = GrafikType.SKITSE.value
+        else:
+            grafiktype = GrafikType.FOTO.value
+
+        filnavn = sti.name
+
+        return cls(
+            punkt=punkt,
+            grafik=blob,
+            type=grafiktype,
+            mimetype=mimetype,
+            filnavn=filnavn,
+        )

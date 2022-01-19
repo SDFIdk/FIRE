@@ -292,6 +292,14 @@ def punkt_fuld_rapport(
         if punkt.sagseventtilid is not None:
             fire.cli.print(f"  sagsevent-til               {punkt.sagseventtilid}")
 
+    if punkt.grafikker:
+        fire.cli.print("")
+        fire.cli.print("--- GRAFIK ---", bold=True)
+        for grafik in punkt.grafikker:
+            if grafik.registreringtil:
+                continue
+            print(f"{grafik.type.value.title():30}{grafik.filnavn}")
+
     # Koordinater og observationer klares af specialiserede hjælpefunktioner
     if "ingen" not in opt_koord.split(","):
         fire.cli.print("")

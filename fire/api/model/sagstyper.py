@@ -23,6 +23,8 @@ class EventType(enum.Enum):
     PUNKT_OPRETTET = 7
     PUNKT_NEDLAGT = 8
     KOMMENTAR = 9
+    GRAFIK_INDSAT = 10
+    GRAFIK_NEDLAGT = 11
 
 
 class Sag(RegisteringFraObjekt):
@@ -145,6 +147,18 @@ class Sagsevent(RegisteringFraObjekt):
         order_by="Beregning.objektid",
         back_populates="slettet",
         foreign_keys="Beregning.sagseventtilid",
+    )
+    grafikker = relationship(
+        "Grafik",
+        order_by="Grafik.objektid",
+        back_populates="sagsevent",
+        foreign_keys="Grafik.sagseventfraid",
+    )
+    grafikker_slettede = relationship(
+        "Grafik",
+        order_by="Grafik.objektid",
+        back_populates="slettet",
+        foreign_keys="Grafik.sagseventtilid",
     )
 
     @property

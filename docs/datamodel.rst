@@ -71,9 +71,9 @@ Grundliggende objekter
 
 Alt i FIRE er bygget op omkring Punkter. Punktet er det mest simple objekt
 i FIRE, da dets primære funktion er at være bindeled til andre objekter og derfor
-i praksis kun består af en nøgle andre objekter kan henvise til. Der findes fire objekter
-der direkte kan knyttes til et punkt: Koordinat, Observation, Punktinformation og
-Geometriobjekt. De indbyrdes forhold ses på figuren herunder og omtales yderligere
+i praksis kun består af en nøgle andre objekter kan henvise til. Der findes fem objekter
+der direkte kan knyttes til et punkt: Koordinat, Observation, Punktinformation,
+Geometriobjekt og Grafik. De indbyrdes forhold ses på figuren herunder og omtales yderligere
 i separate afsnit længere nede i teksten.
 
 .. graphviz::
@@ -84,6 +84,7 @@ i separate afsnit længere nede i teksten.
      digraph "Grundobjekter" {
          node [shape=record, fontname="Verdana", fontsize="12"];
          graph [splines=ortho];
+
 
         Punkt [
             label = "{Punkt|\l
@@ -156,10 +157,24 @@ i separate afsnit længere nede i teksten.
             style = filled
         ]
 
-        Geometriobjekt -> Punkt;
-        Punktinformation -> Punkt;
-        Koordinat -> Punkt;
-        Observation -> Punkt;
+        Grafik [
+            label = "{Grafik|\l
+                    + objektid : Integer\l
+                    + punktid : UUID\l
+                    + grafik : BLOB\l
+                    + type : String\l
+                    + mimetype : String\l
+                    + filnavn : String\l
+            }"
+            fillcolor = lightskyblue
+            style = filled
+        ]
+
+        Geometriobjekt -> Punkt [constraint=false];
+        Punktinformation -> Punkt [constraint=false];
+        Koordinat -> Punkt [constraint=false];
+        Observation -> Punkt [constraint=true];
+        Grafik -> Punkt [constraint=true];
 
      }
 
@@ -369,6 +384,23 @@ som Valdemar.
 Et Punkts Geometriobjekt kan ses i form af en WKT-geometri ved at kalde::
 
     fire info punkt <ident>
+
+
+Grafik
+++++++++++++
+
+Et Grafik objekt bruges til at registrere fikspunktsskitser og fotos af relevans
+for et givent fikspunkt eller geodætisk station. Et Grafik objekt er karakteriseret
+ved en billedefil i enten PNG eller JPEG, hvilket eksplicit registreres i felterne
+``grafik``, ``mimetype`` og ``filnavn``. ``grafik`` indeholder selve det binære data
+der udgør billedefilen, ``mimetype`` og ``filnavn`` holder rede på filens type og navn.
+
+Herudover er grafikkens type også registreret i et felt i tabellen. Der skælnes mellem
+to typer: skitse og foto.
+
+Det gælder for grafikobjekterne at filnavnet er unikt, så det er ikke muligt at lægge
+to billeder ind med samme navn. Dette princip er indført for at gøre det simplere at
+eksportere fikspunktskitser til fx Valdemar.
 
 Beregninger
 ++++++++++++
@@ -586,6 +618,8 @@ Der findes en række sagsevents i FIRE. I tabellen herunder er de alle kort besk
 ``kommentar``              Bruges til at tilføje fritekst-kommentarer til sagen i tilfælde af at der er
                            behov for at påhæfte sagen yderligere information, som ikke passer i andre
                            hændelser. Bruges fx også til påhæftning af materiale på sagen
+``grafik_indsat``	       Bruges når en grafik indsættes eller opdateres i databasen
+``grafik_nedlagt``	       Bruges når en grafik nedlægges
 =========================  ============================================================================
 
 Eksempel på en sag
