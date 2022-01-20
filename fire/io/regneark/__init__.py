@@ -28,6 +28,7 @@ from fire.api.model.punkttyper import (
 from fire.api.niv.enums import NivMetode
 from fire.srid import SRID
 from fire.io import arkdef
+from fire.io.arkdef import kolonne
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
@@ -66,16 +67,16 @@ MAPPER = {
 
 
 OBSERVATIONER_KONSTANTE_FELTER = {
-    "Journal": "",
-    "Sluk": "",
-    "Kommentar": "",
-    "T": -999,
-    "Sky": -999,
-    "Sol": -999,
-    "Vind": -990,
-    "Sigt": -999,
-    "Kilde": "Ingen",
-    "Type": "",
+    kolonne.OBSERVATIONER.Journal: "",
+    kolonne.OBSERVATIONER.Sluk: "",
+    kolonne.OBSERVATIONER.Kommentar: "",
+    kolonne.OBSERVATIONER.T: -999,
+    kolonne.OBSERVATIONER.Sky: -999,
+    kolonne.OBSERVATIONER.Sol: -999,
+    kolonne.OBSERVATIONER.Vind: -999,
+    kolonne.OBSERVATIONER.Sigt: -999,
+    kolonne.OBSERVATIONER.Kilde: "Ingen",
+    kolonne.OBSERVATIONER.Type: "",
 }
 
 
@@ -83,16 +84,16 @@ def observations_data(
     observation: Union[GeometriskKoteforskel, TrigonometriskKoteforskel]
 ) -> dict:
     return {
-        "Fra": observation.opstillingspunkt.ident,
-        "Til": observation.sigtepunkt.ident,
-        "L": observation.nivlængde,
-        "ΔH": observation.koteforskel,
-        "Opst": observation.opstillinger,
-        "σ": observation.spredning_afstand,
-        "δ": observation.spredning_centrering,
-        "Hvornår": observation.observationstidspunkt,
-        "Type": MAPPER.get(observation.observationstypeid, ""),
-        "uuid": observation.id,
+        kolonne.OBSERVATIONER.Fra: observation.opstillingspunkt.ident,
+        kolonne.OBSERVATIONER.Til: observation.sigtepunkt.ident,
+        kolonne.OBSERVATIONER.L: observation.nivlængde,
+        kolonne.OBSERVATIONER.ΔH: observation.koteforskel,
+        kolonne.OBSERVATIONER.Opst: observation.opstillinger,
+        kolonne.OBSERVATIONER.σ: observation.spredning_afstand,
+        kolonne.OBSERVATIONER.δ: observation.spredning_centrering,
+        kolonne.OBSERVATIONER.Hvornår: observation.observationstidspunkt,
+        kolonne.OBSERVATIONER.Type: MAPPER.get(observation.observationstypeid, ""),
+        kolonne.OBSERVATIONER.uuid: observation.id,
     }
 
 
@@ -113,9 +114,9 @@ def observationsrække(
 
 
 PUNKTOVERSIGT_KONSTANTE_FELTER = {
-    "Fasthold": "",
-    "System": "DVR90",
-    "Udelad publikation": "",
+    kolonne.PUNKTOVERSIGT.Fasthold: "",
+    kolonne.PUNKTOVERSIGT.System: "DVR90",
+    kolonne.PUNKTOVERSIGT.Udelad_publikation: "",
 }
 
 
@@ -123,10 +124,10 @@ def punkt_data(punkt: Punkt) -> dict:
     WGS84_lonlat = punkt.geometri.koordinater
     λ, φ = normaliser_lokationskoordinat(*WGS84_lonlat)
     return {
-        "Punkt": punkt.ident,
-        "Nord": φ,
-        "Øst": λ,
-        "uuid": punkt.id,
+        kolonne.PUNKTOVERSIGT.Punkt: punkt.ident,
+        kolonne.PUNKTOVERSIGT.Nord: φ,
+        kolonne.PUNKTOVERSIGT.Øst: λ,
+        kolonne.PUNKTOVERSIGT.uuid: punkt.id,
     }
 
 
@@ -147,9 +148,9 @@ def kote_data(punkt: Punkt) -> Koordinat:
     if koordinater is None:
         return {}
     return {
-        "Hvornår": koordinater.t,
-        "Kote": koordinater.z,
-        "σ": koordinater.sz,
+        kolonne.PUNKTOVERSIGT.Hvornår: koordinater.t,
+        kolonne.PUNKTOVERSIGT.Kote: koordinater.z,
+        kolonne.PUNKTOVERSIGT.σ: koordinater.sz,
     }
 
 
