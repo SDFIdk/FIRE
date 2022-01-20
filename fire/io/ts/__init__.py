@@ -4,13 +4,28 @@ Modul til tidserie-håndtering.
 """
 
 import datetime as dt
-from dataclasses import dataclass
+from dataclasses import (
+    dataclass,
+    make_dataclass,
+    field,
+    fields,
+)
 from typing import Iterable
 
 import numpy as np
 import pandas as pd
 
 from fire.api.firedb import FireDb
+from fire.io.ts import query
+from fire.cli.niv._regn import (
+    find_fastholdte,
+    gama_beregning,
+)
+from fire.io import arkdef
+from fire.io.regneark import (
+    nyt_ark,
+    MAPPER,
+)
 
 
 # --- TEMP
@@ -80,10 +95,25 @@ def fetchall(sql):
     return get_db().session.execute(sql).all()
 
 
+@dataclass(order=True)
+class MuligTidsserie:
+    skridt: int
+    srid: str
+
+    def jessen_id(self):
+        return self.srid[self.srid.index(":") + 1 :]
+
+
 # --- / TEMP
 
 
-def hent_tidsserie(jessen_id: str, *, get_raw_values=False) -> pd.DataFrame:
+def hent_mulige_tidsserier(punkt_id: str) -> list:
+    sql = query.hent_mulige_tidsserier.format(punkt_id=punkt_id)
+    # return fetchall(sql)
+    return [MuligTidsserie(*row) for row in fetchall(sql)]
+
+
+def hent_tidsserie(jessen_id: str) -> pd.DataFrame:
     """
     Hent tidsserien TS:`jessen_id`.
 
@@ -105,60 +135,11 @@ def hent_tidsserie(jessen_id: str, *, get_raw_values=False) -> pd.DataFrame:
         *   True hvis punkt er Jessenpunktet ellers 0
 
     """
-    sql = f"""\
-WITH jessen_punkter AS (
-    SELECT
-        p.id AS punkt_id,
-        pi.tekst AS jessen_id
-    FROM punkt p
-    JOIN punktinfo pi ON p.id = pi.punktid
-    JOIN punktinfotype pit ON pi.infotypeid = pit.infotypeid
-    WHERE
-        pit.infotype='IDENT:jessen'
-),
-landsnumre AS (
-    SELECT
-        p.id,
-        pi.tekst AS landsnr
-    FROM punkt p
-    JOIN punktinfo pi ON p.id = pi.punktid
-    JOIN punktinfotype pit ON pi.infotypeid = pit.infotypeid
-    WHERE pit.infotype = 'IDENT:landsnr'
-)
-SELECT
-    p.id AS punkt_id,
-    k.t AS dato,
-    k.z AS kote,
---    CASE jp.jessen_id WHEN jp.jessen_id THEN 1 ELSE 0 END AS er_jessen_punkt,
-    jp.jessen_id,
-    l.landsnr
-
-FROM punkt p
-
-JOIN koordinat k ON p.id = k.punktid
-JOIN sridtype s ON k.sridid = s.sridid
-
--- Der kan være punkter med i punktgruppen, som er Jessen-puknt i en anden tidsserie.
--- Med et ekstra krav i denne left join om, at `jessen_id` skal være det samme, som tidsserie-ID'et,
--- gør, at kun tidsseriens Jessen-ID kommer med.
-LEFT JOIN jessen_punkter jp ON p.id = jp.punkt_id AND jp.jessen_id = '{jessen_id}'
-
-LEFT JOIN landsnumre l ON p.id = l.id
-
-WHERE
-    s.srid = 'TS:{jessen_id}'
-ORDER BY
-    jp.jessen_id ASC,
-    k.t ASC
-"""
-    if get_raw_values:
-        return fetchall(sql)
+    sql = query.hent_tidsserie.format(jessen_id=jessen_id)
     return TidsseriePost.new_df(fetchall(sql))
-    # data = [TidsseriePost(*row) for row in fetchall(sql)]
-    # return ny_df(TidsseriePost).append(data) # .astype(TidsseriePost)
 
 
-def hent_observationer_af_punktgruppe(
+def hent_observationer_i_punktgruppe(
     punktgruppe: Iterable[str],
     dato_fra: dt.datetime = None,
     dato_til: dt.datetime = None,
@@ -179,32 +160,16 @@ def hent_observationer_af_punktgruppe(
 
     comma_separated = "', '".join(punktgruppe)
     sql_tuple = f"(\n'{comma_separated}'\n)"
-    sql = f"""\
-SELECT DISTINCT
-    o.registreringfra,
-    o.opstillingspunktid,
-    o.sigtepunktid,
-    o.value1 AS koteforskel,
-    o.observationstypeid
-FROM punkt p
-JOIN observation o ON p.id = o.opstillingspunktid OR p.id = o.sigtepunktid
-WHERE
-    o.observationstypeid IN (1, 2)
-  AND
-    o.registreringfra BETWEEN DATE '{dato_fra}' AND DATE '{dato_til}'
-  AND
-    o.opstillingspunktid IN {sql_tuple}
-  AND
-    o.sigtepunktid IN {sql_tuple}
-ORDER BY
-    o.registreringfra ASC,
-    o.opstillingspunktid ASC,
-    o.sigtepunktid ASC
-"""
-    if full_print:
-        print(sql)
-    else:
-        print(sql.replace(sql_tuple, "(...)"))
+    kwargs = dict(
+        sql_tuple=sql_tuple,
+        dato_fra=dato_fra,
+        dato_til=dato_til,
+    )
+    sql = query.hent_observationer_i_punktgruppe.format(**kwargs)
+    # if full_print:
+    #     print(sql)
+    # else:
+    #     print(sql.replace(sql_tuple, "(...)"))
     return ObservationsPost.new_df(fetchall(sql))
 
 
@@ -220,39 +185,112 @@ def hent_observationer_for_tidsserie(
         dato_fra = fra.isoformat()
         dato_til = til.isoformat()
 
-    sql = f"""\
-WITH tidsserie_punkter AS (
-    SELECT DISTINCT p.id
-    FROM punkt p
-    JOIN koordinat k ON p.id = k.punktid
-    JOIN sridtype s ON k.sridid = s.sridid
-    WHERE s.srid = 'TS:{jessen_id}'
-)
-SELECT DISTINCT
-    o.registreringfra,
-    o.opstillingspunktid,
-    o.sigtepunktid,
-    o.value1 AS koteforskel,
-    o.value2 AS nivlaengde,
-    o.observationstypeid,
-    o.observationstidspunkt,
-FROM tidsserie_punkter tp
-JOIN observation o ON tp.id = o.opstillingspunktid OR tp.id = o.sigtepunktid
-WHERE
-    o.observationstypeid IN (1, 2)
-  AND
-    o.registreringfra BETWEEN DATE '{dato_fra}' AND DATE '{dato_til}'
-  AND
-    o.opstillingspunktid IN (SELECT tp.id FROM tidsserie_punkter tp)
-  AND
-    o.sigtepunktid IN (SELECT tp.id FROM tidsserie_punkter tp)
-ORDER BY
-    o.registreringfra ASC,
-    o.opstillingspunktid ASC,
-    o.sigtepunktid ASC
-"""
-    print(sql)
+    kwargs = dict(
+        jessen_id=jessen_id,
+        dato_fra=dato_fra,
+        dato_til=dato_til,
+    )
+    sql = query.hent_observationer_for_tidsserie.format(**kwargs)
+    # print(sql)
     return ObservationsPost.new_df(fetchall(sql))
+
+
+def jessen_kote(tidsserie, jessen_id):
+    assert "jessen_id" in tidsserie, f"Mangler kolonnen `jessen_id`."
+    bools = tidsserie.jessen_id == jessen_id
+    assert sum(bools) == 1, f"Jessen-ID {jessen_id!r} skal være til stede 1 gang."
+    return tidsserie[bools].kote[0]
+
+
+def fjern_punkter_med_for_få_tidsskridt(tidsserie, N=2):
+    s_counts = tidsserie.punkt_id.value_counts()
+    remove = s_counts[s_counts < N]
+    return tidsserie[~tidsserie.punkt_id.isin(remove.index)].reset_index()
+
+
+# O = arkdef.OBSERVATIONER
+# d_O = make_dataclass('d_O', list(O.items()))
+# d_O.__annotations__
+# nyt_ark(d_O.__annotations__)
+
+
+o_default = {
+    "Journal": "",
+    "Sluk": "",
+    "Kommentar": "",
+    "Kilde": "",
+    "Type": "",
+}
+
+
+def o_insert(o):
+    return {
+        "Fra": o.opstillingspunktid,
+        "Til": o.sigtepunktid,
+        "L": o.nivlaengde,
+        "ΔH": o.koteforskel,
+        "Opst": o.opstillinger,
+        "σ": o.spredning_afstand,
+        "δ": o.spredning_centrering,
+        "Hvornår": o.observationstidspunkt,
+        "Type": MAPPER.get(o.observationstypeid, ""),
+        "uuid": o.id,
+    }
+
+
+def til_o(række):
+    return {
+        **o_default,
+        **o_insert,
+        **dict(),
+    }
+
+
+def beregn_tidsserie_koter(
+    observationer: pd.DataFrame, punktoversigt: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Formål
+    ------
+    Beregn nyt tidsserieskridt for observerede punkter i punktgruppen.
+
+    Antagelser
+    ----------
+
+    *   Kvalitetskontrol af observationerne er foretaget af målerne, inden observationerne blev lagt i databasen.
+    *   Inddata til kote-beregningen har samme format som de ark, der bruges til blandt andet regnearks-produkter, som bruges af målerne.
+    *   Punkterne er en del af punktgruppen for tidsserien.
+    *   Observationerne er foretaget inden for det korrekte tidsrum.
+
+    Fremgangsmåde
+    -------------
+
+    *   Jessen-punktet er fastholdt.
+
+    """
+
+    # API: Find fastholdte
+    er_kontrolberegning = False
+    fastholdte = find_fastholdte(punktoversigt, er_kontrolberegning)
+
+    # API: GNU GAMA-beregning
+    punkter = tuple(sorted(set(observationer.Fra) | set(observationer.Til)))
+    estimerede_punkter = estimerede_punkter = tuple(
+        sorted(set(punkter) - set(fastholdte))
+    )
+
+    rapport_navn = "gama-beregning"
+    kwargs = dict(
+        projektnavn=rapport_navn,
+        observationer=observationer,
+        arbejdssæt=punktoversigt,
+        estimerede_punkter=estimerede_punkter,
+        kontrol=er_kontrolberegning,
+    )
+    beregning, fname_rapport = gama_beregning(**kwargs)
+
+    # Konvertér beregninging til Tidsseriepost?
+    return TidsseriePost.new_df()
 
 
 def hent_tidsserie_for_punkt(jessen_id: str, punkt_id: str) -> pd.DataFrame:
@@ -271,26 +309,6 @@ AND
   )
 ORDER BY
   k.t ASC
-"""
-    return fetchall(sql)
-
-
-# SQL-eksempler fra KE
-
-
-def hent_mulige_tidsserier(punktid: str) -> list:
-    sql = f"""\
-SELECT
-  s.srid,
-  count(s.sridid)
-FROM koordinat k
-JOIN sridtype s ON s.sridid=k.sridid
-WHERE
-  k.punktid = '{punktid}'
-GROUP BY
-  s.srid
-ORDER BY
-  count(s.sridid) DESC
 """
     return fetchall(sql)
 
