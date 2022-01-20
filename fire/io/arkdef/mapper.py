@@ -1,4 +1,3 @@
-from functools import partial
 from typing import (
     Any,
     Optional,
@@ -49,7 +48,7 @@ def basisrække(arkdefinition: arkdef.ArkDefinitionType) -> RækkeType:
     return _basisrækker[h]
 
 
-MAPPER = {
+OBSTYPE = {
     ObservationstypeID.geometrisk_koteforskel: NivMetode.MGL.name,
     ObservationstypeID.trigonometrisk_koteforskel: NivMetode.MTL.name,
 }
@@ -77,7 +76,7 @@ def observations_data(
         kolonne.OBSERVATIONER.σ: observation.spredning_afstand,
         kolonne.OBSERVATIONER.δ: observation.spredning_centrering,
         kolonne.OBSERVATIONER.Hvornår: observation.observationstidspunkt,
-        kolonne.OBSERVATIONER.Type: MAPPER.get(observation.observationstypeid, ""),
+        kolonne.OBSERVATIONER.Type: OBSTYPE.get(observation.observationstypeid, ""),
         kolonne.OBSERVATIONER.uuid: observation.id,
     }
 

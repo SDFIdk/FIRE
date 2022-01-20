@@ -64,17 +64,32 @@ ORDER BY
     k.t ASC
 """
 
-hent_opbservationer_i_punktgruppe = """\
+
+def observationer_i_punktgruppe(
+    punktgruppe: list[str],
+    dato_fra: str,
+    dato_til: str,
+    observationstypeid: int,
+):
+    comma_separated = "', '".join(punktgruppe)
+    sql_tuple = f"(\n'{comma_separated}'\n)"
+    return f"""\
 SELECT DISTINCT
     o.registreringfra,
     o.opstillingspunktid,
     o.sigtepunktid,
     o.value1 AS koteforskel,
-    o.observationstypeid
+    o.value2 AS nivlaengde,
+    o.value3 AS opstillinger,
+    o.value{4 if observationstypeid == 1 else 5} AS spredning_afstand,
+    o.value{5 if observationstypeid == 1 else 6} AS spredning_centrering,
+    o.observationstypeid,
+    o.observationstidspunkt,
+    o.id AS uuid
 FROM punkt p
 JOIN observation o ON p.id = o.opstillingspunktid OR p.id = o.sigtepunktid
 WHERE
-    o.observationstypeid IN (1, 2)
+    o.observationstypeid = {observationstypeid}
   AND
     o.registreringfra BETWEEN DATE '{dato_fra}' AND DATE '{dato_til}'
   AND
@@ -87,7 +102,14 @@ ORDER BY
     o.sigtepunktid ASC
 """
 
-hent_observationer_for_tidsserie = """\
+
+def observationer_for_tidsserie(
+    jessen_id: str,
+    dato_fra: str,
+    dato_til: str,
+    observationstypeid: int,
+):
+    return f"""\
 WITH tidsserie_punkter AS (
     SELECT DISTINCT p.id
     FROM punkt p
@@ -97,16 +119,20 @@ WITH tidsserie_punkter AS (
 )
 SELECT DISTINCT
     o.registreringfra,
-    o.opstillingspunktid,
-    o.sigtepunktid,
+    o.opstillingspunktid AS fra,
+    o.sigtepunktid AS til,
     o.value1 AS koteforskel,
     o.value2 AS nivlaengde,
+    o.value3 AS opstillinger,
+    o.value{4 if observationstypeid == 1 else 5} AS spredning_afstand,
+    o.value{5 if observationstypeid == 1 else 6} AS spredning_centrering,
     o.observationstypeid,
     o.observationstidspunkt,
+    o.id AS uuid
 FROM tidsserie_punkter tp
 JOIN observation o ON tp.id = o.opstillingspunktid OR tp.id = o.sigtepunktid
 WHERE
-    o.observationstypeid IN (1, 2)
+    o.observationstypeid = {observationstypeid}
   AND
     o.registreringfra BETWEEN DATE '{dato_fra}' AND DATE '{dato_til}'
   AND

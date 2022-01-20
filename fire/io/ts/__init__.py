@@ -4,84 +4,45 @@ Modul til tidserie-håndtering.
 """
 
 import datetime as dt
-from dataclasses import (
-    dataclass,
-    make_dataclass,
-    field,
-    fields,
+import itertools as it
+from typing import (
+    Iterator,
+    Iterable,
+    Union,
+    Final,
 )
-from typing import Iterable
 
 import numpy as np
 import pandas as pd
 
 from fire.api.firedb import FireDb
-from fire.io.ts import query
+from fire.api.model.punkttyper import ObservationstypeID
 from fire.cli.niv._regn import (
     find_fastholdte,
     gama_beregning,
 )
+from fire.io import regneark
+from fire.io.ts import query
 from fire.io import arkdef
-from fire.io.regneark import (
-    nyt_ark,
-    MAPPER,
+from fire.io.arkdef import (
+    kolonne,
+    mapper,
 )
-
+from fire.io.ts.post import (
+    TidsseriePost,
+    ObservationsPost,
+    MuligTidsserie,
+)
 
 # --- TEMP
 
 # ENV_DB = 'test'
-ENV_DB = "prod"
+ENV_DB: Final = "prod"
 DB = None
 
 
 def ny_df(datacls) -> pd.DataFrame:
     return pd.DataFrame(columns=datacls.__annotations__).astype(datacls.__annotations__)
-
-
-def dataframe(datacls):
-    """
-    Class decorator adding classmethod to create a new
-    empty Pandas DataFrame based on dataclass annotations.
-
-    """
-
-    def method(cls, rows: Iterable = None) -> pd.DataFrame:
-        typedict = cls.__annotations__
-        if rows is None:
-            return pd.DataFrame(columns=typedict).astype(typedict)
-        data = (cls(*row) for row in rows)
-        return pd.DataFrame(data=data, columns=typedict).astype(typedict)
-
-    datacls.new_df = classmethod(method)
-    return datacls
-
-
-@dataframe
-@dataclass
-class TidsseriePost:
-    punkt_id: str = None
-    dato: np.datetime64 = None
-    kote: float = None
-    jessen_id: str = None
-    # er_jessen_punkt: bool = None
-    landsnr: str = None
-
-
-@dataframe
-@dataclass
-class ObservationsPost:
-    registrering_fra: np.datetime64 = None
-    opstillingspunkt_id: str = None
-    sigtepunkt_id: str = None
-    koteforskel: float = None
-    nivlaengde: float = None
-    opstillinger: int = None
-    spredning_afstand: float = None
-    spredning_centrering: float = None
-    observationstidspunkt: dt.datetime = None
-    observationstype_id: str = None
-    id: str = None
 
 
 def get_db():
@@ -95,22 +56,53 @@ def fetchall(sql):
     return get_db().session.execute(sql).all()
 
 
-@dataclass(order=True)
-class MuligTidsserie:
-    skridt: int
-    srid: str
-
-    def jessen_id(self):
-        return self.srid[self.srid.index(":") + 1 :]
-
-
 # --- / TEMP
+
+
+def asdate(dato: Union[str, dt.datetime, dt.date]) -> dt.date:
+    """
+    Konvertér dato til dato.
+
+    """
+    if dato is None:
+        return None
+
+    if isinstance(dato, str):
+        try:
+            return dt.datetime.strptime(dato, "%Y-%m-%d").date()
+        except:
+            raise (f"Forventede ISO-8601-dato, men fik {dato!r}")
+
+    if isinstance(dato, dt.datetime):
+        return dato.date()
+
+    assert isinstance(dato, dt.date), f"Forventede Python-dato, men fik {dato!r}"
+    return dato
+
+
+def standard_interval(
+    dato_fra: Union[dt.datetime, dt.date],
+    dato_til: Union[dt.datetime, dt.date],
+):
+    """
+    Returnér dato-interval i ISO-8601-format.
+
+    Mangler én eller egge datoer, rettes `dato_fra` til
+    ca. et halvt år fra dags dato til idag.
+
+    """
+    # Start et halvt år tilbage, hvis én eller begge datoer i tidsrummet mangler.
+    # TODO: Genbesøg detaljer, når resten er klar.
+    if dato_fra is None or dato_til is None:
+        til = dt.date.today()
+        fra = dt.date(til.year, til.month, 1) - dt.timedelta(weeks=26)
+        return fra.isoformat(), til.isoformat()
+    return dato_fra.isoformat(), dato_til.isoformat()
 
 
 def hent_mulige_tidsserier(punkt_id: str) -> list:
     sql = query.hent_mulige_tidsserier.format(punkt_id=punkt_id)
-    # return fetchall(sql)
-    return [MuligTidsserie(*row) for row in fetchall(sql)]
+    return MuligTidsserie.map(fetchall(sql))
 
 
 def hent_tidsserie(jessen_id: str) -> pd.DataFrame:
@@ -136,63 +128,60 @@ def hent_tidsserie(jessen_id: str) -> pd.DataFrame:
 
     """
     sql = query.hent_tidsserie.format(jessen_id=jessen_id)
-    return TidsseriePost.new_df(fetchall(sql))
+    return TidsseriePost.asdf(fetchall(sql))
 
 
 def hent_observationer_i_punktgruppe(
     punktgruppe: Iterable[str],
-    dato_fra: dt.datetime = None,
-    dato_til: dt.datetime = None,
-    full_print: bool = False,
-) -> pd.DataFrame:
+    dato_fra: Union[dt.datetime, dt.date] = None,
+    dato_til: Union[dt.datetime, dt.date] = None,
+    asdf: bool = False,
+) -> Union[Iterator[ObservationsPost], pd.DataFrame]:
     """
     Antagelser
     ----------
     *   Punkgruppen er større end to punkter, da nedenstående forespørgsel ikke dur uden mindst to punkter, der er observeret mellem i løbet af det angivne tidsrum.
     """
-    # Start et halvt år tilbage, hvis én eller begge datoer i tidsrummet mangler.
-    # TODO: Genbesøg detaljer, når resten er klar.
-    if dato_fra is None or dato_til is None:
-        til = dt.date.today()
-        fra = dt.date(til.year, til.month, 1) - dt.timedelta(weeks=26)
-        dato_fra = fra.isoformat()
-        dato_til = til.isoformat()
-
-    comma_separated = "', '".join(punktgruppe)
-    sql_tuple = f"(\n'{comma_separated}'\n)"
+    dato_fra, dato_til = standard_interval(asdate(dato_fra), asdate(dato_til))
     kwargs = dict(
-        sql_tuple=sql_tuple,
+        punktgruppe=punktgruppe,
         dato_fra=dato_fra,
         dato_til=dato_til,
     )
-    sql = query.hent_observationer_i_punktgruppe.format(**kwargs)
-    # if full_print:
-    #     print(sql)
-    # else:
-    #     print(sql.replace(sql_tuple, "(...)"))
-    return ObservationsPost.new_df(fetchall(sql))
+    kwargs.update(observationstypeid=ObservationstypeID.geometrisk_koteforskel)
+    sql_mgl = query.observationer_i_punktgruppe(**kwargs)
+    kwargs.update(observationstypeid=ObservationstypeID.trigonometrisk_koteforskel)
+    sql_mtl = query.observationer_i_punktgruppe(**kwargs)
+    raw = it.chain(fetchall(sql_mgl), fetchall(sql_mtl))
+    if asdf:
+        return ObservationsPost.asdf(raw)
+    return ObservationsPost.map(raw)
 
 
 def hent_observationer_for_tidsserie(
-    jessen_id: str, dato_fra: dt.datetime = None, dato_til: dt.datetime = None
-) -> pd.DataFrame:
-    """ """
-    # Start et halvt år tilbage, hvis én eller begge datoer i tidsrummet mangler.
-    # TODO: Genbesøg detaljer, når resten er klar.
-    if dato_fra is None or dato_til is None:
-        til = dt.date.today()
-        fra = dt.date(til.year, til.month, 1) - dt.timedelta(weeks=26)
-        dato_fra = fra.isoformat()
-        dato_til = til.isoformat()
+    jessen_id: str,
+    dato_fra: dt.datetime = None,
+    dato_til: dt.datetime = None,
+    asdf: bool = False,
+) -> Union[Iterator[ObservationsPost], pd.DataFrame]:
+    """
+    Henter nivellement-observationer (MGL/MTL) for tidsserien med Jessen-punktet `jessen_id`.
 
+    """
+    dato_fra, dato_til = standard_interval(asdate(dato_fra), asdate(dato_til))
     kwargs = dict(
         jessen_id=jessen_id,
         dato_fra=dato_fra,
         dato_til=dato_til,
     )
-    sql = query.hent_observationer_for_tidsserie.format(**kwargs)
-    # print(sql)
-    return ObservationsPost.new_df(fetchall(sql))
+    kwargs.update(observationstypeid=ObservationstypeID.geometrisk_koteforskel)
+    sql_mgl = query.observationer_for_tidsserie(**kwargs)
+    kwargs.update(observationstypeid=ObservationstypeID.trigonometrisk_koteforskel)
+    sql_mtl = query.observationer_for_tidsserie(**kwargs)
+    raw = it.chain(fetchall(sql_mgl), fetchall(sql_mtl))
+    if asdf:
+        return ObservationsPost.asdf(raw)
+    return ObservationsPost.map(raw)
 
 
 def jessen_kote(tidsserie, jessen_id):
@@ -208,46 +197,39 @@ def fjern_punkter_med_for_få_tidsskridt(tidsserie, N=2):
     return tidsserie[~tidsserie.punkt_id.isin(remove.index)].reset_index()
 
 
-# O = arkdef.OBSERVATIONER
-# d_O = make_dataclass('d_O', list(O.items()))
-# d_O.__annotations__
-# nyt_ark(d_O.__annotations__)
-
-
-o_default = {
-    "Journal": "",
-    "Sluk": "",
-    "Kommentar": "",
-    "Kilde": "",
-    "Type": "",
-}
-
-
-def o_insert(o):
+def observations_data(observation: ObservationsPost) -> dict:
     return {
-        "Fra": o.opstillingspunktid,
-        "Til": o.sigtepunktid,
-        "L": o.nivlaengde,
-        "ΔH": o.koteforskel,
-        "Opst": o.opstillinger,
-        "σ": o.spredning_afstand,
-        "δ": o.spredning_centrering,
-        "Hvornår": o.observationstidspunkt,
-        "Type": MAPPER.get(o.observationstypeid, ""),
-        "uuid": o.id,
+        kolonne.OBSERVATIONER.Fra: observation.opstillingspunktid,
+        kolonne.OBSERVATIONER.Til: observation.sigtepunktid,
+        kolonne.OBSERVATIONER.L: observation.nivlaengde,
+        kolonne.OBSERVATIONER.ΔH: observation.koteforskel,
+        kolonne.OBSERVATIONER.Opst: observation.opstillinger,
+        kolonne.OBSERVATIONER.σ: observation.spredning_afstand,
+        kolonne.OBSERVATIONER.δ: observation.spredning_centrering,
+        kolonne.OBSERVATIONER.Hvornår: observation.observationstidspunkt,
+        kolonne.OBSERVATIONER.Type: mapper.OBSTYPE.get(
+            observation.observationstypeid, ""
+        ),
+        kolonne.OBSERVATIONER.uuid: observation.uuid,
     }
 
 
-def til_o(række):
+def observationsrække(observation: ObservationsPost):
     return {
-        **o_default,
-        **o_insert,
-        **dict(),
+        **mapper.basisrække(arkdef.OBSERVATIONER),
+        **mapper.OBSERVATIONER_KONSTANTE_FELTER,
+        **observations_data(observation),
     }
+
+
+def punktoversigt_fra_observationer(
+    jessen_punkt, observationer: pd.DataFrame
+) -> pd.DataFrame():
+    return pd.DataFrame()  # DUMMY
 
 
 def beregn_tidsserie_koter(
-    observationer: pd.DataFrame, punktoversigt: pd.DataFrame
+    jessen_punkt, nye_observationer: Iterable[ObservationsPost]
 ) -> pd.DataFrame:
     """
     Formål
@@ -268,6 +250,16 @@ def beregn_tidsserie_koter(
     *   Jessen-punktet er fastholdt.
 
     """
+
+    observationer = regneark.til_nyt_ark(
+        nye_observationer,
+        arkdef.OBSERVATIONER,
+        observationsrække,
+    )
+    punktoversigt = punktoversigt_fra_observationer(jessen_punkt, observationer)
+
+    # Anvend eksisterende API (fra CLI-modulet niv)
+    # ---------------------------------------------
 
     # API: Find fastholdte
     er_kontrolberegning = False
@@ -290,41 +282,4 @@ def beregn_tidsserie_koter(
     beregning, fname_rapport = gama_beregning(**kwargs)
 
     # Konvertér beregninging til Tidsseriepost?
-    return TidsseriePost.new_df()
-
-
-def hent_tidsserie_for_punkt(jessen_id: str, punkt_id: str) -> pd.DataFrame:
-    sql = f"""\
-SELECT
-  k.t,
-  k.z
-FROM koordinat k
-WHERE
-  k.punktid='{punkt_id}'
-AND
-  k.sridid=(
-	SELECT sridid
-	FROM sridtype
-	WHERE srid='TS:{jessen_id}'
-  )
-ORDER BY
-  k.t ASC
-"""
-    return fetchall(sql)
-
-
-# --- Under opbygning
-
-
-def hent_punkt_geometri(punkt_id: str) -> object:
-    sql = f"""\
-SELECT
-    g.geometri,
-    p.id
-FROM punkt p
-JOIN geometriobjekt g ON p.id = g.punktid
-WHERE
-    p.id = '{punkt_id}'
-"""
-    print(sql)
-    return fetchall(sql)
+    return TidsseriePost.asdf()
