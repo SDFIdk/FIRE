@@ -100,7 +100,8 @@ def crd_parse_epochdatumline(line: str) -> dict:
 
     "LOCAL GEODETIC DATUM: IGb08             EPOCH: 2016-03-04 00:00:00"
 
-    Vi splitter derfor linjen til en liste af ord og vælger det tredje ord : datum IGb08 og femte og sjette ord : epoke 2016-03-04 00:00:00
+    Vi splitter derfor linjen til en liste af ord og vælger det tredje ord : datum IGb08 og femte og sjette ord :
+    epoke 2016-03-04 00:00:00
     """
     params = line.split()
     datum = params[3]

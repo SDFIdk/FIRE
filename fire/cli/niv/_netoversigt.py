@@ -90,7 +90,7 @@ def netgraf(
     # Sanity check af fastholdte punkter versus tilgængelige observationer
     afbryd = False
     for fastholdt_punkt in fastholdte_punkter:
-        if not fastholdt_punkt in alle_punkter:
+        if fastholdt_punkt not in alle_punkter:
             fire.cli.print(
                 f"FEJL: Observation(er) for fastholdt punkt {fastholdt_punkt} er slukket eller mangler",
                 fg="white",

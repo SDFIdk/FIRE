@@ -25,7 +25,7 @@ with fiona.open(Path(__file__).parent / "../data/herredsogn.shp") as herredsogn:
         # ved at splitte wkt-strengen i flere dele og sammensætte den med ||-operatoren i SQL udtrykket.
         # Idioti, men det virker.
         n = len(g.wkt) // 3
-        wkt1, wkt2, wkt3 = g.wkt[:n], g.wkt[n : 2 * n + 1], g.wkt[2 * n + 1 :]
+        wkt1, wkt2, wkt3 = g.wkt[:n], g.wkt[n: 2 * n + 1], g.wkt[2 * n + 1:]
 
         try:
             sql = f"""INSERT INTO herredsogn (kode, geometri)

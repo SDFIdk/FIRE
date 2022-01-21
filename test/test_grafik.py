@@ -156,7 +156,7 @@ def test_grafik_luk(firedb: FireDb, punkt: Punkt, sagsevent: Sagsevent):
     firedb.session.add(g)
     firedb.session.commit()
 
-    assert g.registreringtil == None
+    assert g.registreringtil is None
 
     firedb.luk_grafik(g, sagsevent)
     assert g.registreringtil is not None
