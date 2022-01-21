@@ -4,21 +4,32 @@ Kør Bernese fillæser med testdata
 import math
 from pathlib import Path
 
+import pytest
+
 from fire.io.bernese import BerneseSolution, Kovarians
 
 
-def test():
+ADDNEQ1273 = Path("test/data/ADDNEQ2_1273")
+CRD1273 = Path("test/data/COMB1273.CRD")
+
+ADDNEQ1886 = Path("test/data/ADDNEQ2_1886")
+CRD1886 = Path("test/data/COMB1886.CRD")
+COV1886 = Path("test/data/COMB1886.COV")
+
+ADDNEQ2096 = Path("test/data/ADDNEQ2_2096")
+CRD2096 = Path("test/data/COMB2096.CRD")
+COV2096 = Path("test/data/COMB2096.COV")
+
+
+def test_bernesesolution():
     """
     Indlæs og test output fra tre konkrete sæt med forskellige værdier og sektionsformater
     """
     # Datasæt 1 - første sæt, uden eksisterende COV-fil eller spredning
 
     reader1 = BerneseSolution(
-        addneq_fil=Path(
-            "test/data/ADDNEQ2_1273"  # denne fil har ingen spredningssektion
-        ),
-        crd_fil=Path("test/data/COMB1273.CRD"),
-        cov_fil=None,
+        addneq_fil=ADDNEQ1273,  # denne fil har ingen spredningssektion
+        crd_fil=CRD1273,
     )  # undlad at angive COV-fil
     assert reader1.gnss_uge == 1273
     assert reader1.epoke.year == 2004
@@ -53,9 +64,9 @@ def test():
     # Datasæt 2 - tidligste sæt med alle tre filer
 
     reader2 = BerneseSolution(
-        addneq_fil=Path("test/data/ADDNEQ2_1886"),
-        crd_fil=Path("test/data/COMB1886.CRD"),
-        cov_fil=Path("test/data/COMB1886.COV"),
+        addneq_fil=ADDNEQ1886,
+        crd_fil=CRD1886,
+        cov_fil=COV1886,
     )
     assert reader2.gnss_uge == 1886
     assert reader2.epoke.year == 2016
@@ -88,9 +99,9 @@ def test():
     # Datasæt 3 - nyeste sæt med alle tre filer
 
     reader3 = BerneseSolution(
-        addneq_fil=Path("test/data/ADDNEQ2_2096"),
-        crd_fil=Path("test/data/COMB2096.CRD"),
-        cov_fil=Path("test/data/COMB2096.COV"),
+        addneq_fil=ADDNEQ2096,
+        crd_fil=CRD2096,
+        cov_fil=COV2096,
     )
 
     assert reader3.gnss_uge == 2096
@@ -136,5 +147,29 @@ def test():
     assert math.isclose(a=float(reader3["BUDP"].rms_fejl), b=0.00042)
 
 
-if __name__ == "__main__":
-    test()
+def test_bernesesolution_paths():
+    """
+    Kontroller at både str og Path virker som fil-input, samt fejlhåndtering virker som
+    """
+
+    # Hvis ingen exceptions fanges her må vi forvente at filerne læses korrekt
+    BerneseSolution(str(ADDNEQ1886), str(CRD1886), str(COV1886))
+    BerneseSolution(ADDNEQ1886, CRD1886, COV1886)
+
+    with pytest.raises(TypeError):
+        BerneseSolution(234, 2342, 234)
+
+    with pytest.raises(TypeError):
+        BerneseSolution(ADDNEQ1886, 2342, 234)
+
+    with pytest.raises(TypeError):
+        BerneseSolution(ADDNEQ1886, CRD1886, 234)
+
+    with pytest.raises(FileNotFoundError):
+        BerneseSolution("fil_findes_ikke", CRD1886)
+
+    with pytest.raises(FileNotFoundError):
+        BerneseSolution(ADDNEQ1886, "fil_findes_ikke")
+
+    with pytest.raises(FileNotFoundError):
+        BerneseSolution(ADDNEQ1886, CRD1886, "fil_findes_ikke")

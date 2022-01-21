@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from itertools import zip_longest
 from pathlib import Path
+from typing import Union
 import re
 
 """
@@ -209,7 +210,12 @@ class BerneseSolution(dict):
     a_posteriori_RMS: None
     datum: str = None
 
-    def __init__(self, addneq_fil: Path, crd_fil: Path, cov_fil: Path) -> None:
+    def __init__(
+        self,
+        addneq_fil: Union[str, Path],
+        crd_fil: Union[str, Path],
+        cov_fil: Union[str, Path] = None,
+    ) -> None:
         """
         Læs og ekstraher Bernese data fra et sæt af matchende ADDNEQ, CRD og (valgfrit) COV filer
 
@@ -223,23 +229,44 @@ class BerneseSolution(dict):
         """
         super().__init__()
 
-        if crd_fil is None or not crd_fil.exists():
-            raise ValueError("CRD-fil skal angives!")
+        # konverter til Path's - antag input er str hvis ikke Path
+        if not isinstance(addneq_fil, Path):
+            addneq_fil = Path(addneq_fil)
+
+        if not isinstance(crd_fil, Path):
+            crd_fil = Path(crd_fil)
+
+        if cov_fil and not isinstance(cov_fil, Path):
+            cov_fil = Path(cov_fil)
+
+        # Tjek at filerne er til stede
+        if not addneq_fil.exists():
+            raise FileNotFoundError(f"ADDNEQ-fil {addneq_fil} ikke fundet!")
+
+        if not crd_fil.exists():
+            raise FileNotFoundError(f"CRD-fil {crd_fil} ikke fundet!")
+
+        if cov_fil and not cov_fil.exists():
+            raise FileNotFoundError(f"COV-fil {cov_fil} ikke fundet")
+
         # Begynd med at indlæse og opbygge stationer fra CRD-fil
         with open(crd_fil, "r") as crd:
             self.crd_parse(crd.readlines())
 
         # Dernæst tilføj kovariansmatricer fra COV-fil hvis den eksisterer
-        if cov_fil is not None:
-            if not cov_fil.exists():
-                raise FileNotFoundError(f"{cov_fil} ikke fundet")
+        if cov_fil:
             with open(cov_fil, "r") as cov:
                 self.cov_parse(cov.readlines())
+
         # Endelig tilføjes observationslængde og spredning fra ADDNEQ-fil
-        if addneq_fil is None or not addneq_fil.exists():
-            raise ValueError("ADDNEQ-fil skal angives!")
         with open(addneq_fil, "r") as addneq:
             self.addneq_parse(addneq.readlines())
+
+    def __repr__(self):
+        s = f"BerneseSolution(gnss_uge={self.gnss_uge}, epoke={self.epoke}, datum={self.datum}, stationer="
+        s += str(list(self.keys())) + ")"
+
+        return s
 
     def crd_parse(self, crd_data: list) -> None:
         """
