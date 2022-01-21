@@ -42,9 +42,12 @@ class Koordinat:
 @dataclass(order=True, eq=True)
 class RMS:
     """
-    RMS spredning (North, East, Up) indsamlet fra ADDNEQ-output fil.
+    RMS spredning (North, East, Up) og residualer indsamlet fra ADDNEQ-output fil.
     """
 
+    n_residualer: list
+    e_residualer: list
+    u_residualer: list
     n: float = None
     e: float = None
     u: float = None
@@ -153,23 +156,28 @@ def addneq_parse_observationline(line: str) -> dict:
 
 def addneq_parse_stddevline(line: str) -> dict:
     """
-    Parse en linje med RMS-spredning fra en ADDNEQ-fil, udtræk stationsnavn, samt retning (N/E/U) og spredning.
+    Parse en linje med RMS-spredning fra en ADDNEQ-fil, udtræk stationsnavn, samt retning (N/E/U), spredning og
+    derefter et vilkårligt antal døgnresidualer.
     En serie linjer kan se således ud:
 
     GESR             N    0.07      0.02   -0.06
     GESR             E    0.10     -0.00   -0.10
     GESR             U    0.23     -0.10    0.20
 
-     - og det er de tre første 'ord' vi skal bruge - spredning er det første tal, de to andre ignorerer vi
-
     """
     params = line.split()
-    return dict(zip_longest(["STATION NAME", "DIRECTION", "STDDEV"], params))
+    return {
+        "STATION NAME": params[0],
+        "DIRECTION": params[1],
+        "STDDEV": params[2],
+        "RES": params[3:],
+    }
 
 
 def cov_parse_dataline(line: str) -> dict:
     """
-    Parse datasektionen fra en COV-linje og udtræk observationsfelterne - station 1 og 2, deres koordinatpar-labels og matriceelement.
+    Parse datasektionen fra en COV-linje og udtræk observationsfelterne - station 1 og 2, deres koordinatpar-labels
+    og matriceelement.
 
     En sektion kan begynde sådan her:
 
@@ -345,17 +353,30 @@ class BerneseSolution(dict):
                 stations_rms[station] = {}  # opret en tabel med navne fra CRD parsing
             for linje in anden_sektion:
                 if not linje.isspace():  # skip evt. tomme linjer
-                    spredningsset = addneq_parse_stddevline(linje)
-                    stations_rms[spredningsset["STATION NAME"]][
-                        spredningsset["DIRECTION"]
-                    ] = spredningsset["STDDEV"]
+                    spredningslinje = addneq_parse_stddevline(linje)
+                    stations_rms[spredningslinje["STATION NAME"]][
+                        spredningslinje["DIRECTION"]
+                    ] = spredningslinje["STDDEV"]
+                    stations_rms[spredningslinje["STATION NAME"]][
+                        spredningslinje["DIRECTION"] + "RES"
+                    ] = spredningslinje["RES"]
             for station in stations_rms:
                 if not stations_rms[station]:  # spring over stationer uden værdier
                     continue
                 n = stations_rms[station]["N"]
                 e = stations_rms[station]["E"]
                 u = stations_rms[station]["U"]
-                rms = RMS(n=n, e=e, u=u)
+                nres = stations_rms[station]["NRES"]
+                eres = stations_rms[station]["ERES"]
+                ures = stations_rms[station]["URES"]
+                rms = RMS(
+                    n=n,
+                    e=e,
+                    u=u,
+                    n_residualer=nres,
+                    e_residualer=eres,
+                    u_residualer=ures,
+                )
                 self[station].spredning = rms
         except ValueError:
             pass
