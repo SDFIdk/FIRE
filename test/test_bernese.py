@@ -69,6 +69,8 @@ def test():
     assert math.isclose(a=float(reader2["MAR6"].spredning.n), b=0.12)
     assert math.isclose(a=float(reader2["MAR6"].spredning.e), b=0.11)
     assert math.isclose(a=float(reader2["MAR6"].spredning.u), b=0.36)
+    assert math.isclose(a=float(reader2["MAR6"].spredning.n_residualer[0]), b=-0.12)
+
     assert reader2["ESBC"].kovarians == Kovarians(
         xx=0.1442016297,
         yy=0.02864337257,
@@ -112,10 +114,13 @@ def test():
     assert reader3["RIKO"].obsslut.hour == 23
     assert reader3["RIKO"].obsslut.minute == 59
     assert reader3["RIKO"].obsslut.second == 30
-
     assert math.isclose(a=float(reader3["MAR6"].spredning.n), b=0.91)
     assert math.isclose(a=float(reader3["MAR6"].spredning.e), b=1.02)
     assert math.isclose(a=float(reader3["MAR6"].spredning.u), b=2.98)
+    assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[0]), b=-0.07)
+    assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[1]), b=0.95)
+    assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[2]), b=-0.87)
+
     assert reader3["ONSA"].kovarians == Kovarians(
         xx=0.06792032947,
         yy=0.01283152234,
