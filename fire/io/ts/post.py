@@ -9,8 +9,7 @@ import pandas as pd
 
 class Post:
     """
-    Class decorator adding classmethod to create a new
-    empty Pandas DataFrame based on dataclass annotations.
+    Klasse til nedarving i dataklasser, der spiller sammen med pandas.
 
     """
 

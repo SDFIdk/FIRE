@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 from fire.api.firedb import FireDb
-from fire.api.model.punkttyper import ObservationstypeID
+from fire.api.model.punkttyper import Observation, ObservationstypeID
 from fire.cli.niv._regn import (
     find_fastholdte,
     gama_beregning,
@@ -87,7 +87,7 @@ def standard_interval(
     """
     Returnér dato-interval i ISO-8601-format.
 
-    Mangler én eller egge datoer, rettes `dato_fra` til
+    Mangler én eller begge datoer, rettes `dato_fra` til
     ca. et halvt år fra dags dato til idag.
 
     """
@@ -184,11 +184,11 @@ def hent_observationer_for_tidsserie(
     return ObservationsPost.map(raw)
 
 
-def jessen_kote(tidsserie, jessen_id):
+def jessen_punkt(tidsserie, jessen_id):
     assert "jessen_id" in tidsserie, f"Mangler kolonnen `jessen_id`."
     bools = tidsserie.jessen_id == jessen_id
     assert sum(bools) == 1, f"Jessen-ID {jessen_id!r} skal være til stede 1 gang."
-    return tidsserie[bools].kote[0]
+    return tidsserie[bools].iloc[0]
 
 
 def fjern_punkter_med_for_få_tidsskridt(tidsserie, N=2):
@@ -197,8 +197,10 @@ def fjern_punkter_med_for_få_tidsskridt(tidsserie, N=2):
     return tidsserie[~tidsserie.punkt_id.isin(remove.index)].reset_index()
 
 
-def observations_data(observation: ObservationsPost) -> dict:
-    return {
+# ---
+def observationspost_til_arkfdef_observation(observation: ObservationsPost):
+    """Oversætterfunktion fra ObservationsPost til felter på arkdefinition."""
+    felter = {
         kolonne.OBSERVATIONER.Fra: observation.opstillingspunktid,
         kolonne.OBSERVATIONER.Til: observation.sigtepunktid,
         kolonne.OBSERVATIONER.L: observation.nivlaengde,
@@ -212,20 +214,38 @@ def observations_data(observation: ObservationsPost) -> dict:
         ),
         kolonne.OBSERVATIONER.uuid: observation.uuid,
     }
-
-
-def observationsrække(observation: ObservationsPost):
     return {
         **mapper.basisrække(arkdef.OBSERVATIONER),
         **mapper.OBSERVATIONER_KONSTANTE_FELTER,
-        **observations_data(observation),
+        **felter,
     }
 
 
-def punktoversigt_fra_observationer(
+def punktinfo_til_arkfdef_observation(punkt):
+    """Oversætterfunktion fra punkt til felter på arkdefinition."""
+    felter = {
+        kolonne.PUNKTOVERSIGT.Punkt: punkt[0],
+        kolonne.PUNKTOVERSIGT.Kote: punkt[1],
+        kolonne.PUNKTOVERSIGT.System: '',
+    }
+    return {
+        **mapper.basisrække(arkdef.PUNKTOVERSIGT),
+        **mapper.PUNKTOVERSIGT_KONSTANTE_FELTER,
+        **felter,
+    }
+
+
+def klargør_punkter(
     jessen_punkt, observationer: pd.DataFrame
 ) -> pd.DataFrame():
-    return pd.DataFrame()  # DUMMY
+
+    punkter = list(set(
+        (observation.Fra, '')
+        for _, observation
+        in observationer.iterrows()
+    ))
+    punkter.insert(0, (jessen_punkt.punkt_id, jessen_punkt.kote))
+    return punkter
 
 
 def beregn_tidsserie_koter(
@@ -241,37 +261,31 @@ def beregn_tidsserie_koter(
 
     *   Kvalitetskontrol af observationerne er foretaget af målerne, inden observationerne blev lagt i databasen.
     *   Inddata til kote-beregningen har samme format som de ark, der bruges til blandt andet regnearks-produkter, som bruges af målerne.
-    *   Punkterne er en del af punktgruppen for tidsserien.
+    *   Punkterne er en del af punktsamlingen for tidsserien.
     *   Observationerne er foretaget inden for det korrekte tidsrum.
-
-    Fremgangsmåde
-    -------------
-
-    *   Jessen-punktet er fastholdt.
+    *   Alle punkter er forbundne.
+    *   Alle observationer skal bruges i beregningen.
+    *   Jessen-punktet er eneste fastholdte.
 
     """
 
+    rapport_navn = "gama-beregning"
     observationer = regneark.til_nyt_ark(
         nye_observationer,
         arkdef.OBSERVATIONER,
-        observationsrække,
+        observationspost_til_arkfdef_observation,
     )
-    punktoversigt = punktoversigt_fra_observationer(jessen_punkt, observationer)
-
-    # Anvend eksisterende API (fra CLI-modulet niv)
-    # ---------------------------------------------
-
-    # API: Find fastholdte
+    punkter = klargør_punkter(jessen_punkt, observationer)
+    punktoversigt = regneark.til_nyt_ark(
+        punkter,
+        arkdef.PUNKTOVERSIGT,
+        punktinfo_til_arkfdef_observation,
+    ).fillna('')
+    fastholdte = {jessen_punkt.punkt_id: jessen_punkt.kote}
+    estimerede_punkter = tuple(set(observationer.Fra) - set(fastholdte))
     er_kontrolberegning = False
-    fastholdte = find_fastholdte(punktoversigt, er_kontrolberegning)
 
     # API: GNU GAMA-beregning
-    punkter = tuple(sorted(set(observationer.Fra) | set(observationer.Til)))
-    estimerede_punkter = estimerede_punkter = tuple(
-        sorted(set(punkter) - set(fastholdte))
-    )
-
-    rapport_navn = "gama-beregning"
     kwargs = dict(
         projektnavn=rapport_navn,
         observationer=observationer,
@@ -282,4 +296,5 @@ def beregn_tidsserie_koter(
     beregning, fname_rapport = gama_beregning(**kwargs)
 
     # Konvertér beregninging til Tidsseriepost?
-    return TidsseriePost.asdf()
+    # return TidsseriePost.asdf()
+    return beregning
