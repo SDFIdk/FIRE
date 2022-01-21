@@ -241,6 +241,12 @@ class BerneseSolution(dict):
         with open(addneq_fil, "r") as addneq:
             self.addneq_parse(addneq.readlines())
 
+    def __repr__(self):
+        s = f"BerneseSolution(gnss_uge={self.gnss_uge}, epoke={self.epoke}, datum={self.datum}, stationer="
+        s += str(list(self.keys())) + ")"
+
+        return s
+
     def crd_parse(self, crd_data: list) -> None:
         """
         Parse header og datalinjerne fra en koordinat (CRD) fil og opret stationer
