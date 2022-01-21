@@ -6,8 +6,10 @@ from fire.api.firedb.base import FireDbBase
 from fire.api.model import (
     Sag,
     Punkt,
+    PunktSamling,
     PunktInformation,
     Koordinat,
+    Tidsserie,
     Observation,
     Grafik,
     Sagsevent,
@@ -70,6 +72,20 @@ class FireDbLuk(FireDbBase):
         if commit:
             self.session.commit()
 
+    def luk_punktsamling(
+        self, punktsamling: PunktSamling, sagsevent: Sagsevent, commit: bool = True
+    ):
+        """
+        Luk en punktsamling.
+
+        Hvis ikke allerede sat, ændres sagseventtypen til EventType.PUNKTGRUPPE_NEDLAGT.
+        """
+        if not isinstance(punktsamling, PunktSamling):
+            raise TypeError("'punktsamling' er ikke en instans af PunktSamling")
+
+        sagsevent.eventtype = EventType.PUNKTGRUPPE_NEDLAGT
+        self._luk_fikspunkregisterobjekt(punktsamling, sagsevent, commit=commit)
+
     def luk_koordinat(
         self, koordinat: Koordinat, sagsevent: Sagsevent, commit: bool = True
     ):
@@ -83,6 +99,20 @@ class FireDbLuk(FireDbBase):
 
         sagsevent.eventtype = EventType.KOORDINAT_NEDLAGT
         self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=commit)
+
+    def luk_tidsserie(
+        self, tidsserie: Tidsserie, sagsevent: Sagsevent, commit: bool = True
+    ):
+        """
+        Luk en tidsserie.
+
+        Hvis ikke allerede sat, ændres sagseventtypen til EventType.TIDSSERIE_NEDLAGT.
+        """
+        if not isinstance(tidsserie, Tidsserie):
+            raise TypeError("'tidsserie' er ikke en instans af Tidsserie")
+
+        sagsevent.eventtype = EventType.TIDSSERIE_NEDLAGT
+        self._luk_fikspunkregisterobjekt(tidsserie, sagsevent, commit=commit)
 
     def luk_observation(
         self, observation: Observation, sagsevent: Sagsevent, commit: bool = True

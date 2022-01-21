@@ -25,6 +25,10 @@ class EventType(enum.Enum):
     KOMMENTAR = 9
     GRAFIK_INDSAT = 10
     GRAFIK_NEDLAGT = 11
+    PUNKTGRUPPE_MODIFICERET = 12
+    PUNKTGRUPPE_NEDLAGT = 13
+    TIDSSERIE_MODIFICERET = 14
+    TIDSSERIE_NEDLAGT = 15
 
 
 class Sag(RegisteringFraObjekt):
@@ -88,6 +92,18 @@ class Sagsevent(RegisteringFraObjekt):
         back_populates="slettet",
         foreign_keys="Punkt.sagseventtilid",
     )
+    punktsamlinger = relationship(
+        "PunktSamling",
+        order_by="PunktSamling.objektid",
+        back_populates="sagsevent",
+        foreign_keys="PunktSamling.sagseventfraid",
+    )
+    punktsamlinger_slettede = relationship(
+        "PunktSamling",
+        order_by="PunktSamling.objektid",
+        back_populates="slettet",
+        foreign_keys="PunktSamling.sagseventtilid",
+    )
     koordinater = relationship(
         "Koordinat",
         order_by="Koordinat.objektid",
@@ -99,6 +115,18 @@ class Sagsevent(RegisteringFraObjekt):
         order_by="Koordinat.objektid",
         back_populates="slettet",
         foreign_keys="Koordinat.sagseventtilid",
+    )
+    tidsserier = relationship(
+        "Tidsserie",
+        order_by="Tidsserie.objektid",
+        back_populates="sagsevent",
+        foreign_keys="Tidsserie.sagseventfraid",
+    )
+    tidsserier_slettede = relationship(
+        "Tidsserie",
+        order_by="Tidsserie.objektid",
+        back_populates="slettet",
+        foreign_keys="Tidsserie.sagseventtilid",
     )
     geometriobjekter = relationship(
         "GeometriObjekt",

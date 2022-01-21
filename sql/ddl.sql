@@ -112,6 +112,31 @@ CREATE TABLE koordinat (
 );
 
 
+CREATE TABLE tidsserie (
+  objektid INTEGER GENERATED ALWAYS AS IDENTITY (
+    START WITH
+      1 INCREMENT BY 1 ORDER NOCACHE
+  ) PRIMARY KEY,
+  punktid VARCHAR2(36) NOT NULL,
+  punktsamlingsid INTEGER,
+
+  registreringfra TIMESTAMP WITH TIME ZONE NOT NULL,
+  registreringtil TIMESTAMP WITH TIME ZONE,
+  sagseventfraid VARCHAR2(36) NOT NULL,
+  sagseventtilid VARCHAR2(36),
+
+  navn VARCHAR2(4000) NOT NULL UNIQUE,
+  formaal VARCHAR2(4000) NOT NULL,
+  referenceramme VARCHAR2(50) NOT NULL,
+  sridid INTEGER NOT NULL
+);
+
+
+CREATE TABLE tidsserie_koordinat (
+  tidsserieobjektid INTEGER NOT NULL,
+  koordinatobjektid INTEGER NOT NULL
+);
+
 CREATE TABLE konfiguration (
   objektid INTEGER GENERATED ALWAYS AS IDENTITY (
     START WITH
@@ -194,6 +219,28 @@ CREATE TABLE punkt (
   id VARCHAR2(36) NOT NULL
 );
 
+
+CREATE TABLE punktsamling (
+  objektid INTEGER GENERATED ALWAYS AS IDENTITY (
+    START WITH
+    1 INCREMENT BY 1 ORDER NOCACHE
+  ) PRIMARY KEY,
+
+  registreringfra TIMESTAMP WITH TIME ZONE NOT NULL,
+  registreringtil TIMESTAMP WITH TIME ZONE,
+  sagseventfraid VARCHAR2(36) NOT NULL,
+  sagseventtilid VARCHAR2(36),
+
+  jessenpunktid VARCHAR2(36) NOT NULL,
+  jessenkoordinatid INTEGER,
+  navn VARCHAR(4000) NOT NULL UNIQUE,
+  formaal VARCHAR(4000) NOT NULL
+);
+
+CREATE TABLE punktsamling_punkt (
+  punktsamlingsid INTEGER,
+  punktid VARCHAR2(36)
+);
 
 CREATE TABLE punktinfo (
   objektid INTEGER GENERATED ALWAYS AS IDENTITY (
@@ -377,7 +424,7 @@ ALTER TABLE
   sridtype
 ADD
   CONSTRAINT sridtype_namespace_chk CHECK (
-    substr(SRID, 1, instr(SRID, ':') -1) IN ('DK', 'EPSG', 'GL', 'TS')
+    substr(SRID, 1, instr(SRID, ':') -1) IN ('DK', 'EPSG', 'GL', 'TS', 'IGS')
   ) ENABLE VALIDATE;
 
 
@@ -516,6 +563,71 @@ ALTER TABLE
 ADD
   CONSTRAINT sagseventinfo_sagseventid_fk FOREIGN KEY (sagseventid) REFERENCES sagsevent (id) ENABLE VALIDATE;
 
+
+ALTER TABLE
+  punktsamling
+ADD
+  CONSTRAINT punktsamling_sagseventfraid_fk FOREIGN KEY (sagseventfraid) REFERENCES sagsevent (id) ENABLE VALIDATE;
+
+ALTER TABLE
+  punktsamling
+ADD
+  CONSTRAINT punktsamling_sagseventtilid_fk FOREIGN KEY (sagseventtilid) REFERENCES sagsevent (id) ENABLE VALIDATE;
+
+ALTER TABLE
+  punktsamling
+ADD
+  CONSTRAINT punktsamling_jessenpunktid_fk FOREIGN KEY (jessenpunktid) REFERENCES punkt (id) ENABLE VALIDATE;
+
+ALTER TABLE
+  punktsamling
+ADD
+  CONSTRAINT punktsamling_jessenkoordinatid_fk FOREIGN KEY (jessenkoordinatid) REFERENCES koordinat (objektid) ENABLE VALIDATE;
+
+ALTER TABLE
+  punktsamling_punkt
+ADD
+  CONSTRAINT punktsamling_punkt_punktid_fk FOREIGN KEY (punktid) REFERENCES punkt (id) ENABLE VALIDATE;
+
+ALTER TABLE
+  punktsamling_punkt
+ADD
+  CONSTRAINT punktsamling_punkt_punktsamlingobjektid_fk FOREIGN KEY (punktsamlingsid) REFERENCES punktsamling (objektid) ENABLE VALIDATE;
+
+ALTER TABLE
+  tidsserie
+ADD
+  CONSTRAINT tidsserie_sagseventfraid_fk FOREIGN KEY (sagseventfraid) REFERENCES sagsevent (id) ENABLE VALIDATE;
+
+ALTER TABLE
+  tidsserie
+ADD
+  CONSTRAINT tidsserie_sagseventtilid_fk FOREIGN KEY (sagseventtilid) REFERENCES sagsevent (id) ENABLE VALIDATE;
+
+ALTER TABLE
+  tidsserie
+ADD
+  CONSTRAINT tidsserie_punktid_fk FOREIGN KEY (punktid) REFERENCES punkt (id) ENABLE VALIDATE;
+
+ALTER TABLE
+  tidsserie
+ADD
+  CONSTRAINT tidsserie_punktsamlingsid_fk FOREIGN KEY (punktsamlingsid) REFERENCES punktsamling (objektid) ENABLE VALIDATE;
+
+ALTER TABLE
+  tidsserie
+ADD
+  CONSTRAINT tidsserie_sridid_fk FOREIGN KEY (sridid) REFERENCES sridtype (sridid);
+
+ALTER TABLE
+  tidsserie_koordinat
+ADD
+  CONSTRAINT tidsserie_koordinat_koordinatobjektid_fk FOREIGN KEY (koordinatobjektid) REFERENCES koordinat (objektid) ENABLE VALIDATE;
+
+ALTER TABLE
+  tidsserie_koordinat
+ADD
+  CONSTRAINT tidsserie_koordinat_tidssserieobjektid_fk FOREIGN KEY (tidsserieobjektid) REFERENCES tidsserie (objektid) ENABLE VALIDATE;
 
 -- Diverse index
 
@@ -714,6 +826,19 @@ COMMENT ON COLUMN koordinat.x IS 'Førstekoordinat.';
 COMMENT ON COLUMN koordinat.y IS 'Andenkoordinat.';
 COMMENT ON COLUMN koordinat.z IS 'Tredjekoordinat.';
 
+COMMENT ON TABLE tidsserie IS '';
+COMMENT ON COLUMN tidsserie.objektid IS 'Unikt id til identifikation af tidsserier';
+COMMENT ON COLUMN tidsserie.punktid IS 'Punkt som tidsserien relaterer sig til';
+COMMENT ON COLUMN tidsserie.punktsamlingsid IS 'Punktsamling som tidsserien relaterer sig til. Kan være NULL i tilfældet hvor tidsserien ikke er knyttet til en punktsamling.';
+COMMENT ON COLUMN tidsserie.registreringfra IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN tidsserie.registreringtil IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+COMMENT ON COLUMN tidsserie.sagseventfraid IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
+COMMENT ON COLUMN tidsserie.sagseventtilid IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
+COMMENT ON COLUMN tidsserie.navn IS 'Tidsseriens navn';
+COMMENT ON COLUMN tidsserie.formaal IS 'Beskrivelse af formålet med tidsserien.';
+COMMENT ON COLUMN tidsserie.referenceramme IS 'Angivelse af tidsseriens referenceramme, eksempelvis IGS14_REPRO1';
+COMMENT ON COLUMN tidsserie.sridid IS 'Angivelse af transformerbart (så vidt muligt) koordinatsystem for tidsserien. Der findes ikke transformationer til/fra IGS14_REPRO1, det gør der der imod til ITFR2014 hvorfor dette angives som SRID. Transformationsmæssigt er IGS14 og ITRF2014 ækvivalente, så ved at angive ITRF2014 som SRID sikrer vi muligheden for at kunne transformere tidsserien til et andet system.';
+
 COMMENT ON TABLE observation IS 'Generisk observationsobjekt indeholdende informationer om en observation.';
 COMMENT ON COLUMN observation.antal IS 'Antal gentagne observationer hvoraf en middelobservationen er fremkommet.';
 COMMENT ON COLUMN observation.gruppe IS 'ID der angiver observationsgruppen for en observation der indgår i en gruppe.';
@@ -768,6 +893,17 @@ COMMENT ON COLUMN punkt.registreringfra IS 'Tidspunktet hvor registreringen er f
 COMMENT ON COLUMN punkt.registreringtil IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
 COMMENT ON COLUMN punkt.sagseventfraid IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
 COMMENT ON COLUMN punkt.sagseventtilid IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
+
+COMMENT ON TABLE punktsamling IS 'Gruppering af Punkter i samlinger, typisk i forbindelse med overvågning af punkters stabilitet.';
+COMMENT ON COLUMN punktsamling.objektid IS 'Unikt id til identifikation af punktsamlinger';
+COMMENT ON COLUMN punktsamling.registreringfra IS 'Tidspunktet hvor registreringen er foretaget.';
+COMMENT ON COLUMN punktsamling.registreringtil IS 'Tidspunktet hvor en ny registrering er foretaget på objektet, og hvor denne version således ikke længere er den seneste.';
+COMMENT ON COLUMN punktsamling.sagseventfraid IS 'Angivelse af den hændelse der har bevirket registrering af et fikspunktsobjekt';
+COMMENT ON COLUMN punktsamling.sagseventtilid IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
+COMMENT ON COLUMN punktsamling.jessenpunktid IS 'Punktsamlingens Jessenpunkt';
+COMMENT ON COLUMN punktsamling.jessenkoordinatid IS 'Den fastholdte koordinat for Jessenpunktet';
+COMMENT ON COLUMN punktsamling.navn IS 'Punktsamlingens navn';
+COMMENT ON COLUMN punktsamling.formaal IS 'Formålet med punktsamlingen, eksempelvis til registrering af hensigt om opmålingsfrekvens etc.';
 
 COMMENT ON TABLE punktinfo IS 'Generisk information om et punkt.';
 COMMENT ON COLUMN punktinfo.infotypeid IS 'Unik ID for typen af Punktinfo.';
@@ -1836,3 +1972,15 @@ VALUES ('Bruges når en ny grafik indlæses i databasen.', 'grafik_indsat', 10);
 
 INSERT INTO eventtype (beskrivelse, event, eventtypeid)
 VALUES ('Bruges når en grafik i databasen nedlægges.', 'grafik_nedlagt', 11);
+
+INSERT INTO eventtype (beskrivelse, event, eventtypeid)
+VALUES ('Bruges når en punktsamling i databasen oprettes ellers opdateres.', 'punktsamling_modificeret', 12);
+
+INSERT INTO eventtype (beskrivelse, event, eventtypeid)
+VALUES ('Bruges når en punktsamling i databasen nedlægges.', 'punktsamling_nedlagt', 13);
+
+INSERT INTO eventtype (beskrivelse, event, eventtypeid)
+VALUES ('Bruges når en tidsserie i databasen oprettes ellers opdateres.', 'tidsserie_modificeret', 14);
+
+INSERT INTO eventtype (beskrivelse, event, eventtypeid)
+VALUES ('Bruges når en tidsserie i databasen nedlægges.', 'tidsserie_nedlagt', 15);
