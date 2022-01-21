@@ -53,7 +53,7 @@ def basisrække(arkdefinition: arkdef.ArkDefinitionType) -> RækkeType:
     # Rationale: en dict er ikke hashable (immutable),
     # så vi skal bruge noget andet unikt som nøgle.
     h = _hashable_from_keys(arkdefinition)
-    if not h in _basisrækker:
+    if h not in _basisrækker:
         _basisrækker[h] = {key: None for key in arkdefinition}
     return _basisrækker[h]
 
