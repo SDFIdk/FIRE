@@ -12,22 +12,15 @@ from typing import (
     Final,
 )
 
-import numpy as np
 import pandas as pd
 
 from fire.api.firedb import FireDb
-from fire.api.model.punkttyper import Observation, ObservationstypeID
-from fire.cli.niv._regn import (
-    find_fastholdte,
-    gama_beregning,
-)
+from fire.api.model.punkttyper import ObservationstypeID
+from fire.api.niv.gama_beregner import GamaBeregner
 from fire.io import regneark
 from fire.io.ts import query
 from fire.io import arkdef
-from fire.io.arkdef import (
-    kolonne,
-    mapper,
-)
+from fire.io.ts.beregning import TidsserieMapper
 from fire.io.ts.post import (
     TidsseriePost,
     ObservationsPost,
@@ -198,58 +191,9 @@ def fjern_punkter_med_for_få_tidsskridt(tidsserie, N=2):
 
 
 # ---
-def observationspost_til_arkfdef_observation(observation: ObservationsPost):
-    """Oversætterfunktion fra ObservationsPost til felter på arkdefinition."""
-    felter = {
-        kolonne.OBSERVATIONER.Fra: observation.opstillingspunktid,
-        kolonne.OBSERVATIONER.Til: observation.sigtepunktid,
-        kolonne.OBSERVATIONER.L: observation.nivlaengde,
-        kolonne.OBSERVATIONER.ΔH: observation.koteforskel,
-        kolonne.OBSERVATIONER.Opst: observation.opstillinger,
-        kolonne.OBSERVATIONER.σ: observation.spredning_afstand,
-        kolonne.OBSERVATIONER.δ: observation.spredning_centrering,
-        kolonne.OBSERVATIONER.Hvornår: observation.observationstidspunkt,
-        kolonne.OBSERVATIONER.Type: mapper.OBSTYPE.get(
-            observation.observationstypeid, ""
-        ),
-        kolonne.OBSERVATIONER.uuid: observation.uuid,
-    }
-    return {
-        **mapper.basisrække(arkdef.OBSERVATIONER),
-        **mapper.OBSERVATIONER_KONSTANTE_FELTER,
-        **felter,
-    }
-
-
-def punktinfo_til_arkfdef_observation(punkt):
-    """Oversætterfunktion fra punkt til felter på arkdefinition."""
-    felter = {
-        kolonne.PUNKTOVERSIGT.Punkt: punkt[0],
-        kolonne.PUNKTOVERSIGT.Kote: punkt[1],
-        kolonne.PUNKTOVERSIGT.System: '',
-    }
-    return {
-        **mapper.basisrække(arkdef.PUNKTOVERSIGT),
-        **mapper.PUNKTOVERSIGT_KONSTANTE_FELTER,
-        **felter,
-    }
-
-
-def klargør_punkter(
-    jessen_punkt, observationer: pd.DataFrame
-) -> pd.DataFrame():
-
-    punkter = list(set(
-        (observation.Fra, '')
-        for _, observation
-        in observationer.iterrows()
-    ))
-    punkter.insert(0, (jessen_punkt.punkt_id, jessen_punkt.kote))
-    return punkter
-
-
 def beregn_tidsserie_koter(
-    jessen_punkt, nye_observationer: Iterable[ObservationsPost]
+    jessen_punkt: pd.Series,
+    observationer: Iterable[ObservationsPost],
 ) -> pd.DataFrame:
     """
     Formål
@@ -269,32 +213,12 @@ def beregn_tidsserie_koter(
 
     """
 
-    rapport_navn = "gama-beregning"
-    observationer = regneark.til_nyt_ark(
-        nye_observationer,
-        arkdef.OBSERVATIONER,
-        observationspost_til_arkfdef_observation,
-    )
-    punkter = klargør_punkter(jessen_punkt, observationer)
-    punktoversigt = regneark.til_nyt_ark(
-        punkter,
-        arkdef.PUNKTOVERSIGT,
-        punktinfo_til_arkfdef_observation,
-    ).fillna('')
-    fastholdte = {jessen_punkt.punkt_id: jessen_punkt.kote}
-    estimerede_punkter = tuple(set(observationer.Fra) - set(fastholdte))
-    er_kontrolberegning = False
-
-    # API: GNU GAMA-beregning
-    kwargs = dict(
-        projektnavn=rapport_navn,
+    projektnavn = "gama-beregning-endelig"
+    data = dict(
+        projektnavn=projektnavn,
         observationer=observationer,
-        arbejdssæt=punktoversigt,
-        estimerede_punkter=estimerede_punkter,
-        kontrol=er_kontrolberegning,
+        jessen_punkt=jessen_punkt,
     )
-    beregning, fname_rapport = gama_beregning(**kwargs)
-
-    # Konvertér beregninging til Tidsseriepost?
-    # return TidsseriePost.asdf()
-    return beregning
+    beregner = GamaBeregner(TidsserieMapper())
+    beregner.beregn(data)
+    return beregner.resultat
