@@ -40,7 +40,7 @@ def test_bernesesolution():
     assert reader1.datum == "IGb08"
     assert math.isclose(reader1.a_posteriori_RMS, 0.00102)
     assert reader1.__sizeof__() == 640
-    assert reader1["MAR6"].spredning is None
+    assert reader1["MAR6"].dagsresidualer is None
     assert reader1["HERT"].kovarians is None
     assert reader1["HHLM"].flag == "A"
     assert reader1["BOR1"].obsstart.year == 2004
@@ -76,10 +76,12 @@ def test_bernesesolution():
     assert reader2.datum == "IGb08"
     assert math.isclose(reader2.a_posteriori_RMS, 0.00091)
     assert reader2.__sizeof__() == 1176
-    assert math.isclose(a=float(reader2["MAR6"].spredning.n), b=0.12)
-    assert math.isclose(a=float(reader2["MAR6"].spredning.e), b=0.11)
-    assert math.isclose(a=float(reader2["MAR6"].spredning.u), b=0.36)
-    assert math.isclose(a=float(reader2["MAR6"].spredning.n_residualer[0]), b=-0.12)
+    assert math.isclose(a=float(reader2["MAR6"].dagsresidualer.sn), b=0.12)
+    assert math.isclose(a=float(reader2["MAR6"].dagsresidualer.se), b=0.11)
+    assert math.isclose(a=float(reader2["MAR6"].dagsresidualer.su), b=0.36)
+    assert math.isclose(
+        a=float(reader2["MAR6"].dagsresidualer.n_residualer[0]), b=-0.12
+    )
 
     w = 0.0009 ** 2
     assert reader2["ESBC"].kovarians == Kovarians(
@@ -124,12 +126,16 @@ def test_bernesesolution():
     assert reader3["RIKO"].obsslut.hour == 23
     assert reader3["RIKO"].obsslut.minute == 59
     assert reader3["RIKO"].obsslut.second == 30
-    assert math.isclose(a=float(reader3["MAR6"].spredning.n), b=0.91)
-    assert math.isclose(a=float(reader3["MAR6"].spredning.e), b=1.02)
-    assert math.isclose(a=float(reader3["MAR6"].spredning.u), b=2.98)
-    assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[0]), b=-0.07)
-    assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[1]), b=0.95)
-    assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[2]), b=-0.87)
+    assert math.isclose(a=float(reader3["MAR6"].dagsresidualer.sn), b=0.91)
+    assert math.isclose(a=float(reader3["MAR6"].dagsresidualer.se), b=1.02)
+    assert math.isclose(a=float(reader3["MAR6"].dagsresidualer.su), b=2.98)
+    assert math.isclose(
+        a=float(reader3["MAR6"].dagsresidualer.n_residualer[0]), b=-0.07
+    )
+    assert math.isclose(a=float(reader3["MAR6"].dagsresidualer.n_residualer[1]), b=0.95)
+    assert math.isclose(
+        a=float(reader3["MAR6"].dagsresidualer.n_residualer[2]), b=-0.87
+    )
 
     w = 0.0010 ** 2
     assert reader3["ONSA"].kovarians == Kovarians(

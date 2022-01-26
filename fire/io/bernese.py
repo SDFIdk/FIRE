@@ -44,17 +44,22 @@ class Koordinat:
 
 
 @dataclass(order=True, eq=True)
-class RMS:
+class Dagsresidualer:
     """
-    RMS spredning (North, East, Up) og residualer indsamlet fra ADDNEQ-output fil.
+    Koordinatresidualer for de enkelte dagsløsninger.
+
+    Koordinatesidualer givet komponentvis, et sæt pr døgn i løsningen. Spredning på
+    residualerne gemmes `sn`, `se`, `su`.
+
+    Residualerne er beregnet på topocentriske koordinater (North, East, Up).
     """
 
     n_residualer: list
     e_residualer: list
     u_residualer: list
-    n: float = None
-    e: float = None
-    u: float = None
+    sn: float = None
+    se: float = None
+    su: float = None
 
 
 @dataclass(order=True, eq=True)
@@ -66,7 +71,7 @@ class Station:
     navn: str
     koordinat: Koordinat
     kovarians: Kovarians
-    spredning: RMS
+    dagsresidualer: Dagsresidualer
     obsstart: datetime
     obsslut: datetime
     flag: str = None
@@ -160,10 +165,13 @@ def addneq_parse_observationline(line: str) -> dict:
     )
 
 
-def addneq_parse_stddevline(line: str) -> dict:
+def addneq_parse_residualline(line: str) -> dict:
     """
-    Parse en linje med RMS-spredning fra en ADDNEQ-fil, udtræk stationsnavn, samt retning (N/E/U), spredning og
-    derefter et vilkårligt antal døgnresidualer.
+    Parse en linje med dagsløsningsresidualer fra en ADDNEQ-fil.
+
+    Udtræk stationsnavn, samt retning (N/E/U), spredning og derefter et vilkårligt
+    antal døgnresidualer.
+
     En serie linjer kan se således ud:
 
     GESR             N    0.07      0.02   -0.06
@@ -274,7 +282,7 @@ class BerneseSolution(dict):
             with open(cov_fil, "r") as cov:
                 self.cov_parse(cov.readlines())
 
-        # Endelig tilføjes observationslængde og spredning fra ADDNEQ-fil
+        # Endelig tilføjes observationslængde og dagsresidualer fra ADDNEQ-fil
         with open(addneq_fil, "r") as addneq:
             self.addneq_parse(addneq.readlines())
 
@@ -307,10 +315,10 @@ class BerneseSolution(dict):
                 flag=datalinje["FLAG"],
                 koordinat=Koordinat(),
                 kovarians=None,
-                spredning=None,
+                dagsresidualer=None,
                 obsstart=None,
                 obsslut=None,
-            )  # koordinat, kovarians, spredning og observationstider bliver sat senere
+            )  # koordinat, kovarians, dagsresidualer og observationstider bliver sat senere
             self[datalinje["STATION NAME"]] = station
 
     def cov_parse(self, cov_data: list) -> None:
@@ -395,8 +403,9 @@ class BerneseSolution(dict):
                     self[station].koordinat.z = float(observation["VALUE"])
                     self[station].koordinat.sz = float(observation["RMS_ERROR"])
 
-        # Det samme gør sig ikke gældende med afsnittet om spredninger - der er som regel en tom linje efter hver
-        # station, men der synes overskriften altid at være den samme
+        # Det samme gør sig ikke gældende med afsnittet om koordinatresidualer for
+        # dagsløsningerne - der er som regel en tom linje efter hver station, men
+        # der synes overskriften altid at være den samme.
         # Dog er denne sektion til tider slet ikke til stede - i så fald skipper vi den
         try:
             anden_sektion_begynd = (
@@ -407,37 +416,30 @@ class BerneseSolution(dict):
             )
             anden_sektion = addneq_data[anden_sektion_begynd:anden_sektion_ende]
 
-            # Og spredning fra den anden udklippede sektion
-            stations_rms = {}
-            for station in self:
-                stations_rms[station] = {}  # opret en tabel med navne fra CRD parsing
+            # Og residualer fra den anden udklippede sektion
+            residualer = {station: {} for station in self}
             for linje in anden_sektion:
                 if not linje.isspace():  # skip evt. tomme linjer
-                    spredningslinje = addneq_parse_stddevline(linje)
-                    stations_rms[spredningslinje["STATION NAME"]][
-                        spredningslinje["DIRECTION"]
-                    ] = spredningslinje["STDDEV"]
-                    stations_rms[spredningslinje["STATION NAME"]][
-                        spredningslinje["DIRECTION"] + "RES"
-                    ] = spredningslinje["RES"]
-            for station in stations_rms:
-                if not stations_rms[station]:  # spring over stationer uden værdier
+                    residuallinje = addneq_parse_residualline(linje)
+                    residualer[residuallinje["STATION NAME"]][
+                        residuallinje["DIRECTION"]
+                    ] = residuallinje["STDDEV"]
+                    residualer[residuallinje["STATION NAME"]][
+                        residuallinje["DIRECTION"] + "RES"
+                    ] = residuallinje["RES"]
+
+            for station in residualer:
+                if not residualer[station]:  # spring over stationer uden værdier
                     continue
-                n = stations_rms[station]["N"]
-                e = stations_rms[station]["E"]
-                u = stations_rms[station]["U"]
-                nres = stations_rms[station]["NRES"]
-                eres = stations_rms[station]["ERES"]
-                ures = stations_rms[station]["URES"]
-                rms = RMS(
-                    n=n,
-                    e=e,
-                    u=u,
-                    n_residualer=nres,
-                    e_residualer=eres,
-                    u_residualer=ures,
+
+                self[station].dagsresidualer = Dagsresidualer(
+                    sn=residualer[station]["N"],
+                    se=residualer[station]["E"],
+                    su=residualer[station]["U"],
+                    n_residualer=residualer[station]["NRES"],
+                    e_residualer=residualer[station]["ERES"],
+                    u_residualer=residualer[station]["URES"],
                 )
-                self[station].spredning = rms
         except ValueError:
             pass
 
