@@ -35,9 +35,12 @@ class Koordinat:
     XYZ-koordinat indsamlet fra en datalinje i CRD-output fil. Ikke at forveksle med fire.api.model.Koordinat
     """
 
-    x: float
-    y: float
-    z: float
+    x: float = None
+    y: float = None
+    z: float = None
+    sx: float = None
+    sy: float = None
+    sz: float = None
 
 
 @dataclass(order=True, eq=True)
@@ -66,7 +69,6 @@ class Station:
     spredning: RMS
     obsstart: datetime
     obsslut: datetime
-    rms_fejl: float
     flag: str = None
 
     @property
@@ -145,13 +147,15 @@ def addneq_parse_observationline(line: str) -> dict:
 
     """
     station = line[5:9]
+    komponent = line[28]
+    koordinat = line[43:57]
     obsfra = line[94:113]
     obstil = line[114:133]
-    rms_fejl = line[61:68]
+    spredning = line[61:68]
     return dict(
         zip_longest(
-            ["STATION NAME", "FROM", "TO", "RMS_ERROR"],
-            [station, obsfra, obstil, rms_fejl],
+            ["STATION NAME", "TYPE", "VALUE", "FROM", "TO", "RMS_ERROR"],
+            [station, komponent, koordinat, obsfra, obstil, spredning],
         )
     )
 
@@ -290,15 +294,12 @@ class BerneseSolution(dict):
             station = Station(
                 navn=datalinje["STATION NAME"],
                 flag=datalinje["FLAG"],
-                koordinat=Koordinat(
-                    x=datalinje["X"], y=datalinje["Y"], z=datalinje["Z"]
-                ),
+                koordinat=Koordinat(),
                 kovarians=None,
                 spredning=None,
                 obsstart=None,
                 obsslut=None,
-                rms_fejl=None,
-            )  # kovarians, spredning, observationstider og RMS fejl bliver sat senere
+            )  # koordinat, kovarians, spredning og observationstider bliver sat senere
             self[datalinje["STATION NAME"]] = station
 
     def cov_parse(self, cov_data: list) -> None:
@@ -351,17 +352,31 @@ class BerneseSolution(dict):
         første_sektion_ende = addneq_data.index("\n", første_sektion_begyndelse)
         første_sektion = addneq_data[første_sektion_begyndelse:første_sektion_ende]
 
-        # Så skal der udtrækkes observationslængder fra den første udklippede sektion
+        # Så skal der udtrækkes koordinater og observationslængder fra den første
+        # udklippede sektion. Data for hver station strækker sig over tre linjer,
+        # hvor hver linjer repræsenterer en koordinatkomponent.
         for linje in første_sektion:
             if not linje.isspace():  # skip evt. tomme linjer
                 observation = addneq_parse_observationline(linje)
-                self[observation["STATION NAME"]].obsstart = datetime.strptime(
-                    observation["FROM"], "%Y-%m-%d %H:%M:%S"
-                )
-                self[observation["STATION NAME"]].obsslut = datetime.strptime(
-                    observation["TO"], "%Y-%m-%d %H:%M:%S"
-                )
-                self[observation["STATION NAME"]].rms_fejl = observation["RMS_ERROR"]
+                station = observation["STATION NAME"]
+
+                if self[station].obsstart is None:
+                    self[station].obsstart = datetime.strptime(
+                        observation["FROM"], "%Y-%m-%d %H:%M:%S"
+                    )
+                    self[station].obsslut = datetime.strptime(
+                        observation["TO"], "%Y-%m-%d %H:%M:%S"
+                    )
+
+                if observation["TYPE"] == "X":
+                    self[station].koordinat.x = float(observation["VALUE"])
+                    self[station].koordinat.sx = float(observation["RMS_ERROR"])
+                if observation["TYPE"] == "Y":
+                    self[station].koordinat.y = float(observation["VALUE"])
+                    self[station].koordinat.sy = float(observation["RMS_ERROR"])
+                if observation["TYPE"] == "Z":
+                    self[station].koordinat.z = float(observation["VALUE"])
+                    self[station].koordinat.sz = float(observation["RMS_ERROR"])
 
         # Det samme gør sig ikke gældende med afsnittet om spredninger - der er som regel en tom linje efter hver
         # station, men der synes overskriften altid at være den samme

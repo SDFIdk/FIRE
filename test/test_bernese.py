@@ -56,10 +56,9 @@ def test_bernesesolution():
     assert reader1["BOR1"].obsslut.minute == 59
     assert reader1["BOR1"].obsslut.second == 30
     assert str(reader1["BOR1"].obslængde) == "2 days, 23:59:30"
-    assert math.isclose(a=float(reader1["BUDP"].koordinat.x), b=3513638.26170)
-    assert math.isclose(a=float(reader1["BUDP"].koordinat.y), b=778956.38829)
-    assert math.isclose(a=float(reader1["BUDP"].koordinat.z), b=5248216.43002)
-    assert math.isclose(a=float(reader1["BOR1"].rms_fejl), b=0.00047)
+    assert math.isclose(a=reader1["BUDP"].koordinat.x, b=3513638.26170)
+    assert math.isclose(a=reader1["BUDP"].koordinat.y, b=778956.38829)
+    assert math.isclose(a=reader1["BUDP"].koordinat.z, b=5248216.43002)
 
     # Datasæt 2 - tidligste sæt med alle tre filer
 
@@ -91,10 +90,9 @@ def test_bernesesolution():
         zy=0.02412103176,
     )
     assert reader2["FYHA"].flag == "A"
-    assert math.isclose(a=float(reader2["BUDP"].koordinat.x), b=3513638.07857)
-    assert math.isclose(a=float(reader2["BUDP"].koordinat.y), b=778956.56481)
-    assert math.isclose(a=float(reader2["BUDP"].koordinat.z), b=5248216.53648)
-    assert math.isclose(a=float(reader2["BUDP"].rms_fejl), b=0.00047)
+    assert math.isclose(a=reader2["BUDP"].koordinat.x, b=3513638.07857)
+    assert math.isclose(a=reader2["BUDP"].koordinat.y, b=778956.56481)
+    assert math.isclose(a=reader2["BUDP"].koordinat.z, b=5248216.53648)
 
     # Datasæt 3 - nyeste sæt med alle tre filer
 
@@ -141,10 +139,21 @@ def test_bernesesolution():
         zy=0.01515196666,
     )
     assert reader3["FYHA"].flag == "A"
-    assert math.isclose(a=float(reader3["BUDP"].koordinat.x), b=3513638.01440)
-    assert math.isclose(a=float(reader3["BUDP"].koordinat.y), b=778956.62349)
-    assert math.isclose(a=float(reader3["BUDP"].koordinat.z), b=5248216.57412)
-    assert math.isclose(a=float(reader3["BUDP"].rms_fejl), b=0.00042)
+    assert math.isclose(a=reader3["BUDP"].koordinat.x, b=3513638.01440)
+    assert math.isclose(a=reader3["BUDP"].koordinat.y, b=778956.62349)
+    assert math.isclose(a=reader3["BUDP"].koordinat.z, b=5248216.57412)
+
+
+def test_bernese_koordinat():
+    """Test at koordinat fra ADDNEQ-fil læses korrekt."""
+    BUDP = BerneseSolution(ADDNEQ1886, CRD1886)["BUDP"]
+
+    assert BUDP.koordinat.x == 3513638.07857
+    assert BUDP.koordinat.y == 778956.56481
+    assert BUDP.koordinat.z == 5248216.53648
+    assert BUDP.koordinat.sx == 0.00034
+    assert BUDP.koordinat.sy == 0.00015
+    assert BUDP.koordinat.sz == 0.00047
 
 
 def test_bernesesolution_paths():
