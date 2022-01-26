@@ -210,3 +210,21 @@ def test_bernesesolution_paths():
 
     with pytest.raises(FileNotFoundError):
         BerneseSolution(ADDNEQ1886, CRD1886, "fil_findes_ikke")
+
+
+def test_bernese_residualer():
+    """
+    Test at dagsresidualer omregnes til kovariansmatrix korrekt.
+    """
+    BUDP = BerneseSolution(ADDNEQ2096, CRD2096, COV2096)["BUDP"]
+
+    vn = BUDP.dagsresidualer.kovarians_neu[0][0]
+    ve = BUDP.dagsresidualer.kovarians_neu[1][1]
+    vu = BUDP.dagsresidualer.kovarians_neu[2][2]
+
+    # spredninger er kun givet med to decimalers nøjagtighed i ADDNEQ-filen
+    # derfor testes med en relativt dårlig nøjagtighed. Det burde være
+    # tilstrækkeligt til at verificere at kovariansmatrixen er opstillet korrekt.
+    assert math.isclose(math.sqrt(vn), BUDP.dagsresidualer.sn, abs_tol=1e-2)
+    assert math.isclose(math.sqrt(ve), BUDP.dagsresidualer.se, abs_tol=1e-2)
+    assert math.isclose(math.sqrt(vu), BUDP.dagsresidualer.su, abs_tol=1e-2)

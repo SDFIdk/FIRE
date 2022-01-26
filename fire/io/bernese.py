@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Union
 import re
 
+import numpy as np
+
 """
 Dataklasser for et samlet sæt af beregninger (for en uge?), indsamlet fra ADDNEQ, CRD og COV output-filer fra
 Bernese.
@@ -60,6 +62,22 @@ class Dagsresidualer:
     sn: float = None
     se: float = None
     su: float = None
+
+    @property
+    def kovarians_neu(self) -> np.array:
+        """
+        Beregn kovariansmatrix fra residualer.
+
+        Returnerer som np.array med henblik på at lette efterfølgende
+        beregniner, fx rotation til geocentrisk koordinatrum.
+        """
+        return np.cov(
+            [
+                self.n_residualer,
+                self.e_residualer,
+                self.u_residualer,
+            ]
+        )
 
 
 @dataclass(order=True, eq=True)
