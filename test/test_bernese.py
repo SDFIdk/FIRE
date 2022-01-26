@@ -81,13 +81,14 @@ def test_bernesesolution():
     assert math.isclose(a=float(reader2["MAR6"].spredning.u), b=0.36)
     assert math.isclose(a=float(reader2["MAR6"].spredning.n_residualer[0]), b=-0.12)
 
+    w = 0.0009 ** 2
     assert reader2["ESBC"].kovarians == Kovarians(
-        xx=0.1442016297,
-        yy=0.02864337257,
-        zz=0.2674335932,
-        yx=0.01928893236,
-        zx=0.1507957187,
-        zy=0.02412103176,
+        xx=0.1442016297 * w,
+        yy=0.02864337257 * w,
+        zz=0.2674335932 * w,
+        yx=0.01928893236 * w,
+        zx=0.1507957187 * w,
+        zy=0.02412103176 * w,
     )
     assert reader2["FYHA"].flag == "A"
     assert math.isclose(a=reader2["BUDP"].koordinat.x, b=3513638.07857)
@@ -130,13 +131,14 @@ def test_bernesesolution():
     assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[1]), b=0.95)
     assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[2]), b=-0.87)
 
+    w = 0.0010 ** 2
     assert reader3["ONSA"].kovarians == Kovarians(
-        xx=0.06792032947,
-        yy=0.01283152234,
-        zz=0.1508975287,
-        yx=0.01151628674,
-        zx=0.07605137984,
-        zy=0.01515196666,
+        xx=0.06792032947 * w,
+        yy=0.01283152234 * w,
+        zz=0.1508975287 * w,
+        yx=0.01151628674 * w,
+        zx=0.07605137984 * w,
+        zy=0.01515196666 * w,
     )
     assert reader3["FYHA"].flag == "A"
     assert math.isclose(a=reader3["BUDP"].koordinat.x, b=3513638.01440)
@@ -154,6 +156,26 @@ def test_bernese_koordinat():
     assert BUDP.koordinat.sx == 0.00034
     assert BUDP.koordinat.sy == 0.00015
     assert BUDP.koordinat.sz == 0.00047
+
+
+def test_bernese_koordinat_kovarians():
+    """Test at den samlede løsnings kovariansmatrix læses korrekt."""
+    BUDP = BerneseSolution(ADDNEQ2096, CRD2096, COV2096)["BUDP"]
+
+    skalering = 0.001 ** 2
+    assert BUDP.kovarians.xx == 0.9145031116e-01 * skalering
+    assert BUDP.kovarians.yx == 0.1754111808e-01 * skalering
+    assert BUDP.kovarians.zx == 0.9706757931e-01 * skalering
+    assert BUDP.kovarians.yy == 0.1860172410e-01 * skalering
+    assert BUDP.kovarians.zy == 0.2230707662e-01 * skalering
+    assert BUDP.kovarians.zz == 0.1740501496e00 * skalering
+
+    # Kontroller at spredning bestemt fra kovariansmatrix er ens med spredning
+    # aflæst i ADDNEQ-filen. Vi har kun 5 decimaler til rådighed ved læsning af
+    # koordinatspredningerne derfor sættes abs_tol=1e-5
+    assert math.isclose(math.sqrt(BUDP.kovarians.xx), BUDP.koordinat.sx, abs_tol=1e-5)
+    assert math.isclose(math.sqrt(BUDP.kovarians.yy), BUDP.koordinat.sy, abs_tol=1e-5)
+    assert math.isclose(math.sqrt(BUDP.kovarians.zz), BUDP.koordinat.sz, abs_tol=1e-5)
 
 
 def test_bernesesolution_paths():

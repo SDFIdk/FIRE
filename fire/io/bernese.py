@@ -175,9 +175,20 @@ def addneq_parse_stddevline(line: str) -> dict:
     return {
         "STATION NAME": params[0],
         "DIRECTION": params[1],
-        "STDDEV": params[2],
-        "RES": params[3:],
+        "STDDEV": float(params[2]),
+        "RES": [float(x) for x in params[3:]],
     }
+
+
+def cov_parse_rms_unit_of_weight(line: str) -> float:
+    """
+    Læs 'RMS unit of weight' fra COV-fil.
+
+    Værdien find filens linje 7, der ser ud i stil med:
+
+    'RMS OF UNIT WEIGHT:  0.0010  # OBS:     328817  # UNKNOWNS:     5424'
+    """
+    return float(line[21:27])
 
 
 def cov_parse_dataline(line: str) -> dict:
@@ -313,6 +324,12 @@ class BerneseSolution(dict):
             if linje_nr == 1:
                 if crdcov_parse_weekline(line) != self.gnss_uge:
                     raise ValueError("Forskellige GNSS uger i CRD og COV!")
+
+            if linje_nr == 7:
+                # vægtenheden kvadreres da den bruges til at skalere
+                # kovarianserne i kovariansmatrixen. Enheden er da m^2.
+                rms_vægtenhed = cov_parse_rms_unit_of_weight(line) ** 2
+
             if linje_nr < 12 or line.isspace():  # data begynder på linje 12 i COV-filer
                 continue
             temp = cov_parse_dataline(line)
@@ -328,12 +345,12 @@ class BerneseSolution(dict):
             if not covarians:
                 continue  # ignorer stationer fra CRD som vi ikke har kovarianser for i COV-filen
             self[station].kovarians = Kovarians(
-                xx=covarians["XX"],
-                yy=covarians["YY"],
-                zz=covarians["ZZ"],
-                yx=covarians["YX"],
-                zx=covarians["ZX"],
-                zy=covarians["ZY"],
+                xx=covarians["XX"] * rms_vægtenhed,
+                yy=covarians["YY"] * rms_vægtenhed,
+                zz=covarians["ZZ"] * rms_vægtenhed,
+                yx=covarians["YX"] * rms_vægtenhed,
+                zx=covarians["ZX"] * rms_vægtenhed,
+                zy=covarians["ZY"] * rms_vægtenhed,
             )
 
     def addneq_parse(self, addneq_data: list) -> None:
