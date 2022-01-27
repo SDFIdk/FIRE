@@ -38,9 +38,8 @@ def test_bernesesolution():
     assert reader1.epoke.second == 0
     assert reader1.epoke.microsecond == 0
     assert reader1.datum == "IGb08"
-    assert math.isclose(reader1.a_posteriori_RMS, 0.00102)
     assert reader1.__sizeof__() == 640
-    assert reader1["MAR6"].spredning is None
+    assert reader1["MAR6"].dagsresidualer is None
     assert reader1["HERT"].kovarians is None
     assert reader1["HHLM"].flag == "A"
     assert reader1["BOR1"].obsstart.year == 2004
@@ -56,10 +55,9 @@ def test_bernesesolution():
     assert reader1["BOR1"].obsslut.minute == 59
     assert reader1["BOR1"].obsslut.second == 30
     assert str(reader1["BOR1"].obslængde) == "2 days, 23:59:30"
-    assert math.isclose(a=float(reader1["BUDP"].koordinat.x), b=3513638.26170)
-    assert math.isclose(a=float(reader1["BUDP"].koordinat.y), b=778956.38829)
-    assert math.isclose(a=float(reader1["BUDP"].koordinat.z), b=5248216.43002)
-    assert math.isclose(a=float(reader1["BOR1"].rms_fejl), b=0.00047)
+    assert math.isclose(a=reader1["BUDP"].koordinat.x, b=3513638.26170)
+    assert math.isclose(a=reader1["BUDP"].koordinat.y, b=778956.38829)
+    assert math.isclose(a=reader1["BUDP"].koordinat.z, b=5248216.43002)
 
     # Datasæt 2 - tidligste sæt med alle tre filer
 
@@ -75,26 +73,27 @@ def test_bernesesolution():
     assert reader2.epoke.second == 0
     assert reader2.epoke.microsecond == 0
     assert reader2.datum == "IGb08"
-    assert math.isclose(reader2.a_posteriori_RMS, 0.00091)
     assert reader2.__sizeof__() == 1176
-    assert math.isclose(a=float(reader2["MAR6"].spredning.n), b=0.12)
-    assert math.isclose(a=float(reader2["MAR6"].spredning.e), b=0.11)
-    assert math.isclose(a=float(reader2["MAR6"].spredning.u), b=0.36)
-    assert math.isclose(a=float(reader2["MAR6"].spredning.n_residualer[0]), b=-0.12)
+    assert math.isclose(a=float(reader2["MAR6"].dagsresidualer.sn), b=0.12)
+    assert math.isclose(a=float(reader2["MAR6"].dagsresidualer.se), b=0.11)
+    assert math.isclose(a=float(reader2["MAR6"].dagsresidualer.su), b=0.36)
+    assert math.isclose(
+        a=float(reader2["MAR6"].dagsresidualer.n_residualer[0]), b=-0.12
+    )
 
+    w = 0.0009 ** 2
     assert reader2["ESBC"].kovarians == Kovarians(
-        xx=0.1442016297,
-        yy=0.02864337257,
-        zz=0.2674335932,
-        yx=0.01928893236,
-        zx=0.1507957187,
-        zy=0.02412103176,
+        xx=0.1442016297 * w,
+        yy=0.02864337257 * w,
+        zz=0.2674335932 * w,
+        yx=0.01928893236 * w,
+        zx=0.1507957187 * w,
+        zy=0.02412103176 * w,
     )
     assert reader2["FYHA"].flag == "A"
-    assert math.isclose(a=float(reader2["BUDP"].koordinat.x), b=3513638.07857)
-    assert math.isclose(a=float(reader2["BUDP"].koordinat.y), b=778956.56481)
-    assert math.isclose(a=float(reader2["BUDP"].koordinat.z), b=5248216.53648)
-    assert math.isclose(a=float(reader2["BUDP"].rms_fejl), b=0.00047)
+    assert math.isclose(a=reader2["BUDP"].koordinat.x, b=3513638.07857)
+    assert math.isclose(a=reader2["BUDP"].koordinat.y, b=778956.56481)
+    assert math.isclose(a=reader2["BUDP"].koordinat.z, b=5248216.53648)
 
     # Datasæt 3 - nyeste sæt med alle tre filer
 
@@ -112,7 +111,6 @@ def test_bernesesolution():
     assert reader3.epoke.microsecond == 0
     assert reader3.__sizeof__() == 1176
     assert reader3.datum == "IGS14"
-    assert math.isclose(reader3.a_posteriori_RMS, 0.00101)
     assert reader3["RIKO"].obsstart.year == 2020
     assert reader3["RIKO"].obsstart.month == 3
     assert reader3["RIKO"].obsstart.day == 10
@@ -125,26 +123,62 @@ def test_bernesesolution():
     assert reader3["RIKO"].obsslut.hour == 23
     assert reader3["RIKO"].obsslut.minute == 59
     assert reader3["RIKO"].obsslut.second == 30
-    assert math.isclose(a=float(reader3["MAR6"].spredning.n), b=0.91)
-    assert math.isclose(a=float(reader3["MAR6"].spredning.e), b=1.02)
-    assert math.isclose(a=float(reader3["MAR6"].spredning.u), b=2.98)
-    assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[0]), b=-0.07)
-    assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[1]), b=0.95)
-    assert math.isclose(a=float(reader3["MAR6"].spredning.n_residualer[2]), b=-0.87)
+    assert math.isclose(a=float(reader3["MAR6"].dagsresidualer.sn), b=0.91)
+    assert math.isclose(a=float(reader3["MAR6"].dagsresidualer.se), b=1.02)
+    assert math.isclose(a=float(reader3["MAR6"].dagsresidualer.su), b=2.98)
+    assert math.isclose(
+        a=float(reader3["MAR6"].dagsresidualer.n_residualer[0]), b=-0.07
+    )
+    assert math.isclose(a=float(reader3["MAR6"].dagsresidualer.n_residualer[1]), b=0.95)
+    assert math.isclose(
+        a=float(reader3["MAR6"].dagsresidualer.n_residualer[2]), b=-0.87
+    )
 
+    w = 0.0010 ** 2
     assert reader3["ONSA"].kovarians == Kovarians(
-        xx=0.06792032947,
-        yy=0.01283152234,
-        zz=0.1508975287,
-        yx=0.01151628674,
-        zx=0.07605137984,
-        zy=0.01515196666,
+        xx=0.06792032947 * w,
+        yy=0.01283152234 * w,
+        zz=0.1508975287 * w,
+        yx=0.01151628674 * w,
+        zx=0.07605137984 * w,
+        zy=0.01515196666 * w,
     )
     assert reader3["FYHA"].flag == "A"
-    assert math.isclose(a=float(reader3["BUDP"].koordinat.x), b=3513638.01440)
-    assert math.isclose(a=float(reader3["BUDP"].koordinat.y), b=778956.62349)
-    assert math.isclose(a=float(reader3["BUDP"].koordinat.z), b=5248216.57412)
-    assert math.isclose(a=float(reader3["BUDP"].rms_fejl), b=0.00042)
+    assert math.isclose(a=reader3["BUDP"].koordinat.x, b=3513638.01440)
+    assert math.isclose(a=reader3["BUDP"].koordinat.y, b=778956.62349)
+    assert math.isclose(a=reader3["BUDP"].koordinat.z, b=5248216.57412)
+
+
+def test_bernese_koordinat():
+    """Test at koordinat fra ADDNEQ-fil læses korrekt."""
+    BUDP = BerneseSolution(ADDNEQ1886, CRD1886)["BUDP"]
+
+    assert BUDP.koordinat.x == 3513638.07857
+    assert BUDP.koordinat.y == 778956.56481
+    assert BUDP.koordinat.z == 5248216.53648
+    assert BUDP.koordinat.sx == 0.00034
+    assert BUDP.koordinat.sy == 0.00015
+    assert BUDP.koordinat.sz == 0.00047
+
+
+def test_bernese_koordinat_kovarians():
+    """Test at den samlede løsnings kovariansmatrix læses korrekt."""
+    BUDP = BerneseSolution(ADDNEQ2096, CRD2096, COV2096)["BUDP"]
+
+    skalering = 0.001 ** 2
+    assert BUDP.kovarians.xx == 0.9145031116e-01 * skalering
+    assert BUDP.kovarians.yx == 0.1754111808e-01 * skalering
+    assert BUDP.kovarians.zx == 0.9706757931e-01 * skalering
+    assert BUDP.kovarians.yy == 0.1860172410e-01 * skalering
+    assert BUDP.kovarians.zy == 0.2230707662e-01 * skalering
+    assert BUDP.kovarians.zz == 0.1740501496e00 * skalering
+
+    # Kontroller at spredning bestemt fra kovariansmatrix er ens med spredning
+    # aflæst i ADDNEQ-filen. Vi har kun 5 decimaler til rådighed ved læsning af
+    # koordinatspredningerne derfor sættes abs_tol=1e-5
+    assert math.isclose(math.sqrt(BUDP.kovarians.xx), BUDP.koordinat.sx, abs_tol=1e-5)
+    assert math.isclose(math.sqrt(BUDP.kovarians.yy), BUDP.koordinat.sy, abs_tol=1e-5)
+    assert math.isclose(math.sqrt(BUDP.kovarians.zz), BUDP.koordinat.sz, abs_tol=1e-5)
 
 
 def test_bernesesolution_paths():
@@ -173,3 +207,21 @@ def test_bernesesolution_paths():
 
     with pytest.raises(FileNotFoundError):
         BerneseSolution(ADDNEQ1886, CRD1886, "fil_findes_ikke")
+
+
+def test_bernese_residualer():
+    """
+    Test at dagsresidualer omregnes til kovariansmatrix korrekt.
+    """
+    BUDP = BerneseSolution(ADDNEQ2096, CRD2096, COV2096)["BUDP"]
+
+    vn = BUDP.dagsresidualer.kovarians_neu[0][0]
+    ve = BUDP.dagsresidualer.kovarians_neu[1][1]
+    vu = BUDP.dagsresidualer.kovarians_neu[2][2]
+
+    # spredninger er kun givet med to decimalers nøjagtighed i ADDNEQ-filen
+    # derfor testes med en relativt dårlig nøjagtighed. Det burde være
+    # tilstrækkeligt til at verificere at kovariansmatrixen er opstillet korrekt.
+    assert math.isclose(math.sqrt(vn), BUDP.dagsresidualer.sn, abs_tol=1e-2)
+    assert math.isclose(math.sqrt(ve), BUDP.dagsresidualer.se, abs_tol=1e-2)
+    assert math.isclose(math.sqrt(vu), BUDP.dagsresidualer.su, abs_tol=1e-2)

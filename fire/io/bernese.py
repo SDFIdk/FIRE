@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Union
 import re
 
+import numpy as np
+
 """
 Dataklasser for et samlet sæt af beregninger (for en uge?), indsamlet fra ADDNEQ, CRD og COV output-filer fra
 Bernese.
@@ -35,23 +37,47 @@ class Koordinat:
     XYZ-koordinat indsamlet fra en datalinje i CRD-output fil. Ikke at forveksle med fire.api.model.Koordinat
     """
 
-    x: float
-    y: float
-    z: float
+    x: float = None
+    y: float = None
+    z: float = None
+    sx: float = None
+    sy: float = None
+    sz: float = None
 
 
 @dataclass(order=True, eq=True)
-class RMS:
+class Dagsresidualer:
     """
-    RMS spredning (North, East, Up) og residualer indsamlet fra ADDNEQ-output fil.
+    Koordinatresidualer for de enkelte dagsløsninger.
+
+    Koordinatesidualer givet komponentvis, et sæt pr døgn i løsningen. Spredning på
+    residualerne gemmes `sn`, `se`, `su`.
+
+    Residualerne er beregnet på topocentriske koordinater (North, East, Up).
     """
 
     n_residualer: list
     e_residualer: list
     u_residualer: list
-    n: float = None
-    e: float = None
-    u: float = None
+    sn: float = None
+    se: float = None
+    su: float = None
+
+    @property
+    def kovarians_neu(self) -> np.array:
+        """
+        Beregn kovariansmatrix fra residualer.
+
+        Returnerer som np.array med henblik på at lette efterfølgende
+        beregniner, fx rotation til geocentrisk koordinatrum.
+        """
+        return np.cov(
+            [
+                self.n_residualer,
+                self.e_residualer,
+                self.u_residualer,
+            ]
+        )
 
 
 @dataclass(order=True, eq=True)
@@ -63,10 +89,9 @@ class Station:
     navn: str
     koordinat: Koordinat
     kovarians: Kovarians
-    spredning: RMS
+    dagsresidualer: Dagsresidualer
     obsstart: datetime
     obsslut: datetime
-    rms_fejl: float
     flag: str = None
 
     @property
@@ -145,21 +170,26 @@ def addneq_parse_observationline(line: str) -> dict:
 
     """
     station = line[5:9]
+    komponent = line[28]
+    koordinat = line[43:57]
     obsfra = line[94:113]
     obstil = line[114:133]
-    rms_fejl = line[61:68]
+    spredning = line[61:68]
     return dict(
         zip_longest(
-            ["STATION NAME", "FROM", "TO", "RMS_ERROR"],
-            [station, obsfra, obstil, rms_fejl],
+            ["STATION NAME", "TYPE", "VALUE", "FROM", "TO", "RMS_ERROR"],
+            [station, komponent, koordinat, obsfra, obstil, spredning],
         )
     )
 
 
-def addneq_parse_stddevline(line: str) -> dict:
+def addneq_parse_residualline(line: str) -> dict:
     """
-    Parse en linje med RMS-spredning fra en ADDNEQ-fil, udtræk stationsnavn, samt retning (N/E/U), spredning og
-    derefter et vilkårligt antal døgnresidualer.
+    Parse en linje med dagsløsningsresidualer fra en ADDNEQ-fil.
+
+    Udtræk stationsnavn, samt retning (N/E/U), spredning og derefter et vilkårligt
+    antal døgnresidualer.
+
     En serie linjer kan se således ud:
 
     GESR             N    0.07      0.02   -0.06
@@ -171,9 +201,20 @@ def addneq_parse_stddevline(line: str) -> dict:
     return {
         "STATION NAME": params[0],
         "DIRECTION": params[1],
-        "STDDEV": params[2],
-        "RES": params[3:],
+        "STDDEV": float(params[2]),
+        "RES": [float(x) for x in params[3:]],
     }
+
+
+def cov_parse_rms_unit_of_weight(line: str) -> float:
+    """
+    Læs 'RMS unit of weight' fra COV-fil.
+
+    Værdien find filens linje 7, der ser ud i stil med:
+
+    'RMS OF UNIT WEIGHT:  0.0010  # OBS:     328817  # UNKNOWNS:     5424'
+    """
+    return float(line[21:27])
 
 
 def cov_parse_dataline(line: str) -> dict:
@@ -208,7 +249,6 @@ def cov_parse_dataline(line: str) -> dict:
 class BerneseSolution(dict):
     gnss_uge: int = None
     epoke: datetime = None
-    a_posteriori_RMS: None
     datum: str = None
 
     def __init__(
@@ -259,7 +299,7 @@ class BerneseSolution(dict):
             with open(cov_fil, "r") as cov:
                 self.cov_parse(cov.readlines())
 
-        # Endelig tilføjes observationslængde og spredning fra ADDNEQ-fil
+        # Endelig tilføjes observationslængde og dagsresidualer fra ADDNEQ-fil
         with open(addneq_fil, "r") as addneq:
             self.addneq_parse(addneq.readlines())
 
@@ -290,15 +330,12 @@ class BerneseSolution(dict):
             station = Station(
                 navn=datalinje["STATION NAME"],
                 flag=datalinje["FLAG"],
-                koordinat=Koordinat(
-                    x=datalinje["X"], y=datalinje["Y"], z=datalinje["Z"]
-                ),
+                koordinat=Koordinat(),
                 kovarians=None,
-                spredning=None,
+                dagsresidualer=None,
                 obsstart=None,
                 obsslut=None,
-                rms_fejl=None,
-            )  # kovarians, spredning, observationstider og RMS fejl bliver sat senere
+            )  # koordinat, kovarians, dagsresidualer og observationstider bliver sat senere
             self[datalinje["STATION NAME"]] = station
 
     def cov_parse(self, cov_data: list) -> None:
@@ -312,6 +349,12 @@ class BerneseSolution(dict):
             if linje_nr == 1:
                 if crdcov_parse_weekline(line) != self.gnss_uge:
                     raise ValueError("Forskellige GNSS uger i CRD og COV!")
+
+            if linje_nr == 7:
+                # vægtenheden kvadreres da den bruges til at skalere
+                # kovarianserne i kovariansmatrixen. Enheden er da m^2.
+                rms_vægtenhed = cov_parse_rms_unit_of_weight(line) ** 2
+
             if linje_nr < 12 or line.isspace():  # data begynder på linje 12 i COV-filer
                 continue
             temp = cov_parse_dataline(line)
@@ -327,12 +370,12 @@ class BerneseSolution(dict):
             if not covarians:
                 continue  # ignorer stationer fra CRD som vi ikke har kovarianser for i COV-filen
             self[station].kovarians = Kovarians(
-                xx=covarians["XX"],
-                yy=covarians["YY"],
-                zz=covarians["ZZ"],
-                yx=covarians["YX"],
-                zx=covarians["ZX"],
-                zy=covarians["ZY"],
+                xx=covarians["XX"] * rms_vægtenhed,
+                yy=covarians["YY"] * rms_vægtenhed,
+                zz=covarians["ZZ"] * rms_vægtenhed,
+                yx=covarians["YX"] * rms_vægtenhed,
+                zx=covarians["ZX"] * rms_vægtenhed,
+                zy=covarians["ZY"] * rms_vægtenhed,
             )
 
     def addneq_parse(self, addneq_data: list) -> None:
@@ -351,20 +394,35 @@ class BerneseSolution(dict):
         første_sektion_ende = addneq_data.index("\n", første_sektion_begyndelse)
         første_sektion = addneq_data[første_sektion_begyndelse:første_sektion_ende]
 
-        # Så skal der udtrækkes observationslængder fra den første udklippede sektion
+        # Så skal der udtrækkes koordinater og observationslængder fra den første
+        # udklippede sektion. Data for hver station strækker sig over tre linjer,
+        # hvor hver linjer repræsenterer en koordinatkomponent.
         for linje in første_sektion:
             if not linje.isspace():  # skip evt. tomme linjer
                 observation = addneq_parse_observationline(linje)
-                self[observation["STATION NAME"]].obsstart = datetime.strptime(
-                    observation["FROM"], "%Y-%m-%d %H:%M:%S"
-                )
-                self[observation["STATION NAME"]].obsslut = datetime.strptime(
-                    observation["TO"], "%Y-%m-%d %H:%M:%S"
-                )
-                self[observation["STATION NAME"]].rms_fejl = observation["RMS_ERROR"]
+                station = observation["STATION NAME"]
 
-        # Det samme gør sig ikke gældende med afsnittet om spredninger - der er som regel en tom linje efter hver
-        # station, men der synes overskriften altid at være den samme
+                if self[station].obsstart is None:
+                    self[station].obsstart = datetime.strptime(
+                        observation["FROM"], "%Y-%m-%d %H:%M:%S"
+                    )
+                    self[station].obsslut = datetime.strptime(
+                        observation["TO"], "%Y-%m-%d %H:%M:%S"
+                    )
+
+                if observation["TYPE"] == "X":
+                    self[station].koordinat.x = float(observation["VALUE"])
+                    self[station].koordinat.sx = float(observation["RMS_ERROR"])
+                if observation["TYPE"] == "Y":
+                    self[station].koordinat.y = float(observation["VALUE"])
+                    self[station].koordinat.sy = float(observation["RMS_ERROR"])
+                if observation["TYPE"] == "Z":
+                    self[station].koordinat.z = float(observation["VALUE"])
+                    self[station].koordinat.sz = float(observation["RMS_ERROR"])
+
+        # Det samme gør sig ikke gældende med afsnittet om koordinatresidualer for
+        # dagsløsningerne - der er som regel en tom linje efter hver station, men
+        # der synes overskriften altid at være den samme.
         # Dog er denne sektion til tider slet ikke til stede - i så fald skipper vi den
         try:
             anden_sektion_begynd = (
@@ -375,43 +433,29 @@ class BerneseSolution(dict):
             )
             anden_sektion = addneq_data[anden_sektion_begynd:anden_sektion_ende]
 
-            # Og spredning fra den anden udklippede sektion
-            stations_rms = {}
-            for station in self:
-                stations_rms[station] = {}  # opret en tabel med navne fra CRD parsing
+            # Og residualer fra den anden udklippede sektion
+            residualer = {station: {} for station in self}
             for linje in anden_sektion:
                 if not linje.isspace():  # skip evt. tomme linjer
-                    spredningslinje = addneq_parse_stddevline(linje)
-                    stations_rms[spredningslinje["STATION NAME"]][
-                        spredningslinje["DIRECTION"]
-                    ] = spredningslinje["STDDEV"]
-                    stations_rms[spredningslinje["STATION NAME"]][
-                        spredningslinje["DIRECTION"] + "RES"
-                    ] = spredningslinje["RES"]
-            for station in stations_rms:
-                if not stations_rms[station]:  # spring over stationer uden værdier
+                    residuallinje = addneq_parse_residualline(linje)
+                    residualer[residuallinje["STATION NAME"]][
+                        residuallinje["DIRECTION"]
+                    ] = residuallinje["STDDEV"]
+                    residualer[residuallinje["STATION NAME"]][
+                        residuallinje["DIRECTION"] + "RES"
+                    ] = residuallinje["RES"]
+
+            for station in residualer:
+                if not residualer[station]:  # spring over stationer uden værdier
                     continue
-                n = stations_rms[station]["N"]
-                e = stations_rms[station]["E"]
-                u = stations_rms[station]["U"]
-                nres = stations_rms[station]["NRES"]
-                eres = stations_rms[station]["ERES"]
-                ures = stations_rms[station]["URES"]
-                rms = RMS(
-                    n=n,
-                    e=e,
-                    u=u,
-                    n_residualer=nres,
-                    e_residualer=eres,
-                    u_residualer=ures,
+
+                self[station].dagsresidualer = Dagsresidualer(
+                    sn=residualer[station]["N"],
+                    se=residualer[station]["E"],
+                    su=residualer[station]["U"],
+                    n_residualer=residualer[station]["NRES"],
+                    e_residualer=residualer[station]["ERES"],
+                    u_residualer=residualer[station]["URES"],
                 )
-                self[station].spredning = rms
         except ValueError:
             pass
-
-        # Endelig skal vi bestemme RMS-spredning a posteriori fra en linje et tredje sted
-        tredje_sektion_begyndelse = (
-            addneq_data.index(" Statistics:                           \n")
-            + 13  # trettende linje efter overskriften finder vi 'A posteriori RMS of unit weight'
-        )
-        self.a_posteriori_RMS = float(addneq_data[tredje_sektion_begyndelse].split()[6])
