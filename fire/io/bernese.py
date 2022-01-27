@@ -249,7 +249,6 @@ def cov_parse_dataline(line: str) -> dict:
 class BerneseSolution(dict):
     gnss_uge: int = None
     epoke: datetime = None
-    a_posteriori_RMS: None
     datum: str = None
 
     def __init__(
@@ -460,10 +459,3 @@ class BerneseSolution(dict):
                 )
         except ValueError:
             pass
-
-        # Endelig skal vi bestemme RMS-spredning a posteriori fra en linje et tredje sted
-        tredje_sektion_begyndelse = (
-            addneq_data.index(" Statistics:                           \n")
-            + 13  # trettende linje efter overskriften finder vi 'A posteriori RMS of unit weight'
-        )
-        self.a_posteriori_RMS = float(addneq_data[tredje_sektion_begyndelse].split()[6])

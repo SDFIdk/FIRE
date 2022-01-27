@@ -38,7 +38,6 @@ def test_bernesesolution():
     assert reader1.epoke.second == 0
     assert reader1.epoke.microsecond == 0
     assert reader1.datum == "IGb08"
-    assert math.isclose(reader1.a_posteriori_RMS, 0.00102)
     assert reader1.__sizeof__() == 640
     assert reader1["MAR6"].dagsresidualer is None
     assert reader1["HERT"].kovarians is None
@@ -74,7 +73,6 @@ def test_bernesesolution():
     assert reader2.epoke.second == 0
     assert reader2.epoke.microsecond == 0
     assert reader2.datum == "IGb08"
-    assert math.isclose(reader2.a_posteriori_RMS, 0.00091)
     assert reader2.__sizeof__() == 1176
     assert math.isclose(a=float(reader2["MAR6"].dagsresidualer.sn), b=0.12)
     assert math.isclose(a=float(reader2["MAR6"].dagsresidualer.se), b=0.11)
@@ -113,7 +111,6 @@ def test_bernesesolution():
     assert reader3.epoke.microsecond == 0
     assert reader3.__sizeof__() == 1176
     assert reader3.datum == "IGS14"
-    assert math.isclose(reader3.a_posteriori_RMS, 0.00101)
     assert reader3["RIKO"].obsstart.year == 2020
     assert reader3["RIKO"].obsstart.month == 3
     assert reader3["RIKO"].obsstart.day == 10
