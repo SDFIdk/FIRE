@@ -23,13 +23,13 @@ from shapely import geometry
 import pandas as pd
 
 from fire.srid import SRID
-from fire.api.model import Geometry
-from fire.api.model.punkttyper import (
+from fire.api.model import (
     Punkt,
     ObservationstypeID,
     Observation,
     GeometriskKoteforskel,
     TrigonometriskKoteforskel,
+    Geometry,
 )
 from fire.api.niv.enums import (
     NivMetode,

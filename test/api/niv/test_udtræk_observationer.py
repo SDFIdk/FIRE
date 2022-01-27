@@ -7,7 +7,7 @@ import pytest
 from fire.api.model.geometry import (
     Geometry,
 )
-from fire.api.model.punkttyper import (
+from fire.api.model import (
     Punkt,
     ObservationstypeID,
     GeometriskKoteforskel as GK,

@@ -18,7 +18,7 @@ from typing import (
 
 import pandas as pd
 
-from fire.api.model.punkttyper import (
+from fire.api.model import (
     Koordinat,
     Punkt,
     ObservationstypeID,
