@@ -71,6 +71,11 @@ class Dagsresidualer:
         Returnerer som np.array med henblik på at lette efterfølgende
         beregniner, fx rotation til geocentrisk koordinatrum.
         """
+        # Hvis der kun er et sæt residualer kan vi ikke generere
+        # en meningsfyldt kovariansmatrix
+        if len(self.n_residualer) < 2:
+            return None
+
         return np.cov(
             [
                 self.n_residualer,
@@ -308,6 +313,14 @@ class BerneseSolution(dict):
         s += str(list(self.keys())) + ")"
 
         return s
+
+    def __lt__(self, other: "BerneseSolution"):
+        """
+        Gør BerneseSolution sorterbar.
+
+        Vi bruger GPS-ugen som sorteringsindeks.
+        """
+        return self.gnss_uge < other.gnss_uge
 
     def crd_parse(self, crd_data: list) -> None:
         """
