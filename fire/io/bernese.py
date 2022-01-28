@@ -314,6 +314,14 @@ class BerneseSolution(dict):
 
         return s
 
+    def __lt__(self, other: "BerneseSolution"):
+        """
+        Gør BerneseSolution sorterbar.
+
+        Vi bruger GPS-ugen som sorteringsindeks.
+        """
+        return self.gnss_uge < other.gnss_uge
+
     def crd_parse(self, crd_data: list) -> None:
         """
         Parse header og datalinjerne fra en koordinat (CRD) fil og opret stationer

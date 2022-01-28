@@ -245,3 +245,17 @@ def test_kovariansmatrix_nok_frihedsgrader():
         # bekræft at der ikke genereres en kovariansmatrix når der ikke
         # er tilstrækkeligt data
         assert MAR6.dagsresidualer.kovarians_neu is None
+
+
+def test_bernesesolution_sortering():
+    solutions = sorted(
+        [
+            BerneseSolution(ADDNEQ1886, CRD1886),
+            BerneseSolution(ADDNEQ2096, CRD2096),
+            BerneseSolution(ADDNEQ1273, CRD1273),
+        ]
+    )
+
+    assert solutions[0].gnss_uge == 1273
+    assert solutions[1].gnss_uge == 1886
+    assert solutions[2].gnss_uge == 2096
