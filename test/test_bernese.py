@@ -2,6 +2,7 @@
 Kør Bernese fillæser med testdata
 """
 import math
+import warnings
 from pathlib import Path
 
 import pytest
@@ -225,3 +226,22 @@ def test_bernese_residualer():
     assert math.isclose(math.sqrt(vn), BUDP.dagsresidualer.sn, abs_tol=1e-2)
     assert math.isclose(math.sqrt(ve), BUDP.dagsresidualer.se, abs_tol=1e-2)
     assert math.isclose(math.sqrt(vu), BUDP.dagsresidualer.su, abs_tol=1e-2)
+
+
+def test_kovariansmatrix_nok_frihedsgrader():
+    """
+    Test at residualkovariansmatrix håndteres pænt i tilfælde hvor der kun er
+    residualer fra en dagsløsning til rådighed.
+
+    Her tester vi med data fra MAR6-stationen hvor der er regnet en enkelt
+    dagsløsning.
+    """
+    MAR6 = BerneseSolution(ADDNEQ1886, CRD1886, COV1886)["MAR6"]
+
+    # numpy.cov giver en RuntimeWarning hvis der ikke er nok data
+    # til at lave en kovariansmatrix. Vi forsøger at undgå det men
+    # skulle det skal vil vi gerne gøres opmærksom på det.
+    with warnings.catch_warnings():
+        # bekræft at der ikke genereres en kovariansmatrix når der ikke
+        # er tilstrækkeligt data
+        assert MAR6.dagsresidualer.kovarians_neu is None
