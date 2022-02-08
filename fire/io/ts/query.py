@@ -66,10 +66,10 @@ ORDER BY
 
 
 def observationer_i_punktgruppe(
-    punktgruppe: list[str],
-    dato_fra: str,
-    dato_til: str,
-    observationstypeid: int,
+    punktgruppe,
+    dato_fra,
+    dato_til,
+    observationstypeid,
 ):
     comma_separated = "', '".join(punktgruppe)
     sql_tuple = f"(\n'{comma_separated}'\n)"
@@ -104,10 +104,10 @@ ORDER BY
 
 
 def observationer_for_tidsserie(
-    jessen_id: str,
-    dato_fra: str,
-    dato_til: str,
-    observationstypeid: int,
+    jessen_id,
+    dato_fra,
+    dato_til,
+    observationstypeid,
 ):
     return f"""\
 WITH tidsserie_punkter AS (

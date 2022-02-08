@@ -1,8 +1,6 @@
 from typing import (
     Any,
     Optional,
-    Union,
-    Mapping,
     Mapping,
     Union,
 )
@@ -48,7 +46,7 @@ def basisrække(arkdefinition: arkdef.ArkDefinitionType) -> RækkeType:
     return _basisrækker[h]
 
 
-OBSTYPE = {
+OBSTYPE: dict = {
     ObservationstypeID.geometrisk_koteforskel: NivMetode.MGL.name,
     ObservationstypeID.trigonometrisk_koteforskel: NivMetode.MTL.name,
 }

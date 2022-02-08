@@ -1,7 +1,10 @@
 from typing import (
     Any,
     Iterable,
+    Optional,
+    Union,
 )
+import datetime as dt
 
 import numpy as np
 
@@ -85,6 +88,8 @@ class TidsserieMapper(DataMapper):
         )
 
     def fra_intern(self, data: InternalData) -> Any:
+        assert data.resultat is not None, f"Resultat er `None`."
+
         jessen = self._data.get("jessen_punkt")
 
         def jessen_id_eller_ej(punkt_id):
@@ -94,9 +99,17 @@ class TidsserieMapper(DataMapper):
         return [
             TidsseriePost(
                 punkt_id=punkt.id,
-                dato=np.datetime64(punkt.gyldig.isoformat()),
+                dato=pydate_to_npdate(punkt.gyldig),
                 kote=punkt.kote,
                 jessen_id=jessen_id_eller_ej(punkt.id),
             )
             for punkt in data.resultat
         ]
+
+
+def pydate_to_npdate(
+    date: Optional[Union[dt.date, dt.datetime]] = None
+) -> np.datetime64:
+    if date is None:
+        raise ValueError("Date must be Python date or datetime.")
+    return np.datetime64(date.isoformat())

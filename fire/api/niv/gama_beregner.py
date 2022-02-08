@@ -12,6 +12,7 @@ from typing import (
     Any,
     Iterable,
     Final,
+    Optional,
 )
 import datetime as dt
 
@@ -26,15 +27,15 @@ FASTHOLD_IKKE: Final[str] = ""
 
 @dataclass
 class Observation:
-    journal: str
-    fra: str
-    til: str
-    koteforskel: float
-    nivlaengde: float
-    opstillinger: int
-    sigma: float
-    delta: float
-    type: str
+    journal: Optional[str]
+    fra: Optional[str]
+    til: Optional[str]
+    koteforskel: Optional[float]
+    nivlaengde: Optional[float]
+    opstillinger: Optional[int]
+    sigma: Optional[float]
+    delta: Optional[float]
+    type: Optional[str]
 
     def spredning(self) -> float:
         return beregn.spredning(
@@ -44,11 +45,11 @@ class Observation:
 
 @dataclass
 class Punkt:
-    id: str
-    fasthold: str
-    kote: float
-    sigma: float = None
-    gyldig: dt.datetime = None
+    id: Optional[str]
+    fasthold: Optional[str]
+    kote: Optional[float]
+    sigma: Optional[float] = None
+    gyldig: Optional[dt.datetime] = None
 
 
 @dataclass
@@ -61,11 +62,11 @@ class InternalData:
     estimerede: Iterable[str]
     gyldighedsdato: dt.datetime
     # Interne felter
-    _filnavn_gama_inddata: str = None
-    _filnavn_gama_uddata: str = None
-    _filnavn_gama_rapport: str = None
+    _filnavn_gama_inddata: Optional[str] = None
+    _filnavn_gama_uddata: Optional[str] = None
+    _filnavn_gama_rapport: Optional[str] = None
     # Resultat
-    resultat: Iterable[Punkt] = None
+    resultat: Optional[Iterable[Punkt]] = None
 
 
 @dataclass

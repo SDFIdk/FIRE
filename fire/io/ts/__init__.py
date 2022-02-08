@@ -6,20 +6,20 @@ Modul til tidserie-håndtering.
 import datetime as dt
 import itertools as it
 from typing import (
+    Any,
     Iterator,
     Iterable,
+    Optional,
     Union,
     Final,
 )
 
-import pandas as pd
+import pandas as pd  # type: ignore
 
 from fire.api.firedb import FireDb
 from fire.api.model.punkttyper import ObservationstypeID
 from fire.api.niv.gama_beregner import GamaBeregner
-from fire.io import regneark
 from fire.io.ts import query
-from fire.io import arkdef
 from fire.io.ts.beregning import TidsserieMapper
 from fire.io.ts.post import (
     TidsseriePost,
@@ -52,7 +52,7 @@ def fetchall(sql):
 # --- / TEMP
 
 
-def asdate(dato: Union[str, dt.datetime, dt.date]) -> dt.date:
+def asdate(dato: Any) -> Optional[dt.date]:
     """
     Konvertér dato til dato.
 
@@ -64,7 +64,9 @@ def asdate(dato: Union[str, dt.datetime, dt.date]) -> dt.date:
         try:
             return dt.datetime.strptime(dato, "%Y-%m-%d").date()
         except:
-            raise (f"Forventede ISO-8601-dato, men fik {dato!r}")
+            raise ValueError(
+                f"Forventede dato i formatet `yyyy-mm-dd`, men fik {dato!r}"
+            )
 
     if isinstance(dato, dt.datetime):
         return dato.date()
@@ -73,27 +75,18 @@ def asdate(dato: Union[str, dt.datetime, dt.date]) -> dt.date:
     return dato
 
 
-def standard_interval(
-    dato_fra: Union[dt.datetime, dt.date],
-    dato_til: Union[dt.datetime, dt.date],
-):
+def standard_interval() -> tuple[str, str]:
     """
-    Returnér dato-interval i ISO-8601-format.
-
-    Mangler én eller begge datoer, rettes `dato_fra` til
-    ca. et halvt år fra dags dato til idag.
+    Returnér dato-interval et halvt år tilbage (26 uger) i ISO-8601-format.
 
     """
-    # Start et halvt år tilbage, hvis én eller begge datoer i tidsrummet mangler.
     # TODO: Genbesøg detaljer, når resten er klar.
-    if dato_fra is None or dato_til is None:
-        til = dt.date.today()
-        fra = dt.date(til.year, til.month, 1) - dt.timedelta(weeks=26)
-        return fra.isoformat(), til.isoformat()
-    return dato_fra.isoformat(), dato_til.isoformat()
+    til = dt.date.today()
+    fra = dt.date(til.year, til.month, 1) - dt.timedelta(weeks=26)
+    return fra.isoformat(), til.isoformat()
 
 
-def hent_mulige_tidsserier(punkt_id: str) -> list:
+def hent_mulige_tidsserier(punkt_id: str) -> pd.DataFrame:
     sql = query.hent_mulige_tidsserier.format(punkt_id=punkt_id)
     return MuligTidsserie.map(fetchall(sql))
 
@@ -125,9 +118,9 @@ def hent_tidsserie(jessen_id: str) -> pd.DataFrame:
 
 
 def hent_observationer_i_punktgruppe(
-    punktgruppe: Iterable[str],
-    dato_fra: Union[dt.datetime, dt.date] = None,
-    dato_til: Union[dt.datetime, dt.date] = None,
+    punktgruppe: list[str],
+    dato_fra: Any = None,
+    dato_til: Any = None,
     asdf: bool = False,
 ) -> Union[Iterator[ObservationsPost], pd.DataFrame]:
     """
@@ -135,8 +128,10 @@ def hent_observationer_i_punktgruppe(
     ----------
     *   Punkgruppen er større end to punkter, da nedenstående forespørgsel ikke dur uden mindst to punkter, der er observeret mellem i løbet af det angivne tidsrum.
     """
-    dato_fra, dato_til = standard_interval(asdate(dato_fra), asdate(dato_til))
-    kwargs = dict(
+    dato_fra, dato_til = asdate(dato_fra), asdate(dato_til)
+    if None in {dato_fra, dato_til}:
+        dato_fra, dato_til = standard_interval()
+    kwargs: dict[Any, Any] = dict(
         punktgruppe=punktgruppe,
         dato_fra=dato_fra,
         dato_til=dato_til,
@@ -153,16 +148,18 @@ def hent_observationer_i_punktgruppe(
 
 def hent_observationer_for_tidsserie(
     jessen_id: str,
-    dato_fra: dt.datetime = None,
-    dato_til: dt.datetime = None,
+    dato_fra: Any = None,
+    dato_til: Any = None,
     asdf: bool = False,
 ) -> Union[Iterator[ObservationsPost], pd.DataFrame]:
     """
     Henter nivellement-observationer (MGL/MTL) for tidsserien med Jessen-punktet `jessen_id`.
 
     """
-    dato_fra, dato_til = standard_interval(asdate(dato_fra), asdate(dato_til))
-    kwargs = dict(
+    dato_fra, dato_til = asdate(dato_fra), asdate(dato_til)
+    if None in {dato_fra, dato_til}:
+        dato_fra, dato_til = standard_interval()
+    kwargs: dict[Any, Any] = dict(
         jessen_id=jessen_id,
         dato_fra=dato_fra,
         dato_til=dato_til,
@@ -194,7 +191,7 @@ def fjern_punkter_med_for_få_tidsskridt(tidsserie, N=2):
 def beregn_tidsserie_koter(
     jessen_punkt: pd.Series,
     observationer: Iterable[ObservationsPost],
-) -> pd.DataFrame:
+) -> list[TidsseriePost]:
     """
     Formål
     ------
@@ -222,3 +219,7 @@ def beregn_tidsserie_koter(
     beregner = GamaBeregner(TidsserieMapper())
     beregner.beregn(data)
     return beregner.resultat
+
+
+def ilæg_tidsserie_koter(jessen_id, punkter: list[TidsseriePost]) -> None:
+    pass
