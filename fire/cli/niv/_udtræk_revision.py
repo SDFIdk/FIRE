@@ -8,6 +8,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import text
 
+from fire.ident import klargør_identer_til_søgning
 from fire.api.model import Punkt
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
@@ -83,6 +84,7 @@ def udtræk_revision(
             opmålingsdistrikter.append(kriterie)
         else:
             løse_punkter.append(kriterie)
+    løse_punkter = klargør_identer_til_søgning(løse_punkter)
 
     if opmålingsdistrikter:
         distrikter = ",".join([f"'{d.upper()}'" for d in opmålingsdistrikter])
