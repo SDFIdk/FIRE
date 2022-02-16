@@ -250,10 +250,10 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         )
 
     # tilknyt diverse punktinfo baseret på fikspunktstypen
+    gi_punkter = []
     for punkt, fikspunktstype in zip(punkter.values(), fikspunktstyper):
         if fikspunktstype == FikspunktsType.GI:
-            gi = fire.cli.firedb.tilknyt_gi_nummer(punkt)
-            punktinfo.append(gi)
+            gi_punkter.append(punkt)
             punktinfo.append(PunktInformation(infotype=attr_gi_pit, punkt=punkt))
 
         if fikspunktstype == FikspunktsType.HØJDE:
@@ -264,6 +264,10 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
         if fikspunktstype == FikspunktsType.VANDSTANDSBRÆT:
             punktinfo.append(PunktInformation(infotype=attr_vandstand_pit, punkt=punkt))
+
+    # Tilknyt G.I-numre
+    gi_identer = fire.cli.firedb.tilknyt_gi_numre(gi_punkter)
+    punktinfo.extend(gi_identer)
 
     # Tilknyt landsnumre til punkter
     landsnumre = dict(
