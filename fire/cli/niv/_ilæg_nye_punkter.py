@@ -219,11 +219,15 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             )
 
         # Grundet den lidt kluntede løsning med AFM:nnnn punktinfo er fx AFM:2700 (bolt)
-        # registreret som en tekst-punktinformation (frem for flag, som ville være den ideelle løsning)
-        # og tekst attributten skal derfor udfyldes. Vi bruger tekstnøgle til afm_ids.
+        # registreret som en tekst-punktinformation (frem for flag, som ville være den
+        # ideelle løsning) og tekst attributten skal derfor udfyldes. Vi bruger
+        # tekstnøgle til afm_ids.
+        afm_txts = {v: k for k, v in afm_ids.items()}
         punktinfo.append(
             PunktInformation(
-                infotype=afmærkning_pit, punkt=punkt, tekst=afm.capitalize()
+                infotype=afmærkning_pit,
+                punkt=punkt,
+                tekst=afm_txts[afm_id].capitalize(),
             )
         )
 
