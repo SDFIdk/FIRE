@@ -40,12 +40,10 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
         projektnavn, "Nyetablerede punkter", arkdef.NYETABLEREDE_PUNKTER
     )
     try:
-        nyetablerede = nyetablerede.set_index("Landsnummer")
-    except:
+        nyetablerede = nyetablerede.set_index("Landsnummer", verify_integrity=True)
+    except ValueError:
         fire.cli.print("Der mangler landsnumre til nyetablerede punkter.")
-        fire.cli.print(
-            "Har du husket at lægge dem i databasen - og at kopiere fanebladet fra resultatfilen?"
-        )
+        fire.cli.print("Har du husket at lægge dem i databasen?")
         fire.cli.print("Fortsætter beregningen med brug af de foreløbige navne")
         nyetablerede = nyetablerede.set_index("Foreløbigt navn")
     nye_punkter = set(nyetablerede.index)
