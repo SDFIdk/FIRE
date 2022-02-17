@@ -311,3 +311,19 @@ def test_unit_tilknyt_landsnumre_fejl_punkttyper_exceptions(dummydb, mocker):
     fikspunktstyper = ["IKKE_EN_FIKSPUNKSTYPE"]
     with pytest.raises(ValueError):
         dummydb.tilknyt_landsnumre(punkter, fikspunktstyper)
+
+
+def test_unit_tilknyt_gi_numre(firedb, punktfabrik):
+    """
+    Test at tilknyt_gi_numre fungerer som forventet.
+    """
+    punkter = [punktfabrik() for _ in range(3)]
+    punktinfo = firedb.tilknyt_gi_numre(punkter)
+
+    assert punktinfo[0].infotype == firedb.hent_punktinformationtype("IDENT:GI")
+
+    assert punktinfo[0].tekst == "G.I.2223"
+    assert punktinfo[1].tekst == "G.I.2224"
+    assert punktinfo[2].tekst == "G.I.2225"
+
+    firedb.session.rollback()

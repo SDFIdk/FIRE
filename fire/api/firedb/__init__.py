@@ -118,30 +118,42 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
 
         return punktinfo
 
-    def tilknyt_gi_nummer(self, punkt: Punkt) -> PunktInformation:
+    def tilknyt_gi_numre(self, punkter: List[Punkt]) -> List[PunktInformation]:
         """
-        Tilknyt et G.I. ident til et punkt.
+        Tilknyt G.I. identer til punkter.
+
+        Det højest anvendt løbenummer findes og punkterne tildeles de næste numre
+        i rækken.
         """
+        pit_gi = self.hent_punktinformationtype("IDENT:GI")
+
+        def gi_ident(punkt, løbenummer):
+            return PunktInformation(
+                punkt=punkt, infotype=pit_gi, tekst=f"G.I.{løbenummer}"
+            )
+
         sql = text(
-            fr"""SELECT max(to_number(regexp_substr(pi.tekst, 'G.I.(.+)', 1, 1, '', 1))) lbnr FROM punktinfo pi
-                 JOIN punktinfotype pit ON pit.infotypeid=pi.infotypeid
+            fr"""SELECT
+                    max(to_number(
+                        regexp_substr(pi.tekst, 'G.I.(.+)', 1, 1, '', 1)
+                    )) lbnr
+                 FROM punktinfo pi
                  WHERE
-                 pi.registreringtil IS NULL
-                     AND
-                 pit.infotype = 'IDENT:GI'
-                     AND
-                 pi.tekst LIKE 'G.I.%'
-                     AND
-                 pi.tekst != 'G.I.9999'
+                    pi.registreringtil IS NULL
+                        AND
+                    pi.infotypeid = {pit_gi.infotypeid}
+                        AND
+                    pi.tekst LIKE 'G.I.%'
+                        AND
+                    pi.tekst != 'G.I.9999'
                  ORDER BY pi.tekst DESC
                  """
         )
 
-        løbenummer = self.session.execute(sql).first()[0]
-        gi_ident = self.hent_punktinformationtype("IDENT:GI")
-        return PunktInformation(
-            punktid=punkt.id, infotype=gi_ident, tekst=f"G.I.{løbenummer+1}"
-        )
+        # Først ledige løbenummer
+        løbenr = self.session.execute(sql).first()[0] + 1
+
+        return [gi_ident(p, lnr) for lnr, p in enumerate(punkter, start=løbenr)]
 
     def fejlmeld_koordinat(self, sagsevent: Sagsevent, koordinat: Koordinat):
         """
@@ -268,6 +280,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
             punktid: distrikt
             for distrikt, punktid in self.session.execute(statement).fetchall()
         }
+
         distrikter = [(temp[u], u) for u in uuider]
 
         return distrikter
