@@ -10,6 +10,7 @@ FIRE - FIkspunktREgister
     datamodel
     for_udviklere
     apps/index
+    tips/index
     api/modules
     workshop/index
 
