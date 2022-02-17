@@ -10,75 +10,71 @@ from fire.api.gama import GamaWriter
 
 def test_all_points(firedb: FireDb, tmp_path: Path):
     outfile = tmp_path / "all_points.xml"
-    output = open(outfile, "w")
-    writer = GamaWriter(firedb, output)
+    with open(outfile, "w") as output:
+        writer = GamaWriter(firedb, output)
 
-    writer.take_all_points()
-    writer.set_fixed_point_ids(["K-63-09946"])
+        writer.take_all_points()
+        writer.set_fixed_point_ids(["K-63-09946"])
 
-    parameters = configparser.ConfigParser()
-    parameters.read("fire-gama.ini")
-    writer.write(True, False, "test_all_points", parameters)
-    output.close
+        parameters = configparser.ConfigParser()
+        parameters.read("fire-gama.ini")
+        writer.write(True, False, "test_all_points", parameters)
 
 
 def test_in_polygon(firedb: FireDb, tmp_path: Path):
     outfile = tmp_path / "in_polygon.xml"
-    output = open(outfile, "w")
-    writer = GamaWriter(firedb, output)
+    with open(outfile, "w") as output:
+        writer = GamaWriter(firedb, output)
 
-    geometry = Geometry(
-        (
-            "POLYGON ((10.209 56.155, "
-            "10.209 56.158, "
-            "10.215 56.158, "
-            "10.215 56.155, "
-            "10.209 56.155))"
+        geometry = Geometry(
+            (
+                "POLYGON ((10.209 56.155, "
+                "10.209 56.158, "
+                "10.215 56.158, "
+                "10.215 56.155, "
+                "10.209 56.155))"
+            )
         )
-    )
-    observations = firedb.hent_observationer_naer_geometri(geometry, 5000)
-    writer.take_observations(observations)
+        observations = firedb.hent_observationer_naer_geometri(geometry, 5000)
+        writer.take_observations(observations)
 
-    writer.set_fixed_point_ids(["K-63-09946"])
+        writer.set_fixed_point_ids(["K-63-09946"])
 
-    parameters = configparser.ConfigParser()
-    parameters.read("fire-gama.ini")
-    writer.write(True, False, "test_in_polygon", parameters)
-    output.close
+        parameters = configparser.ConfigParser()
+        parameters.read("fire-gama.ini")
+        writer.write(True, False, "test_in_polygon", parameters)
     os.remove(outfile)
 
 
 def test_naer_geometry_time_interval(firedb: FireDb, tmp_path: Path):
     outfile = tmp_path / "near_geometry_time_interval.xml"
-    output = open(outfile, "w")
-    writer = GamaWriter(firedb, output)
+    with open(outfile, "w") as output:
+        writer = GamaWriter(firedb, output)
 
-    g = Geometry("POINT (10.200000 56.100000)")
-    observations = firedb.hent_observationer_naer_geometri(
-        g, 10000, datetime.datetime(2015, 10, 8), datetime.datetime(2018, 10, 9)
-    )
+        g = Geometry("POINT (10.200000 56.100000)")
+        observations = firedb.hent_observationer_naer_geometri(
+            g, 10000, datetime.datetime(2015, 10, 8), datetime.datetime(2018, 10, 9)
+        )
 
-    writer.take_observations(observations)
+        writer.take_observations(observations)
 
-    parameters = configparser.ConfigParser()
-    parameters.read("fire-gama.ini")
-    writer.write(True, False, "test_near_geometry_time_interval", parameters)
-    output.close
+        parameters = configparser.ConfigParser()
+        parameters.read("fire-gama.ini")
+        writer.write(True, False, "test_near_geometry_time_interval", parameters)
     os.remove(outfile)
 
 
 def test_naer_geometry(firedb: FireDb, tmp_path: Path):
     outfile = tmp_path / "near_geometry.xml"
-    output = open(outfile, "w")
-    writer = GamaWriter(firedb, output)
+    with open(outfile, "w") as output:
+        writer = GamaWriter(firedb, output)
 
-    g = Geometry("POINT (10.200000 56.100000)")
-    observations = firedb.hent_observationer_naer_geometri(g, 10000)
+        g = Geometry("POINT (10.200000 56.100000)")
+        observations = firedb.hent_observationer_naer_geometri(g, 10000)
 
-    writer.take_observations(observations)
+        writer.take_observations(observations)
 
-    parameters = configparser.ConfigParser()
-    parameters.read("fire-gama.ini")
-    writer.write(True, False, "test_near_geometry", parameters)
-    output.close
+        parameters = configparser.ConfigParser()
+        parameters.read("fire-gama.ini")
+        writer.write(True, False, "test_near_geometry", parameters)
     os.remove(outfile)

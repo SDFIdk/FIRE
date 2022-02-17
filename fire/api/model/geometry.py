@@ -18,6 +18,8 @@ __all__ = ["Geometry", "Point", "Bbox"]
 class Geometry(expression.Function):
     """Repræsenterer en geometri værdi."""
 
+    inherit_cache = True
+
     def __init__(self, geometry, srid=4326):
         if isinstance(geometry, str):
             self._geom = from_wkt(geometry)
@@ -54,6 +56,9 @@ class Geometry(expression.Function):
 
 
 class Point(Geometry):
+
+    inherit_cache = True
+
     def __init__(self, p, srid=4326):
         if isinstance(p, (list, tuple)):
             geom = dict(type="Point", coordinates=[p[0], p[1]])
