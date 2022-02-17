@@ -20,7 +20,7 @@ Start med at clone git repositoriet::
 
     > git clone https://github.com/Kortforsyningen/FIRE.git
 
-Et godt udviklingsmiljø at tage udgangspunkt i er `environment-dev.yaml`, som nemt
+Et godt udviklingsmiljø at tage udgangspunkt i er `environment-dev.yml`, som nemt
 installeres med Conda. Fra fire git-repositoriet køres::
 
     > conda env create --file environment-dev.yml
