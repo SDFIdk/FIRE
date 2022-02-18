@@ -11,6 +11,7 @@ from typing import (
 
 import click
 import pandas as pd
+from sqlalchemy.orm.exc import NoResultFound
 
 from fire.api.model import (
     Punkt,
@@ -18,7 +19,9 @@ from fire.api.model import (
     Sag,
 )
 from fire.io.regneark import arkdef
+from fire.ident import kan_være_gi_nummer
 import fire.cli
+from fire.cli import firedb
 
 
 # Undgå ANSI farvekoder i Sphinx HTML docs
@@ -384,8 +387,6 @@ def _geojson_filnavn(projektnavn: str, infiks: str, variant: str):
 def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
     """Omsæt punktinformationer til JSON-egnet dict"""
     for i in range(punkter.shape[0]):
-        punkt = punkter.at[i, "Punkt"]
-
         # Fastholdte punkter har ingen ny kote, så vi viser den gamle
         if punkter.at[i, "Ny kote"] is None:
             fastholdt = True
@@ -408,10 +409,22 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
         if delta is None:
             delta = 0.0
 
+        # Forbered punktnumre til attributtabellen. Hvis muligt finder vi information
+        # i databasen og bruger punktets landsnummer som ID, ellers bruges strengen
+        # der kommer fra Dataframe'n.
+        try:
+            punkt = firedb.hent_punkt(punkter.at[i, "Punkt"])
+            landsnr = punkt.landsnummer
+            gi_nummer = punkt.ident if kan_være_gi_nummer(punkt.ident) else ""
+        except NoResultFound:
+            landsnr = punkter.at[i, "Punkt"]
+            gi_nummer = ""
+
         feature = {
             "type": "Feature",
             "properties": {
-                "id": punkt,
+                "id": landsnr,
+                "GI": gi_nummer,
                 "H": kote,
                 "sH": sigma,
                 "Δ": delta,
