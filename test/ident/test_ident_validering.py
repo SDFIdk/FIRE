@@ -5,6 +5,7 @@ from fire.ident import (
     kan_være_købstadsnummer,
     kan_være_gnssid,
     kan_være_ident,
+    kan_være_gi_nummer,
 )
 
 
@@ -59,6 +60,28 @@ def test_kan_være_gnssid():
         ), f"Forventede, at `{gnssid}` kan være et GNSS-ID."
 
 
+def test_kan_være_gi_nummer():
+
+    eksisterende_gi_numre = [
+        ["G.M.144", "G.M.144.1", "G.M.143/144", "G.M.1456.1"],
+        ["G.M.1499/1500", "G.M.15", "G.M.2", "G.M.35/36.1"],
+        ["G.I.1601", "G.I.1602.1", "G.I.1856", "G.I.2403"],
+    ]
+
+    for gi_nummer in it.chain(*eksisterende_gi_numre):
+        assert kan_være_gi_nummer(
+            gi_nummer
+        ), f"Forventede, at `{gi_nummer}` kan være et GI-nummer."
+
+        assert kan_være_gi_nummer(
+            gi_nummer.replace(".", "")
+        ), f"Forventede, at `{gi_nummer.replace('.', '')}` kan være et GI-nummer."
+
+        assert kan_være_gi_nummer(
+            gi_nummer.lower()
+        ), f"Forventede, at `{gi_nummer.lower()}` kan være et GI-nummer."
+
+
 def test_kan_være_ident():
     eksisterende_identer = (
         # Landsnumre
@@ -78,6 +101,11 @@ def test_kan_være_ident():
         "SKAV",
         "SKGN",
         "SKI2",
+        # G.M./G.I.
+        "G.M.15",
+        "G.M.1499/1500",
+        "G.I.1602.1",
+        "G.I.2403",
     )
     for ident in eksisterende_identer:
         assert kan_være_ident(ident), f"Forventede, at `{ident}` kan være et ident."
