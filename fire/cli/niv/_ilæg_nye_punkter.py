@@ -232,14 +232,24 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         )
 
         # Tilføj punktbeskrivelsen som punktinformation, hvis anført
-        if not pd.isna(nyetablerede["Beskrivelse"][i]):
-            punktinfo.append(
-                PunktInformation(
-                    infotype=beskrivelse_pit,
-                    punkt=punkt,
-                    tekst=nyetablerede["Beskrivelse"][i],
-                )
+        beskrivelse = nyetablerede["Beskrivelse"][i]
+        if pd.isna(beskrivelse) or beskrivelse == "":
+            navn = nyetablerede["Foreløbigt navn"][i]
+            fire.cli.print(
+                f"FEJL: Beskrivelse for punkt '{navn}' ikke angivet!",
+                fg="white",
+                bg="red",
+                bold=True,
             )
+            fire.cli.firedb.session.rollback()
+            raise SystemExit
+        punktinfo.append(
+            PunktInformation(
+                infotype=beskrivelse_pit,
+                punkt=punkt,
+                tekst=beskrivelse,
+            )
+        )
 
         # Tilknyt regionskode til punktet
         punktinfo.append(opret_region_punktinfo(punkt))
