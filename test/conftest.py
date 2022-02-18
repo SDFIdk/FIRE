@@ -20,6 +20,8 @@ from fire.api.model import (
     EventType,
     Srid,
     Boolean,
+    GeometriObjekt,
+    Point,
 )
 from fire.io.regneark import (
     arkdef,
@@ -93,7 +95,12 @@ def punktfabrik(firedb, sagsevent: Sagsevent):
 
     def fabrik():
         sagsevent.eventtype = EventType.PUNKT_OPRETTET
-        p = Punkt(sagsevent=sagsevent)
+        p = Punkt(
+            sagsevent=sagsevent,
+            geometriobjekter=[
+                GeometriObjekt(sagsevent=sagsevent, geometri=Point((12.1, 55.5)))
+            ],
+        )
         firedb.session.add(p)
         return p
 

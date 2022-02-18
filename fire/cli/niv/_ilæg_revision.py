@@ -20,8 +20,6 @@ from fire.api.model import (
     Punkt,
     PunktInformation,
     PunktInformationTypeAnvendelse,
-    Sagsevent,
-    SagseventInfo,
     FikspunktsType,
 )
 from fire.io.regneark import arkdef
@@ -300,11 +298,8 @@ def ilæg_revision(
             )
 
     if len(nye_punkter) > 0 or len(nye_lokationer) > 0:
-        sagsevent = Sagsevent(
-            id=uuid(),
-            sagsid=sag.id,
-            sagseventinfos=[SagseventInfo(beskrivelse="Oprettelse af nye punkter")],
-            eventtype=EventType.PUNKT_OPRETTET,
+        sagsevent = sag.ny_sagsevent(
+            beskrivelse="Oprettelse af nye punkter",
             punkter=nye_punkter,
             geometriobjekter=nye_lokationer,
         )
@@ -400,11 +395,8 @@ def ilæg_revision(
             f"Opdatering af {n} koordinater til {', '.join(punktnavne)}"
         )
 
-        sagsevent = Sagsevent(
-            id=uuid(),
-            sagsid=sag.id,
-            sagseventinfos=[SagseventInfo(beskrivelse=koordinatoprettelsestekst)],
-            eventtype=EventType.KOORDINAT_BEREGNET,
+        sagsevent = sag.ny_sagsevent(
+            beskrivelse=koordinatoprettelsestekst,
             koordinater=nye_koordinater,
         )
         fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
@@ -611,29 +603,20 @@ def ilæg_revision(
         punkter_med_oprettelse.add(p.ident)
 
     if len(til_opret) > 0 or len(til_ret) > 0:
-        sagsevent = Sagsevent(
-            id=uuid(),
-            sagsid=sag.id,
-            sagseventinfos=[
-                SagseventInfo(beskrivelse="Opdatering af punktinformationer")
-            ],
+        sagsevent = sag.ny_event(
+            beskrivelse="Opdatering af punktinformationer",
             eventtype=EventType.PUNKTINFO_TILFOEJET,
             punktinformationer=[*til_opret, *til_ret],
         )
-
         fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
         sagsgang = opdater_sagsgang(sagsgang, sagsevent, sagsbehandler)
         flush()
 
     if len(til_sluk) > 0:
-        sagsevent = Sagsevent(
-            id=uuid(),
-            sagsid=sag.id,
-            sagseventinfos=[SagseventInfo(beskrivelse="Lukning af punktinformationer")],
-            eventtype=EventType.PUNKTINFO_FJERNET,
+        sagsevent = sag.ny_sagsevent(
+            beskrivelse="Lukning af punktinformationer",
             punktinformationer_slettede=til_sluk,
         )
-
         fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
         sagsgang = opdater_sagsgang(sagsgang, sagsevent, sagsbehandler)
         flush()

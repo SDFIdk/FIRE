@@ -1,4 +1,6 @@
 import enum
+from typing import List
+
 from sqlalchemy import Column, String, Integer, ForeignKey, LargeBinary
 from sqlalchemy.orm import relationship
 
@@ -40,6 +42,103 @@ class Sag(RegisteringFraObjekt):
     sagsinfos = relationship(
         "Sagsinfo", order_by="Sagsinfo.objektid", back_populates="sag"
     )
+
+    def ny_sagsevent(
+        self,
+        beskrivelse: str,
+        materialer: List[bytes] = [],
+        htmler: List[str] = [],
+        id: str = None,
+        **kwargs,
+    ) -> "Sagsevent":
+        """
+        Fabrik til oprettelse af nye sagsevents.
+
+        Oprettede sagsevents er altid tilknyttet sagen de blev skabt fra. Sagseventtypen
+        bestemmes automatisk ud fra det tilknyttede indhold.
+
+        `kwargs` føres direkte videre til Sagsevent og skal altså være et gyldigt
+        argument til Sagsevent. Fælgende muligheder er tilgængelige:
+
+            punkter
+            geometriobjekter
+            beregninger
+            koordinater
+            observationer
+            punktinformationer
+            grafikker
+            punktsamlinger
+            tidsserier
+            punkter_slettede
+            geometriobjekter_slettede
+            beregninger_slettede
+            koordinater_slettede
+            observationer_slettede
+            punktinformationer_slettede
+            grafikker_slettede
+            punktsamlinger_slettede
+            tidsserier_slettede
+        """
+
+        if not id:
+            id = fire.uuid()
+
+        # fmt: off
+        # Bestem EventType ud fra data tilknyttet sagsevent
+        eventtyper = {
+            EventType.PUNKT_OPRETTET: ("punkter", "geometriobjekter"),
+            EventType.PUNKT_NEDLAGT: ("punkter_slettede", "geometriobjekter_slettede"),
+            EventType.KOORDINAT_BEREGNET: ("koordinater", "beregninger"),
+            EventType.KOORDINAT_NEDLAGT: ("koordinater_slettede","beregninger_slettede"),
+            EventType.OBSERVATION_INDSAT: ("observationer", None),
+            EventType.OBSERVATION_NEDLAGT: ("observationer_slettede", None),
+            EventType.PUNKTINFO_TILFOEJET: ("punktinformationer", None),
+            EventType.PUNKTINFO_FJERNET: ("punktinformationer_slettede", None),
+            EventType.GRAFIK_INDSAT: ("grafikker", None),
+            EventType.GRAFIK_NEDLAGT: ("grafikker_slettede", None),
+            EventType.PUNKTGRUPPE_MODIFICERET: ("punktsamlinger", None),
+            EventType.PUNKTGRUPPE_NEDLAGT: ("punktsamlinger_slettede", None),
+            EventType.TIDSSERIE_MODIFICERET: ("tidsserier", None),
+            EventType.TIDSSERIE_NEDLAGT: ("tidsserier_slettede", None),
+        }
+        # fmt: on
+
+        materialer = [SagseventInfoMateriale(materiale=m) for m in materialer]
+        htmler = [SagseventInfoHtml(html=html) for html in htmler]
+        si = SagseventInfo(
+            beskrivelse=beskrivelse,
+            materialer=materialer,
+            htmler=htmler,
+        )
+
+        if not kwargs:
+            # intet data tilknyttet, det må være en kommentar
+            return Sagsevent(
+                sag=self,
+                id=id,
+                sagseventinfos=[si],
+                eventtype=EventType.KOMMENTAR,
+                **kwargs,
+            )
+
+        objekter = list(kwargs.keys())
+        for etype, (obligatorisk, valgfrit) in eventtyper.items():
+            if not obligatorisk in objekter:
+                continue
+            objekter.remove(obligatorisk)
+
+            if valgfrit:
+                if valgfrit in objekter:
+                    objekter.remove(valgfrit)
+
+            if not objekter:
+                return Sagsevent(
+                    sag=self, id=id, sagseventinfos=[si], eventtype=etype, **kwargs
+                )
+        else:
+            raise ValueError(
+                f"Uventede objekter forsøgt tilknyttet sagsevent: {objekter}"
+            )
 
     @property
     def aktiv(self) -> bool:
