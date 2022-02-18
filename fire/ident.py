@@ -17,6 +17,9 @@ KØBSTADSNUMMERMØNSTER = re.compile("^[Kk][ ]*-[0-9]*-[0-9]*$")
 GNSSID = re.compile("^[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]$")
 "Generaliseret mønster for GNSS-ID'er"
 
+GINUMMER = re.compile(r"^[Gg]\.?[IMim]\.?\d{1,4}(/\d{2,4})?(.\d)?$")
+"Generaliseret mønster for GM/GI-numre"
+
 
 def kan_være_landsnummer(s: str) -> bool:
     """
@@ -46,12 +49,25 @@ def kan_være_gnssid(s: str) -> bool:
     return GNSSID.match(s.strip())
 
 
-def kan_være_ident(s: str):
+def kan_være_gi_nummer(s: str) -> bool:
+    """
+    Returnerer sand, hvis `s` kan være et G.M./G.I. ident.
+
+    """
+    return GINUMMER.match(s.strip())
+
+
+def kan_være_ident(s: str) -> bool:
     """
     Returnerer sand, hvis `s` kan være en ident.
 
     """
-    return kan_være_landsnummer(s) or kan_være_købstadsnummer(s) or kan_være_gnssid(s)
+    return (
+        kan_være_landsnummer(s)
+        or kan_være_købstadsnummer(s)
+        or kan_være_gnssid(s)
+        or kan_være_gi_nummer(s)
+    )
 
 
 def reformater_landsnummer(ident: str) -> str:
@@ -73,7 +89,7 @@ def reformater_gnssid(ident: str) -> str:
     return str(ident).upper()
 
 
-def reformater_forstavelser(ident: str) -> str:
+def reformater_gi_nummer(ident: str) -> str:
     """
     Nogle hjørneafskæringer for hyppigt brugte navne.
 
@@ -105,7 +121,8 @@ def klargør_ident_til_søgning(ident: str) -> str:
     if kan_være_gnssid(ident):
         ident = reformater_gnssid(ident)
 
-    ident = reformater_forstavelser(ident)
+    if kan_være_gi_nummer(ident):
+        ident = reformater_gi_nummer(ident)
 
     return ident
 
