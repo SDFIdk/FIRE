@@ -16,7 +16,6 @@ from sqlalchemy.orm import sessionmaker
 from fire.api.model import (
     RegisteringTidObjekt,
     FikspunktregisterObjekt,
-    Konfiguration,
     Sagsevent,
     EventType,
     Observation,
@@ -92,13 +91,6 @@ class FireDbBase:
             connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
             echo=self.debug,
             execution_options=self._exe_opt,
-        )
-
-    def _hent_konfiguration(self):
-        return (
-            self.session.query(Konfiguration)
-            .filter(Konfiguration.objektid == 1)
-            .first()
         )
 
     def _luk_fikspunkregisterobjekt(
