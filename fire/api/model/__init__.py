@@ -126,21 +126,6 @@ class RegisteringTidObjekt(DeclarativeBase):
         return self._registreringtil
 
 
-class Konfiguration(DeclarativeBase):
-    """
-    Konfigurationstabel for FIRE.
-
-    Tabellen har det særpræg at der kun kan indlæses en række i den.
-    Den indeholder derfor altid den nye udgave af opsætningen. Tabellen
-    er skabt for at kunne holde styr på systemspecifikke detaljer, der
-    kan ændre sig over tid, fx basestier på et filsystem.
-    """
-
-    __tablename__ = "konfiguration"
-    objektid = Column(Integer, primary_key=True)
-    dir_skitser = Column(String, nullable=False)
-
-
 # Expose these types
 from .geometry import *
 from .punkttyper import *

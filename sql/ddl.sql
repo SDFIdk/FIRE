@@ -137,14 +137,6 @@ CREATE TABLE tidsserie_koordinat (
   koordinatobjektid INTEGER NOT NULL
 );
 
-CREATE TABLE konfiguration (
-  objektid INTEGER GENERATED ALWAYS AS IDENTITY (
-    START WITH
-      1 INCREMENT BY 1 ORDER NOCACHE
-  ) PRIMARY KEY,
-  dir_skitser VARCHAR(200) NOT NULL
-);
-
 
 CREATE TABLE observation (
   objektid INTEGER GENERATED ALWAYS AS IDENTITY (
@@ -427,9 +419,6 @@ ADD
     substr(SRID, 1, instr(SRID, ':') -1) IN ('DK', 'EPSG', 'GL', 'TS', 'IGS')
   ) ENABLE VALIDATE;
 
-
--- Index sikrer at der kun kan indsættes een række i tabellen
-CREATE UNIQUE INDEX konfiguration_only_one_row_idx ON konfiguration ('1');
 
 -- Index der skal sikre at der til samme punkt ikke tilføjes en koordinat
 -- med samme SRIDID, hvis denne ikke er afregistreret

@@ -212,18 +212,6 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         self.session.add(koordinat)
         self.session.commit()
 
-    @property
-    def basedir_skitser(self):
-        """Returner absolut del af sti til skitser."""
-        konf = self._hent_konfiguration()
-        return konf.dir_skitser
-
-    @property
-    def basedir_materiale(self):
-        """Returner absolut del af sti til sagsmateriale."""
-        konf = self._hent_konfiguration()
-        return konf.dir_materiale
-
     def _generer_tilladte_løbenumre(
         self, fikspunktstype: FikspunktsType
     ) -> Iterator[str]:
