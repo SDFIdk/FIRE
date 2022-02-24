@@ -77,6 +77,10 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         if str(obs.uuid) not in ["", "None", "nan"]:
             continue
 
+        # Indlæs IKKE slukkede observationer i databasen
+        if str(obs.Sluk) not in ["", "None", "nan"]:
+            continue
+
         # Vi skal bruge fra- og til-punkterne for at kunne oprette et
         # objekt af typen Observation
         try:
@@ -142,7 +146,9 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     observationer["uuid"] = alle_uuider
 
     fire.cli.print(sagseventtekst, fg="yellow", bold=True)
-    fire.cli.print(str(observationer[["Journal", "Fra", "Til", "uuid"]]))
+
+    obs_rapport = observationer[observationer["Sluk"] == ""]
+    fire.cli.print(str(obs_rapport[["Journal", "Fra", "Til", "uuid"]]))
 
     # Persister observationerne til databasen
     fire.cli.print(f"Skriver {len(til_registrering)} observationer")
