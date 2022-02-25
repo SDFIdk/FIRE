@@ -21,14 +21,7 @@ from fire.api.model import (
 from fire.io.regneark import arkdef
 from fire.ident import kan_være_gi_nummer
 import fire.cli
-from fire.cli import firedb
-
-
-# Undgå ANSI farvekoder i Sphinx HTML docs
-def grøn(tekst):
-    if "sphinx" in sys.modules:
-        return tekst
-    return click.style(tekst, fg="green")
+from fire.cli import firedb, grøn
 
 
 # ------------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 Kommandoliniebrugergrænsefladen (en command-line interface, CLI) til FIREs API.
 
 """
+import sys
 
 import click
 
@@ -74,6 +75,34 @@ def default_options(**kwargs):
         return func
 
     return _add_options
+
+
+def farvelæg(tekst: str, farve: str):
+    """
+    Farvelæg en tekst der udskrives via Click.
+    """
+    # Undgå ANSI farvekoder i Sphinx HTML docs
+    if "sphinx" in sys.modules:
+        return tekst
+
+    if not _show_colors:
+        return tekst
+
+    return click.style(tekst, fg=farve)
+
+
+def grøn(tekst: str):
+    """
+    Farv en tekst der udskrives via Click grøn.
+    """
+    return farvelæg(tekst, "green")
+
+
+def rød(tekst: str):
+    """
+    Farv en tekst der udskrives via Click rød.
+    """
+    return farvelæg(tekst, "red")
 
 
 def print(*args, **kwargs):
