@@ -208,7 +208,6 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
                 .rstrip(".")
                 .strip()
             )
-            nyetablerede.at[i, "Afmærkning"] = f"AFM:{afm_id} - {beskrivelse}"
 
         if afm_id == 4999:
             fire.cli.print(
