@@ -69,6 +69,9 @@ class FireDbLuk(FireDbBase):
         for observation in punkt.observationer_til:
             self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=False)
 
+        for grafik in punkt.grafikker:
+            self._luk_fikspunkregisterobjekt(grafik, sagsevent, commit=False)
+
         if commit:
             self.session.commit()
 

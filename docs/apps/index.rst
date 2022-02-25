@@ -8,4 +8,5 @@ Kommandolinjeprogrammer
     niv
     grafik
     gama
+    luk
 
