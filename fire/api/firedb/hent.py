@@ -233,7 +233,7 @@ class FireDbHent(FireDbBase):
         query = self.session.query(observationsklasse)
 
         if srid is not None:
-            query.join(k, k.punktid == observationsklasse.opstillingspunktid)
+            query = query.join(k, k.punktid == observationsklasse.opstillingspunktid)
             filtre.append(k.sridid == srid.sridid)
 
         filtre_and = and_(*filtre)
