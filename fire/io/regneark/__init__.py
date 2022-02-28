@@ -69,7 +69,12 @@ OBSERVATIONER_KONSTANTE_FELTER = {
     "Journal": "",
     "Sluk": "",
     "Kommentar": "",
-    "Kilde": "",
+    "T": -999,
+    "Sky": -999,
+    "Sol": -999,
+    "Vind": -990,
+    "Sigt": -999,
+    "Kilde": "Ingen",
     "Type": "",
 }
 
