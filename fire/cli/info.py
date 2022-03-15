@@ -125,7 +125,12 @@ def punktinforapport(punktinformationer: List[PunktInformation]) -> None:
         # efter mellemrum rykkes teksten ind på linje med resten af
         # attributteksten
         tekst = tekst.replace("\n", "\n" + " " * 30).replace("\r", "").rstrip(" \n")
-        tal = info.tal or ""
+
+        tal = info.tal
+        # info.tal *kan* være 0.0, derfor explicit tjek af Noneness
+        if info.tal is None:
+            tal = ""
+
         # marker slukkede punktinformationer med rød tekst og et minus tv for linjen
         if info.registreringtil:
             fire.cli.print(f" -{info.infotype.name:27} {tekst}{tal}", fg="red")
