@@ -117,7 +117,13 @@ def ilæg_revision(
     for row in lokation.to_dict("records"):
         punkt = fire.cli.firedb.hent_punkt(row["Punkt"])
         # gem her inden ny geometri tilknyttes punktet
-        (λ1, φ1) = punkt.geometri.koordinater
+        try:
+            (λ1, φ1) = punkt.geometri.koordinater
+        except AttributeError:
+            # hvis ikke punktet har en lokationskoordinat bruger vi (11, 56), da dette
+            # er koordinaten der skrives i revisionsregnearket ved udtræk når der
+            # mangler en lokationskoordinat.
+            (λ1, φ1) = (11.0, 56.0)
 
         go = læs_lokation(row["Ny værdi"])
         go.punkt = punkt
