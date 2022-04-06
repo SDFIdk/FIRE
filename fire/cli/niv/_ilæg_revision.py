@@ -29,7 +29,7 @@ from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
 
-from . import (
+from fire.cli.niv import (
     bekræft,
     find_faneblad,
     find_sag,
@@ -39,6 +39,76 @@ from . import (
     opret_region_punktinfo,
     er_projekt_okay,
 )
+from fire.cli.niv._udtræk_revision import LOKATION_DEFAULT
+
+
+def opret_punktnavne_til_ikke_oprettede_punkter(ark: pd.DataFrame) -> pd.DataFrame:
+    """
+    Finder ikke-oprettede punkter og skriver  ``NYTPUNKT<#>`` i feltet til punktnavnet.
+
+    Eksempel
+    --------
+
+        Før
+
+        |   Punkt   |         Attribut        | ... |
+        |-----------|-------------------------|-----|
+        |           | LOKATION                |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        |           | OPRET                   |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        |           | OPRET                   |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+
+        Efter
+
+        |   Punkt   |         Attribut        | ... |
+        |-----------|-------------------------|-----|
+        |           | LOKATION                |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        | NYTPUNKT0 | OPRET                   |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        | NYTPUNKT1 | OPRET                   |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+
+    """
+    til_oprettelse = ark.query("Attribut == 'OPRET'")
+    for i, _ in til_oprettelse.iterrows():
+        ark.loc[i, "Punkt"] = f"NYTPUNKT{i}"
+    return ark
+
+
+def udfyld_udeladte_identer(ark: pd.DataFrame) -> pd.DataFrame:
+    """
+    Udfyld udeladte identer
+
+    """
+    punkter = list(ark["Punkt"])
+    udfyldningsværdi = ""
+    for i in range(len(punkter)):
+        if punkter[i].strip() != "":
+            # Vi er i en række, hvor punktets Ident er med (første linie i punkt-oplysningerne)
+            # Opdatér udfyldningsværdi, så alle felter i samme kolonne, indtil vi rammer næste punkt, får tilskrevet samme værdi.
+            # TODO (JOAMO): Vi burde overskrive kildefeltet, da de andre felter udfyldes med en trimmet version af kildefeltets værdi.
+            udfyldningsværdi = punkter[i].strip()
+            continue
+        punkter[i] = udfyldningsværdi
+    ark["Punkt"] = punkter
+    return ark
 
 
 # ------------------------------------------------------------------------------
@@ -77,6 +147,8 @@ def ilæg_revision(
     fire.cli.print("")
 
     revision = find_faneblad(f"{projektnavn}-revision", "Revision", arkdef.REVISION)
+    revision = opret_punktnavne_til_ikke_oprettede_punkter(revision)
+    revision = udfyld_udeladte_identer(revision)
 
     # Frasortér irrelevante data
     # Undlad at behandle punkter, for hvilke der er sat et
@@ -156,7 +228,7 @@ def ilæg_revision(
             # hvis ikke punktet har en lokationskoordinat bruger vi (11, 56), da dette
             # er koordinaten der skrives i revisionsregnearket ved udtræk når der
             # mangler en lokationskoordinat.
-            (λ1, φ1) = (11.0, 56.0)
+            (λ1, φ1) = LOKATION_DEFAULT
 
         go = læs_lokation(row["Ny værdi"])
         go.punkt = punkt
