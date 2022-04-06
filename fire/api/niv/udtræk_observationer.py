@@ -22,7 +22,6 @@ import fiona
 from shapely import geometry
 import pandas as pd
 
-from fire.ident import kan_være_ident
 from fire.srid import SRID
 from fire.api.model import Geometry
 from fire.api.model.punkttyper import (
@@ -90,24 +89,6 @@ def filterkriterier(nøjagtigheder: Iterable[Nøjagtighed]) -> Spredninger:
         ObservationstypeID.geometrisk_koteforskel: krav(metoder=[NivMetode.MGL]),
         ObservationstypeID.trigonometrisk_koteforskel: krav(metoder=[NivMetode.MTL]),
     }
-
-
-def adskil_filnavne(tekststrenge: Iterable[str]) -> Tuple[str, str]:
-    tekststrenge = set(tekststrenge)
-    filnavne = {
-        tekststreng
-        for tekststreng in tekststrenge
-        if pathlib.Path(tekststreng).is_file()
-    }
-    return list(filnavne), list(tekststrenge - filnavne)
-
-
-def adskil_identer(tekststrenge: Iterable[str]) -> Tuple[str, str]:
-    tekststrenge = set(tekststrenge)
-    identer = {
-        tekststreng for tekststreng in tekststrenge if kan_være_ident(tekststreng)
-    }
-    return list(identer), list(tekststrenge - identer)
 
 
 def klargør_geometrifiler(geometrifiler: Iterable[str]) -> List[Geometry]:
