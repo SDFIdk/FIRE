@@ -127,8 +127,10 @@ def udtræk_revision(
         fire.cli.print(f"Punkt: {ident}")
 
         # Angiv ident og lokationskoordinat
+        lokations_id = None
         try:
             lokation = punkt.geometri.koordinater
+            lokations_id = punkt.geometri.objektid
         except AttributeError:
             fire.cli.print(
                 f"NB! {ident} mangler lokationskoordinat - bruger (11,56)",
@@ -138,12 +140,15 @@ def udtræk_revision(
             lokation = (11.0, 56.0)
 
         lokation = normaliser_lokationskoordinat(lokation[0], lokation[1], "DK", True)
+        lokation_repr = f"{lokation[1]:.3f} m   {lokation[0]:.3f} m"
         revision = revision.append(
             {
                 "Punkt": ident,
                 "Attribut": "LOKATION",
                 # Centimeterafrunding for lokationskoordinaten er rigeligt
-                "Tekstværdi": f"{lokation[1]:.3f} m   {lokation[0]:.3f} m",
+                "Tekstværdi": lokation_repr,
+                "Ny værdi": lokation_repr,
+                "id": lokations_id,
                 "Ikke besøgt": "x",
             },
             ignore_index=True,
@@ -206,6 +211,7 @@ def udtræk_revision(
                     "Attribut": attributnavn,
                     "Talværdi": tal,
                     "Tekstværdi": tekst,
+                    "Ny værdi": tekst,
                     "id": info.objektid,
                 },
                 ignore_index=True,
