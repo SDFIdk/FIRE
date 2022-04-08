@@ -5,7 +5,6 @@ from datetime import datetime
 from math import trunc, isnan
 
 import click
-import numpy as np
 import pandas as pd
 from pyproj import Proj, Geod
 from sqlalchemy.orm.exc import NoResultFound
@@ -140,6 +139,13 @@ def ilæg_revision(
     lokation = revision.query("Attribut == 'LOKATION'")
     lokation = lokation.query("`Ny værdi` != ''")
     for row in lokation.to_dict("records"):
+        # Ret kun, hvis værdien er forskellig fra den eksisterende.
+        # Rationale: udtræk-revision indsætter samme værdier i de to kolonner
+        # for at spare redigeringstid for brugerne.
+        # Samme logik bruges længere nede for attributterne.
+        if row["Tekstværdi"] == row["Ny værdi"]:
+            continue
+
         punkt = fire.cli.firedb.hent_punkt(row["Punkt"])
         # gem her inden ny geometri tilknyttes punktet
         try:
