@@ -78,6 +78,30 @@ def ilæg_revision(
 
     revision = find_faneblad(f"{projektnavn}-revision", "Revision", arkdef.REVISION)
 
+    # Frasortér irrelevante data
+    # Undlad at behandle punkter, for hvilke der er sat et
+    # `x` i kolonnen Ikke besøgt i første række for punktet.
+    #
+    # `find_faneblad` dropper tomme rækker ved indlæsning af regnearket,
+    # men opdaterer ikke indekset. Dét gør vi, inden rækkerne gennemgås:
+    revision = revision.reset_index(drop=True)
+    # Find række-intervaller
+    b_indekser = revision.Punkt.map(lambda s: s.strip() != '').values
+    start_positioner = revision.index[b_indekser].values.tolist()
+    slut_position = revision.index[-1] + 1
+    grænser = start_positioner + [slut_position]
+    # Slet rækker for ikke-besøgte punkter
+    for (start, stop) in zip(grænser[:-1], grænser[1:]):
+        ikke_besøgt = revision.loc[start]['Ikke besøgt'].strip().lower()
+        besøgt = ikke_besøgt != 'x'
+        if besøgt:
+            continue
+        revision = revision.drop(range(start, stop), axis='index')
+
+    if revision.empty:
+        fire.cli.print("Ingen besøgte punkter til ilægning. Stopper.", fg="yellow", bold=True)
+        raise SystemExit
+
     # Tildel navne til endnu ikke oprettede punkter
     oprettelse = revision.query("Attribut == 'OPRET'")
     for i, _ in oprettelse.iterrows():
@@ -115,6 +139,13 @@ def ilæg_revision(
     lokation = revision.query("Attribut == 'LOKATION'")
     lokation = lokation.query("`Ny værdi` != ''")
     for row in lokation.to_dict("records"):
+        # Ret kun, hvis værdien er forskellig fra den eksisterende.
+        # Rationale: udtræk-revision indsætter samme værdier i de to kolonner
+        # for at spare redigeringstid for brugerne.
+        # Samme logik bruges længere nede for attributterne.
+        if row["Tekstværdi"] == row["Ny værdi"]:
+            continue
+
         punkt = fire.cli.firedb.hent_punkt(row["Punkt"])
         # gem her inden ny geometri tilknyttes punktet
         try:
