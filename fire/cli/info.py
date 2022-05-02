@@ -116,7 +116,9 @@ def koordinat_linje(koord: Koordinat) -> str:
     return linje
 
 
-def punktinforapport(punktinformationer: List[PunktInformation]) -> None:
+def punktinforapport(
+    punktinformationer: List[PunktInformation], historik: bool
+) -> None:
     """
     Hjælpefunktion for 'punkt_fuld_rapport'.
     """
@@ -133,12 +135,16 @@ def punktinforapport(punktinformationer: List[PunktInformation]) -> None:
 
         # marker slukkede punktinformationer med rød tekst og et minus tv for linjen
         if info.registreringtil:
+            if not historik:
+                continue
             fire.cli.print(f" -{info.infotype.name:27} {tekst}{tal}", fg="red")
         else:
             fire.cli.print(f"  {info.infotype.name:27} {tekst}{tal}")
 
 
-def koordinatrapport(koordinater: List[Koordinat], options: str) -> None:
+def koordinatrapport(
+    koordinater: List[Koordinat], options: str, historik: bool
+) -> None:
     """
     Hjælpefunktion for 'punkt_fuld_rapport': Udskriv formateret koordinatliste
     """
@@ -152,7 +158,7 @@ def koordinatrapport(koordinater: List[Koordinat], options: str) -> None:
         if tskoord and not ts:
             continue
         if koord.registreringtil is not None:
-            if alle or (ts and tskoord):
+            if alle or (ts and tskoord) or historik:
                 fire.cli.print(". " + koordinat_linje(koord), fg="red")
         else:
             fire.cli.print("* " + koordinat_linje(koord), fg="green")
@@ -255,6 +261,7 @@ def punkt_fuld_rapport(
     opt_obs: str,
     opt_koord: str,
     opt_detaljeret: bool,
+    opt_historik: bool,
 ) -> None:
     """
     Rapportgenerator for funktionen 'punkt' nedenfor.
@@ -275,6 +282,8 @@ def punkt_fuld_rapport(
         for geometriobjekt in punkt.geometriobjekter:
             # marker slukkede geometriobjekter med rød tekst og et minus tv for linjen
             if geometriobjekt.registreringtil:
+                if not opt_historik:
+                    continue
                 fire.cli.print(
                     f" -Lokation                    {geometriobjekt.geometri}", fg="red"
                 )
@@ -287,7 +296,7 @@ def punkt_fuld_rapport(
 
     fire.cli.print(f"  Oprettelsesdato             {punkt.registreringfra}")
 
-    punktinforapport(punkt.punktinformationer)
+    punktinforapport(punkt.punktinformationer, opt_historik)
 
     if opt_detaljeret:
         fire.cli.print(f"  uuid                        {punkt.id}")
@@ -309,7 +318,7 @@ def punkt_fuld_rapport(
     if "ingen" not in opt_koord.split(","):
         fire.cli.print("")
         fire.cli.print("--- KOORDINATER ---", bold=True)
-        koordinatrapport(punkt.koordinater, opt_koord)
+        koordinatrapport(punkt.koordinater, opt_koord, opt_historik)
 
     if opt_obs != "":
         fire.cli.print("")
@@ -342,6 +351,13 @@ def punkt_fuld_rapport(
     help="Udskriv også sjældent anvendte elementer",
 )
 @click.option(
+    "-H",
+    "--historik",
+    is_flag=True,
+    default=False,
+    help="Udskriv også ikke-gældende elementer",
+)
+@click.option(
     "-n",
     "--antal",
     is_flag=False,
@@ -351,7 +367,13 @@ def punkt_fuld_rapport(
 @fire.cli.default_options()
 @click.argument("ident")
 def punkt(
-    ident: str, obs: str, koord: str, detaljeret: bool, antal: int, **kwargs
+    ident: str,
+    obs: str,
+    koord: str,
+    detaljeret: bool,
+    historik: bool,
+    antal: int,
+    **kwargs,
 ) -> None:
     """
     Vis al tilgængelig information om et fikspunkt
@@ -412,7 +434,9 @@ def punkt(
     for i, punkt in enumerate(punkter):
         if i == antal:
             break
-        punkt_fuld_rapport(punkt, punkt.ident, i + 1, n, obs, koord, detaljeret)
+        punkt_fuld_rapport(
+            punkt, punkt.ident, i + 1, n, obs, koord, detaljeret, historik
+        )
     if n > antal:
         fire.cli.print(
             f"Yderligere {n-antal} punkter fundet. Brug tilvalg '-n {n}' for at vise alle."
