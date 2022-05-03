@@ -355,7 +355,7 @@ def punkt_fuld_rapport(
     "--historik",
     is_flag=True,
     default=False,
-    help="Udskriv også ikke-gældende elementer",
+    help="Udskriv også ikke-gældende (historiske) elementer",
 )
 @click.option(
     "-n",
