@@ -57,6 +57,11 @@ def udtræk_revision(
         "ATTR:tabtgået",
         "ATTR:teknikpunkt",
         "ATTR:MV_punkt",
+        "REGION:EE",
+        "REGION:FO",
+        "REGION:GL",
+        "REGION:SE",
+        "REGION:SJ",
     ]
 
     # Disse attributter indgår ikke i punktrevisionen
