@@ -86,20 +86,22 @@ def ilæg_revision(
     # men opdaterer ikke indekset. Dét gør vi, inden rækkerne gennemgås:
     revision = revision.reset_index(drop=True)
     # Find række-intervaller
-    b_indekser = revision.Punkt.map(lambda s: s.strip() != '').values
+    b_indekser = revision.Punkt.map(lambda s: s.strip() != "").values
     start_positioner = revision.index[b_indekser].values.tolist()
     slut_position = revision.index[-1] + 1
     grænser = start_positioner + [slut_position]
     # Slet rækker for ikke-besøgte punkter
     for (start, stop) in zip(grænser[:-1], grænser[1:]):
-        ikke_besøgt = revision.loc[start]['Ikke besøgt'].strip().lower()
-        besøgt = ikke_besøgt != 'x'
+        ikke_besøgt = revision.loc[start]["Ikke besøgt"].strip().lower()
+        besøgt = ikke_besøgt != "x"
         if besøgt:
             continue
-        revision = revision.drop(range(start, stop), axis='index')
+        revision = revision.drop(range(start, stop), axis="index")
 
     if revision.empty:
-        fire.cli.print("Ingen besøgte punkter til ilægning. Stopper.", fg="yellow", bold=True)
+        fire.cli.print(
+            "Ingen besøgte punkter til ilægning. Stopper.", fg="yellow", bold=True
+        )
         raise SystemExit
 
     # Tildel navne til endnu ikke oprettede punkter
