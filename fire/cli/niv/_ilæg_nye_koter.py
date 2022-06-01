@@ -45,9 +45,6 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
 
-    sag = find_sag(projektnavn)
-    sagsgang = find_sagsgang(projektnavn)
-
     fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
 
