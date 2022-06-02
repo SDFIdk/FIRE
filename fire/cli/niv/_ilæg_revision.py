@@ -94,20 +94,75 @@ def opret_punktnavne_til_ikke_oprettede_punkter(ark: pd.DataFrame) -> pd.DataFra
 
 def udfyld_udeladte_identer(ark: pd.DataFrame) -> pd.DataFrame:
     """
-    Udfyld udeladte identer
+    Udfyld celler med udeladt ident i kolonnen Punkt.
+
+    Første linje/række af punkt-oplysningerne har punktets
+    ident i kolonnen Punkt, hvilket indikerer starten på et
+    nyt punkts informationer.
+
+    Formålet med funktionen er at tilføje punktets ident
+    til hver række med punktoplysninger for punktet og
+    frem til starten af næste punkt.
+
+   Eksempel
+    --------
+
+        Før
+
+        |   Punkt   |         Attribut        | ... |
+        |-----------|-------------------------|-----|
+        |  SKEJ     | LOKATION                |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        |  FYNO     | LOKATION                |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        |  OTTO     | LOKATION                |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+
+        Efter
+
+        |   Punkt   |         Attribut        | ... |
+        |-----------|-------------------------|-----|
+        |  SKEJ     | LOKATION                |     |
+        |  SKEJ     | ATTR:muligt_datumstabil |     |
+        |  SKEJ     | ...                     |     |
+        |  SKEJ     |                         |     |
+        |  SKEJ     |                         |     |
+        |  FYNO     | LOKATION                |     |
+        |  FYNO     | ATTR:muligt_datumstabil |     |
+        |  FYNO     | ...                     |     |
+        |  FYNO     |                         |     |
+        |  FYNO     |                         |     |
+        |  OTTO     | LOKATION                |     |
+        |  OTTO     | ATTR:muligt_datumstabil |     |
+        |  OTTO     | ...                     |     |
+
 
     """
+    # kopiér de eksisterende værdier i kolonnen Punkt
     punkter = list(ark["Punkt"])
+
+    # Udfyld med hvert punkts ident frem ti ldet næste punkt
     udfyldningsværdi = ""
-    for i in range(len(punkter)):
-        if punkter[i].strip() != "":
-            # Vi er i en række, hvor punktets Ident er med (første linie i punkt-oplysningerne)
-            # Opdatér udfyldningsværdi, så alle felter i samme kolonne, indtil vi rammer næste punkt, får tilskrevet samme værdi.
-            # TODO (JOAMO): Vi burde overskrive kildefeltet, da de andre felter udfyldes med en trimmet version af kildefeltets værdi.
-            udfyldningsværdi = punkter[i].strip()
-            continue
+    for (i, celleværdi_eksisterende) in enumerate(punkter):
+        if (trimmet := celleværdi_eksisterende.strip()) != "":
+            # Opdatér udfyldningsværdi, så alle felter
+            # i samme kolonne får tilskrevet samme
+            # værdi, indtil vi rammer næste punkt.
+            udfyldningsværdi = trimmet
+
+        # Overskriv kopien af den eksisterende værdi
         punkter[i] = udfyldningsværdi
+
+    # Overskriv den eksisterende kolonne med alle overskrevne værdier.
     ark["Punkt"] = punkter
+
     return ark
 
 
