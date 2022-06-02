@@ -27,10 +27,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Cache Oracle instantclient
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: oracle_cache
       env:
         # Increase this value to reset cache if environment-dev.yml has not changed
@@ -108,4 +108,3 @@ jobs:
       run: |
         pytest --cov=fire --cov-report=xml --ignore=test/read/ --ignore=test/write/
         bash <(curl -s https://codecov.io/bash)
-
