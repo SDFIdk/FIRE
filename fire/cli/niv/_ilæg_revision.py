@@ -29,7 +29,7 @@ from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
 
-from . import (
+from fire.cli.niv import (
     bekræft,
     find_faneblad,
     find_sag,
@@ -39,6 +39,131 @@ from . import (
     opret_region_punktinfo,
     er_projekt_okay,
 )
+from fire.cli.niv._udtræk_revision import LOKATION_DEFAULT
+
+
+def opret_punktnavne_til_ikke_oprettede_punkter(ark: pd.DataFrame) -> pd.DataFrame:
+    """
+    Finder ikke-oprettede punkter og skriver  ``NYTPUNKT<#>`` i feltet til punktnavnet.
+
+    Eksempel
+    --------
+
+        Før
+
+        |   Punkt   |         Attribut        | ... |
+        |-----------|-------------------------|-----|
+        |           | LOKATION                |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        |           | OPRET                   |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        |           | OPRET                   |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+
+        Efter
+
+        |   Punkt   |         Attribut        | ... |
+        |-----------|-------------------------|-----|
+        |           | LOKATION                |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        | NYTPUNKT0 | OPRET                   |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        | NYTPUNKT1 | OPRET                   |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+
+    """
+    til_oprettelse = ark.query("Attribut == 'OPRET'")
+    for i, _ in til_oprettelse.iterrows():
+        ark.loc[i, "Punkt"] = f"NYTPUNKT{i}"
+    return ark
+
+
+def udfyld_udeladte_identer(ark: pd.DataFrame) -> pd.DataFrame:
+    """
+    Udfyld celler med udeladt ident i kolonnen Punkt.
+
+    Første linje/række af punkt-oplysningerne har punktets
+    ident i kolonnen Punkt, hvilket indikerer starten på et
+    nyt punkts informationer.
+
+    Formålet med funktionen er at tilføje punktets ident
+    til hver række med punktoplysninger for punktet og
+    frem til starten af næste punkt.
+
+   Eksempel
+    --------
+
+        Før
+
+        |   Punkt   |         Attribut        | ... |
+        |-----------|-------------------------|-----|
+        |  SKEJ     | LOKATION                |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        |  FYNO     | LOKATION                |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+        |           |                         |     |
+        |           |                         |     |
+        |  OTTO     | LOKATION                |     |
+        |           | ATTR:muligt_datumstabil |     |
+        |           | ...                     |     |
+
+        Efter
+
+        |   Punkt   |         Attribut        | ... |
+        |-----------|-------------------------|-----|
+        |  SKEJ     | LOKATION                |     |
+        |  SKEJ     | ATTR:muligt_datumstabil |     |
+        |  SKEJ     | ...                     |     |
+        |  SKEJ     |                         |     |
+        |  SKEJ     |                         |     |
+        |  FYNO     | LOKATION                |     |
+        |  FYNO     | ATTR:muligt_datumstabil |     |
+        |  FYNO     | ...                     |     |
+        |  FYNO     |                         |     |
+        |  FYNO     |                         |     |
+        |  OTTO     | LOKATION                |     |
+        |  OTTO     | ATTR:muligt_datumstabil |     |
+        |  OTTO     | ...                     |     |
+
+
+    """
+    # kopiér de eksisterende værdier i kolonnen Punkt
+    punkter = list(ark["Punkt"])
+
+    # Udfyld med hvert punkts ident frem ti ldet næste punkt
+    udfyldningsværdi = ""
+    for (i, celleværdi_eksisterende) in enumerate(punkter):
+        if (trimmet := celleværdi_eksisterende.strip()) != "":
+            # Opdatér udfyldningsværdi, så alle felter
+            # i samme kolonne får tilskrevet samme
+            # værdi, indtil vi rammer næste punkt.
+            udfyldningsværdi = trimmet
+
+        # Overskriv kopien af den eksisterende værdi
+        punkter[i] = udfyldningsværdi
+
+    # Overskriv den eksisterende kolonne med alle overskrevne værdier.
+    ark["Punkt"] = punkter
+
+    return ark
 
 
 # ------------------------------------------------------------------------------
@@ -77,6 +202,8 @@ def ilæg_revision(
     fire.cli.print("")
 
     revision = find_faneblad(f"{projektnavn}-revision", "Revision", arkdef.REVISION)
+    revision = opret_punktnavne_til_ikke_oprettede_punkter(revision)
+    revision = udfyld_udeladte_identer(revision)
 
     # Frasortér irrelevante data
     # Undlad at behandle punkter, for hvilke der er sat et
@@ -156,7 +283,7 @@ def ilæg_revision(
             # hvis ikke punktet har en lokationskoordinat bruger vi (11, 56), da dette
             # er koordinaten der skrives i revisionsregnearket ved udtræk når der
             # mangler en lokationskoordinat.
-            (λ1, φ1) = (11.0, 56.0)
+            (λ1, φ1) = LOKATION_DEFAULT
 
         go = læs_lokation(row["Ny værdi"])
         go.punkt = punkt

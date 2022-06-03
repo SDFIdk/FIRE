@@ -34,8 +34,6 @@ from fire.api.niv.enums import (
 )
 from fire.api.niv.udtræk_observationer import (
     filterkriterier,
-    adskil_filnavne,
-    adskil_identer,
     polygoner,
     klargør_geometrifiler,
     søgefunktioner_med_valgte_metoder,
@@ -50,6 +48,10 @@ import fire.cli
 from fire.cli.niv import (
     niv as niv_command_group,
     er_projekt_okay,
+)
+from fire.cli.typologi import (
+    adskil_filnavne,
+    adskil_identer,
 )
 from fire.cli.click_types import Datetime
 
