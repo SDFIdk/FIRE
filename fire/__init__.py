@@ -2,10 +2,10 @@
 
 from uuid import uuid4
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 __license__ = "MIT"
-__author__ = "SDFE, Septima"
-__author_email__ = "grf@sdfe.dk"
+__author__ = "SDFI, Septima"
+__author_email__ = "grf@sdfi.dk"
 
 
 def uuid():
