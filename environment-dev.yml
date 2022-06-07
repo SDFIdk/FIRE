@@ -22,7 +22,6 @@ dependencies:
   - pytest-mock=3.6.*
   - pytest=6.2.*
   - python=3.9.*
-  - qgis=3.18.*
   - sphinx-click=2.5.*
   - sphinx=3.4.*
   - sphinx_rtd_theme=0.5.*
