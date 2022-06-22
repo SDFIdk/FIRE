@@ -8,27 +8,51 @@ import numpy as np
 import pandas as pd  # type: ignore
 
 
-class Post:
+def automap(cls):
     """
-    Klasse til nedarving i dataklasser, der spiller sammen med pandas.
+    Tilføj metode til at oversætte en liste af poster til
+    en liste af dataklasse-instanser af den givne type.
 
     """
+    @classmethod
+    def map(cls, rows: Iterable) -> pd.DataFrame:
+        """
+        Oversæt en liste af poster til en liste
+        af dataklasse-instanser af den givne type.
 
+        """
+        return (cls(*row) for row in rows)
+    cls.map = map
+    return cls
+
+
+def automap_pandas(cls):
+    """
+    Integrér pandas i Python-dataklasser.
+
+    """
     @classmethod
     def asdf(cls, rows: Iterable = None) -> pd.DataFrame:
+        """
+        Opret en Pandas DataFrame med dataklassens felter som kolonner.
+
+        Med en liste af poster, oversættes disse til den givne
+        dataklasse og alt returneres i en Pandas DataFrame.
+
+        """
         typedict = cls.__annotations__
         if rows is None:
             return pd.DataFrame(columns=typedict).astype(typedict)
         data = (cls(*row) for row in rows)
         return pd.DataFrame(data=data, columns=typedict).astype(typedict)
-
-    @classmethod
-    def map(cls, rows: Iterable) -> pd.DataFrame:
-        return (cls(*row) for row in rows)
+    cls.asdf = asdf
+    return cls
 
 
+@automap_pandas
+@automap
 @dataclass
-class TidsseriePost(Post):
+class TidsseriePost:
     punkt_id: Optional[str] = None
     dato: Optional[np.datetime64] = None
     kote: Optional[float] = None
@@ -37,8 +61,10 @@ class TidsseriePost(Post):
     landsnr: Optional[str] = None
 
 
+@automap_pandas
+@automap
 @dataclass
-class ObservationsPost(Post):
+class ObservationsPost:
     registreringfra: Optional[np.datetime64] = None
     opstillingspunktid: Optional[str] = None
     sigtepunktid: Optional[str] = None
@@ -52,8 +78,10 @@ class ObservationsPost(Post):
     uuid: Optional[str] = None
 
 
+@automap_pandas
+@automap
 @dataclass(order=True)
-class MuligTidsserie(Post):
+class MuligTidsserie:
     skridt: int
     srid: str
 
