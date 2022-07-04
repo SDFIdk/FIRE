@@ -471,7 +471,7 @@ præcist hvilke observationer der ligger til grund for en bestemt Koordinat.
 
 
 Tidsserier og PunktSamlinger
------------
+------------------------------
 
 Til understøttelse af tidsserieanalyser findes der i FIRE objekterne Tidsserie
 og PunktSamling. En tidsserie kan stå alene eller flere tidsserier kan grupperes
