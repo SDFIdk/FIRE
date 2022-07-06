@@ -7,12 +7,11 @@ Generelt
 --------
 
 Som grundlag for alt programmel der installeres i forbindelse med FIRE benyttes
-Conda. Conda er et værktøj der oprindeligt er udviklet til
+Mamba. Mamba er et værktøj der oprindeligt er udviklet til
 Python-udviklere med henblik på nemt at kunne installere moduler og holde styr
-på forskellige versioner af samme modul. I dag er Conda et mere generelt
+på forskellige versioner af samme modul. I dag er Mamba et mere generelt
 værktøj som gør det nemt at installere mange forskellige programmer. Læs mere om
-Conda `her
-<https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html>`_
+Mamba i SDFIs `Pythonvejledninger <https://sdfidk.github.io/SDFIPython/setup.html>`_
 
 Installation
 ------------
@@ -36,54 +35,40 @@ Oracle Instantclient
 
 Installer Oracle instantclient fra Software Centeret. Åben "Software Center" via Startmenuen.
 Søg efter "Oracle", der dukker flere muligheder op. Den korrekte er
-"Oracle 12.1.0.1 Client 64bit - Install" (versionsnummeret er muligvis anderledes). Følg
-instruktionerne på skærmen.
+"Oracle Client 19.3 KEFM-SDFE". Versionsnummeret er muligvis anderledes. Er der flere at vælge
+mellem tag da den med det højeste versionsnummer. Følg instruktionerne på skærmen.
 
 .. image:: figures/oraclefrasoftwarecenter.PNG
    :width: 800
    :alt: Oracle i softwarecenter
 
-Conda
-+++++
+Mamba (Conda)
+++++++++++++++
 
-Download og kør `Miniconda3-latest-Windows-x86_64.exe
-<https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe>`_.
+FIRE er en Python applikation hvorfor vi skal have Python installeret på computeren
+for at kunne afvikle programmet. Til det bruges Mamba. Under SDFIs side for
+Python-brugere findes en `installationsvejledning <https://sdfidk.github.io/SDFIPython/setup.html#den-fulde-vejledning>`_.
+Følg vejledningen indtil du kommer til overskriften "Demonstration".
 
-.. image:: figures/miniconda_start.PNG
-  :width: 400
-  :alt: Miniconda
+.. note::
 
-Installationen er forholdsvis triviel, og man kan trykke "next" i alle trin og
-slutte af med "install". Det indbefatter at Conda kun installeres til den
-lokale bruger ("just me") og at ingen af de avancerede muligheder slås til.
+    Tidligere har der været brugt både "Anaconda" og "Miniconda" til at installere
+    Python med. Konceptet er det samme med Mamba, og hvis du i forvejen har fx Miniconda
+    behøver du ikke starte forfra.
 
-.. image:: figures/miniconda_just_me.PNG
-  :width: 400
-  :alt: Miniconda - just me
+    Kommandoerne er de samme uanset hvilken type installation man har valgt. Derfor vil
+    der herunder være en del kommandolinjekald hvor programmet ``conda`` bruges.
 
-.. image:: figures/miniconda_bibliotek.PNG
-  :width: 400
-  :alt: Miniconda bibliotek
-
-.. image:: figures/miniconda_advanced.PNG
-  :width: 400
-  :alt: Miniconda advanced
-
-Når Conda er installeret kan du nu i start menuen finde "Anaconda Prompt
-(miniconda3)" Alle efterfølgende kommandoer i denne installationsvejledning skal
-afvikles i denne terminal. Det anbefales at lave en genvej til "Anaconda Prompt"
+Når Mamba er installeret kan du nu i start menuen finde "Miniforge Prompt (mambaforge)".
+Alle efterfølgende kommandoer i denne installationsvejledning skal
+afvikles i denne terminal. Det anbefales at lave en genvej til "Miniforge Prompt"
 i Windows' proceslinjen (åben programmet, højreklik på ikonet i proceslinjen,
 vælg "fastgør til proceslinje").
 
 FIRE
 +++++++++++++++++
 
-.. note::
-
-    Det er for nuværende mere kompliceret at installere koden end det bliver i fremtiden.
-    Hav tålmodighed, der er smartere løsninger på vej!
-
-Åbn "Anaconda Prompt". Start med at lave en ny mappe til FIRE koden og download
+Åbn "Miniforge Prompt". Start med at lave en ny mappe til FIRE koden og download
 den med git
 
 .. code-block::
