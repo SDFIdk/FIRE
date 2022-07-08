@@ -119,20 +119,17 @@ def lokationskoordinat_streng(lokation: tuple[float, float]) -> str:
     return f"{lokation[1]:.3f} m   {lokation[0]:.3f} m"
 
 
+def punkt_informationer_aktive(
+    punkt_informationer: list[PunktInformation],
+) -> list[PunktInformation]:
+    return [info for info in punkt_informationer if info.registreringtil is None]
 
-def punkt_informationer_aktive(punkt_informationer: list[PunktInformation]) -> list[PunktInformation]:
+
+def fjern_ignorerede(
+    punkt_informationer: list[PunktInformation], ignorerede: list[str]
+) -> list[PunktInformation]:
     return [
-        info
-        for info in punkt_informationer
-        if info.registreringtil is None
-    ]
-
-
-def fjern_ignorerede(punkt_informationer: list[PunktInformation], ignorerede: list[str]) -> list[PunktInformation]:
-    return [
-        info
-        for info in punkt_informationer
-        if info.infotype.name not in ignorerede
+        info for info in punkt_informationer if info.infotype.name not in ignorerede
     ]
 
 
@@ -141,16 +138,18 @@ def har_landsnr_lig_ident(info: PunktInformation, ident: str) -> bool:
     return info.infotype.name == "IDENT:landsnr" and info.tekst == ident
 
 
-def fjern_alle_med_ident(punkt_informationer: list[PunktInformation], ident: str) -> list[PunktInformation]:
+def fjern_alle_med_ident(
+    punkt_informationer: list[PunktInformation], ident: str
+) -> list[PunktInformation]:
     return [
-        info
-        for info in punkt_informationer
-        if not har_landsnr_lig_ident(info, ident)
+        info for info in punkt_informationer if not har_landsnr_lig_ident(info, ident)
     ]
 
 
 def flyt_attributter_til_toppen(
-    punkt_informationer: list[PunktInformation], *, prioritering: list[str] = ATTRIBUT_PRIORITERING
+    punkt_informationer: list[PunktInformation],
+    *,
+    prioritering: list[str] = ATTRIBUT_PRIORITERING,
 ) -> list:
     """
     Find prioriterede attributter og placér dem øverst i samme rækkefølge.
@@ -159,6 +158,7 @@ def flyt_attributter_til_toppen(
     deres rækkefølge i forhold til hinanden forbliver uændret.
 
     """
+
     def key(info: PunktInformation) -> int:
         if info.infotype.name not in prioritering:
             return 9999
@@ -175,11 +175,7 @@ mulig_datumstabil = partial(har_infotype, attribut="ATTR:muligt_datumstabil")
 
 
 def har_attr_muligt_datumstabil(punkt_informationer: list[PunktInformation]) -> bool:
-    return any(
-        mulig_datumstabil(punkt_info)
-        for punkt_info
-        in punkt_informationer
-    )
+    return any(mulig_datumstabil(punkt_info) for punkt_info in punkt_informationer)
 
 
 @niv_command_group.command()
@@ -261,7 +257,9 @@ def udtræk_revision(
 
         # Fjern punktinformationer, der ikke skal skrives til arket
         punkt_informationer = punkt_informationer_aktive(punkt.punktinformationer)
-        punkt_informationer = fjern_ignorerede(punkt_informationer, ignorerede_attributter)
+        punkt_informationer = fjern_ignorerede(
+            punkt_informationer, ignorerede_attributter
+        )
         punkt_informationer = fjern_alle_med_ident(punkt_informationer, ident)
 
         # Inden punkt-informationerne føjes til regnearket, flyt
