@@ -3,6 +3,7 @@ Kommandoliniebrugergrænsefladen (en command-line interface, CLI) til FIREs API.
 
 """
 import sys
+import os
 
 import click
 
@@ -124,3 +125,14 @@ def override_firedb(new_firedb: FireDb):
     """
     global firedb
     firedb = new_firedb
+
+
+def åbn_fil(fil: str) -> None:
+    """
+    Åben en fil med et passende program.
+
+    Wrapperfunktion til os.startfile, der gør det muligt at undlade filåbning
+    ved hjælp af indstilling i konfigurationsfil (`niv_open_files`).
+    """
+    if "startfile" in dir(os) and firedb.config.getboolean("general", "niv_open_files"):
+        os.startfile(fil)
