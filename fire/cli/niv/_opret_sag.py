@@ -118,7 +118,5 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
     }
 
     if skriv_ark(projektnavn, resultater):
-        # os.startfile() er kun tilgængelig på Windows
-        if "startfile" in dir(os):
-            fire.cli.print("Færdig! - åbner regneark for check.")
-            os.startfile(f"{projektnavn}.xlsx")
+        fire.cli.print("Færdig!")
+        fire.cli.åbn_fil(f"{projektnavn}.xlsx")

@@ -38,4 +38,6 @@ def test_udfyld_udeladte_identer():
     expected = nyt_ark(arkdef.REVISION).append(output_data, ignore_index=True)
 
     result = udfyld_udeladte_identer(ark)
-    assert all(result.Punkt == expected.Punkt), f"Expected \n\n{result}\n\nto be\n\n{expected}\n\n."
+    assert all(
+        result.Punkt == expected.Punkt
+    ), f"Expected \n\n{result}\n\nto be\n\n{expected}\n\n."

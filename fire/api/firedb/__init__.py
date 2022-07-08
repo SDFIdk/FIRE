@@ -133,7 +133,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
             )
 
         sql = text(
-            fr"""SELECT
+            rf"""SELECT
                     max(to_number(
                         regexp_substr(pi.tekst, 'G.I.(.+)', 1, 1, '', 1)
                     )) lbnr
@@ -284,7 +284,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         """
         landsnr = self.hent_punktinformationtype("IDENT:landsnr")
         sql = text(
-            fr"""SELECT lbnr
+            rf"""SELECT lbnr
                 FROM (
                     SELECT
                         regexp_substr(tekst, '.*-.*-(.+)', 1, 1, '', 1) lbnr

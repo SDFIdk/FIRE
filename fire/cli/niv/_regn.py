@@ -1,4 +1,3 @@
-import os
 import subprocess
 import sys
 import webbrowser
@@ -96,10 +95,10 @@ def regn(projektnavn: str, **kwargs) -> None:
         infiks=infiks,
     )
     skriv_ark(projektnavn, resultater)
-    webbrowser.open_new_tab(htmlrapportnavn)
-    if "startfile" in dir(os):
+    if fire.cli.firedb.config.getboolean("general", "niv_open_files"):
+        webbrowser.open_new_tab(htmlrapportnavn)
         fire.cli.print("Færdig! - åbner regneark og resultatrapport for check.")
-        os.startfile(f"{projektnavn}.xlsx")
+        fire.cli.åbn_fil(f"{projektnavn}.xlsx")
 
 
 # ------------------------------------------------------------------------------

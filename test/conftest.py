@@ -42,6 +42,7 @@ class DummyFireDb(FireDb):
 
 
 persistent_firedb = FireDb(db="ci", debug=False)
+persistent_firedb.config.set("general", "niv_open_files", "false")
 fire.cli.override_firedb(persistent_firedb)
 
 
