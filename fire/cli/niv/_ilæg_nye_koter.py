@@ -8,9 +8,6 @@ from fire import uuid
 from fire.api.model import (
     EventType,
     Koordinat,
-    Sagsevent,
-    SagseventInfo,
-    SagseventInfoHtml,
 )
 from fire.io.regneark import arkdef
 
@@ -56,9 +53,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     DVR90 = fire.cli.firedb.hent_srid("EPSG:5799")
     tid = gyldighedstidspunkt(projektnavn)
 
-    # Generer sagsevent
-    sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.KOORDINAT_BEREGNET)
-
+    event_id = uuid()
     til_registrering = []
     opdaterede_punkter = []
     for punktdata in punktoversigt.to_dict(orient="records"):
@@ -73,7 +68,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
         punkt = fire.cli.firedb.hent_punkt(punktdata["Punkt"])
         opdaterede_punkter.append(punkt)
-        punktdata["uuid"] = sagsevent.id
+        punktdata["uuid"] = event_id
 
         kote = Koordinat(
             srid=DVR90,
@@ -102,12 +97,14 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     sagseventtekst = f"Opdatering af DVR90 kote til {', '.join(punktnavne)}"
     with open(f"{projektnavn}-resultat-endelig.html") as html:
         clob = "".join(html.readlines())
-    sagseventinfo = SagseventInfo(
+
+    sagsevent = sag.ny_sagsevent(
+        id=event_id,
         beskrivelse=sagseventtekst,
-        htmler=[SagseventInfoHtml(html=clob)],
+        eventtype=EventType.KOORDINAT_BEREGNET,
+        htmler=[clob],
+        koordinater=til_registrering,
     )
-    sagsevent.sagseventinfos.append(sagseventinfo)
-    sagsevent.koordinater = til_registrering
     fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
 
     # Generer dokumentation til fanebladet "Sagsgang"

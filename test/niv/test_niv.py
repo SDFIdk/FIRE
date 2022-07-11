@@ -52,6 +52,7 @@ def test_revision(mocker):
         mocker.patch("fire.cli.niv._ilæg_nye_punkter.bekræft", return_value=True)
         result = runner.invoke(niv, ["ilæg-nye-punkter", "testsag"])
         print(result.output)
+        print(result)
         assert result.exit_code == 0
 
         # fire niv luk-sag test
@@ -107,5 +108,6 @@ def test_observationer(mocker):
         # fire niv luk-sag test
         mocker.patch("fire.cli.niv._luk_sag.bekræft", return_value=True)
         result = runner.invoke(niv, ["luk-sag", "testsag"])
+        print(result)
         print(result.output)
         assert result.exit_code == 0

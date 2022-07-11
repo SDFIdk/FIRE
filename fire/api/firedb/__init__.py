@@ -15,6 +15,8 @@ from fire.api.model import (
     PunktInformationType,
     GeometriObjekt,
     Bbox,
+    Sag,
+    Sagsinfo,
     Sagsevent,
     FikspunktsType,
 )
@@ -53,6 +55,24 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         if not result:
             raise NoResultFound
         return result
+
+    def ny_sag(self, behandler: str, beskrivelse: str) -> Sag:
+        """
+        Fabrik til oprettelse af nye sager.
+
+        Oprettede sager er altid aktive, samt tilføjet og flushed
+        på databasesessionen.
+        """
+        sagsinfo = Sagsinfo(
+            aktiv="true",
+            behandler=behandler,
+            beskrivelse=beskrivelse,
+        )
+        sag = Sag(sagsinfos=[sagsinfo])
+        self.session.add(sag)
+        self.session.flush()
+
+        return sag
 
     def tilknyt_landsnumre(
         self,
