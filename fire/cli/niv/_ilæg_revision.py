@@ -1,5 +1,4 @@
 import re
-import sys
 import getpass
 from datetime import datetime
 from math import trunc, isnan
@@ -331,7 +330,7 @@ def ilæg_revision(
             fire.cli.print(
                 "Skal være på formen: 'x y z t sx sy sz', hvor ubrugte værdier sættes til 'nan'"
             )
-            sys.exit(1)
+            raise SystemExit(1)
 
         # Oversæt NaN til None
         koord = [None if isnan(k) else k for k in koord]
@@ -442,7 +441,7 @@ def ilæg_revision(
                 bold=True,
             )
             fire.cli.print(f"Mulig årsag: {ex}")
-            sys.exit(1)
+            raise SystemExit(1)
 
         # Hent alle revisionselementer for punktet fra revisionsarket
         rev = revision.query(f"Punkt == '{ident}'")
@@ -654,7 +653,7 @@ def flush():
         fire.cli.print("FEJL! Mulig årsag:", fg="red", bold=True)
         fire.cli.print(f"{ex}", fg="red")
         fire.cli.firedb.session.rollback()
-        sys.exit(1)
+        raise SystemExit(1)
 
 
 def opdater_sagsgang(sagsgang, sagsevent, sagsbehandler):
@@ -692,7 +691,7 @@ def læs_lokation(lokation: str) -> GeometriObjekt:
         n = float(lok[0].replace(",", "."))
     except ValueError as ex:
         fire.cli.print(f"Ikke-numerisk lokationskoordinat anført: {lokation} ({ex})")
-        sys.exit(1)
+        raise SystemExit(1)
 
     # Håndter verdenshjørner Nn/ØøEe/VvWw/Ss
     if lok[3].upper() in ("S", "N"):

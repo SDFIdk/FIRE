@@ -4,7 +4,6 @@ import getpass
 
 import click
 import pandas as pd
-import sys
 
 from fire import uuid
 from fire.io.regneark import arkdef
@@ -47,7 +46,7 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
         fire.cli.print(
             f"Filen '{projektnavn}.xlsx' eksisterer - sagen er allerede oprettet"
         )
-        sys.exit(1)
+        raise SystemExit(1)
 
     beskrivelse = " ".join(beskrivelse)
 

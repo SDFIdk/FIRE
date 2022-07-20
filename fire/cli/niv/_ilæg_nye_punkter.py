@@ -1,4 +1,3 @@
-import sys
 import getpass
 import math
 from itertools import chain
@@ -130,7 +129,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
                 bg="red",
                 bold=True,
             )
-            sys.exit(1)
+            raise SystemExit(1)
 
         fikspunktstyper.append(fikspunktstype)
 

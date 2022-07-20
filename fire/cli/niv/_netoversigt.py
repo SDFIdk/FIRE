@@ -1,4 +1,3 @@
-import sys
 from collections import Counter
 from typing import Dict, List, Set, Tuple
 
@@ -98,7 +97,7 @@ def netgraf(
             )
             afbryd = True
     if afbryd:
-        sys.exit(1)
+        raise SystemExit(1)
 
     for punkt in alle_punkter:
         net[punkt] = set()
