@@ -1,22 +1,9 @@
-"""
-I/O-modul til håndtering af regneark
-
-"""
-
-from functools import partial
 from typing import (
     Any,
     Optional,
-    Union,
-    Mapping,
-    List,
     Mapping,
     Union,
-    Callable,
-    BinaryIO,
 )
-
-import pandas as pd
 
 from fire.api.model.punkttyper import (
     Koordinat,
@@ -27,7 +14,8 @@ from fire.api.model.punkttyper import (
 )
 from fire.api.niv.enums import NivMetode
 from fire.srid import SRID
-from fire.io.regneark import arkdef
+from fire.io import arkdef
+from fire.io.arkdef import kolonne
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
@@ -53,12 +41,12 @@ def basisrække(arkdefinition: arkdef.ArkDefinitionType) -> RækkeType:
     # Rationale: en dict er ikke hashable (immutable),
     # så vi skal bruge noget andet unikt som nøgle.
     h = _hashable_from_keys(arkdefinition)
-    if h not in _basisrækker:
+    if not h in _basisrækker:
         _basisrækker[h] = {key: None for key in arkdefinition}
     return _basisrækker[h]
 
 
-MAPPER = {
+OBSTYPE: dict = {
     ObservationstypeID.geometrisk_koteforskel: NivMetode.MGL.name,
     ObservationstypeID.trigonometrisk_koteforskel: NivMetode.MTL.name,
 }
@@ -66,16 +54,11 @@ MAPPER = {
 
 
 OBSERVATIONER_KONSTANTE_FELTER = {
-    "Journal": "",
-    "Sluk": "",
-    "Kommentar": "",
-    "T": -999,
-    "Sky": -999,
-    "Sol": -999,
-    "Vind": -990,
-    "Sigt": -999,
-    "Kilde": "Ingen",
-    "Type": "",
+    kolonne.OBSERVATIONER.Journal: "",
+    kolonne.OBSERVATIONER.Sluk: "",
+    kolonne.OBSERVATIONER.Kommentar: "",
+    kolonne.OBSERVATIONER.Kilde: "",
+    kolonne.OBSERVATIONER.Type: "",
 }
 
 
@@ -83,16 +66,16 @@ def observations_data(
     observation: Union[GeometriskKoteforskel, TrigonometriskKoteforskel]
 ) -> dict:
     return {
-        "Fra": observation.opstillingspunkt.ident,
-        "Til": observation.sigtepunkt.ident,
-        "L": observation.nivlængde,
-        "ΔH": observation.koteforskel,
-        "Opst": observation.opstillinger,
-        "σ": observation.spredning_afstand,
-        "δ": observation.spredning_centrering,
-        "Hvornår": observation.observationstidspunkt,
-        "Type": MAPPER.get(observation.observationstypeid, ""),
-        "uuid": observation.id,
+        kolonne.OBSERVATIONER.Fra: observation.opstillingspunkt.ident,
+        kolonne.OBSERVATIONER.Til: observation.sigtepunkt.ident,
+        kolonne.OBSERVATIONER.L: observation.nivlængde,
+        kolonne.OBSERVATIONER.ΔH: observation.koteforskel,
+        kolonne.OBSERVATIONER.Opst: observation.opstillinger,
+        kolonne.OBSERVATIONER.σ: observation.spredning_afstand,
+        kolonne.OBSERVATIONER.δ: observation.spredning_centrering,
+        kolonne.OBSERVATIONER.Hvornår: observation.observationstidspunkt,
+        kolonne.OBSERVATIONER.Type: OBSTYPE.get(observation.observationstypeid, ""),
+        kolonne.OBSERVATIONER.uuid: observation.id,
     }
 
 
@@ -113,9 +96,9 @@ def observationsrække(
 
 
 PUNKTOVERSIGT_KONSTANTE_FELTER = {
-    "Fasthold": "",
-    "System": "DVR90",
-    "Udelad publikation": "",
+    kolonne.PUNKTOVERSIGT.Fasthold: "",
+    kolonne.PUNKTOVERSIGT.System: "DVR90",
+    kolonne.PUNKTOVERSIGT.Udelad_publikation: "",
 }
 
 
@@ -123,10 +106,10 @@ def punkt_data(punkt: Punkt) -> dict:
     WGS84_lonlat = punkt.geometri.koordinater
     λ, φ = normaliser_lokationskoordinat(*WGS84_lonlat)
     return {
-        "Punkt": punkt.ident,
-        "Nord": φ,
-        "Øst": λ,
-        "uuid": punkt.id,
+        kolonne.PUNKTOVERSIGT.Punkt: punkt.ident,
+        kolonne.PUNKTOVERSIGT.Nord: φ,
+        kolonne.PUNKTOVERSIGT.Øst: λ,
+        kolonne.PUNKTOVERSIGT.uuid: punkt.id,
     }
 
 
@@ -147,9 +130,9 @@ def kote_data(punkt: Punkt) -> Koordinat:
     if koordinater is None:
         return {}
     return {
-        "Hvornår": koordinater.t,
-        "Kote": koordinater.z,
-        "σ": koordinater.sz,
+        kolonne.PUNKTOVERSIGT.Hvornår: koordinater.t,
+        kolonne.PUNKTOVERSIGT.Kote: koordinater.z,
+        kolonne.PUNKTOVERSIGT.σ: koordinater.sz,
     }
 
 
@@ -166,62 +149,3 @@ def punktrække(punkt: Punkt) -> dict:
         **punkt_data(punkt),
         **kote_data(punkt),
     }
-
-
-def nyt_ark(arkdefinition: arkdef.ArkDefinitionType) -> pd.DataFrame:
-    """Returnerer en tom pandas.dataframe med kolonner baseret på arkdefinition."""
-    columns = arkdefinition.keys()
-    return pd.DataFrame(columns=columns).astype(arkdefinition)
-
-
-def til_nyt_ark(
-    entiteter: list,
-    arkdefinition: arkdef.ArkDefinitionType,
-    rækkemager: Callable,
-    sorter_efter: Union[str, List[str]] = None,
-) -> pd.DataFrame:
-    """
-    Konverterer poster af en given entitet til rækker i en `pandas.DataFrame` (et ark).
-
-    """
-    data_dict = (rækkemager(entitet) for entitet in entiteter)
-    data_df = pd.DataFrame(data_dict, columns=arkdefinition.keys())
-    ark = nyt_ark(arkdefinition).append(data_df)
-    if sorter_efter is not None:
-        return ark.sort_values(sorter_efter)
-    return ark
-
-
-til_nyt_ark_observationer = partial(
-    til_nyt_ark,
-    arkdefinition=arkdef.OBSERVATIONER,
-    rækkemager=observationsrække,
-    sorter_efter="Hvornår",
-)
-til_nyt_ark_observationer.__doc__ = (
-    "Konverterer observationer til rækker i en ny `pandas.DataFrame`."
-)
-
-
-til_nyt_ark_punktoversigt = partial(
-    til_nyt_ark,
-    arkdefinition=arkdef.PUNKTOVERSIGT,
-    rækkemager=punktrække,
-    sorter_efter="Punkt",
-)
-til_nyt_ark_punktoversigt.__doc__ = (
-    "Konverterer punkter til rækker i en ny `pandas.DataFrame`."
-)
-
-
-def skriv_data(uddata: BinaryIO, faner: Mapping[str, pd.DataFrame]):
-    """
-    Skriver observationer og punkter til givet uddata.
-
-    """
-    ewkw = dict(encoding="utf-8", index=False)
-    with pd.ExcelWriter(
-        uddata, mode="a", if_sheet_exists="replace", engine="openpyxl"
-    ) as writer:
-        for navn, ark in faner.items():
-            ark.to_excel(writer, sheet_name=navn, **ewkw)

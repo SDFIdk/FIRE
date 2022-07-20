@@ -23,8 +23,8 @@ from fire.api.model import (
     GeometriObjekt,
     Point,
 )
+from fire.io import arkdef
 from fire.io.regneark import (
-    arkdef,
     nyt_ark,
     basisrække,
 )

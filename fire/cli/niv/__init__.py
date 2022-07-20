@@ -18,7 +18,7 @@ from fire.api.model import (
     PunktInformation,
     Sag,
 )
-from fire.io.regneark import arkdef
+from fire.io import arkdef
 from fire.ident import kan_være_gi_nummer
 import fire.cli
 from fire.cli import firedb, grøn

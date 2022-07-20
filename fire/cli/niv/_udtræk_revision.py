@@ -13,10 +13,8 @@ from fire.api.model import (
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
-from fire.io.regneark import (
-    nyt_ark,
-    arkdef,
-)
+from fire.io.regneark import nyt_ark
+from fire.io import arkdef
 import fire.cli
 from fire.cli.niv import (
     niv as niv_command_group,

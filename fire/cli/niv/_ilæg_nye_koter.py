@@ -9,7 +9,7 @@ from fire.api.model import (
     EventType,
     Koordinat,
 )
-from fire.io.regneark import arkdef
+from fire.io import arkdef
 
 from . import (
     bekræft,
