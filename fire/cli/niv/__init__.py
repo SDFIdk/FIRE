@@ -2,7 +2,6 @@ import datetime
 import json
 import os
 import os.path
-import sys
 from pathlib import Path
 from typing import (
     Dict,
@@ -302,7 +301,7 @@ def find_faneblad(
             return None
         fire.cli.print(f"Kan ikke læse {faneblad} fra '{projektnavn}.xlsx'")
         fire.cli.print(f"Mulig årsag: {ex}")
-        sys.exit(1)
+        raise SystemExit(1)
 
 
 # ------------------------------------------------------------------------------
@@ -318,7 +317,7 @@ def find_parameter(projektnavn: str, parameter: str) -> str:
     param = find_faneblad(projektnavn, "Parametre", arkdef.PARAM)
     if parameter not in list(param["Navn"]):
         fire.cli.print(f"FEJL: '{parameter}' ikke angivet under fanebladet 'Parametre'")
-        sys.exit(1)
+        raise SystemExit(1)
 
     return param.loc[param["Navn"] == f"{parameter}"]["Værdi"].to_string(index=False)
 
@@ -332,7 +331,7 @@ def find_sag(projektnavn: str) -> Sag:
             bold=True,
             bg="red",
         )
-        sys.exit(1)
+        raise SystemExit(1)
 
     sagsgang = find_sagsgang(projektnavn)
     sagsid = find_sagsid(sagsgang)
@@ -344,12 +343,12 @@ def find_sag(projektnavn: str) -> Sag:
             bold=True,
             bg="red",
         )
-        sys.exit(1)
+        raise SystemExit(1)
     if not sag.aktiv:
         fire.cli.print(
             f"Sag {sagsid} for {projektnavn} er markeret inaktiv. Genåbn for at gå videre."
         )
-        sys.exit(1)
+        raise SystemExit(1)
     return sag
 
 
@@ -557,7 +556,7 @@ def opret_region_punktinfo(punkt: Punkt) -> PunktInformation:
     pit = fire.cli.firedb.hent_punktinformationtype(region)
     if pit is None:
         fire.cli.print(f"Kan ikke finde region '{region}'")
-        sys.exit(1)
+        raise SystemExit(1)
 
     return PunktInformation(infotype=pit, punkt=punkt)
 
@@ -577,7 +576,7 @@ def er_projekt_okay(projektnavn: str):
             bold=True,
             bg="red",
         )
-        sys.exit(1)
+        raise SystemExit(1)
 
     versionsnummer = find_parameter(projektnavn, "Version")
     if versionsnummer != fire.__version__:
@@ -586,7 +585,7 @@ def er_projekt_okay(projektnavn: str):
             bold=True,
             bg="red",
         )
-        sys.exit(1)
+        raise SystemExit(1)
 
 
 """

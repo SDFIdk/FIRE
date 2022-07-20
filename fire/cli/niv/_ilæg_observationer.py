@@ -1,4 +1,3 @@
-import sys
 import getpass
 
 import click
@@ -90,7 +89,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             punkt_til = fire.cli.firedb.hent_punkt(punktnavn)
         except NoResultFound:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
-            sys.exit(1)
+            raise SystemExit(1)
 
         # For nivellementsobservationer er gruppeidentifikatoren identisk
         # med journalsidenummeret
@@ -138,7 +137,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             fire.cli.print(
                 f"Ukendt observationstype: '{obs.Type}'", fg="red", bg="white"
             )
-            sys.exit(1)
+            raise SystemExit(1)
         alle_uuider[i] = observation.id
         til_registrering.append(observation)
 

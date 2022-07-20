@@ -1,5 +1,4 @@
 import subprocess
-import sys
 import webbrowser
 from pathlib import Path
 from math import hypot, sqrt
@@ -70,7 +69,7 @@ def regn(projektnavn: str, **kwargs) -> None:
     fastholdte = find_fastholdte(arbejdssæt, kontrol)
     if 0 == len(fastholdte):
         fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
-        sys.exit(1)
+        raise SystemExit(1)
 
     # Ny netanalyse: Tag højde for slukkede observationer og fastholdte punkter.
     resultater = netanalyse(projektnavn)
@@ -236,7 +235,7 @@ def gama_beregning(
                 bg="red",
                 fg="white",
             )
-            sys.exit(1)
+            raise SystemExit(1)
 
         fire.cli.print(
             f"Check {projektnavn}-resultat-{beregningstype}.html", bg="red", fg="white"

@@ -1,5 +1,4 @@
 import re
-import sys
 
 import click
 from sqlalchemy.orm.exc import NoResultFound
@@ -41,7 +40,7 @@ def punkt(ident: str, antal: int, **kwargs):
         fire.cli.print(
             f"Fejl: Kunne ikke finde {ident.replace('%', '')}.", fg="red", err=True
         )
-        sys.exit(1)
+        raise SystemExit(1)
 
     for punkt in punkter:
         for ident in punkt.identer:

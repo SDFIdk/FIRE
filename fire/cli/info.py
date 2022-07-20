@@ -1,7 +1,6 @@
 import datetime
 import itertools
 import textwrap
-import sys
 from typing import List
 
 import click
@@ -427,7 +426,7 @@ def punkt(
         punkter = fire.cli.firedb.hent_punkter(ident)
     except NoResultFound:
         fire.cli.print(f"Fejl: Kunne ikke finde {ident}.", fg="red", err=True)
-        sys.exit(1)
+        raise SystemExit(1)
 
     # Succesfuld søgning - vis hvad der blev fundet
     n = len(punkter)
@@ -486,7 +485,7 @@ def srid(srid: str, ts: bool, **kwargs):
             srid = fire.cli.firedb.hent_srid(srid_name)
         except NoResultFound:
             fire.cli.print(f"Error! {srid_name} not found!", fg="red", err=True)
-            sys.exit(1)
+            raise SystemExit(1)
 
         fire.cli.print("--- SRID ---", bold=True)
         fire.cli.print(f" Name:       :  {srid.name}")
@@ -542,7 +541,7 @@ def infotype(infotype: str, søg: bool, **kwargs):
             raise NoResultFound
     except NoResultFound:
         fire.cli.print(f"Error! {infotype} not found!", fg="red", err=True)
-        sys.exit(1)
+        raise SystemExit(1)
 
     if len(punktinfotyper) == 1:
         pit = punktinfotyper[0]
@@ -597,7 +596,7 @@ def obstype(obstype: str, **kwargs):
     ot = fire.cli.firedb.hent_observationstype(obstype)
     if ot is None:
         fire.cli.print(f"Fejl! {obstype} ikke fundet!", fg="red", err=True)
-        sys.exit(1)
+        raise SystemExit(1)
 
     fire.cli.print("--- OBSERVATIONSTYPE ---", bold=True)
     fire.cli.print(f"  Navn        :  {ot.name}")
