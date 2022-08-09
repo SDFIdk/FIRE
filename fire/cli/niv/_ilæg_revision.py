@@ -9,7 +9,6 @@ from pyproj import Proj, Geod
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import DatabaseError
 
-import fire.cli
 from fire import uuid
 from fire.api.model import (
     EventType,
@@ -21,11 +20,12 @@ from fire.api.model import (
     PunktInformationTypeAnvendelse,
     FikspunktsType,
 )
-from fire.io.regneark import arkdef
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
-
+from fire.io.regneark import arkdef
+import fire.io.dataframe as frame
+import fire.cli
 from fire.cli.niv import (
     bekræft,
     find_faneblad,
@@ -671,7 +671,7 @@ def opdater_sagsgang(sagsgang, sagsevent, sagsbehandler):
         "Tekst": sagsevent.beskrivelse,
         "uuid": sagsevent.id,
     }
-    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+    sagsgang = frame.append(sagsgang, sagsgangslinje)
 
     return sagsgang
 

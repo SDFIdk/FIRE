@@ -22,7 +22,7 @@ def test_udfyld_udeladte_identer():
         dict(Punkt=""),
         dict(Punkt=""),
     ]
-    ark = nyt_ark(arkdef.REVISION).append(input_data, ignore_index=True)
+    ark = pd.concat([nyt_ark(arkdef.REVISION), input_data], ignore_index=True)
 
     output_data = [
         dict(Punkt="FYNO"),
@@ -35,7 +35,7 @@ def test_udfyld_udeladte_identer():
         dict(Punkt="BOBO"),
         dict(Punkt="BOBO"),
     ]
-    expected = nyt_ark(arkdef.REVISION).append(output_data, ignore_index=True)
+    expected = pd.concat([nyt_ark(arkdef.REVISION), output_data], ignore_index=True)
 
     result = udfyld_udeladte_identer(ark)
     assert all(

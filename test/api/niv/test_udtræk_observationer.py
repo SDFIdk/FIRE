@@ -206,7 +206,7 @@ def test_punkter_til_geojson(ark_punktoversigt, række_punktoversigt):
         "Øst": øst,
         "Nord": nord,
     }
-    ark = ark_punktoversigt.append(række, ignore_index=True)
+    ark = pd.concat([ark_punktoversigt, række], ignore_index=True)
 
     # Act
     geojson = punkter_til_geojson(ark)
