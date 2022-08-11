@@ -47,7 +47,8 @@ def test_revision(mocker):
             "Afmærkning": "Bolt",
             "Højde_over_terræn": 1.32,
         }
-        nyetablerede = pd.concat([nyetablerede, nyt_punkt], ignore_index=True)
+        df_nyt_punkt = pd.DataFrame(data=[nyt_punkt.values()], columns=nyt_punkt.keys())
+        nyetablerede = pd.concat([nyetablerede, df_nyt_punkt], ignore_index=True)
         skriv_ark("testsag", {"Nyetablerede punkter": nyetablerede})
 
         mocker.patch("fire.cli.niv._ilæg_nye_punkter.bekræft", return_value=True)
