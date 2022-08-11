@@ -24,7 +24,7 @@ from fire.cli.niv import (
     find_sag,
     er_projekt_okay,
 )
-from fire.cli.typologi import (
+from fire.typologi import (
     adskil_identer,
     adskil_distrikter,
 )
