@@ -5,15 +5,9 @@ import getpass
 import click
 import pandas as pd
 
-import fire.cli
-from fire.api.model import (
-    Sagsevent,
-    SagseventInfo,
-    SagseventInfoMateriale,
-    EventType,
-)
 from fire.io.regneark import arkdef
-
+import fire.io.dataframe as frame
+import fire.cli
 from fire.cli.niv import (
     find_faneblad,
     find_sag,
@@ -92,7 +86,7 @@ def luk_sag(projektnavn: str, sagsbehandler, **kwargs) -> None:
         "Tekst": sagsevent.beskrivelse,
         "uuid": sagsevent.id,
     }
-    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+    sagsgang = frame.append(sagsgang, sagsgangslinje)
     fire.cli.print("Opdatér sagsgang i regneark")
     if skriv_ark(projektnavn, {"Sagsgang": sagsgang}):
         fire.cli.print(f"Sagen er nu lukket i regnearket '{projektnavn}.xlsx'")

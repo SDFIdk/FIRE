@@ -7,10 +7,11 @@ import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
 
-from fire.io.regneark import arkdef
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
+from fire.io.regneark import arkdef
+import fire.io.dataframe as frame
 import fire.cli
 
 from . import (
@@ -330,7 +331,7 @@ def læs_observationsstrenge(
                     "Type": fil.Type.upper(),
                     "uuid": "",
                 }
-                observationer = observationer.append(obs, ignore_index=True)
+                observationer = frame.append(observationer, obs)
         except FileNotFoundError:
             fire.cli.print(f"Kunne ikke læse filen '{fil.Filnavn}'")
         finally:

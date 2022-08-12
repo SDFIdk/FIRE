@@ -4,7 +4,6 @@ import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
 
-import fire.cli
 from fire import uuid
 from fire.api.model import (
     EventType,
@@ -13,6 +12,8 @@ from fire.api.model import (
     SagseventInfo,
 )
 from fire.io.regneark import arkdef
+import fire.io.dataframe as frame
+import fire.cli
 
 from . import (
     bekræft,
@@ -69,7 +70,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         "Tekst": sagseventtekst,
         "uuid": sagsevent.id,
     }
-    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+    sagsgang = frame.append(sagsgang, sagsgangslinje)
 
     for i, obs in enumerate(observationer.itertuples(index=False)):
         # Ignorer allerede registrerede observationer

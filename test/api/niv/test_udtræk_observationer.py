@@ -1,6 +1,7 @@
 import json
 import shutil
 
+import pandas as pd
 import pytest
 
 from fire.api.model.geometry import (
@@ -206,7 +207,12 @@ def test_punkter_til_geojson(ark_punktoversigt, række_punktoversigt):
         "Øst": øst,
         "Nord": nord,
     }
-    ark = ark_punktoversigt.append(række, ignore_index=True)
+    # `data`-parameteren i pd.DataFrame
+    # skal være en iterable med rækker.
+    data = [række.values()]
+    columns = række.keys()
+    df_række = pd.DataFrame(data=data, columns=columns)
+    ark = pd.concat([ark_punktoversigt, df_række], ignore_index=True)
 
     # Act
     geojson = punkter_til_geojson(ark)

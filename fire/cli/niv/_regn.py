@@ -129,7 +129,7 @@ def spredning(
     if "NUL" == observationstype.upper():
         return 0
 
-    opstillingsafhængig = sqrt(antal_opstillinger * (centreringsspredning_i_mm ** 2))
+    opstillingsafhængig = sqrt(antal_opstillinger * (centreringsspredning_i_mm**2))
 
     if "MTL" == observationstype.upper():
         afstandsafhængig = afstandsafhængig_spredning_i_mm * afstand_i_m / 1000

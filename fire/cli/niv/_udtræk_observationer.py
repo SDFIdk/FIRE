@@ -49,7 +49,7 @@ from fire.cli.niv import (
     niv as niv_command_group,
     er_projekt_okay,
 )
-from fire.cli.typologi import (
+from fire.typologi import (
     adskil_filnavne,
     adskil_identer,
 )

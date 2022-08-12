@@ -3,9 +3,8 @@ from functools import partial
 
 import click
 from sqlalchemy.sql import text
-from fire.api.model.punkttyper import PunktInformationType
+import pandas as pd
 
-from fire.ident import klargør_identer_til_søgning
 from fire.api.model import (
     Punkt,
     PunktInformation,
@@ -13,10 +12,12 @@ from fire.api.model import (
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
+from fire.ident import klargør_identer_til_søgning
 from fire.io.regneark import (
     nyt_ark,
     arkdef,
 )
+import fire.io.dataframe as frame
 import fire.cli
 from fire.cli.niv import (
     niv as niv_command_group,
@@ -24,7 +25,7 @@ from fire.cli.niv import (
     find_sag,
     er_projekt_okay,
 )
-from fire.cli.typologi import (
+from fire.typologi import (
     adskil_identer,
     adskil_distrikter,
 )
@@ -74,6 +75,9 @@ være øverst og i angivne rækefølge under hvert punkt.
 """
 
 LOKATION_DEFAULT: Final[tuple[float, float]] = (11.0, 56.0)
+
+TOMME_RÆKKER: Final[pd.DataFrame] = pd.DataFrame(data=5 * [{}], columns=arkdef.REVISION)
+"Fem blanklinjer efter hvert punktoversigt"
 
 
 def hent_punkter_i_opmålingsdistrikter(
@@ -243,7 +247,8 @@ def udtræk_revision(
 
         lokation = normaliser_lokationskoordinat(lokation[0], lokation[1], "DK", True)
         lokation_repr = lokationskoordinat_streng(lokation)
-        revision = revision.append(
+        revision = frame.append(
+            revision,
             {
                 "Punkt": ident,
                 "Attribut": "LOKATION",
@@ -252,7 +257,6 @@ def udtræk_revision(
                 "id": lokations_id,
                 "Ikke besøgt": "x",
             },
-            ignore_index=True,
         )
 
         # Fjern punktinformationer, der ikke skal skrives til arket
@@ -273,13 +277,14 @@ def udtræk_revision(
                 "Attribut": "ATTR:muligt_datumstabil",
                 "Sluk": "x",
             }
-            revision = revision.append(attribut, ignore_index=True)
+            revision = frame.append(revision, attribut)
 
         # Så itererer vi, med aktuelle beskrivelse først
         for info in punkt_informationer:
             attribut_navn = info.infotype.name
             tekst = info.tekst if info.tekst is None else info.tekst.strip()
-            revision = revision.append(
+            revision = frame.append(
+                revision,
                 {
                     "Sluk": "",
                     "Attribut": attribut_navn,
@@ -288,11 +293,10 @@ def udtræk_revision(
                     "Ny værdi": tekst,
                     "id": info.objektid,
                 },
-                ignore_index=True,
             )
 
         # Fem blanklinjer efter hvert punktoversigt
-        revision = revision.append(5 * [{}], ignore_index=True)
+        revision = frame.append(revision, TOMME_RÆKKER)
 
     ark_revision = {"Revision": revision}
     skriv_ark(projektnavn, ark_revision, "-revision")

@@ -18,10 +18,11 @@ from fire.api.model import (
     EventType,
     FikspunktsType,
 )
-from fire.io.regneark import arkdef
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
+from fire.io.regneark import arkdef
+import fire.io.dataframe as frame
 
 from . import (
     bekræft,
@@ -156,7 +157,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         "Tekst": sagsevent_punkter.sagseventinfos[0].beskrivelse,
         "uuid": sagsevent_punkter.id,
     }
-    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+    sagsgang = frame.append(sagsgang, sagsgangslinje)
 
     # Opret punktinfo
     fire.cli.print(f"Behandler punktinformationer")
@@ -312,7 +313,7 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         "Tekst": sagsevent_punktinfo.sagseventinfos[0].beskrivelse,
         "uuid": sagsevent_punktinfo.id,
     }
-    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+    sagsgang = frame.append(sagsgang, sagsgangslinje)
 
     # Opdater regneark
     for k in punkter.keys():

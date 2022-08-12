@@ -1,3 +1,5 @@
+import pathlib
+from functools import partial
 import getpass
 
 import click
@@ -10,6 +12,8 @@ from fire.api.model import (
     Koordinat,
 )
 from fire.io.regneark import arkdef
+from fire.io.formattering import forkort
+import fire.io.dataframe as frame
 
 from . import (
     bekræft,
@@ -21,6 +25,20 @@ from . import (
     skriv_ark,
     er_projekt_okay,
 )
+
+
+def punktdata_ikke_skal_opdateres(punktdata: dict) -> bool:
+    """
+    Returnerer sand, hvis ingen koteopdatering er nødvendig.
+    """
+    return (
+        # Blank linje (feltet er tomt)
+        pd.isna(punktdata["Ny kote"])
+        # Allerede registreret (eksisterer i databasen)
+        or punktdata["uuid"] != ""
+        # Tilbageholdt og skal derfor ikke gemmes, uanset hvad.
+        or punktdata["Udelad publikation"] == "x"
+    )
 
 
 @niv.command()
@@ -45,41 +63,41 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
     fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
 
+    filnavn_gama_output = pathlib.Path(f"{projektnavn}-resultat-endelig.html")
+    if not filnavn_gama_output.is_file():
+        fire.cli.print(
+            f"Sagsopdateringen kræver en outputfil fra GNU Gama {str(filnavn_gama_output)}"
+        )
+        raise SystemExit(1)
+
+    # Indlæs regnearket
     punktoversigt = find_faneblad(
         projektnavn, "Endelig beregning", arkdef.PUNKTOVERSIGT
     )
-    ny_punktoversigt = punktoversigt[0:0]
+    # Lav en kopi med de endelige resultater
+    ny_punktoversigt = punktoversigt.copy()
 
+    # Forbered data til kote-oprettelse
     DVR90 = fire.cli.firedb.hent_srid("EPSG:5799")
     tid = gyldighedstidspunkt(projektnavn)
+    ny_kote = partial(Koordinat, srid=DVR90, t=tid)
 
     event_id = uuid()
     til_registrering = []
     opdaterede_punkter = []
-    for punktdata in punktoversigt.to_dict(orient="records"):
-        # Blanklinje, tilbageholdt, eller allerede registreret?
-        if (
-            pd.isna(punktdata["Ny kote"])
-            or punktdata["uuid"] != ""
-            or punktdata["Udelad publikation"] == "x"
-        ):
-            ny_punktoversigt = ny_punktoversigt.append(punktdata, ignore_index=True)
+    for index, punktdata in punktoversigt.iterrows():
+        if punktdata_ikke_skal_opdateres(punktdata):
             continue
 
         punkt = fire.cli.firedb.hent_punkt(punktdata["Punkt"])
         opdaterede_punkter.append(punkt)
         punktdata["uuid"] = event_id
 
-        kote = Koordinat(
-            srid=DVR90,
-            punkt=punkt,
-            t=tid,
-            z=punktdata["Ny kote"],
-            sz=punktdata["Ny σ"],
-        )
-
+        z = (punktdata["Ny kote"],)
+        sz = (punktdata["Ny σ"],)
+        kote = ny_kote(punkt=punkt, z=z, sz=sz)
         til_registrering.append(kote)
-        ny_punktoversigt = ny_punktoversigt.append(punktdata, ignore_index=True)
+        ny_punktoversigt = frame.insert(ny_punktoversigt, index, punktdata)
 
     if 0 == len(til_registrering):
         fire.cli.print("Ingen koter at registrere!", fg="yellow", bold=True)
@@ -90,19 +108,15 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     # opdaterer mere end 10 punkter ad gangen
     n = len(opdaterede_punkter)
     punktnavne = [p.ident for p in opdaterede_punkter]
-    if n > 10:
-        punktnavne[9] = "..."
-        punktnavne[10] = punktnavne[-1]
-        punktnavne = punktnavne[0:10]
+    punktnavne = forkort(punktnavne)
     sagseventtekst = f"Opdatering af DVR90 kote til {', '.join(punktnavne)}"
-    with open(f"{projektnavn}-resultat-endelig.html") as html:
-        clob = "".join(html.readlines())
+    clob_html = filnavn_gama_output.read_text()
 
     sagsevent = sag.ny_sagsevent(
         id=event_id,
         beskrivelse=sagseventtekst,
         eventtype=EventType.KOORDINAT_BEREGNET,
-        htmler=[clob],
+        htmler=[clob_html],
         koordinater=til_registrering,
     )
     fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
@@ -122,7 +136,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         "Tekst": sagseventtekst,
         "uuid": sagsevent.id,
     }
-    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+    sagsgang = frame.append(sagsgang, sagsgangslinje)
 
     fire.cli.print(sagseventtekst, fg="yellow", bold=True)
     fire.cli.print(f"Ialt {n} koter")

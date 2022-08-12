@@ -1,5 +1,6 @@
 from typing import List, Iterator
 from itertools import chain
+import collections as cs
 
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
@@ -110,10 +111,8 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
             return []
 
         distrikter = self._opmålingsdistrikt_fra_punktid(uuider)
-        distrikt_punkter = {}
+        distrikt_punkter = cs.defaultdict(list)
         for (distrikt, pktid) in distrikter:
-            if distrikt not in distrikt_punkter.keys():
-                distrikt_punkter[distrikt] = []
             distrikt_punkter[distrikt].append(pktid)
 
         landsnumre = {}
