@@ -32,9 +32,12 @@ def punktdata_ikke_skal_opdateres(punktdata: dict) -> bool:
     Returnerer sand, hvis ingen koteopdatering er nødvendig.
     """
     return (
-        pd.isna(punktdata["Ny kote"])  # Blank linje (feltet er tomt)
-        or punktdata["uuid"] != ""  # Allerede registreret (eksisterer i databasen)
-        or punktdata["Udelad publikation"] == "x"  # Tilbageholdt og skal derfor ikke gemmes, uanset hvad.
+        # Blank linje (feltet er tomt)
+        pd.isna(punktdata["Ny kote"])
+        # Allerede registreret (eksisterer i databasen)
+        or punktdata["uuid"] != ""
+        # Tilbageholdt og skal derfor ikke gemmes, uanset hvad.
+        or punktdata["Udelad publikation"] == "x"
     )
 
 
@@ -62,7 +65,9 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     filnavn_gama_output = pathlib.Path(f"{projektnavn}-resultat-endelig.html")
     if not filnavn_gama_output.is_file():
-        fire.cli.print(f"Sagsopdateringen kræver en outputfil fra GNU Gama {str(filnavn_gama_output)}")
+        fire.cli.print(
+            f"Sagsopdateringen kræver en outputfil fra GNU Gama {str(filnavn_gama_output)}"
+        )
         raise SystemExit(1)
 
     # Indlæs regnearket
@@ -88,8 +93,8 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         opdaterede_punkter.append(punkt)
         punktdata["uuid"] = event_id
 
-        z=punktdata["Ny kote"],
-        sz=punktdata["Ny σ"],
+        z = (punktdata["Ny kote"],)
+        sz = (punktdata["Ny σ"],)
         kote = ny_kote(punkt=punkt, z=z, sz=sz)
         til_registrering.append(kote)
         ny_punktoversigt = frame.insert(ny_punktoversigt, index, punktdata)

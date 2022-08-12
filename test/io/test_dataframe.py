@@ -13,21 +13,19 @@ from fire.io.dataframe import (
 
 def test_append():
     # General
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
     rows_initial = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
+        (1, "a", "x"),
+        (2, "b", "y"),
     )
     df = pd.DataFrame(rows_initial, columns=columns)
 
-    row_to_be_appended = (3, 'c', 'z')
+    row_to_be_appended = (3, "c", "z")
 
     rows_expected = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
-        (3, 'c', 'z'),
+        (1, "a", "x"),
+        (2, "b", "y"),
+        (3, "c", "z"),
     )
     expected = pd.DataFrame(rows_expected, columns=columns)
 
@@ -55,20 +53,18 @@ def test_append():
 
 
 def test_append_df():
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
 
     rows_initial = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
+        (1, "a", "x"),
+        (2, "b", "y"),
     )
-    row_to_be_appended = (3, 'c', 'z')
+    row_to_be_appended = (3, "c", "z")
 
     rows_expected = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
-        (3, 'c', 'z'),
+        (1, "a", "x"),
+        (2, "b", "y"),
+        (3, "c", "z"),
     )
 
     df = pd.DataFrame(rows_initial, columns=columns)
@@ -81,20 +77,18 @@ def test_append_df():
 
 
 def test_append_series():
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
 
     rows_initial = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
+        (1, "a", "x"),
+        (2, "b", "y"),
     )
-    row_to_be_appended = (3, 'c', 'z')
+    row_to_be_appended = (3, "c", "z")
 
     rows_expected = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
-        (3, 'c', 'z'),
+        (1, "a", "x"),
+        (2, "b", "y"),
+        (3, "c", "z"),
     )
 
     df = pd.DataFrame(rows_initial, columns=columns)
@@ -107,24 +101,22 @@ def test_append_series():
 
 
 def test_append_dict():
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
 
     rows_initial = [
-        [1, 'a', 'x'],
-        [2, 'b', 'y'],
+        [1, "a", "x"],
+        [2, "b", "y"],
     ]
     row_to_be_appended = {
-        'A': 3,
-        'B': 'c',
-        'C': 'z',
+        "A": 3,
+        "B": "c",
+        "C": "z",
     }
 
     rows_expected = [
-        [1, 'a', 'x'],
-        [2, 'b', 'y'],
-        [3, 'c', 'z'],
+        [1, "a", "x"],
+        [2, "b", "y"],
+        [3, "c", "z"],
     ]
 
     df = pd.DataFrame(rows_initial, columns=columns)
@@ -136,13 +128,13 @@ def test_append_dict():
 
     # Case: When dict has not all columns of df
     row_to_be_appended = {
-        'A': 3,
-        'C': 'z',
+        "A": 3,
+        "C": "z",
     }
     rows_expected = [
-        [1, 'a', 'x'],
-        [2, 'b', 'y'],
-        [3, None, 'z'],
+        [1, "a", "x"],
+        [2, "b", "y"],
+        [3, None, "z"],
     ]
     expected = pd.DataFrame(rows_expected, columns=columns)
     result = append_iterable(df, row_to_be_appended)
@@ -151,20 +143,18 @@ def test_append_dict():
 
 
 def test_append_list():
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
 
     rows_initial = [
-        [1, 'a', 'x'],
-        [2, 'b', 'y'],
+        [1, "a", "x"],
+        [2, "b", "y"],
     ]
-    row_to_be_appended = [3, 'c', 'z']
+    row_to_be_appended = [3, "c", "z"]
 
     rows_expected = [
-        [1, 'a', 'x'],
-        [2, 'b', 'y'],
-        [3, 'c', 'z'],
+        [1, "a", "x"],
+        [2, "b", "y"],
+        [3, "c", "z"],
     ]
 
     df = pd.DataFrame(rows_initial, columns=columns)
@@ -176,20 +166,18 @@ def test_append_list():
 
 
 def test_append_list_also_works_for_tuple_record():
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
 
     rows_initial = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
+        (1, "a", "x"),
+        (2, "b", "y"),
     )
-    row_to_be_appended = (3, 'c', 'z')
+    row_to_be_appended = (3, "c", "z")
 
     rows_expected = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
-        (3, 'c', 'z'),
+        (1, "a", "x"),
+        (2, "b", "y"),
+        (3, "c", "z"),
     )
 
     df = pd.DataFrame(rows_initial, columns=columns)
@@ -202,20 +190,18 @@ def test_append_list_also_works_for_tuple_record():
 
 def test_insert():
     # General
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
     rows_initial = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
+        (1, "a", "x"),
+        (2, "b", "y"),
     )
     df = pd.DataFrame(rows_initial, columns=columns)
 
-    row_to_be_inserted = (3, 'c', 'z')
+    row_to_be_inserted = (3, "c", "z")
 
     rows_expected = (
-        (1, 'a', 'x'),
-        (3, 'c', 'z'), # index = 1
+        (1, "a", "x"),
+        (3, "c", "z"),  # index = 1
     )
     index = 1
     expected = pd.DataFrame(rows_expected, columns=columns)
@@ -239,19 +225,17 @@ def test_insert():
 
 
 def test_insert_series():
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
 
     rows_initial = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
+        (1, "a", "x"),
+        (2, "b", "y"),
     )
-    row_to_be_inserted = (3, 'c', 'z')
+    row_to_be_inserted = (3, "c", "z")
 
     rows_expected = (
-        (1, 'a', 'x'),
-        (3, 'c', 'z'),  # index = 1
+        (1, "a", "x"),
+        (3, "c", "z"),  # index = 1
     )
     index = 1
 
@@ -265,23 +249,21 @@ def test_insert_series():
 
 
 def test_insert_dict():
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
 
     rows_initial = [
-        [1, 'a', 'x'],
-        [2, 'b', 'y'],
+        [1, "a", "x"],
+        [2, "b", "y"],
     ]
     row_to_be_inserted = {
-        'A': 3,
-        'B': 'c',
-        'C': 'z',
+        "A": 3,
+        "B": "c",
+        "C": "z",
     }
 
     rows_expected = [
-        [1, 'a', 'x'],
-        [3, 'c', 'z'],  # index = 1
+        [1, "a", "x"],
+        [3, "c", "z"],  # index = 1
     ]
     index = 1
 
@@ -294,19 +276,17 @@ def test_insert_dict():
 
 
 def test_insert_list():
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
 
     rows_initial = [
-        [1, 'a', 'x'],
-        [2, 'b', 'y'],
+        [1, "a", "x"],
+        [2, "b", "y"],
     ]
-    row_to_be_inserted = [3, 'c', 'z']
+    row_to_be_inserted = [3, "c", "z"]
 
     rows_expected = [
-        [1, 'a', 'x'],
-        [3, 'c', 'z'],  # index = 1
+        [1, "a", "x"],
+        [3, "c", "z"],  # index = 1
     ]
     index = 1
 
@@ -319,19 +299,17 @@ def test_insert_list():
 
 
 def test_insert_list_also_works_for_tuple_record():
-    columns = (
-        'A', 'B', 'C',
-    )
+    columns = ("A", "B", "C")
 
     rows_initial = (
-        (1, 'a', 'x'),
-        (2, 'b', 'y'),
+        (1, "a", "x"),
+        (2, "b", "y"),
     )
-    row_to_be_inserted = (3, 'c', 'z')
+    row_to_be_inserted = (3, "c", "z")
 
     rows_expected = (
-        (1, 'a', 'x'),
-        (3, 'c', 'z'),  # index = 1
+        (1, "a", "x"),
+        (3, "c", "z"),  # index = 1
     )
     index = 1
 

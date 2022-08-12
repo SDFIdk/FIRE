@@ -52,7 +52,7 @@ def append(df: pd.DataFrame, row: Any, /, **kwargs) -> pd.DataFrame:
 
 
 def append_df(df: pd.DataFrame, new: pd.DataFrame, /, **kwargs) -> pd.DataFrame:
-    kwargs = {**kwargs, 'ignore_index': True}
+    kwargs = {**kwargs, "ignore_index": True}
     return pd.concat([df, new], **kwargs)
 
 
@@ -60,13 +60,18 @@ def append_series(df: pd.DataFrame, row: pd.Series, /, **kwargs) -> pd.DataFrame
     if set(df.columns) ^ set(row.keys()):
         raise ValueError("Kolonner i ark og række skal matche.")
 
-    if kwargs.pop('ignore_index', None) is not None or kwargs.pop('axis', None) is not None:
+    if (
+        kwargs.pop("ignore_index", None) is not None
+        or kwargs.pop("axis", None) is not None
+    ):
         raise RuntimeError(f"Funktionaliteten kræver `axis=1` og `ignore_index=True`.")
 
     return pd.concat([df.T, row], axis=1, ignore_index=True, **kwargs).T
 
 
-def append_iterable(df: pd.DataFrame, row: Union[dict, list, tuple], /, **kwargs) -> pd.DataFrame:
+def append_iterable(
+    df: pd.DataFrame, row: Union[dict, list, tuple], /, **kwargs
+) -> pd.DataFrame:
     return append_series(df, pd.Series(row, index=df.columns), **kwargs)
 
 
@@ -94,7 +99,9 @@ def insert_series(df: pd.DataFrame, index: int, row: pd.Series, /) -> pd.DataFra
     return df
 
 
-def insert_iterable(df: pd.DataFrame, index: int, row: Union[dict, list, tuple], /) -> pd.DataFrame:
+def insert_iterable(
+    df: pd.DataFrame, index: int, row: Union[dict, list, tuple], /
+) -> pd.DataFrame:
     # Note: df.loc[index] = row will add the dict keys and not the values.
     # Note: df.loc[index] = row.values() works but has no assurance of correct order.
     # Therefore, use pd.Series which will provide the column names.

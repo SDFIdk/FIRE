@@ -8,7 +8,7 @@ from fire.matematik import (
     Rneu_xyz,
 )
 
-W = 0.001 ** 2
+W = 0.001**2
 XX = 0.9145031116e-01
 XY = 0.1754111808e-01
 YY = 0.1860172410e-01

@@ -4,7 +4,7 @@ Modul til håndtering af output til brugeren.
 """
 
 
-def forkort(strenge: list[str], n: int=10) -> list[str]:
+def forkort(strenge: list[str], n: int = 10) -> list[str]:
     """
     Forkorter en liste med tekst-strenge,
     så output til brugeren bliver nemmere at læse.
