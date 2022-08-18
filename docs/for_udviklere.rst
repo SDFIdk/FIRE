@@ -154,7 +154,8 @@ køres::
 Først gang kommandoen køres downloades en række Docker images. Det tager sin tid, så
 vær tålmodig.
 
-Kopier opsætningsfilen ``test/ci/fire.ini`` til din :envvar:`HOME`-mappe.
-Herefter burde det være muligt at køre test-suiten.
+Kopier `ci`-opsætningen fra filen ``test/ci/fire.ini`` til din lokale `fire.ini` i din
+:envvar:`HOME`-mappe. Hvis Docker-billedet afvikles på en server skal `hostname` rettes
+til i under `ci`-opsætningen. Herefter burde det være muligt at køre test-suiten.
 
 
