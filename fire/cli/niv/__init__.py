@@ -287,16 +287,24 @@ def find_faneblad(
     projektnavn: str, faneblad: str, arkdef: Dict, ignore_failure: bool = False
 ) -> pd.DataFrame:
     try:
-        return (
-            pd.read_excel(
-                f"{projektnavn}.xlsx",
-                sheet_name=faneblad,
-                usecols=anvendte(arkdef),
+        raw = pd.read_excel(
+            f"{projektnavn}.xlsx",
+            sheet_name=faneblad,
+            usecols=anvendte(arkdef),
+        ).dropna(how="all")
+
+        if set(raw.columns) ^ set(arkdef):
+            fire.cli.print(
+                f"Kolonnenavne i fanebladet '{faneblad}' matcher ikke arkdefinitionens\n\n    {list(arkdef.keys())}\n"
             )
-            .dropna(how="all")
-            .astype(arkdef)
-            .replace("nan", "")
-        )
+            fire.cli.print(f"Undersøg eventuelt, om der er dubletter i kolonnenavnene.")
+            fire.cli.print(
+                "(Er der to kolonner med samme navn, bliver kun den sidste kolonne indlæst.)"
+            )
+            raise SystemExit(1)
+
+        return raw.astype(arkdef).replace("nan", "")
+
     except Exception as ex:
         if ignore_failure:
             return None
