@@ -3,9 +3,6 @@
 --
 -- Fjerner alle tabeller og tilhørende index, triggers m.m. med henblik på let at kunne
 -- reetablere databasen i forbindelse med tests af ændringer i DDL eller testmateriale.
---
--- Som udgangspunkt fjernes 'herredsogn'-tabellen IKKE, da den typisk ikke ændrer sig
--- og tager en del tid at indlæse.
 -----------------------------------------------------------------------------------------
 
 DROP TABLE  beregning               CASCADE CONSTRAINTS;
