@@ -154,7 +154,7 @@ def indsæt(
     grafik.filnavn = filnavn
 
     sagsevent = sag.ny_sagsevent(
-        f"Grafik {filnavn} indsættes på punkt {punkt.ident}",
+        beskrivelse=f"Grafik {filnavn} indsættes på punkt {punkt.ident}",
         grafikker=[grafik],
     )
     db.indset_sagsevent(sagsevent, commit=False)

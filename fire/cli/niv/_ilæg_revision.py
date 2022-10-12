@@ -602,9 +602,8 @@ def ilæg_revision(
         punkter_med_oprettelse.add(p.ident)
 
     if len(til_opret) > 0 or len(til_ret) > 0:
-        sagsevent = sag.ny_event(
+        sagsevent = sag.ny_sagsevent(
             beskrivelse="Opdatering af punktinformationer",
-            eventtype=EventType.PUNKTINFO_TILFOEJET,
             punktinformationer=[*til_opret, *til_ret],
         )
         fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
