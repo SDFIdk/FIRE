@@ -79,7 +79,7 @@ def test_hent_tidsserie_fra_punkt(firedb):
 
 
 def test_hent_tidsserie_fra_navn(firedb):
-    ts = firedb.hent_tidsserie("5D_IGb08_RDIO")
+    ts = firedb.hent_tidsserie("RDIO_5D_IGb08")
 
     assert ts.punkt.ident == "RDIO"
     assert len(ts.koordinater) == 10
@@ -96,7 +96,7 @@ def test_tidsserie_koordinater_observationer(firedb):
     med hver tre forskellige observationer tilknyttet de enkelte koordinater.
     """
 
-    ts = firedb.hent_tidsserie("5D_IGb14_RDO1")
+    ts = firedb.hent_tidsserie("RDO1_5D_IGb14")
 
     for koordinat in ts.koordinater:
         assert len(koordinat.beregninger[0].observationer) == 3

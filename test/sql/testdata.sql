@@ -64,8 +64,8 @@ Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (1
 
 -- SELECT x,y,z,sridid, srid, beskrivelse FROM SRIDTYPE WHERE srid='EPSG:5799';
 Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values (null,null,'Kote [m]',8,'EPSG:5799','Kotesystem: Dansk Vertikal Reference 1990');
-Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values ('X [m]','Y [m]','Z [m]',1,'IGS:IGb08','Geocentrisk: IGb08');
-Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values ('X [m]','Y [m]','Z [m]',2,'IGS:IGS14','Geocentrisk: IGS14');
+Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values ('X [m]','Y [m]','Z [m]',1,'EPSG:9015','Geocentrisk: IGb08');
+Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values ('X [m]','Y [m]','Z [m]',2,'EPSG:8227','Geocentrisk: IGS14');
 
 
 COMMIT;
@@ -1665,8 +1665,8 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0008-000000000004'
 );
 
-INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('301b8578-8cc8-48a8-8446-541f31482f86', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', '5D_IGb08_RDIO', '5D-tidsserie for RDIO', 'IGb08, 5D', 1, 1);
-INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('4b4c5c17-32e8-495d-a598-cdf42e0892de', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', '5D_IGb14_RDO1', '5D-tidsserie for RDO1', 'IGb14, 5D', 2, 1);
+INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('301b8578-8cc8-48a8-8446-541f31482f86', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', 'RDIO_5D_IGb08', '5D-tidsserie for RDIO', 'IGb08', 1, 1);
+INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('4b4c5c17-32e8-495d-a598-cdf42e0892de', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', 'RDO1_5D_IGb14', '5D-tidsserie for RDO1', 'IGb14', 2, 1);
 
 
 INSERT INTO tidsserie_koordinat

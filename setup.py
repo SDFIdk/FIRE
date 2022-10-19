@@ -60,5 +60,6 @@ setup(
         søg=fire.cli.søg:søg
         grafik=fire.cli.grafik:grafik
         luk=fire.cli.luk:luk
+        indlæs=fire.cli.indlæs:indlæs
     """,
 )
