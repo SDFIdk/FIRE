@@ -281,6 +281,21 @@ class Punkt(FikspunktregisterObjekt):
 
         return self.ident
 
+    @property
+    def gnss_navn(self) -> str:
+        gnss_navne = []
+        for punktinfo in self.punktinformationer:
+            if (
+                punktinfo.infotype.name == "IDENT:GNSS"
+                and not punktinfo.registreringtil
+            ):
+                gnss_navne.append(punktinfo.tekst)
+
+        if gnss_navne:
+            return sorted(gnss_navne)[0]
+
+        return None
+
     def __lt__(self, other: Punkt) -> bool:
         return self.landsnummer < other.landsnummer
 
