@@ -432,6 +432,10 @@ ADD
 -- med samme SRIDID, hvis denne ikke er afregistreret
 CREATE UNIQUE INDEX koordinat_uniq_idx ON koordinat (sridid, punktid, registreringtil);
 
+-- Index er skal sikre at en koordinat ikke dobbeltregistreres, hvilket især risikeres ved
+-- bulk-indlæsning af GNSS-koordinater
+CREATE UNIQUE INDEX koordinat_uniq2_idx ON koordinat (sridid, punktid, x, y, z, t, fejlmeldt);
+
 -- Spatiale index
 CREATE INDEX geometriobjekt_geometri_idx ON geometriobjekt (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
 CREATE INDEX herredsogn_geometri_idx ON herredsogn (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS ('layer_gtype=polygon');
