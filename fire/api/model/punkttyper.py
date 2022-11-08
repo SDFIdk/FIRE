@@ -492,6 +492,27 @@ class Koordinat(FikspunktregisterObjekt):
         else:
             self._fejlmeldt = Boolean.FALSE
 
+    @property
+    def beregning(self):
+        """Returner beregning der ligger til grund for koordinaten."""
+
+        # En koordinat kan ikke skabes ud fra flere beregninger så vi antager
+        # at den første i listen er den rigtige (og at der ikke er flere)
+        try:
+            return self.beregninger[0]
+        except IndexError:
+            return None
+
+    @functools.cached_property
+    def observationer(self):
+        """Returner alle observationer der direkte har bidraget til en koordinat."""
+        return [
+            obs
+            for obs in self.beregning.observationer
+            if obs.opstillingspunktid == self.punktid
+            or obs.sigtepunktid == self.punktid
+        ]
+
 
 class GeometriObjekt(FikspunktregisterObjekt):
     __tablename__ = "geometriobjekt"
