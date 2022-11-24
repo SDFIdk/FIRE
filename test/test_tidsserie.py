@@ -9,6 +9,11 @@ from fire.api.model import (
     Tidsserie,
     EventType,
 )
+from fire.api.model.observationer import (
+    KoordinatKovarians,
+    ResidualKovarians,
+    ObservationsLængde,
+)
 
 
 def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinatfabrik):
@@ -85,3 +90,21 @@ def test_hent_tidsserie_fra_navn(firedb):
 
     with pytest.raises(NoResultFound):
         firedb.hent_tidsserie("findes ikk")
+
+
+def test_tidsserie_koordinater_observationer(firedb):
+    """
+    Test at koordinater og observationer er korrekt tilknyttede i en tidsserie.
+
+    Vi tager udgangspunkt i '5D_IGb14_RDO1', der har tre koordinater i tidsserien,
+    med hver tre forskellige observationer tilknyttet de enkelte koordinater.
+    """
+
+    ts = firedb.hent_tidsserie("5D_IGb14_RDO1")
+
+    for koordinat in ts.koordinater:
+        assert len(koordinat.beregninger[0].observationer) == 3
+        for obs in koordinat.beregninger[0].observationer:
+            assert isinstance(
+                obs, (ObservationsLængde, KoordinatKovarians, ResidualKovarians)
+            )
