@@ -34,7 +34,6 @@ __all__ = [
     "Punkt",
     "PunktSamling",
     "Koordinat",
-    "Tidsserie",
     "Artskode",
     "GeometriObjekt",
     "Beregning",
@@ -48,6 +47,7 @@ __all__ = [
     "Grafik",
     "GrafikType",
     "beregning_observation",
+    "tidsserie_koordinat",
 ]
 
 
@@ -476,37 +476,6 @@ class Koordinat(FikspunktregisterObjekt):
             self._fejlmeldt = Boolean.TRUE
         else:
             self._fejlmeldt = Boolean.FALSE
-
-
-class Tidsserie(FikspunktregisterObjekt):
-    __tablename__ = "tidsserie"
-    sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
-    sagsevent = relationship(
-        "Sagsevent", foreign_keys=[sagseventfraid], back_populates="tidsserier"
-    )
-    sagseventtilid = Column(String, ForeignKey("sagsevent.id"), nullable=True)
-    slettet = relationship(
-        "Sagsevent",
-        foreign_keys=[sagseventtilid],
-        back_populates="tidsserier_slettede",
-    )
-
-    punktid = Column(String(36), ForeignKey("punkt.id"))
-    punkt = relationship("Punkt")
-
-    punktsamlingsid = Column(Integer, ForeignKey("punktsamling.objektid"))
-    punktsamling = relationship("PunktSamling", back_populates="tidsserier")
-
-    navn = Column(String, nullable=False)
-    formål = Column("formaal", String, nullable=False)
-
-    referenceramme = Column(String, nullable=False)
-    sridid = Column(Integer, ForeignKey("sridtype.sridid"), nullable=False)
-    srid = relationship("Srid", lazy="joined")
-
-    koordinater = relationship(
-        "Koordinat", secondary=tidsserie_koordinat, back_populates="tidsserier"
-    )
 
 
 class GeometriObjekt(FikspunktregisterObjekt):

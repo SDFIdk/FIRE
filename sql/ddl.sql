@@ -128,7 +128,8 @@ CREATE TABLE tidsserie (
   navn VARCHAR2(4000) NOT NULL UNIQUE,
   formaal VARCHAR2(4000) NOT NULL,
   referenceramme VARCHAR2(50) NOT NULL,
-  sridid INTEGER NOT NULL
+  sridid INTEGER NOT NULL,
+  tstype INTEGER NOT NULL
 );
 
 
@@ -417,6 +418,13 @@ ALTER TABLE
 ADD
   CONSTRAINT sridtype_namespace_chk CHECK (
     substr(SRID, 1, instr(SRID, ':') -1) IN ('DK', 'EPSG', 'GL', 'TS', 'IGS')
+  ) ENABLE VALIDATE;
+
+ALTER TABLE
+  tidsserie
+ADD
+  CONSTRAINT tidsserie_tstype_chk CHECK (
+    tstype IN (1,2)
   ) ENABLE VALIDATE;
 
 
@@ -827,6 +835,7 @@ COMMENT ON COLUMN tidsserie.navn IS 'Tidsseriens navn';
 COMMENT ON COLUMN tidsserie.formaal IS 'Beskrivelse af formålet med tidsserien.';
 COMMENT ON COLUMN tidsserie.referenceramme IS 'Angivelse af tidsseriens referenceramme, eksempelvis IGS14_REPRO1';
 COMMENT ON COLUMN tidsserie.sridid IS 'Angivelse af transformerbart (så vidt muligt) koordinatsystem for tidsserien. Der findes ikke transformationer til/fra IGS14_REPRO1, det gør der der imod til ITFR2014 hvorfor dette angives som SRID. Transformationsmæssigt er IGS14 og ITRF2014 ækvivalente, så ved at angive ITRF2014 som SRID sikrer vi muligheden for at kunne transformere tidsserien til et andet system.';
+COMMENT ON COLUMN tidsserie.tstype IS 'Angivelse af tidsseriens type. Følgende værdier accepteres, 1: GNSS, 2: Nivellement';
 
 COMMENT ON TABLE observation IS 'Generisk observationsobjekt indeholdende informationer om en observation.';
 COMMENT ON COLUMN observation.antal IS 'Antal gentagne observationer hvoraf en middelobservationen er fremkommet.';
