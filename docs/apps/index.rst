@@ -10,4 +10,5 @@ Kommandolinjeprogrammer
     grafik
     gama
     luk
+    ts
 

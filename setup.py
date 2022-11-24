@@ -61,5 +61,6 @@ setup(
         grafik=fire.cli.grafik:grafik
         luk=fire.cli.luk:luk
         indlæs=fire.cli.indlæs:indlæs
+        ts=fire.cli.ts:ts
     """,
 )
