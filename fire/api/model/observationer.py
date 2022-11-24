@@ -6,7 +6,7 @@ from sqlalchemy import (
     ForeignKey,
 )
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, synonym
 from sqlalchemy.dialects.oracle import TIMESTAMP
 
 import fire
@@ -31,6 +31,9 @@ __all__ = [
     "Zenitvinkel",
     "Vektor",
     "Nulobservation",
+    "ObservationsLængde",
+    "KoordinatKovarians",
+    "ResidualKovarians",
 ]
 
 
@@ -81,6 +84,9 @@ class ObservationstypeID:
     zenitvinkel = 6
     vektor = 7
     nulobservation = 8
+    observationslængde = 9
+    koordinat_kovarians = 10
+    residual_kovarians = 11
 
 
 # Her bruger vi SQLAlchemy's Single Inheritance-funktionalitet:
@@ -507,3 +513,197 @@ class Nulobservation(Observation):
     """
 
     __mapper_args__ = {"polymorphic_identity": ObservationstypeID.nulobservation}
+
+
+class ObservationsLængde(Observation):
+    """
+    Observationslængden af en GNSS-måling.
+
+    Bemærk at observationstidspunktet angiver starten af observationsperioden.
+    Ved hjælp af observationvarigheden kan både sluttidspunktet og
+    "middelobservationstidspunktet" beregnes.
+    """
+
+    __mapper_args__ = {"polymorphic_identity": ObservationstypeID.observationslængde}
+
+    def _get_varighed(self):
+        # return Observation.__table__.c.get("value1", Column(Float, nullable=False))
+        return self.value1
+
+    def _set_varighed(self, værdi):
+        self.value1 = værdi
+
+    @declared_attr
+    def varighed(cls):
+        """Varighed [timer]"""
+        return synonym(
+            "value1", descriptor=property(cls._get_varighed, cls._set_varighed)
+        )
+
+
+class KoordinatKovarians(Observation):
+    """
+    Kovariansmatrix for tidsseriekoordinat.
+
+    Genereret i forbindelse med kombination af daglige koordinatløsninger til
+    samlet koordinatløsning (= tidsseriekoordinaterne).
+
+    Kovariansmatricen repræsenterer et estimat for varianser/kovarianser af
+    den samlede koordinatløsning, dvs. af tidsseriekoordinaterne registeret
+    i FIRE.
+
+    Kovarianserne er baseret på geocentriske koordinater.
+    """
+
+    __mapper_args__ = {"polymorphic_identity": ObservationstypeID.koordinat_kovarians}
+
+    def _get_xx(self):
+        return self.value1
+
+    def _set_xx(self, værdi):
+        self.value1 = værdi
+
+    @declared_attr
+    def xx(cls):
+        """Varians af koordinatens x-komponent [m^2]"""
+        return synonym("value1", descriptor=property(cls._get_xx, cls._set_xx))
+
+    def _get_xy(self):
+        return self.value2
+
+    def _set_xy(self, værdi):
+        self.value2 = værdi
+
+    @declared_attr
+    def xy(cls):
+        """Kovarians mellem koordinatens x- og y-komponent [m^2]"""
+        return synonym("valu2", descriptor=property(cls._get_xy, cls._set_xy))
+
+    def _get_xz(self):
+        return self.value3
+
+    def _set_xz(self, værdi):
+        self.value3 = værdi
+
+    @declared_attr
+    def xz(cls):
+        """Kovarians mellem koordinatens x- og z-komponent [m^2]"""
+        return synonym("value3", descriptor=property(cls._get_xz, cls._set_xz))
+
+    def _get_yy(self):
+        return self.value4
+
+    def _set_yy(self, værdi):
+        self.value4 = værdi
+
+    @declared_attr
+    def yy(cls):
+        """Varians af koordinatens y-komponent [m^2]"""
+        return synonym("value4", descriptor=property(cls._get_yy, cls._set_yy))
+
+    def _get_yz(self):
+        return self.value5
+
+    def _set_yz(self, værdi):
+        self.value5 = værdi
+
+    @declared_attr
+    def yz(cls):
+        """Kovarians mellem koordinatens y- og z-komponent [m^2]"""
+        return synonym("value5", descriptor=property(cls._get_yz, cls._set_yz))
+
+    def _get_zz(self):
+        return self.value6
+
+    def _set_zz(self, værdi):
+        self.value6 = værdi
+
+    @declared_attr
+    def zz(cls):
+        """Varians af koordinatens z-komponent [m^2]"""
+        return synonym("value6", descriptor=property(cls._get_zz, cls._set_zz))
+
+
+class ResidualKovarians(Observation):
+    """
+    Empirisk kovariansmatrix for daglige koordinatløsninger indgået i beregning
+    af tidsseriekoordinater.
+
+    Kovariansmatrix beregnet ud fra residualerne i mellem den samlede koordinatløsning
+    (= tidsseriekoordinaterne) og de daglige koordinatløsninger, der er indgået i
+    bestemmelsen af den samlede koordinatløsning. Ovennævnte residualer er genereret
+    i forbindelse med kombination af daglige koordinatløsninger til samlet
+    koordinatløsning. Kovariansmatricen repræsenterer et estimat for varians/kovarianser
+    af de daglige koordinatløsninger.
+
+    Kovarianserne er baseret på topocentriske koordinatresidualer.
+    """
+
+    __mapper_args__ = {"polymorphic_identity": ObservationstypeID.residual_kovarians}
+
+    def _get_xx(self):
+        # return Observation.__table__.c.get("value1", Column(Float, nullable=False))
+        return self.value1
+
+    def _set_xx(self, værdi):
+        self.value1 = værdi
+
+    @declared_attr
+    def xx(cls):
+        """Varians af residualer af daglige løsningerns x-komponenter [mm^2]"""
+        return synonym("value1", descriptor=property(cls._get_xx, cls._set_xx))
+
+    def _get_xy(self):
+        return self.value2
+
+    def _set_xy(self, værdi):
+        self.value2 = værdi
+
+    @declared_attr
+    def xy(cls):
+        """Kovarians mellem residualer af daglige løsningers x- og y-komponenter [mm^2]"""
+        return synonym("valu2", descriptor=property(cls._get_xy, cls._set_xy))
+
+    def _get_xz(self):
+        return self.value3
+
+    def _set_xz(self, værdi):
+        self.value3 = værdi
+
+    @declared_attr
+    def xz(cls):
+        """Kovarians mellem residualer af daglige løsningers x- og z-komponenter [mm^2]"""
+        return synonym("value3", descriptor=property(cls._get_xz, cls._set_xz))
+
+    def _get_yy(self):
+        return self.value4
+
+    def _set_yy(self, værdi):
+        self.value4 = værdi
+
+    @declared_attr
+    def yy(cls):
+        """Varians af residualer af daglige løsningerns y-komponenter [mm^2]"""
+        return synonym("value4", descriptor=property(cls._get_yy, cls._set_yy))
+
+    def _get_yz(self):
+        return self.value5
+
+    def _set_yz(self, værdi):
+        self.value5 = værdi
+
+    @declared_attr
+    def yz(cls):
+        """Kovarians mellem residualer af daglige løsningers y- og z-komponenter [mm^2]"""
+        return synonym("value5", descriptor=property(cls._get_yz, cls._set_yz))
+
+    def _get_zz(self):
+        return self.value6
+
+    def _set_zz(self, værdi):
+        self.value6 = værdi
+
+    @declared_attr
+    def zz(cls):
+        """Varians af residualer af daglige løsningers z-komponenter[mm^2]"""
+        return synonym("value6", descriptor=property(cls._get_zz, cls._set_zz))

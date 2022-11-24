@@ -66,21 +66,3 @@ def test_info_obstype():
     result = runner.invoke(obstype, args)
 
     assert result.exit_code == 1
-
-
-def test_info_obstype_alle():
-    runner = CliRunner()
-
-    args = ["--monokrom"]  # fjern formatering af output
-    result = runner.invoke(obstype, args)
-
-    forventet_output = """geometrisk_koteforskel        Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt geometrisk
-trigonometrisk_koteforskel    Koteforskel fra fikspunkt1 til fikspunkt2 (h2-h1) opmålt...
-retning                       Horisontal retning med uret fra opstilling til sigtepunkt...
-horisontalafstand             Horisontal afstand mellem opstilling og sigtepunkt (reduceret til...
-skråafstand                   Skråafstand mellem opstilling og sigtepunkt
-zenitvinkel                   Zenitvinkel mellem opstilling og sigtepunkt
-vektor                        Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 2...
-nulobservation                observation nummer nul, indlagt fra start i observationstabellen,...
-"""
-    assert result.output == forventet_output

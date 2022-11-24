@@ -1926,7 +1926,98 @@ VALUES ('Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 2 (v2-v1
 INSERT INTO observationstype (beskrivelse, observationstypeid, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('observation nummer nul, indlagt fra start i observationstabellen, så der kan refereres til den i de mange beregningsevents der fører til population af koordinattabellen', 8 , 'nulobservation', 'false', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
+--
+-- GNSS Observationslængde
+--
+INSERT INTO observationstype (
+    -- Overordnet beskrivelse
+    beskrivelse,
+    observationstypeid,
+    observationstype,
+    sigtepunkt,
 
+    -- Observationen
+    value1
+)
+VALUES (
+    -- Overordnet beskrivelse
+    'Observationslængden af en GNSS-måling.',
+     9,
+    'observationslængde',
+    'false',
+
+    -- Observationen
+    'Varighed [timer]'
+
+);
+
+--
+-- Koordinat Kovariansmatrix
+--
+INSERT INTO observationstype (
+    -- Overordnet beskrivelse
+    beskrivelse,
+    observationstypeid,
+    observationstype,
+    sigtepunkt,
+
+    -- Observationen
+    value1,
+    value2,
+    value3,
+    value4,
+    value5,
+    value6
+)
+VALUES (
+    -- Overordnet beskrivelse
+    'Kovariansmatrix for tidsseriekoordinat.',
+     10,
+    'koordinat_kovarians',
+    'false',
+
+    -- Observationen
+    'Varians af koordinatens x-komponent [m^2]',
+    'Kovarians mellem koordinatens x- og y-komponent [m^2]',
+    'Kovarians mellem koordinatens x- og z-komponent [m^2]',
+    'Varians af koordinatens y-komponent [m^2]',
+    'Kovarians mellem koordinatens y- og y-komponent [m^2]',
+    'Varians af koordinatens z-komponent [m^2]'
+);
+
+--
+-- Koordinatresidual Kovariansmatrix
+--
+INSERT INTO observationstype (
+    -- Overordnet beskrivelse
+    beskrivelse,
+    observationstypeid,
+    observationstype,
+    sigtepunkt,
+
+    -- Observationen
+    value1,
+    value2,
+    value3,
+    value4,
+    value5,
+    value6
+)
+VALUES (
+    -- Overordnet beskrivelse
+    'Empirisk kovariansmatrix for daglige koordinatløsninger indgået i beregning af (GNSS-)tidsseriekoordinater.',
+     11,
+    'residual_kovarians',
+    'false',
+
+    -- Observationen
+    'Varians af koordinatens x-komponent [mm^2]',
+    'Kovarians mellem koordinatens x- og y-komponent [mm^2]',
+    'Kovarians mellem koordinatens x- og z-komponent [mm^2]',
+    'Varians af koordinatens y-komponent [mm^2]',
+    'Kovarians mellem koordinatens y- og y-komponent [mm^2]',
+    'Varians af koordinatens z-komponent [mm^2]'
+);
 
 -- Oprettelse af eventtyper i FIRE
 INSERT INTO eventtype (beskrivelse, event, eventtypeid)
