@@ -11,6 +11,7 @@ from typing import (
 import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
+import packaging.version
 
 from fire.api.model import (
     Punkt,
@@ -569,7 +570,7 @@ def opret_region_punktinfo(punkt: Punkt) -> PunktInformation:
     return PunktInformation(infotype=pit, punkt=punkt)
 
 
-def er_projekt_okay(projektnavn: str):
+def er_projekt_okay(projektnavn: str) -> None:
     """
     Kontroller om det er okay at bruge et givet projekt.
 
@@ -586,14 +587,23 @@ def er_projekt_okay(projektnavn: str):
         )
         raise SystemExit(1)
 
-    versionsnummer = find_parameter(projektnavn, "Version")
-    if versionsnummer != fire.__version__:
+    fil_version = packaging.version.parse(find_parameter(projektnavn, "Version"))
+    fire_version = packaging.version.parse(fire.__version__)
+    if fil_version.major != fire_version.major:
         fire.cli.print(
-            f"FEJL: '{projektnavn}' er oprettet med version {versionsnummer} - du har version {fire.__version__} installeret!",
+            f"FEJL: '{projektnavn}' er oprettet med version {fil_version} - du har version {fire_version} installeret!",
             bold=True,
             bg="red",
         )
         raise SystemExit(1)
+
+    if fil_version.minor > fire_version.minor:
+        fire.cli.print(
+            f"ADVARSEL: '{projektnavn}' er oprettet med version {fil_version} - du har version {fire_version} installeret!",
+            bold=True,
+            bg="yellow",
+        )
+        return
 
 
 """
