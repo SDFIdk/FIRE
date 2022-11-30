@@ -85,7 +85,7 @@ def test_hent_tidsserie_fra_navn(firedb):
     assert len(ts.koordinater) == 10
 
     with pytest.raises(NoResultFound):
-        firedb.hent_tidsserie("findes ikk")
+        firedb.hent_tidsserie("Findes ikke")
 
 
 def test_tidsserie_koordinater_observationer(firedb):
