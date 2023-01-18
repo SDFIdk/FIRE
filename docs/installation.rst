@@ -66,8 +66,8 @@ computeren for at kunne afvikle programmet. Til det bruges MambaForge, der
 inkluderer Python-fortolker og pakkestyringsværktøjet ``mamba``.
 
 Under SDFIs side for Python-brugere findes en `installationsvejledning
-<https://sdfidk.github.io/SDFIPython/setup.html>`_. Følg **Den fulde
-vejledning** til du kommer til overskriften **Demonstration**.
+<https://sdfidk.github.io/SDFIPython/setup.html#den-fulde-vejledning>`_. Følg
+**Den fulde vejledning** til du kommer til overskriften **Demonstration**.
 
 Når MambaForge er installeret kan du nu i Windows start-menuen finde "Miniforge
 Prompt (mambaforge)". Alle efterfølgende kommandoer i denne
