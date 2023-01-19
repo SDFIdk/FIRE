@@ -10,7 +10,6 @@ from rich import box
 from sqlalchemy.exc import NoResultFound, IntegrityError
 
 import fire.cli
-from fire.cli import firedb
 from fire.io.bernese import BerneseSolution
 from fire.api.model import (
     GNSSTidsserie,
@@ -48,7 +47,7 @@ def find_relevante_punkter(
         if ignoreret_station in relevante_punkter:
             relevante_punkter.remove(ignoreret_station)
 
-    punkter = firedb.hent_punkt_liste(relevante_punkter, ignorer_ukendte=True)
+    punkter = fire.cli.firedb.hent_punkt_liste(relevante_punkter, ignorer_ukendte=True)
     punkter_i_db = [pkt.gnss_navn for pkt in punkter]
     manglende_punkter = [pkt for pkt in relevante_punkter if pkt not in punkter_i_db]
 
@@ -66,7 +65,7 @@ def find_srid(solution: BerneseSolution) -> Srid:
     Find det aktuelle SRID brugt i en BerneseSolution.
     """
     try:
-        srid = firedb.hent_srid(SRIDINDEX[solution.datum])
+        srid = fire.cli.firedb.hent_srid(SRIDINDEX[solution.datum])
     except IndexError:
         raise SystemExit(f"Ukendt referenceramme: {solution.datum}")
     except NoResultFound:
@@ -267,7 +266,7 @@ def bernese(
     punkter = find_relevante_punkter(solution, ignorer_station, ignorer_advarsler)
     srid = find_srid(solution)
 
-    sag = firedb.ny_sag(
+    sag = fire.cli.firedb.ny_sag(
         sagsbehandler, f"fire gnss bernese: indlæsning af nye koordinater"
     )
 
@@ -279,8 +278,8 @@ def bernese(
             tidsserier=nye_tidsserier,
             beskrivelse="fire gnss bernese: Automatisk oprettelse af tidsserier",
         )
-        firedb.indset_sagsevent(sagsevent_tidsserier, commit=False)
-        firedb.session.flush()
+        fire.cli.firedb.indset_sagsevent(sagsevent_tidsserier, commit=False)
+        fire.cli.firedb.session.flush()
 
     # Indlæs "observationer"
     nye_observationer = opret_nye_gnss_observationer(
@@ -291,15 +290,15 @@ def bernese(
         observationer=nye_observationer,
         beskrivelse="fire gnss bernese: Indlæsning af observationer",
     )
-    firedb.indset_sagsevent(sagsevent_observationer, commit=False)
-    firedb.session.flush()
+    fire.cli.firedb.indset_sagsevent(sagsevent_observationer, commit=False)
+    fire.cli.firedb.session.flush()
 
     # Her fra indlæses koordinater og tidsserier opdateres
     nye_koordinater = []
     opdaterede_tidsserier = []
     for punkt in punkter:
         # sikrer at evt nyoprettet tidsserie er tilgængelig
-        firedb.session.refresh(punkt)
+        fire.cli.firedb.session.refresh(punkt)
 
         station = solution[punkt.gnss_navn]
 
@@ -336,16 +335,16 @@ def bernese(
         beskrivelse="fire gnss bernese: Indlæsning af koordinater",
         materialer=[komprimer([addneqfil, crdfil, covfil])],
     )
-    firedb.indset_sagsevent(sagsevent_koordinater, commit=False)
+    fire.cli.firedb.indset_sagsevent(sagsevent_koordinater, commit=False)
     try:
-        firedb.session.flush()
+        fire.cli.firedb.session.flush()
     except IntegrityError as ex:
         # Udløses ved forsøg på indsættelse af koordinat der er identisk med en
         # eksisterende. Trigger det unikke indeks KOORDINAT_UNIQ2_IDX. Vi antager
         # at det er en fejl, da et eksakt match på punkt, SRID, x, y, z og t er
         # højst usandsynligt.
-        firedb.session.rollback()
-        fejlende_punkt = firedb.hent_punkt(ex.params["punktid"])
+        fire.cli.firedb.session.rollback()
+        fejlende_punkt = fire.cli.firedb.hent_punkt(ex.params["punktid"])
 
         print(
             f"FEJL: Koordinat på station {fejlende_punkt.gnss_navn} findes allerede i databasen:"
@@ -361,11 +360,11 @@ def bernese(
             tidsserier=opdaterede_tidsserier,
             beskrivelse="fire gnss bernese: Opdatering af tidsserier",
         )
-        firedb.indset_sagsevent(sagsevent_tidsserier, commit=False)
-        firedb.session.flush()
+        fire.cli.firedb.indset_sagsevent(sagsevent_tidsserier, commit=False)
+        fire.cli.firedb.session.flush()
 
-    firedb.luk_sag(sag, commit=False)
-    firedb.session.flush()
+    fire.cli.firedb.luk_sag(sag, commit=False)
+    fire.cli.firedb.session.flush()
 
     print_koordinat_tabel(nye_koordinater)
 
