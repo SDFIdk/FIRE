@@ -9,6 +9,7 @@ from fire.api.model import (
     SagseventInfo,
     Punkt,
     Observation,
+    TrigonometriskKoteforskel,
     Geometry,
     ObservationsType,
     EventType,
@@ -32,6 +33,58 @@ def test_hent_observationer(firedb: FireDb, observationer):
         ("60cd07f2-2c9a-471c-bc7e-ef3473098e85", "7e277296-2412-46ff-91f2-0841cf1cc3af")
     )
     assert len(os) == 0
+
+
+def test_hent_observationer_fra_opstillingspunkt(firedb: FireDb):
+    """
+    Test udtræk af observationer til et givent opstillingspunkt.
+
+    """
+    pkt1 = firedb.hent_punkt("RDO1")
+    pkt2 = firedb.hent_punkt("K-63-19113")
+    pkt3 = firedb.hent_punkt("102-08-09067")
+
+    # Kontroller at alle observationer hentes korrekt
+    alle_obs = firedb.hent_observationer_fra_opstillingspunkt(pkt1)
+
+    print(f"Antal observationer med RDO1 som opstillingspunkt: {len(alle_obs)}")
+    assert len(alle_obs) == 16
+
+    # Kontroller at alle observationer mellem opstillingspunkt og udvalgte
+    # sigtepunkter hentes korrekt
+    obs_til_sigtepunkter = firedb.hent_observationer_fra_opstillingspunkt(
+        pkt1, sigtepunkter=[pkt2, pkt3]
+    )
+    for obs in obs_til_sigtepunkter:
+        assert obs.sigtepunkt in (pkt2, pkt3)
+
+    print(
+        f"Antal observationer mellem RDO1 og (K-63-19113, 102-08-09067): {len(obs_til_sigtepunkter)}"
+    )
+    assert len(obs_til_sigtepunkter) == 6
+
+    # Kontroller at tidsbegrænsning af søgningen fungerer som forventet
+    fra = dt.datetime(2015, 1, 1)
+    til = dt.datetime(2016, 12, 31)
+    obs_periode = firedb.hent_observationer_fra_opstillingspunkt(
+        pkt1,
+        tid_fra=fra,
+        tid_til=til,
+    )
+    print(
+        f"Antal observationer fra RDO1 i perioden {fra} til {til}: {len(obs_periode)}"
+    )
+    for obs in obs_periode:
+        assert obs.observationstidspunkt > fra and obs.observationstidspunkt < til
+
+    # Udtræk kun specifikke observationstyper
+    obs_trig = firedb.hent_observationer_fra_opstillingspunkt(
+        pkt1, observationsklasse=TrigonometriskKoteforskel
+    )
+    print(f"Antal trigonometriske niv.-observationer fra RDO1: {len(obs_trig)}")
+    assert len(obs_trig) == 2
+    for obs in obs_trig:
+        assert isinstance(obs, TrigonometriskKoteforskel)
 
 
 def test_hent_observationer_naer_opstillingspunkt(firedb: FireDb):
