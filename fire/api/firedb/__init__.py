@@ -220,6 +220,13 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
                     _registreringfra=func.sysdate(),
                 )
 
+                # Sikr at den forrige koordinat *også* fejlmeldes, så vi
+                # kan tilføje en ny kopi af den uden at komme i problemer med
+                # KOORDINAT_UNIQ2_IDX constraint i databasen
+                forrige_koordinat.fejlmeldt = True
+                self.session.add(forrige_koordinat)
+                self.session.flush()
+
                 sagsevent.koordinater = [ny_koordinat]
 
                 self.session.add(sagsevent)

@@ -128,7 +128,8 @@ CREATE TABLE tidsserie (
   navn VARCHAR2(4000) NOT NULL UNIQUE,
   formaal VARCHAR2(4000) NOT NULL,
   referenceramme VARCHAR2(50) NOT NULL,
-  sridid INTEGER NOT NULL
+  sridid INTEGER NOT NULL,
+  tstype INTEGER NOT NULL
 );
 
 
@@ -419,10 +420,21 @@ ADD
     substr(SRID, 1, instr(SRID, ':') -1) IN ('DK', 'EPSG', 'GL', 'TS', 'IGS')
   ) ENABLE VALIDATE;
 
+ALTER TABLE
+  tidsserie
+ADD
+  CONSTRAINT tidsserie_tstype_chk CHECK (
+    tstype IN (1,2)
+  ) ENABLE VALIDATE;
+
 
 -- Index der skal sikre at der til samme punkt ikke tilføjes en koordinat
 -- med samme SRIDID, hvis denne ikke er afregistreret
 CREATE UNIQUE INDEX koordinat_uniq_idx ON koordinat (sridid, punktid, registreringtil);
+
+-- Index er skal sikre at en koordinat ikke dobbeltregistreres, hvilket især risikeres ved
+-- bulk-indlæsning af GNSS-koordinater
+CREATE UNIQUE INDEX koordinat_uniq2_idx ON koordinat (sridid, punktid, x, y, z, t, fejlmeldt);
 
 -- Spatiale index
 CREATE INDEX geometriobjekt_geometri_idx ON geometriobjekt (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
@@ -827,6 +839,7 @@ COMMENT ON COLUMN tidsserie.navn IS 'Tidsseriens navn';
 COMMENT ON COLUMN tidsserie.formaal IS 'Beskrivelse af formålet med tidsserien.';
 COMMENT ON COLUMN tidsserie.referenceramme IS 'Angivelse af tidsseriens referenceramme, eksempelvis IGS14_REPRO1';
 COMMENT ON COLUMN tidsserie.sridid IS 'Angivelse af transformerbart (så vidt muligt) koordinatsystem for tidsserien. Der findes ikke transformationer til/fra IGS14_REPRO1, det gør der der imod til ITFR2014 hvorfor dette angives som SRID. Transformationsmæssigt er IGS14 og ITRF2014 ækvivalente, så ved at angive ITRF2014 som SRID sikrer vi muligheden for at kunne transformere tidsserien til et andet system.';
+COMMENT ON COLUMN tidsserie.tstype IS 'Angivelse af tidsseriens type. Følgende værdier accepteres, 1: GNSS, 2: Nivellement';
 
 COMMENT ON TABLE observation IS 'Generisk observationsobjekt indeholdende informationer om en observation.';
 COMMENT ON COLUMN observation.antal IS 'Antal gentagne observationer hvoraf en middelobservationen er fremkommet.';
@@ -1926,7 +1939,98 @@ VALUES ('Vektor der beskriver koordinatforskellen fra punkt 1 til punkt 2 (v2-v1
 INSERT INTO observationstype (beskrivelse, observationstypeid, observationstype, sigtepunkt, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
 VALUES ('observation nummer nul, indlagt fra start i observationstabellen, så der kan refereres til den i de mange beregningsevents der fører til population af koordinattabellen', 8 , 'nulobservation', 'false', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
+--
+-- GNSS Observationslængde
+--
+INSERT INTO observationstype (
+    -- Overordnet beskrivelse
+    beskrivelse,
+    observationstypeid,
+    observationstype,
+    sigtepunkt,
 
+    -- Observationen
+    value1
+)
+VALUES (
+    -- Overordnet beskrivelse
+    'Observationslængden af en GNSS-måling.',
+     9,
+    'observationslængde',
+    'false',
+
+    -- Observationen
+    'Varighed [timer]'
+
+);
+
+--
+-- Koordinat Kovariansmatrix
+--
+INSERT INTO observationstype (
+    -- Overordnet beskrivelse
+    beskrivelse,
+    observationstypeid,
+    observationstype,
+    sigtepunkt,
+
+    -- Observationen
+    value1,
+    value2,
+    value3,
+    value4,
+    value5,
+    value6
+)
+VALUES (
+    -- Overordnet beskrivelse
+    'Kovariansmatrix for tidsseriekoordinat.',
+     10,
+    'koordinat_kovarians',
+    'false',
+
+    -- Observationen
+    'Varians af koordinatens x-komponent [m^2]',
+    'Kovarians mellem koordinatens x- og y-komponent [m^2]',
+    'Kovarians mellem koordinatens x- og z-komponent [m^2]',
+    'Varians af koordinatens y-komponent [m^2]',
+    'Kovarians mellem koordinatens y- og y-komponent [m^2]',
+    'Varians af koordinatens z-komponent [m^2]'
+);
+
+--
+-- Koordinatresidual Kovariansmatrix
+--
+INSERT INTO observationstype (
+    -- Overordnet beskrivelse
+    beskrivelse,
+    observationstypeid,
+    observationstype,
+    sigtepunkt,
+
+    -- Observationen
+    value1,
+    value2,
+    value3,
+    value4,
+    value5,
+    value6
+)
+VALUES (
+    -- Overordnet beskrivelse
+    'Empirisk kovariansmatrix for daglige koordinatløsninger indgået i beregning af (GNSS-)tidsseriekoordinater.',
+     11,
+    'residual_kovarians',
+    'false',
+
+    -- Observationen
+    'Varians af koordinatens x-komponent [mm^2]',
+    'Kovarians mellem koordinatens x- og y-komponent [mm^2]',
+    'Kovarians mellem koordinatens x- og z-komponent [mm^2]',
+    'Varians af koordinatens y-komponent [mm^2]',
+    'Kovarians mellem koordinatens y- og y-komponent [mm^2]',
+    'Varians af koordinatens z-komponent [mm^2]'
+);
 
 -- Oprettelse af eventtyper i FIRE
 INSERT INTO eventtype (beskrivelse, event, eventtypeid)

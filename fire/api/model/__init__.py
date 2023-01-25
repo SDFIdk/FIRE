@@ -130,3 +130,5 @@ class RegisteringTidObjekt(DeclarativeBase):
 from .geometry import *
 from .punkttyper import *
 from .sagstyper import *
+from .observationer import *
+from .tidsserier import *
