@@ -189,15 +189,14 @@ def komprimer(filer: List[click.File]) -> bytes:
 
 
 @indlæs.command()
+@click.argument(
+    "tidsserietype",
+    type=click.Choice(["INGEN", "5D", "NKG"], case_sensitive=False),
+    metavar="TIDSSERIETYPE",
+)
 @click.argument("addneqfil", type=click.Path(exists=True))
 @click.argument("crdfil", type=click.Path(exists=True))
 @click.argument("covfil", type=click.Path(exists=True), required=False, default=None)
-@click.option(
-    "--tidsserietype",
-    "-tt",
-    type=click.Choice(["5D", "CORS"], case_sensitive=False),
-    help="Tilføj de indlæste koordinater til tidsserie(r) af den valgte type.",
-)
 @click.option(
     "--ignorer-advarsler",
     is_flag=True,
@@ -217,10 +216,10 @@ def komprimer(filer: List[click.File]) -> bytes:
 )
 @fire.cli.default_options()
 def bernese(
+    tidsserietype: str,
     addneqfil: click.Path,
     crdfil: click.Path,
     covfil: click.Path,
-    tidsserietype: str,
     ignorer_advarsler: bool,
     ignorer_station: list,
     sagsbehandler: str,
@@ -239,8 +238,14 @@ def bernese(
     koordinaterne også til de relevante tidsserier for de givne punkter. Disse kan
     efterfølgende tilgås via tidsseriens navn, fx "RDIO_5D_IGb08".
 
-    Bemærk dog, at i langt de fleste tilfælde er det ønskeligt at tilføje
-    koordinaterne til tidsserier for de berørte stationer.
+    Som udgangspunkt tilknyttes de indlæste koordinater til en tidsserie. Der findes
+    forskellige tidsserietyper til forskellige beregningsformål, fx NKG og 5D. De
+    oprettede tidsserier kan efterfølgende tilgås via tidsseriens navn, RDIO_5D_IGb08.
+
+    I særlige tilfælde er det ønskeligt at indlæse koordinater *uden* at tilknytte dem
+    til en tidsserie. Her er det muligt at sætte tidsserietypen til "INGEN". Bemærk dog,
+    at i langt de fleste tilfælde er det ønskeligt at tilføje koordinaterne til tidsserier
+    for de berørte stationer.
 
     \b
     EKSEMPLER
@@ -248,19 +253,19 @@ def bernese(
 
         Indlæs koordinater uden at tilknytte dem til tidsserier:
 
-        > fire gnss bernese ADDNEQ2_2096 COMB2096.CRD COMB2096.COV
+        > fire indlæs bernese INGEN ADDNEQ2_2096 COMB2096.CRD COMB2096.COV
 
         Indlæs koordinater fra en 5D-beregning med tilhørende tilknytning til
         tidsserier:
 
-        > fire gnss bernese --tidsserietype 5D ADDNEQ2_1373 COMB1713.CRD
+        > fire indlæs bernese 5D ADDNEQ2_1373 COMB1713.CRD
 
         Undlad at indlæse koordinater fra udvalgte stationer:
 
-        > fire gnss bernese --tidsserietype 5D -I BUDP -I SMID ADDNEQ2_1373 COMB1713.CRD
+        > fire indlæs bernese 5D -I BUDP -I SMID ADDNEQ2_1373 COMB1713.CRD
 
     """
-    inkluder_koordinater_i_tidsserier = tidsserietype is not None
+    inkluder_koordinater_i_tidsserier = tidsserietype != "INGEN"
 
     solution = BerneseSolution(addneqfil, crdfil, covfil)
     punkter = find_relevante_punkter(solution, ignorer_station, ignorer_advarsler)
