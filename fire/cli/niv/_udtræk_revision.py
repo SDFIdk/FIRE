@@ -264,7 +264,8 @@ def udtræk_revision(
         punkt_informationer = fjern_ignorerede(
             punkt_informationer, ignorerede_attributter
         )
-        punkt_informationer = fjern_alle_med_ident(punkt_informationer, ident)
+        if not alle_attributter:
+            punkt_informationer = fjern_alle_med_ident(punkt_informationer, ident)
 
         # Inden punkt-informationerne føjes til regnearket, flyt
         # prioriterede attributter til toppen i den valgte rækkefølge.
