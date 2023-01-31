@@ -267,11 +267,11 @@ def skriv_ark(
         with pd.ExcelWriter(fil) as writer:
             for navn in nye_faneblade:
                 nye_faneblade[navn].replace("nan", "").to_excel(
-                    writer, sheet_name=navn, encoding="utf-8", index=False
+                    writer, sheet_name=navn, index=False
                 )
             for navn in gamle_faneblade:
                 gamle_faneblade[navn].replace("nan", "").to_excel(
-                    writer, sheet_name=navn, encoding="utf-8", index=False
+                    writer, sheet_name=navn, index=False
                 )
     except Exception as ex:
         fire.cli.print(f"Kan ikke skrive opdateret '{fil}'!")
