@@ -219,9 +219,8 @@ def skriv_data(uddata: BinaryIO, faner: Mapping[str, pd.DataFrame]):
     Skriver observationer og punkter til givet uddata.
 
     """
-    ewkw = dict(encoding="utf-8", index=False)
     with pd.ExcelWriter(
         uddata, mode="a", if_sheet_exists="replace", engine="openpyxl"
     ) as writer:
         for navn, ark in faner.items():
-            ark.to_excel(writer, sheet_name=navn, **ewkw)
+            ark.to_excel(writer, sheet_name=navn, index=False)
