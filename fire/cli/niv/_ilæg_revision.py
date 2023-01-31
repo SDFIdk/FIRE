@@ -518,7 +518,7 @@ def ilæg_revision(
                 elif pit.anvendelse == PunktInformationTypeAnvendelse.TEKST:
                     # Excel *kan* finde på at proppe "_x000D_" ind i stedet for \r,
                     # her rydder vi op for at undgå vrøvl i databasen.
-                    tekst = r["Ny værdi"].replace("_x000D_", "")
+                    tekst = r["Ny værdi"].replace("_x000D_", "").strip()
 
                     # Ingen definitiv test her: Tom tekst kan være gyldig.
                     # Men vi sørger for at den ikke er None
