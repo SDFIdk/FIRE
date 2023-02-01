@@ -96,7 +96,51 @@ PATH-miljøvariabel.
     nævnt uden problemer kan bruges som alternativ til ``mamba``, hvis man har
     lyst.
 
+Linux kommandolinjeværktøjer
+----------------------------
 
+Nogle af os er vant til at bruge kommandolinjen på et et Linuxsystem og mangler
+ofte kommandoer som ``ls``, ``cat`` og ``grep``. Herunder vises hvordan man kan
+få adgang til dem på sin Windows-maskine.
+
+.. note::
+
+    Dette afsnit er valgfri. Hvis du klarer dig fint med kommandoudvalget under
+    Windows er dette ikke nødvendigt og du kan spring til selve installationen af
+    FIRE i :ref:`næste afsnit <fire-install>`. 
+
+Linuxkommandoerne følger med Git der blev installeret i et af de tidligere skridt.
+Desværre er de ikke som udgangspunkt tilgængelige i vores terminal.
+Det kan ændres ved at tilføje deres placering til miljøvariablen ``PATH``.
+
+Start med at åbne start-menuen (tryk på Windows-tasten) og søg efter "miljøvariable".
+Vælg derefter "Rediger miljøvariable for din konto" som vist herunder.
+
+.. image:: figures/envvars.png
+  :width: 800
+  :alt: Rediger miljøvariable for din konto
+
+Herefter kommer følgende vindue frem med en oversigt over de miljøvariable der
+er sat for din konto. Dit indhold er formentligt anderledes end det der ses på
+billedet, men "Path" bør være der for alle.
+
+.. image:: figures/path.png
+  :width: 800
+  :alt: Oversigt over miljøvariable for din konto
+
+Marker "Path" og tryk på "Rediger..". Det resulterer i en dialogbox hvor der kan
+tilføjes mere indhold til miljøvariablen "Path".
+
+.. image:: figures/path_git.png
+  :width: 800
+  :alt: Udvid Path-variablen med sti til kommandolinjeværktøjer
+
+Tryk på "Ny" og indtast stien ``C:\Program Files\Git\usr\bin``. Næste gang du
+åbner en terminal har du adgang til de mest gængse Linux-kommandoer, prøv fx med
+``ls``.
+
+
+.. _fire-install:
 FIRE
 ----
 
