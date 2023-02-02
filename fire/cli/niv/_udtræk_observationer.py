@@ -307,6 +307,9 @@ def udtræk_observationer(
         )
         resultatsæt |= set(brug_alle_på_alle(søgefunktioner, klargjorte_geometrier))
 
+    if not resultatsæt:
+        raise SystemExit("Ingen observationer fundet")
+
     # Anvend kvalitetskriterier
     # -------------------------
 
