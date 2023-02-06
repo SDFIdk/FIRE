@@ -132,7 +132,7 @@ def punkter_til_geojson(data: pd.DataFrame) -> dict:
         "features": [
             {
                 "type": "Feature",
-                "properties": {k: v for k, v in row.iteritems()},
+                "properties": {k: v for k, v in row.items()},
                 "geometry": {
                     "type": "Point",
                     "coordinates": row[["Øst", "Nord"]].tolist(),

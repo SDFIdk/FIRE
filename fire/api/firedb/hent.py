@@ -214,6 +214,7 @@ class FireDbHent(FireDbBase):
         srid: Srid = None,
         kun_aktive: bool = True,
         observationsklasse: Observation = Observation,
+        sigtepunkter: List[Punkt] = None,
     ) -> List[Observation]:
         """
         Hent observationer, hvor `punkt` var opstillingspunktet.
@@ -229,6 +230,10 @@ class FireDbHent(FireDbBase):
 
         if kun_aktive:
             filtre.append(observationsklasse._registreringtil == None)
+
+        if sigtepunkter is not None:
+            sigtepunktider = [sigtepunkt.id for sigtepunkt in sigtepunkter]
+            filtre.append(observationsklasse.sigtepunktid.in_(sigtepunktider))
 
         query = self.session.query(observationsklasse)
 
