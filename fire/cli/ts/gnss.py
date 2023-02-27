@@ -1,8 +1,8 @@
 from typing import Type
 from datetime import datetime
-import csv
 
 import click
+import pandas as pd
 from rich.table import Table
 from rich.console import Console
 from rich import box
@@ -108,7 +108,7 @@ i tidsserien.  Se `fire ts gnss --help` for yderligere detaljer.""",
     "-f",
     required=False,
     type=click.Path(writable=True),
-    help="Skriv den udtrukne tidsserie til fil.",
+    help="Skriv den udtrukne tidsserie til Excel fil.",
 )
 @fire.cli.default_options()
 def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
@@ -164,16 +164,16 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
         > fire ts gnss RDIO
 
         \b
-        Vis tidsserien 'RDO1_IGb08' med standardparametre:\n
-        > fire ts gnss RDO1_IGb08
+        Vis tidsserien 'RDIO_5D_IGb08' med standardparametre:\n
+        > fire ts gnss RDIO_5D_IGb08
 
         \b
         Vis tidsserie med brugerdefinerede parametre:\n
-        > fire ts gnss RDO1_IGb08 --paramatre decimalår,n,e,u,sx,sy,sz
+        > fire ts gnss RDIO_5D_IGb08 --paramatre decimalår,n,e,u,sx,sy,sz
 
         \b
         Gem tidsserie med samtlige tilgængelige parametre:\n
-        > fire ts gnss RDO1_IGb08 -p alle -f RDIO1_IGb08.csv
+        > fire ts gnss RDIO_5D_IGb08 -p alle -f RDIO_5D_IGb08.xlsx
         \b
     """
     if not objekt:
@@ -227,12 +227,6 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     if not fil:
         raise SystemExit
 
-    with open(fil, mode="w") as f:
-        csv_skriver = csv.writer(
-            f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
-        )
-        csv_skriver.writerow(overskrifter)
-        for række in data:
-            csv_skriver.writerow(
-                [celle if celle is not None else "" for celle in række]
-            )
+    data = {overskrift: kolonne for (overskrift, kolonne) in zip(overskrifter, kolonner)}
+    df = pd.DataFrame(data)
+    df.to_excel(fil, index=False)
