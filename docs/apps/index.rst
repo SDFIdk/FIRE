@@ -6,7 +6,9 @@ Kommandolinjeprogrammer
 
     info
     niv
+    gnss
     grafik
     gama
     luk
+    ts
 

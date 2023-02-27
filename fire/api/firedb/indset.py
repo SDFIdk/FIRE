@@ -30,6 +30,10 @@ class FireDbIndset(FireDbBase):
             self.session.commit()
 
     def indset_sagsevent(self, sagsevent: Sagsevent, commit: bool = True):
+        """
+        Indsætter sagsevent og tilføjer eller ændrer tilknytteede FikspunktsregisterObjekter
+        i databasen.
+        """
         if not self._is_new_object(sagsevent):
             raise Exception(f"Sagsevent allerede tilføjet databasen: {sagsevent}")
         if len(sagsevent.sagseventinfos) < 1:
@@ -68,12 +72,23 @@ class FireDbIndset(FireDbBase):
                     )
                 koordinat.sagsevent = sagsevent
 
+        if sagsevent.eventtype == EventType.KOORDINAT_NEDLAGT:
+            self._check_and_prepare_sagsevent(sagsevent, EventType.KOORDINAT_NEDLAGT)
+            for koordinat in sagsevent.koordinater_slettede:
+                self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=commit)
+
         if sagsevent.eventtype == EventType.OBSERVATION_INDSAT:
             self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
 
             for obs in sagsevent.observationer:
                 if not self._is_new_object(obs):
                     raise Exception(f"Observation allerede tilføjet databasen: {obs}")
+
+        if sagsevent.eventtype == EventType.OBSERVATION_NEDLAGT:
+            self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_NEDLAGT)
+
+            for obs in sagsevent.observationer_slettede:
+                self._luk_fikspunkregisterobjekt(obs, sagsevent, commit=commit)
 
         if sagsevent.eventtype == EventType.PUNKTINFO_TILFOEJET:
             self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKTINFO_TILFOEJET)

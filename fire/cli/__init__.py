@@ -3,10 +3,26 @@ Kommandoliniebrugergrænsefladen (en command-line interface, CLI) til FIREs API.
 
 """
 import sys
+import os
+import signal
 
 import click
+import rich.traceback
+import sqlalchemy
 
 from fire.api import FireDb
+
+# Pæne tracebacks med relevant debug info. Udelader output fra pakker
+# spytter exceptionelt meget (irrellevant) output ud ved fejl
+rich.traceback.install(show_locals=True, suppress=[click, sqlalchemy])
+
+# Undgå enorme, ubrugelige tracebacks når programmet afbrydes med CTRL+C
+def luk_pænt_ved_ctrl_c(signal, frame):
+    raise SystemExit
+
+
+signal.signal(signal.SIGINT, luk_pænt_ved_ctrl_c)
+
 
 firedb = FireDb()
 _show_colors = True
@@ -124,3 +140,14 @@ def override_firedb(new_firedb: FireDb):
     """
     global firedb
     firedb = new_firedb
+
+
+def åbn_fil(fil: str) -> None:
+    """
+    Åben en fil med et passende program.
+
+    Wrapperfunktion til os.startfile, der gør det muligt at undlade filåbning
+    ved hjælp af indstilling i konfigurationsfil (`niv_open_files`).
+    """
+    if "startfile" in dir(os) and firedb.config.getboolean("general", "niv_open_files"):
+        os.startfile(fil)

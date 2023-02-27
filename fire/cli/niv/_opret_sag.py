@@ -4,7 +4,6 @@ import getpass
 
 import click
 import pandas as pd
-import sys
 
 from fire import uuid
 from fire.io.regneark import arkdef
@@ -47,7 +46,7 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
         fire.cli.print(
             f"Filen '{projektnavn}.xlsx' eksisterer - sagen er allerede oprettet"
         )
-        sys.exit(1)
+        raise SystemExit(1)
 
     beskrivelse = " ".join(beskrivelse)
 
@@ -118,7 +117,5 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
     }
 
     if skriv_ark(projektnavn, resultater):
-        # os.startfile() er kun tilgængelig på Windows
-        if "startfile" in dir(os):
-            fire.cli.print("Færdig! - åbner regneark for check.")
-            os.startfile(f"{projektnavn}.xlsx")
+        fire.cli.print("Færdig!")
+        fire.cli.åbn_fil(f"{projektnavn}.xlsx")

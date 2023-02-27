@@ -1,6 +1,4 @@
-import os
 import subprocess
-import sys
 import webbrowser
 from pathlib import Path
 from math import hypot, sqrt
@@ -72,7 +70,7 @@ def regn(projektnavn: str, **kwargs) -> None:
     fastholdte = find_fastholdte(arbejdssæt.to_numpy(), kontrol)
     if 0 == len(fastholdte):
         fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
-        sys.exit(1)
+        raise SystemExit(1)
 
     # Ny netanalyse: Tag højde for slukkede observationer og fastholdte punkter.
     resultater = netanalyse(projektnavn)
@@ -98,10 +96,10 @@ def regn(projektnavn: str, **kwargs) -> None:
         infiks=infiks,
     )
     skriv_ark(projektnavn, resultater)
-    webbrowser.open_new_tab(htmlrapportnavn)
-    if "startfile" in dir(os):
+    if fire.cli.firedb.config.getboolean("general", "niv_open_files"):
+        webbrowser.open_new_tab(htmlrapportnavn)
         fire.cli.print("Færdig! - åbner regneark og resultatrapport for check.")
-        os.startfile(f"{projektnavn}.xlsx")
+        fire.cli.åbn_fil(f"{projektnavn}.xlsx")
 
 
 # ------------------------------------------------------------------------------
@@ -133,7 +131,7 @@ def spredning(
     if "NUL" == observationstype.upper():
         return 0
 
-    opstillingsafhængig = sqrt(antal_opstillinger * (centreringsspredning_i_mm ** 2))
+    opstillingsafhængig = sqrt(antal_opstillinger * (centreringsspredning_i_mm**2))
 
     if "MTL" == observationstype.upper():
         afstandsafhængig = afstandsafhængig_spredning_i_mm * afstand_i_m / 1000
@@ -226,7 +224,7 @@ def gama_udjævn(projektnavn: str, beregningstype: str):
                 bg="red",
                 fg="white",
             )
-            sys.exit(1)
+            raise SystemExit(1)
 
         fire.cli.print(
             f"Check {projektnavn}-resultat-{beregningstype}.html", bg="red", fg="white"

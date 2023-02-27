@@ -1,11 +1,9 @@
-import sys
 import getpass
 
 import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
 
-import fire.cli
 from fire import uuid
 from fire.api.model import (
     EventType,
@@ -14,6 +12,8 @@ from fire.api.model import (
     SagseventInfo,
 )
 from fire.io.regneark import arkdef
+import fire.io.dataframe as frame
+import fire.cli
 
 from . import (
     bekræft,
@@ -70,7 +70,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         "Tekst": sagseventtekst,
         "uuid": sagsevent.id,
     }
-    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+    sagsgang = frame.append(sagsgang, sagsgangslinje)
 
     for i, obs in enumerate(observationer.itertuples(index=False)):
         # Ignorer allerede registrerede observationer
@@ -90,7 +90,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             punkt_til = fire.cli.firedb.hent_punkt(punktnavn)
         except NoResultFound:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
-            sys.exit(1)
+            raise SystemExit(1)
 
         # For nivellementsobservationer er gruppeidentifikatoren identisk
         # med journalsidenummeret
@@ -138,7 +138,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             fire.cli.print(
                 f"Ukendt observationstype: '{obs.Type}'", fg="red", bg="white"
             )
-            sys.exit(1)
+            raise SystemExit(1)
         alle_uuider[i] = observation.id
         til_registrering.append(observation)
 

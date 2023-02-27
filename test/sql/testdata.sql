@@ -64,8 +64,8 @@ Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (1
 
 -- SELECT x,y,z,sridid, srid, beskrivelse FROM SRIDTYPE WHERE srid='EPSG:5799';
 Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values (null,null,'Kote [m]',8,'EPSG:5799','Kotesystem: Dansk Vertikal Reference 1990');
-Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values ('X [m]','Y [m]','Z [m]',1,'IGS:IGb08','Geocentrisk: IGb08');
-Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values ('X [m]','Y [m]','Z [m]',2,'IGS:IGS14','Geocentrisk: IGS14');
+Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values ('X [m]','Y [m]','Z [m]',1,'EPSG:9015','Geocentrisk: IGb08');
+Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values ('X [m]','Y [m]','Z [m]',2,'EPSG:8227','Geocentrisk: IGS14');
 
 
 COMMIT;
@@ -625,12 +625,12 @@ INSERT INTO sagseventinfo (
 Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:39:02','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,26.01279,null,null,1,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'00380e23-ccf7-4655-9e55-8c299c8a0d6f');
 Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:39:08','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,82.52137,null,null,0,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'47285c0d-791d-4ca4-8d4a-e5a0db9f0746');
 Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:39:05','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,38.77039,null,null,1,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'4871c57b-d325-45fa-a03a-fdcff49273c0');
-Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:38:58','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,86.17772,null,null,0,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'4b4c5c17-32e8-495d-a598-cdf42e0892de');
+Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:38:58','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,86.17773,null,null,0,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'4b4c5c17-32e8-495d-a598-cdf42e0892de');
 Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:39:01','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,47.68654,null,null,0,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'7a45fb99-0772-4be5-9182-d651d429b3b7');
 Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:39:03','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,68.99467,null,null,0,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'8608b23d-479f-43b9-9e17-2d07041db842');
 Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:39:05','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,55.79699,null,null,0,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'8718db7f-ae22-4cd9-aa56-fc8cea3b8c46');
 Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:39:04','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,5.00852,null,null,1,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'87d09ddc-42f3-41cf-a9b1-73f6ece692e6');
-Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:38:58','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,85.93462,null,null,0,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'b54a5515-d050-4049-bcb8-93a5e1039cc3');
+Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:38:58','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,85.93463,null,null,0,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'b54a5515-d050-4049-bcb8-93a5e1039cc3');
 Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:39:07','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,3.99248,null,null,1,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'bfe1d698-09fb-450a-81e7-4e2832b6bea7');
 Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:39:04','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,74.61782,null,null,0,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'d9cb77ab-2825-4f32-bb65-239aab7bfa67');
 Insert into koordinat (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2016-01-25 13:39:05','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0002-000000000002',8,null,null,5.78825,null,null,1,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'fd2627db-144d-4591-8bc7-d4c3afcdb92d');
@@ -997,7 +997,7 @@ Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TR
 Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2019-12-02 18:17:14','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0004-000000000002',8,null,null,85.93462,null,null,0,to_timestamp_tz('2016-01-05 15:53:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'b54a5515-d050-4049-bcb8-93a5e1039cc3');
 Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2019-12-02 18:17:25','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0004-000000000002',8,null,null,3.99037,null,null,1,to_timestamp_tz('2019-12-02 16:13:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'bfe1d698-09fb-450a-81e7-4e2832b6bea7');
 Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2019-12-02 18:17:14','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0004-000000000002',8,null,null,68.23683,null,null,0,to_timestamp_tz('2019-12-02 16:13:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'fca43e51-5166-44b3-b941-c46915cd791b');
-Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2019-12-02 18:29:02','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0004-000000000002',8,null,null,68.23683,null,null,0,to_timestamp_tz('2019-12-02 16:13:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'fca43e51-5166-44b3-b941-c46915cd791b');
+Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2019-12-02 18:29:02','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0004-000000000002',8,null,null,68.23684,null,null,0,to_timestamp_tz('2019-12-02 16:13:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'fca43e51-5166-44b3-b941-c46915cd791b');
 Insert into KOORDINAT (REGISTRERINGFRA,SAGSEVENTFRAID,SRIDID,X,Y,Z,SX,SY,SZ,T,TRANSFORMERET,FEJLMELDT,ARTSKODE,PUNKTID) values (to_timestamp_tz('2019-12-02 18:17:21','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0004-000000000002',8,null,null,5.7864,null,null,1,to_timestamp_tz('2019-12-02 16:13:00','YYYY-MM-DD HH24:MI:SS'),'false','false',2,'fd2627db-144d-4591-8bc7-d4c3afcdb92d');
 
 -- Opretning beregning
@@ -1570,9 +1570,9 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0008-000000000002'
 );
 
-INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid) VALUES ('b54a5515-d050-4049-bcb8-93a5e1039cc3', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-19113', 'Kontrolmåling af RDIO', 'Lokalt referenceniveau', 8);
-INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid) VALUES ('bfe1d698-09fb-450a-81e7-4e2832b6bea7', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-09933', 'Kontrolmåling af RDIO', 'Lokalt referenceniveau', 8);
-INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid) VALUES ('c3d38a21-329e-474a-a4d1-068e8219b622', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-09116', 'Kontrolmåling af RDIO', 'Lokalt referenceniveau', 8);
+INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('b54a5515-d050-4049-bcb8-93a5e1039cc3', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-19113', 'Kontrolmåling af RDIO', 'Lokalt referenceniveau', 8, 2);
+INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('bfe1d698-09fb-450a-81e7-4e2832b6bea7', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-09933', 'Kontrolmåling af RDIO', 'Lokalt referenceniveau', 8, 2);
+INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('c3d38a21-329e-474a-a4d1-068e8219b622', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-09116', 'Kontrolmåling af RDIO', 'Lokalt referenceniveau', 8, 2);
 
 -- populer tidsserie_koordinat med tidserier.
 -- Gøres på denne måde da vi ikke kan vide os sikre på objektid'er fra de to tabeller
@@ -1620,21 +1620,25 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0008-000000000003'
 );
 
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:00','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.82959,629365.92108,5276291.10823,5,5,15,to_timestamp_tz('2004-06-01 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:01','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.82797,629365.92133,5276291.10570,5,5,15,to_timestamp_tz('2004-06-08 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:02','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.75028,629365.99833,5276291.15511,5,5,15,to_timestamp_tz('2009-08-04 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:03','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.73102,629366.0159,5276291.162610,5,5,15,to_timestamp_tz('2010-10-26 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:04','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.70678,629366.04309,5276291.18187,5,5,15,to_timestamp_tz('2012-08-28 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:05','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.69831,629366.04648,5276291.18090,5,5,15,to_timestamp_tz('2012-10-30 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:06','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.66647,629366.08356,5276291.20988,5,5,15,to_timestamp_tz('2015-06-16 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:07','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.66121,629366.08586,5276291.21018,5,5,15,to_timestamp_tz('2015-07-28 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:08','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.66013,629366.08805,5276291.21349,5,5,15,to_timestamp_tz('2015-09-22 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:09','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.65413,629366.09336,5276291.21746,5,5,15,to_timestamp_tz('2016-02-23 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:10','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501291.06444,629308.42028,5276318.75039,5,5,15,to_timestamp_tz('2016-02-23 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','4b4c5c17-32e8-495d-a598-cdf42e0892de');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:11','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',2,3501291.02891,629308.45367,5276318.77000,5,5,15,to_timestamp_tz('2018-06-05 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','4b4c5c17-32e8-495d-a598-cdf42e0892de');
-INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:12','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',2,3501291.02211,629308.45644,5276318.76708,5,5,15,to_timestamp_tz('2018-09-25 12:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','4b4c5c17-32e8-495d-a598-cdf42e0892de');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:00','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.82959,629365.92108,5276291.10823,5,5,15,to_timestamp_tz('2004-06-01 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:01','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.82797,629365.92133,5276291.10570,5,5,15,to_timestamp_tz('2004-06-08 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:02','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.75028,629365.99833,5276291.15511,5,5,15,to_timestamp_tz('2009-08-04 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:03','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.73102,629366.0159,5276291.162610,5,5,15,to_timestamp_tz('2010-10-26 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:04','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.70678,629366.04309,5276291.18187,5,5,15,to_timestamp_tz('2012-08-28 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:05','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.69831,629366.04648,5276291.18090,5,5,15,to_timestamp_tz('2012-10-30 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:06','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.66647,629366.08356,5276291.20988,5,5,15,to_timestamp_tz('2015-06-16 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:07','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.66121,629366.08586,5276291.21018,5,5,15,to_timestamp_tz('2015-07-28 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:08','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.66013,629366.08805,5276291.21349,5,5,15,to_timestamp_tz('2015-09-22 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:09','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501320.65413,629366.09336,5276291.21746,5,5,15,to_timestamp_tz('2016-02-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','301b8578-8cc8-48a8-8446-541f31482f86');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:10','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',1,3501291.06444,629308.42028,5276318.75039,5,5,15,to_timestamp_tz('2016-02-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','4b4c5c17-32e8-495d-a598-cdf42e0892de');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:11','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',2,3501291.02891,629308.45367,5276318.77000,5,5,15,to_timestamp_tz('2018-06-05 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','4b4c5c17-32e8-495d-a598-cdf42e0892de');
+INSERT INTO koordinat (registreringfra,sagseventfraid,sridid,x,y,z,sx,sy,sz,t,transformeret,fejlmeldt,punktid) VALUES (to_timestamp_tz('2022-01-18 12:00:12','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0008-000000000003',2,3501291.02211,629308.45644,5276318.76708,5,5,15,to_timestamp_tz('2018-09-25 00:00:00','YYYY-MM-DD HH24:MI:SS'),'false','false','4b4c5c17-32e8-495d-a598-cdf42e0892de');
 
 COMMIT;
+
+
+-- Indsæt observationer (obslængde, koordinatkovarians og residualkovarians)
+-- Indsæt beregning
 
 
 INSERT INTO sagsevent (
@@ -1661,8 +1665,8 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0008-000000000004'
 );
 
-INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid) VALUES ('301b8578-8cc8-48a8-8446-541f31482f86', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', '5D_IGb08_RDIO', '5D-tidsserie for RDIO', 'IGb08, 5D', 1);
-INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid) VALUES ('4b4c5c17-32e8-495d-a598-cdf42e0892de', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', '5D_IGb08_RDO1', '5D-tidsserie for RDO1', 'IGb14, 5D', 2);
+INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('301b8578-8cc8-48a8-8446-541f31482f86', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', 'RDIO_5D_IGb08', '5D-tidsserie for RDIO', 'IGb08', 1, 1);
+INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('4b4c5c17-32e8-495d-a598-cdf42e0892de', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', 'RDO1_5D_IGb14', '5D-tidsserie for RDO1', 'IGb14', 2, 1);
 
 
 INSERT INTO tidsserie_koordinat
@@ -1676,5 +1680,159 @@ SELECT ts.objektid, k.objektid FROM tidsserie ts
 JOIN koordinat k ON k.punktid=ts.punktid
 WHERE ts.punktid='4b4c5c17-32e8-495d-a598-cdf42e0892de'
 AND k.sagseventfraid='sagevent-aaaa-bbbb-0008-000000000003';
+
+COMMIT;
+
+
+-------------------------------------------------------------------------------
+-- GNSS-OBSERVATIONER
+--
+-- Der tages udgangspunkt i tidsserierkoordinaterne i sagen ovenfor.
+-- Observationer for RDIO og RDO1 tilknyttes de allerede indlæste koordinater
+-- via en beregning.
+-------------------------------------------------------------------------------
+
+INSERT INTO sag (
+    id,
+    registreringfra
+) VALUES (
+    'sag00009-aaaa-bbbb-cccc-000000000001',
+    sysdate
+);
+
+INSERT INTO sagsinfo (
+    aktiv,
+    registreringfra,
+    registreringtil,
+    journalnummer,
+    behandler,
+    beskrivelse,
+    sagsid
+) VALUES (
+    'true',
+    sysdate,
+    null,
+    null,
+    'Kristian Evers',
+    'Indsættelse GNSS observationer',
+    'sag00009-aaaa-bbbb-cccc-000000000001'
+);
+
+INSERT INTO sagsevent (
+    id,
+    registreringfra,
+    eventtypeid,
+    sagsid
+) VALUES (
+    'sagevent-aaaa-bbbb-0009-000000000000',
+    sysdate,
+    3, -- observation_indsat
+    'sag00009-aaaa-bbbb-cccc-000000000001'
+);
+
+INSERT INTO sagseventinfo (
+    REGISTRERINGFRA,
+    REGISTRERINGTIL,
+    BESKRIVELSE,
+    SAGSEVENTID
+) VALUES (
+    sysdate,
+    null,
+    'Indsættelse af GNSS-observationer',
+    'sagevent-aaaa-bbbb-0009-000000000000'
+);
+
+
+-- RDIO: 2004-06-08 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('992c70b0-8b5a-4252-b784-652256c322bd', TO_TIMESTAMP_TZ('2022-07-13 13:51:01','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'301b8578-8cc8-48a8-8446-541f31482f86',TO_TIMESTAMP_TZ('2004-06-08 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2004-06-08 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2004-06-01 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+-- RDIO: 2004-06-15 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('7c42e596-a189-48ab-b73f-f8761928ad6f', TO_TIMESTAMP_TZ('2022-07-13 13:51:05','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'301b8578-8cc8-48a8-8446-541f31482f86',TO_TIMESTAMP_TZ('2004-06-15 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2004-06-15 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2004-06-08 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+-- RDIO: 2009-08-11 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('8a927287-4a56-4e04-b805-567fcd828d51', TO_TIMESTAMP_TZ('2022-07-13 13:51:09','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'301b8578-8cc8-48a8-8446-541f31482f86',TO_TIMESTAMP_TZ('2009-08-11 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2009-08-11 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2009-08-04 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+-- RDIO: 2010-11-02 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('0032df4d-1c68-49f6-8ae0-6a4a25b77dbd', TO_TIMESTAMP_TZ('2022-07-13 13:51:13','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'301b8578-8cc8-48a8-8446-541f31482f86',TO_TIMESTAMP_TZ('2010-11-02 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2010-11-02 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2010-10-26 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+
+-- RDIO: 2012-09-04 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('f6acd040-341e-429c-b39b-d1bcc09f8cf3', TO_TIMESTAMP_TZ('2022-07-13 13:51:17','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'301b8578-8cc8-48a8-8446-541f31482f86',TO_TIMESTAMP_TZ('2012-09-04 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2012-09-04 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2012-08-28 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+-- RDIO: 2012-11-06 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('416d9d52-b62b-4b26-9170-ed2fcf63f5d5', TO_TIMESTAMP_TZ('2022-07-13 13:51:21','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'301b8578-8cc8-48a8-8446-541f31482f86',TO_TIMESTAMP_TZ('2012-11-06 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2012-11-06 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2012-10-30 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+-- RDIO: 2015-06-23 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('14962e2e-889a-4318-b143-cc03819551c3', TO_TIMESTAMP_TZ('2022-07-13 13:51:25','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'301b8578-8cc8-48a8-8446-541f31482f86',TO_TIMESTAMP_TZ('2015-06-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2015-06-23 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2015-06-16 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+-- RDIO: 2015-08-04 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('55bb6dd4-e6bd-4825-ac0a-0abbdc9e51da', TO_TIMESTAMP_TZ('2022-07-13 13:51:29','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'301b8578-8cc8-48a8-8446-541f31482f86',TO_TIMESTAMP_TZ('2015-08-04 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2015-08-04 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2015-07-28 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+-- RDIO: 2015-09-29 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('b4a97922-596b-4a9b-acf4-9d5f736981eb', TO_TIMESTAMP_TZ('2022-07-13 13:51:33','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'301b8578-8cc8-48a8-8446-541f31482f86',TO_TIMESTAMP_TZ('2015-09-29 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2015-09-29 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2015-09-22 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+-- RDO1: 2016-02-23 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('ea8bb30f-1257-4995-bd13-f36dd0143973', TO_TIMESTAMP_TZ('2022-07-13 13:50:45','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'4b4c5c17-32e8-495d-a598-cdf42e0892de',TO_TIMESTAMP_TZ('2016-02-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1,value2,value3,value4,value5,value6) VALUES ('416b7c4a-f9df-4273-99b0-06bee421574f', TO_TIMESTAMP_TZ('2022-07-13 13:50:46','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',10,1,'4b4c5c17-32e8-495d-a598-cdf42e0892de',TO_TIMESTAMP_TZ('2016-02-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),2.234234727077e-07,3.3242363949100004e-08,1.244205512e-07,2.9232932378e-08,4.123279655418e-08,2.93236708966500005e-07);
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1,value2,value3,value4,value5,value6) VALUES ('0357f4cb-0a5f-481f-b95f-30c66a58bfa9', TO_TIMESTAMP_TZ('2022-07-13 13:51:47','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',11,1,'4b4c5c17-32e8-495d-a598-cdf42e0892de',TO_TIMESTAMP_TZ('2016-02-23 00:00:00','YYYY-MM-DD HH24:MI:SS'),0.523333333334,-0.5261666666666667,-2.43233333333333,0.1233333333333335,0.63428166666666668,14.9498433333333332);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2016-02-23 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2016-02-23 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+
+-- RDO1: 2018-06-12 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('9a054ceb-fdae-4b16-b6ce-bc43ee45c7c9', TO_TIMESTAMP_TZ('2022-07-13 13:51:01','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'4b4c5c17-32e8-495d-a598-cdf42e0892de',TO_TIMESTAMP_TZ('2018-06-12 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1,value2,value3,value4,value5,value6) VALUES ('a108eb7a-7fa5-4623-b8d1-6f080f89cee9', TO_TIMESTAMP_TZ('2022-07-13 13:51:02','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',10,1,'4b4c5c17-32e8-495d-a598-cdf42e0892de',TO_TIMESTAMP_TZ('2018-06-12 00:00:00','YYYY-MM-DD HH24:MI:SS'),1.96824727077e-07,2.9725863949100004e-08,1.9638405512e-07,3.1288932378e-08,3.83279655418e-08,3.0646708966500005e-07);
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1,value2,value3,value4,value5,value6) VALUES ('64f24833-a25d-4ce5-94e6-704f2226f1fe', TO_TIMESTAMP_TZ('2022-07-13 13:51:03','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',11,1,'4b4c5c17-32e8-495d-a598-cdf42e0892de',TO_TIMESTAMP_TZ('2018-06-12 00:00:00','YYYY-MM-DD HH24:MI:SS'),0.3346333333333334,-0.03761666666666667,-2.178733333333333,0.10023333333333335,0.5718166666666668,15.298433333333332);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2018-06-12 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2018-06-05 00:00:00','YYYY-MM-DD HH24:MI:SS');
+
+-- RDO1: 2018-10-02 00:00:00
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1) VALUES ('95f9dcf5-fc7d-4ac3-9792-087337984eb1', TO_TIMESTAMP_TZ('2022-07-13 13:51:05','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',9,1,'4b4c5c17-32e8-495d-a598-cdf42e0892de',TO_TIMESTAMP_TZ('2018-10-02 00:00:00','YYYY-MM-DD HH24:MI:SS'),71.99166666666666);
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1,value2,value3,value4,value5,value6) VALUES ('8cce5a08-966b-4550-9836-96d994a406a9', TO_TIMESTAMP_TZ('2022-07-13 13:51:06','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',10,1,'4b4c5c17-32e8-495d-a598-cdf42e0892de',TO_TIMESTAMP_TZ('2018-10-02 00:00:00','YYYY-MM-DD HH24:MI:SS'),2.0566521976e-07,3.4988416785300004e-08,2.0615888524000003e-07,3.53979568217e-08,4.13715598538e-08,3.20235404753e-07);
+INSERT INTO observation (id,registreringfra,sagseventfraid,observationstypeid,antal,opstillingspunktid,observationstidspunkt,value1,value2,value3,value4,value5,value6) VALUES ('5c898a36-1afb-4fac-b9b6-1f102428789d', TO_TIMESTAMP_TZ('2022-07-13 13:51:07','YYYY-MM-DD HH24:MI:SS'),'sagevent-aaaa-bbbb-0009-000000000000',11,1,'4b4c5c17-32e8-495d-a598-cdf42e0892de',TO_TIMESTAMP_TZ('2018-10-02 00:00:00','YYYY-MM-DD HH24:MI:SS'),0.14653333333333332,0.10396666666666667,-0.18813333333333324,0.08843333333333332,0.32033333333333336,14.282133333333332);
+
+INSERT INTO beregning (registreringfra, sagseventfraid) VALUES (sysdate, 'sagevent-aaaa-bbbb-0009-000000000000');
+INSERT INTO beregning_observation (beregningobjektid, observationobjektid) SELECT (SELECT max(objektid) FROM beregning), o.objektid FROM observation o WHERE o.sagseventfraid = 'sagevent-aaaa-bbbb-0009-000000000000' AND o.OBSERVATIONSTIDSPUNKT = TO_TIMESTAMP_TZ('2018-10-02 00:00:00','YYYY-MM-DD HH24:MI:SS');
+INSERT INTO beregning_koordinat (beregningobjektid, koordinatobjektid) SELECT (SELECT max(objektid) FROM beregning), k.objektid FROM KOORDINAT k WHERE k.SAGSEVENTFRAID = 'sagevent-aaaa-bbbb-0008-000000000003' AND k.T = TO_TIMESTAMP_TZ('2018-09-25 00:00:00','YYYY-MM-DD HH24:MI:SS');
 
 COMMIT;

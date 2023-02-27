@@ -1,6 +1,5 @@
 import json
 import re
-import sys
 from datetime import datetime
 from typing import Dict, Tuple
 
@@ -8,10 +7,11 @@ import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
 
-from fire.io.regneark import arkdef
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
+from fire.io.regneark import arkdef
+import fire.io.dataframe as frame
 import fire.cli
 
 from . import (
@@ -107,7 +107,7 @@ def importer_observationer(projektnavn: str) -> pd.DataFrame:
                 fire.cli.print(f"Fandt {ident}", fg="green")
         except NoResultFound:
             fire.cli.print(f"Ukendt punkt: '{punktnavn}'", fg="red", bg="white")
-            sys.exit(1)
+            raise SystemExit(1)
         kanonisk_ident[punktnavn] = ident
 
     fra = tuple(kanonisk_ident[ident] for ident in fra)
@@ -179,7 +179,7 @@ def opbyg_punktoversigt(
         fire.cli.print(
             "DVR90 (EPSG:5799) ikke fundet i srid-tabel", bg="red", fg="white", err=True
         )
-        sys.exit(1)
+        raise SystemExit(1)
 
     for punkt in alle_punkter:
         if not pd.isna(punktoversigt.at[punkt, "Kote"]):
@@ -304,7 +304,7 @@ def læs_observationsstrenge(
                 try:
                     isotid = datetime.strptime(tid, "%d.%m.%Y %H.%M")
                 except ValueError:
-                    sys.exit(
+                    raise SystemExit(
                         f"Argh - ikke-understøttet datoformat: '{tid}' i fil: '{fil.Filnavn}'"
                     )
 
@@ -331,7 +331,7 @@ def læs_observationsstrenge(
                     "Type": fil.Type.upper(),
                     "uuid": "",
                 }
-                observationer = observationer.append(obs, ignore_index=True)
+                observationer = frame.append(observationer, obs)
         except FileNotFoundError:
             fire.cli.print(f"Kunne ikke læse filen '{fil.Filnavn}'")
         finally:

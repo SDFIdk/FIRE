@@ -5,15 +5,9 @@ import getpass
 import click
 import pandas as pd
 
-import fire.cli
-from fire.api.model import (
-    Sagsevent,
-    SagseventInfo,
-    SagseventInfoMateriale,
-    EventType,
-)
 from fire.io.regneark import arkdef
-
+import fire.io.dataframe as frame
+import fire.cli
 from fire.cli.niv import (
     find_faneblad,
     find_sag,
@@ -53,29 +47,22 @@ def luk_sag(projektnavn: str, sagsbehandler, **kwargs) -> None:
             zipobj.write(fil)
 
     # Tilføj materiale til sagsevent
-    sagseventtekst = f"Sagsmateriale for {projektnavn}"
-    sagsevent = Sagsevent(
-        sag=sag,
-        eventtype=EventType.KOMMENTAR,
-        sagseventinfos=[
-            SagseventInfo(
-                beskrivelse=sagseventtekst,
-                materialer=[SagseventInfoMateriale(materiale=zipped.getvalue())],
-            ),
-        ],
+    sagsevent = sag.ny_sagsevent(
+        beskrivelse=f"Sagsmateriale for {projektnavn}",
+        materialer=[zipped.getvalue()],
     )
     fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
-
     fire.cli.firedb.luk_sag(sag, commit=False)
     try:
         # Indsæt alle objekter i denne session
         fire.cli.firedb.session.flush()
-    except:
+    except Exception as ex:
         # rul tilbage hvis databasen smider en exception
         fire.cli.firedb.session.rollback()
         fire.cli.print(
             f"Der opstod en fejl - sag {sag.id} for '{projektnavn}' IKKE lukket!"
         )
+        fire.cli.print(f"Mulig årsag: {ex}")
     else:
         spørgsmål = click.style(
             f"Er du sikker på at du vil lukke sagen {projektnavn}?",
@@ -96,10 +83,10 @@ def luk_sag(projektnavn: str, sagsbehandler, **kwargs) -> None:
         "Dato": pd.Timestamp.now(),
         "Hvem": sagsbehandler,
         "Hændelse": "sagslukning",
-        "Tekst": sagseventtekst,
+        "Tekst": sagsevent.beskrivelse,
         "uuid": sagsevent.id,
     }
-    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+    sagsgang = frame.append(sagsgang, sagsgangslinje)
     fire.cli.print("Opdatér sagsgang i regneark")
     if skriv_ark(projektnavn, {"Sagsgang": sagsgang}):
         fire.cli.print(f"Sagen er nu lukket i regnearket '{projektnavn}.xlsx'")

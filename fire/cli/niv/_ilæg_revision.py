@@ -1,5 +1,4 @@
 import re
-import sys
 import getpass
 from datetime import datetime
 from math import trunc, isnan
@@ -10,7 +9,6 @@ from pyproj import Proj, Geod
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import DatabaseError
 
-import fire.cli
 from fire import uuid
 from fire.api.model import (
     EventType,
@@ -20,15 +18,14 @@ from fire.api.model import (
     Punkt,
     PunktInformation,
     PunktInformationTypeAnvendelse,
-    Sagsevent,
-    SagseventInfo,
     FikspunktsType,
 )
-from fire.io.regneark import arkdef
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
-
+from fire.io.regneark import arkdef
+import fire.io.dataframe as frame
+import fire.cli
 from fire.cli.niv import (
     bekræft,
     find_faneblad,
@@ -94,54 +91,54 @@ def opret_punktnavne_til_ikke_oprettede_punkter(ark: pd.DataFrame) -> pd.DataFra
 
 def udfyld_udeladte_identer(ark: pd.DataFrame) -> pd.DataFrame:
     """
-    Udfyld celler med udeladt ident i kolonnen Punkt.
+     Udfyld celler med udeladt ident i kolonnen Punkt.
 
-    Første linje/række af punkt-oplysningerne har punktets
-    ident i kolonnen Punkt, hvilket indikerer starten på et
-    nyt punkts informationer.
+     Første linje/række af punkt-oplysningerne har punktets
+     ident i kolonnen Punkt, hvilket indikerer starten på et
+     nyt punkts informationer.
 
-    Formålet med funktionen er at tilføje punktets ident
-    til hver række med punktoplysninger for punktet og
-    frem til starten af næste punkt.
+     Formålet med funktionen er at tilføje punktets ident
+     til hver række med punktoplysninger for punktet og
+     frem til starten af næste punkt.
 
-   Eksempel
-    --------
+    Eksempel
+     --------
 
-        Før
+         Før
 
-        |   Punkt   |         Attribut        | ... |
-        |-----------|-------------------------|-----|
-        |  SKEJ     | LOKATION                |     |
-        |           | ATTR:muligt_datumstabil |     |
-        |           | ...                     |     |
-        |           |                         |     |
-        |           |                         |     |
-        |  FYNO     | LOKATION                |     |
-        |           | ATTR:muligt_datumstabil |     |
-        |           | ...                     |     |
-        |           |                         |     |
-        |           |                         |     |
-        |  OTTO     | LOKATION                |     |
-        |           | ATTR:muligt_datumstabil |     |
-        |           | ...                     |     |
+         |   Punkt   |         Attribut        | ... |
+         |-----------|-------------------------|-----|
+         |  SKEJ     | LOKATION                |     |
+         |           | ATTR:muligt_datumstabil |     |
+         |           | ...                     |     |
+         |           |                         |     |
+         |           |                         |     |
+         |  FYNO     | LOKATION                |     |
+         |           | ATTR:muligt_datumstabil |     |
+         |           | ...                     |     |
+         |           |                         |     |
+         |           |                         |     |
+         |  OTTO     | LOKATION                |     |
+         |           | ATTR:muligt_datumstabil |     |
+         |           | ...                     |     |
 
-        Efter
+         Efter
 
-        |   Punkt   |         Attribut        | ... |
-        |-----------|-------------------------|-----|
-        |  SKEJ     | LOKATION                |     |
-        |  SKEJ     | ATTR:muligt_datumstabil |     |
-        |  SKEJ     | ...                     |     |
-        |  SKEJ     |                         |     |
-        |  SKEJ     |                         |     |
-        |  FYNO     | LOKATION                |     |
-        |  FYNO     | ATTR:muligt_datumstabil |     |
-        |  FYNO     | ...                     |     |
-        |  FYNO     |                         |     |
-        |  FYNO     |                         |     |
-        |  OTTO     | LOKATION                |     |
-        |  OTTO     | ATTR:muligt_datumstabil |     |
-        |  OTTO     | ...                     |     |
+         |   Punkt   |         Attribut        | ... |
+         |-----------|-------------------------|-----|
+         |  SKEJ     | LOKATION                |     |
+         |  SKEJ     | ATTR:muligt_datumstabil |     |
+         |  SKEJ     | ...                     |     |
+         |  SKEJ     |                         |     |
+         |  SKEJ     |                         |     |
+         |  FYNO     | LOKATION                |     |
+         |  FYNO     | ATTR:muligt_datumstabil |     |
+         |  FYNO     | ...                     |     |
+         |  FYNO     |                         |     |
+         |  FYNO     |                         |     |
+         |  OTTO     | LOKATION                |     |
+         |  OTTO     | ATTR:muligt_datumstabil |     |
+         |  OTTO     | ...                     |     |
 
 
     """
@@ -300,11 +297,8 @@ def ilæg_revision(
             )
 
     if len(nye_punkter) > 0 or len(nye_lokationer) > 0:
-        sagsevent = Sagsevent(
-            id=uuid(),
-            sagsid=sag.id,
-            sagseventinfos=[SagseventInfo(beskrivelse="Oprettelse af nye punkter")],
-            eventtype=EventType.PUNKT_OPRETTET,
+        sagsevent = sag.ny_sagsevent(
+            beskrivelse="Oprettelse af nye punkter",
             punkter=nye_punkter,
             geometriobjekter=nye_lokationer,
         )
@@ -336,7 +330,7 @@ def ilæg_revision(
             fire.cli.print(
                 "Skal være på formen: 'x y z t sx sy sz', hvor ubrugte værdier sættes til 'nan'"
             )
-            sys.exit(1)
+            raise SystemExit(1)
 
         # Oversæt NaN til None
         koord = [None if isnan(k) else k for k in koord]
@@ -400,11 +394,8 @@ def ilæg_revision(
             f"Opdatering af {n} koordinater til {', '.join(punktnavne)}"
         )
 
-        sagsevent = Sagsevent(
-            id=uuid(),
-            sagsid=sag.id,
-            sagseventinfos=[SagseventInfo(beskrivelse=koordinatoprettelsestekst)],
-            eventtype=EventType.KOORDINAT_BEREGNET,
+        sagsevent = sag.ny_sagsevent(
+            beskrivelse=koordinatoprettelsestekst,
             koordinater=nye_koordinater,
         )
         fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
@@ -450,7 +441,7 @@ def ilæg_revision(
                 bold=True,
             )
             fire.cli.print(f"Mulig årsag: {ex}")
-            sys.exit(1)
+            raise SystemExit(1)
 
         # Hent alle revisionselementer for punktet fra revisionsarket
         rev = revision.query(f"Punkt == '{ident}'")
@@ -527,7 +518,7 @@ def ilæg_revision(
                 elif pit.anvendelse == PunktInformationTypeAnvendelse.TEKST:
                     # Excel *kan* finde på at proppe "_x000D_" ind i stedet for \r,
                     # her rydder vi op for at undgå vrøvl i databasen.
-                    tekst = r["Ny værdi"].replace("_x000D_", "")
+                    tekst = r["Ny værdi"].replace("_x000D_", "").strip()
 
                     # Ingen definitiv test her: Tom tekst kan være gyldig.
                     # Men vi sørger for at den ikke er None
@@ -611,29 +602,19 @@ def ilæg_revision(
         punkter_med_oprettelse.add(p.ident)
 
     if len(til_opret) > 0 or len(til_ret) > 0:
-        sagsevent = Sagsevent(
-            id=uuid(),
-            sagsid=sag.id,
-            sagseventinfos=[
-                SagseventInfo(beskrivelse="Opdatering af punktinformationer")
-            ],
-            eventtype=EventType.PUNKTINFO_TILFOEJET,
+        sagsevent = sag.ny_sagsevent(
+            beskrivelse="Opdatering af punktinformationer",
             punktinformationer=[*til_opret, *til_ret],
         )
-
         fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
         sagsgang = opdater_sagsgang(sagsgang, sagsevent, sagsbehandler)
         flush()
 
     if len(til_sluk) > 0:
-        sagsevent = Sagsevent(
-            id=uuid(),
-            sagsid=sag.id,
-            sagseventinfos=[SagseventInfo(beskrivelse="Lukning af punktinformationer")],
-            eventtype=EventType.PUNKTINFO_FJERNET,
+        sagsevent = sag.ny_sagsevent(
+            beskrivelse="Lukning af punktinformationer",
             punktinformationer_slettede=til_sluk,
         )
-
         fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
         sagsgang = opdater_sagsgang(sagsgang, sagsevent, sagsbehandler)
         flush()
@@ -671,7 +652,7 @@ def flush():
         fire.cli.print("FEJL! Mulig årsag:", fg="red", bold=True)
         fire.cli.print(f"{ex}", fg="red")
         fire.cli.firedb.session.rollback()
-        sys.exit(1)
+        raise SystemExit(1)
 
 
 def opdater_sagsgang(sagsgang, sagsevent, sagsbehandler):
@@ -689,7 +670,7 @@ def opdater_sagsgang(sagsgang, sagsevent, sagsbehandler):
         "Tekst": sagsevent.beskrivelse,
         "uuid": sagsevent.id,
     }
-    sagsgang = sagsgang.append(sagsgangslinje, ignore_index=True)
+    sagsgang = frame.append(sagsgang, sagsgangslinje)
 
     return sagsgang
 
@@ -709,7 +690,7 @@ def læs_lokation(lokation: str) -> GeometriObjekt:
         n = float(lok[0].replace(",", "."))
     except ValueError as ex:
         fire.cli.print(f"Ikke-numerisk lokationskoordinat anført: {lokation} ({ex})")
-        sys.exit(1)
+        raise SystemExit(1)
 
     # Håndter verdenshjørner Nn/ØøEe/VvWw/Ss
     if lok[3].upper() in ("S", "N"):

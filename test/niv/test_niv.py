@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pandas as pd
 from click.testing import CliRunner
 
 from fire.io.regneark import arkdef
@@ -46,12 +47,14 @@ def test_revision(mocker):
             "Afmærkning": "Bolt",
             "Højde_over_terræn": 1.32,
         }
-        nyetablerede = nyetablerede.append(nyt_punkt, ignore_index=True)
+        df_nyt_punkt = pd.DataFrame(data=[nyt_punkt.values()], columns=nyt_punkt.keys())
+        nyetablerede = pd.concat([nyetablerede, df_nyt_punkt], ignore_index=True)
         skriv_ark("testsag", {"Nyetablerede punkter": nyetablerede})
 
         mocker.patch("fire.cli.niv._ilæg_nye_punkter.bekræft", return_value=True)
         result = runner.invoke(niv, ["ilæg-nye-punkter", "testsag"])
         print(result.output)
+        print(result)
         assert result.exit_code == 0
 
         # fire niv luk-sag test
@@ -91,7 +94,8 @@ def test_observationer(mocker):
             "σ": 0.7,
             "δ": 0.02,
         }
-        inputfiler = inputfiler.append(fil, ignore_index=True)
+        df_fil = pd.DataFrame(data=[fil.values()], columns=fil.keys())
+        inputfiler = pd.concat([inputfiler, df_fil], ignore_index=True)
         skriv_ark("testsag", {"Filoversigt": inputfiler})
 
         result = runner.invoke(niv, ["læs-observationer", "testsag"])
@@ -107,5 +111,6 @@ def test_observationer(mocker):
         # fire niv luk-sag test
         mocker.patch("fire.cli.niv._luk_sag.bekræft", return_value=True)
         result = runner.invoke(niv, ["luk-sag", "testsag"])
+        print(result)
         print(result.output)
         assert result.exit_code == 0

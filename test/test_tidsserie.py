@@ -2,19 +2,20 @@ import pytest
 from sqlalchemy.exc import NoResultFound
 
 import fire
-from fire.api import FireDb
 from fire.api.model import (
-    Punkt,
-    PunktSamling,
-    Tidsserie,
-    EventType,
+    HøjdeTidsserie,
+)
+from fire.api.model.observationer import (
+    KoordinatKovarians,
+    ResidualKovarians,
+    ObservationsLængde,
 )
 
 
 def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinatfabrik):
     """Test oprettelse af en tidsserie."""
     # Tidsserie med punktsamling og jessenkoordinat
-    ts1 = Tidsserie(
+    ts1 = HøjdeTidsserie(
         sagsevent=sagsevent,
         punkt=punkt,
         punktsamling=punktsamling,
@@ -27,13 +28,13 @@ def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinat
 
     firedb.session.flush()
 
-    assert isinstance(ts1, Tidsserie)
+    assert isinstance(ts1, HøjdeTidsserie)
     assert ts1.objektid is not None
     assert ts1.registreringfra is not None
     assert ts1.sagseventfraid == sagsevent.id
 
     # Tidsserie uden punktsamling og jessenkoordinat
-    ts2 = Tidsserie(
+    ts2 = HøjdeTidsserie(
         sagsevent=sagsevent,
         punkt=punkt,
         formål="Test",
@@ -45,29 +46,29 @@ def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinat
 
     firedb.session.flush()
 
-    assert isinstance(ts2, Tidsserie)
+    assert isinstance(ts2, HøjdeTidsserie)
     assert ts2.objektid is not None
     assert ts2.registreringfra is not None
     assert ts2.sagseventfraid == sagsevent.id
 
 
-def test_luk_tidsserie(firedb, tidsserie, sagsevent):
+def test_luk_tidsserie(firedb, højdetidsserie, sagsevent):
     """Test at FireDb.luk_tidsserie() virker som forventet."""
     firedb.session.flush()
-    firedb.luk_tidsserie(tidsserie, sagsevent)
+    firedb.luk_tidsserie(højdetidsserie, sagsevent)
 
-    assert tidsserie.registreringtil is not None
+    assert højdetidsserie.registreringtil is not None
 
 
-def test_udvid_tidsserie(firedb, tidsserie, koordinat):
+def test_udvid_tidsserie(firedb, højdetidsserie, koordinat):
     """Test at flere koordinater kan tilføjes en tidsserie."""
     firedb.session.flush()
-    n = len(tidsserie.koordinater)
+    n = len(højdetidsserie.koordinater)
 
-    tidsserie.koordinater.append(koordinat)
+    højdetidsserie.koordinater.append(koordinat)
     firedb.session.flush()
 
-    assert len(tidsserie.koordinater) == n + 1
+    assert len(højdetidsserie.koordinater) == n + 1
 
 
 def test_hent_tidsserie_fra_punkt(firedb):
@@ -78,10 +79,28 @@ def test_hent_tidsserie_fra_punkt(firedb):
 
 
 def test_hent_tidsserie_fra_navn(firedb):
-    ts = firedb.hent_tidsserie("5D_IGb08_RDIO")
+    ts = firedb.hent_tidsserie("RDIO_5D_IGb08")
 
     assert ts.punkt.ident == "RDIO"
     assert len(ts.koordinater) == 10
 
     with pytest.raises(NoResultFound):
-        firedb.hent_tidsserie("findes ikk")
+        firedb.hent_tidsserie("Findes ikke")
+
+
+def test_tidsserie_koordinater_observationer(firedb):
+    """
+    Test at koordinater og observationer er korrekt tilknyttede i en tidsserie.
+
+    Vi tager udgangspunkt i '5D_IGb14_RDO1', der har tre koordinater i tidsserien,
+    med hver tre forskellige observationer tilknyttet de enkelte koordinater.
+    """
+
+    ts = firedb.hent_tidsserie("RDO1_5D_IGb14")
+
+    for koordinat in ts.koordinater:
+        assert len(koordinat.beregninger[0].observationer) == 3
+        for obs in koordinat.beregninger[0].observationer:
+            assert isinstance(
+                obs, (ObservationsLængde, KoordinatKovarians, ResidualKovarians)
+            )
