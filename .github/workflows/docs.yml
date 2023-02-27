@@ -23,8 +23,6 @@ jobs:
         # Remove conda packages that are only available on Windows
         sed -i '/msys2/d' environment-dev.yml
         sed -i '/m2-zip/d' environment-dev.yml
-        # Remove QGIS: Takes forever to install and is not used in currently implemented tests
-        sed -i '/qgis/d' environment-dev.yml
         #
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
@@ -47,7 +45,7 @@ jobs:
         #
     - name: Deploy docs
       uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/1.3'
+      if: github.ref == 'refs/heads/1.5'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs/_build

@@ -20,7 +20,10 @@ RC_PATHS = (
 )
 
 RC_DEFAULTS = {
-    "general": {"default_connection": "prod"},
+    "general": {
+        "default_connection": "prod",
+        "niv_open_files": "true",
+    },
     # se https://www.gnu.org/software/gama/manual/gama.html#Network-SQL-definition
     "network-attributes": {
         "axes-xy": "en",

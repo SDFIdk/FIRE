@@ -1,5 +1,6 @@
 from typing import List, Iterator
 from itertools import chain
+import collections as cs
 
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
@@ -15,6 +16,8 @@ from fire.api.model import (
     PunktInformationType,
     GeometriObjekt,
     Bbox,
+    Sag,
+    Sagsinfo,
     Sagsevent,
     FikspunktsType,
 )
@@ -54,6 +57,24 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
             raise NoResultFound
         return result
 
+    def ny_sag(self, behandler: str, beskrivelse: str) -> Sag:
+        """
+        Fabrik til oprettelse af nye sager.
+
+        Oprettede sager er altid aktive, samt tilføjet og flushed
+        på databasesessionen.
+        """
+        sagsinfo = Sagsinfo(
+            aktiv="true",
+            behandler=behandler,
+            beskrivelse=beskrivelse,
+        )
+        sag = Sag(sagsinfos=[sagsinfo])
+        self.session.add(sag)
+        self.session.flush()
+
+        return sag
+
     def tilknyt_landsnumre(
         self,
         punkter: List[Punkt],
@@ -90,10 +111,8 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
             return []
 
         distrikter = self._opmålingsdistrikt_fra_punktid(uuider)
-        distrikt_punkter = {}
+        distrikt_punkter = cs.defaultdict(list)
         for (distrikt, pktid) in distrikter:
-            if distrikt not in distrikt_punkter.keys():
-                distrikt_punkter[distrikt] = []
             distrikt_punkter[distrikt].append(pktid)
 
         landsnumre = {}
@@ -133,7 +152,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
             )
 
         sql = text(
-            fr"""SELECT
+            rf"""SELECT
                     max(to_number(
                         regexp_substr(pi.tekst, 'G.I.(.+)', 1, 1, '', 1)
                     )) lbnr
@@ -200,6 +219,13 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
                     artskode=forrige_koordinat.artskode,
                     _registreringfra=func.sysdate(),
                 )
+
+                # Sikr at den forrige koordinat *også* fejlmeldes, så vi
+                # kan tilføje en ny kopi af den uden at komme i problemer med
+                # KOORDINAT_UNIQ2_IDX constraint i databasen
+                forrige_koordinat.fejlmeldt = True
+                self.session.add(forrige_koordinat)
+                self.session.flush()
 
                 sagsevent.koordinater = [ny_koordinat]
 
@@ -284,7 +310,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         """
         landsnr = self.hent_punktinformationtype("IDENT:landsnr")
         sql = text(
-            fr"""SELECT lbnr
+            rf"""SELECT lbnr
                 FROM (
                     SELECT
                         regexp_substr(tekst, '.*-.*-(.+)', 1, 1, '', 1) lbnr

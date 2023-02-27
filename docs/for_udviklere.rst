@@ -91,13 +91,7 @@ Underkommandoernes modulnavne starter med `_` for at undgå navnekonflikter med
 click-kommando-objekter.
 
 Eksempel: Det betyder, at man for entydigt at kunne kende forskel på modulet
-
-    fire.cli.niv._opret-sag
-
-og Click-kommandoobjektet
-
-    fire.cli.niv.opret-sag
-
+``fire.cli.niv._opret-sag`` og Click-kommandoobjektet ``fire.cli.niv.opret-sag``
 skal have ovennævnte præfiks i modulnavnet, så funktionen (og dermed Click-
 kommandoen) i modulet kan få det ønskede navn.
 
@@ -160,7 +154,8 @@ køres::
 Først gang kommandoen køres downloades en række Docker images. Det tager sin tid, så
 vær tålmodig.
 
-Kopier opsætningsfilen ``test/ci/fire.ini`` til din :envvar:`HOME`-mappe.
-Herefter burde det være muligt at køre test-suiten.
+Kopier `ci`-opsætningen fra filen ``test/ci/fire.ini`` til din lokale `fire.ini` i din
+:envvar:`HOME`-mappe. Hvis Docker-billedet afvikles på en server skal `hostname` rettes
+til i under `ci`-opsætningen. Herefter burde det være muligt at køre test-suiten.
 
 

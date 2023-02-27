@@ -3,9 +3,8 @@ from functools import partial
 
 import click
 from sqlalchemy.sql import text
-from fire.api.model.punkttyper import PunktInformationType
+import pandas as pd
 
-from fire.ident import klargør_identer_til_søgning
 from fire.api.model import (
     Punkt,
     PunktInformation,
@@ -13,10 +12,12 @@ from fire.api.model import (
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
+from fire.ident import klargør_identer_til_søgning
 from fire.io.regneark import (
     nyt_ark,
     arkdef,
 )
+import fire.io.dataframe as frame
 import fire.cli
 from fire.cli.niv import (
     niv as niv_command_group,
@@ -24,7 +25,7 @@ from fire.cli.niv import (
     find_sag,
     er_projekt_okay,
 )
-from fire.cli.typologi import (
+from fire.typologi import (
     adskil_identer,
     adskil_distrikter,
 )
@@ -75,6 +76,9 @@ være øverst og i angivne rækefølge under hvert punkt.
 
 LOKATION_DEFAULT: Final[tuple[float, float]] = (11.0, 56.0)
 
+TOMME_RÆKKER: Final[pd.DataFrame] = pd.DataFrame(data=5 * [{}], columns=arkdef.REVISION)
+"Fem blanklinjer efter hvert punktoversigt"
+
 
 def hent_punkter_i_opmålingsdistrikter(
     opmålingsdistrikter: list[str],
@@ -119,20 +123,17 @@ def lokationskoordinat_streng(lokation: tuple[float, float]) -> str:
     return f"{lokation[1]:.3f} m   {lokation[0]:.3f} m"
 
 
+def punkt_informationer_aktive(
+    punkt_informationer: list[PunktInformation],
+) -> list[PunktInformation]:
+    return [info for info in punkt_informationer if info.registreringtil is None]
 
-def punkt_informationer_aktive(punkt_informationer: list[PunktInformation]) -> list[PunktInformation]:
+
+def fjern_ignorerede(
+    punkt_informationer: list[PunktInformation], ignorerede: list[str]
+) -> list[PunktInformation]:
     return [
-        info
-        for info in punkt_informationer
-        if info.registreringtil is None
-    ]
-
-
-def fjern_ignorerede(punkt_informationer: list[PunktInformation], ignorerede: list[str]) -> list[PunktInformation]:
-    return [
-        info
-        for info in punkt_informationer
-        if info.infotype.name not in ignorerede
+        info for info in punkt_informationer if info.infotype.name not in ignorerede
     ]
 
 
@@ -141,16 +142,18 @@ def har_landsnr_lig_ident(info: PunktInformation, ident: str) -> bool:
     return info.infotype.name == "IDENT:landsnr" and info.tekst == ident
 
 
-def fjern_alle_med_ident(punkt_informationer: list[PunktInformation], ident: str) -> list[PunktInformation]:
+def fjern_alle_med_ident(
+    punkt_informationer: list[PunktInformation], ident: str
+) -> list[PunktInformation]:
     return [
-        info
-        for info in punkt_informationer
-        if not har_landsnr_lig_ident(info, ident)
+        info for info in punkt_informationer if not har_landsnr_lig_ident(info, ident)
     ]
 
 
 def flyt_attributter_til_toppen(
-    punkt_informationer: list[PunktInformation], *, prioritering: list[str] = ATTRIBUT_PRIORITERING
+    punkt_informationer: list[PunktInformation],
+    *,
+    prioritering: list[str] = ATTRIBUT_PRIORITERING,
 ) -> list:
     """
     Find prioriterede attributter og placér dem øverst i samme rækkefølge.
@@ -159,6 +162,7 @@ def flyt_attributter_til_toppen(
     deres rækkefølge i forhold til hinanden forbliver uændret.
 
     """
+
     def key(info: PunktInformation) -> int:
         if info.infotype.name not in prioritering:
             return 9999
@@ -175,11 +179,7 @@ mulig_datumstabil = partial(har_infotype, attribut="ATTR:muligt_datumstabil")
 
 
 def har_attr_muligt_datumstabil(punkt_informationer: list[PunktInformation]) -> bool:
-    return any(
-        mulig_datumstabil(punkt_info)
-        for punkt_info
-        in punkt_informationer
-    )
+    return any(mulig_datumstabil(punkt_info) for punkt_info in punkt_informationer)
 
 
 @niv_command_group.command()
@@ -247,7 +247,8 @@ def udtræk_revision(
 
         lokation = normaliser_lokationskoordinat(lokation[0], lokation[1], "DK", True)
         lokation_repr = lokationskoordinat_streng(lokation)
-        revision = revision.append(
+        revision = frame.append(
+            revision,
             {
                 "Punkt": ident,
                 "Attribut": "LOKATION",
@@ -256,13 +257,15 @@ def udtræk_revision(
                 "id": lokations_id,
                 "Ikke besøgt": "x",
             },
-            ignore_index=True,
         )
 
         # Fjern punktinformationer, der ikke skal skrives til arket
         punkt_informationer = punkt_informationer_aktive(punkt.punktinformationer)
-        punkt_informationer = fjern_ignorerede(punkt_informationer, ignorerede_attributter)
-        punkt_informationer = fjern_alle_med_ident(punkt_informationer, ident)
+        punkt_informationer = fjern_ignorerede(
+            punkt_informationer, ignorerede_attributter
+        )
+        if not alle_attributter:
+            punkt_informationer = fjern_alle_med_ident(punkt_informationer, ident)
 
         # Inden punkt-informationerne føjes til regnearket, flyt
         # prioriterede attributter til toppen i den valgte rækkefølge.
@@ -275,13 +278,14 @@ def udtræk_revision(
                 "Attribut": "ATTR:muligt_datumstabil",
                 "Sluk": "x",
             }
-            revision = revision.append(attribut, ignore_index=True)
+            revision = frame.append(revision, attribut)
 
         # Så itererer vi, med aktuelle beskrivelse først
         for info in punkt_informationer:
             attribut_navn = info.infotype.name
             tekst = info.tekst if info.tekst is None else info.tekst.strip()
-            revision = revision.append(
+            revision = frame.append(
+                revision,
                 {
                     "Sluk": "",
                     "Attribut": attribut_navn,
@@ -290,11 +294,10 @@ def udtræk_revision(
                     "Ny værdi": tekst,
                     "id": info.objektid,
                 },
-                ignore_index=True,
             )
 
         # Fem blanklinjer efter hvert punktoversigt
-        revision = revision.append(5 * [{}], ignore_index=True)
+        revision = frame.append(revision, TOMME_RÆKKER)
 
     ark_revision = {"Revision": revision}
     skriv_ark(projektnavn, ark_revision, "-revision")

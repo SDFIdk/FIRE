@@ -82,7 +82,7 @@ def test_bernesesolution():
         a=float(reader2["MAR6"].dagsresidualer.n_residualer[0]), b=-0.12
     )
 
-    w = 0.0009 ** 2
+    w = 0.0009**2
     assert reader2["ESBC"].kovarians == Kovarians(
         xx=0.1442016297 * w,
         yy=0.02864337257 * w,
@@ -135,7 +135,7 @@ def test_bernesesolution():
         a=float(reader3["MAR6"].dagsresidualer.n_residualer[2]), b=-0.87
     )
 
-    w = 0.0010 ** 2
+    w = 0.0010**2
     assert reader3["ONSA"].kovarians == Kovarians(
         xx=0.06792032947 * w,
         yy=0.01283152234 * w,
@@ -166,7 +166,7 @@ def test_bernese_koordinat_kovarians():
     """Test at den samlede løsnings kovariansmatrix læses korrekt."""
     BUDP = BerneseSolution(ADDNEQ2096, CRD2096, COV2096)["BUDP"]
 
-    skalering = 0.001 ** 2
+    skalering = 0.001**2
     assert BUDP.kovarians.xx == 0.9145031116e-01 * skalering
     assert BUDP.kovarians.yx == 0.1754111808e-01 * skalering
     assert BUDP.kovarians.zx == 0.9706757931e-01 * skalering

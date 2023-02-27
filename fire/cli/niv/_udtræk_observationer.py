@@ -49,7 +49,7 @@ from fire.cli.niv import (
     niv as niv_command_group,
     er_projekt_okay,
 )
-from fire.cli.typologi import (
+from fire.typologi import (
     adskil_filnavne,
     adskil_identer,
 )
@@ -137,16 +137,23 @@ Er metode ikke angivet, søger programmet blandt begge observationstyper.
 @click.option(
     "-df",
     "--fra",
-    help="Hent observationer fra og med denne dato.",
+    help=f"Hent observationer fra og med denne dato. Angives på formen {DATE_FORMAT}.",
     required=False,
     type=Datetime(format=DATE_FORMAT),
 )
 @click.option(
     "-dt",
     "--til",
-    help="Hent observationer til, men ikke med, denne dato.",
+    help="Hent observationer til, men ikke med, denne dato. Angives på formen {DATE_FORMAT}.",
     required=False,
     type=Datetime(format=DATE_FORMAT),
+)
+@click.option(
+    "-ao",
+    "--alle-obs",
+    help="Hent alle observationer til de adspurgte punkter.",
+    required=False,
+    is_flag=True,
 )
 @fire.cli.default_options()
 def udtræk_observationer(
@@ -157,6 +164,7 @@ def udtræk_observationer(
     metode: str,
     fra: dt.datetime,
     til: dt.datetime,
+    alle_obs: bool,
     # These `kwargs` can be ignored for now, since they refer to default
     # CLI options that are already in effect by use of call-back functions.
     **kwargs,
@@ -198,6 +206,10 @@ def udtræk_observationer(
 
         Se de enkelte kommando-linie-argumenters dokumentation for flere
         detaljer om deres betydning for fremsøgningsprocessen.
+
+        Ved angivelse af identer i KRITERIER fremsøges kun observationer
+        mellem de adspurgte punkter. Ønskes alle observationer til de
+        adspurgte punkter kan `--alle-obs` tilføjes kaldet.
 
     Geometrifiler:
 
@@ -249,8 +261,17 @@ def udtræk_observationer(
             DVR90 = db.hent_srid(SRID.DVR90)
             funktion = db.hent_observationer_fra_opstillingspunkt
             fastholdte_argumenter = dict(
-                tid_fra=fra, tid_til=til, srid=DVR90, kun_aktive=True
+                tid_fra=fra,
+                tid_til=til,
+                srid=DVR90,
+                kun_aktive=True,
+                sigtepunkter=punkter,
             )
+
+            if alle_obs:
+                # Når ingen sigtepunkter angives hentes alle observationer til opstillingspunktet
+                fastholdte_argumenter.pop("sigtepunkter")
+
             forberedt_søgefunktion = partial(funktion, **fastholdte_argumenter)
 
         else:  # Buffer > 0
@@ -285,6 +306,9 @@ def udtræk_observationer(
             forberedt_søgefunktion, metoder
         )
         resultatsæt |= set(brug_alle_på_alle(søgefunktioner, klargjorte_geometrier))
+
+    if not resultatsæt:
+        raise SystemExit("Ingen observationer fundet")
 
     # Anvend kvalitetskriterier
     # -------------------------

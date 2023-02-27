@@ -2,7 +2,6 @@ import datetime
 import json
 import os
 import os.path
-import sys
 from pathlib import Path
 from typing import (
     Dict,
@@ -12,6 +11,7 @@ from typing import (
 import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
+import packaging.version
 
 from fire.api.model import (
     Punkt,
@@ -267,11 +267,11 @@ def skriv_ark(
         with pd.ExcelWriter(fil) as writer:
             for navn in nye_faneblade:
                 nye_faneblade[navn].replace("nan", "").to_excel(
-                    writer, sheet_name=navn, encoding="utf-8", index=False
+                    writer, sheet_name=navn, index=False
                 )
             for navn in gamle_faneblade:
                 gamle_faneblade[navn].replace("nan", "").to_excel(
-                    writer, sheet_name=navn, encoding="utf-8", index=False
+                    writer, sheet_name=navn, index=False
                 )
     except Exception as ex:
         fire.cli.print(f"Kan ikke skrive opdateret '{fil}'!")
@@ -287,22 +287,30 @@ def find_faneblad(
     projektnavn: str, faneblad: str, arkdef: Dict, ignore_failure: bool = False
 ) -> pd.DataFrame:
     try:
-        return (
-            pd.read_excel(
-                f"{projektnavn}.xlsx",
-                sheet_name=faneblad,
-                usecols=anvendte(arkdef),
+        raw = pd.read_excel(
+            f"{projektnavn}.xlsx",
+            sheet_name=faneblad,
+            usecols=anvendte(arkdef),
+        ).dropna(how="all")
+
+        if set(raw.columns) ^ set(arkdef):
+            fire.cli.print(
+                f"Kolonnenavne i fanebladet '{faneblad}' matcher ikke arkdefinitionens\n\n    {list(arkdef.keys())}\n"
             )
-            .dropna(how="all")
-            .astype(arkdef)
-            .replace("nan", "")
-        )
+            fire.cli.print(f"Undersøg eventuelt, om der er dubletter i kolonnenavnene.")
+            fire.cli.print(
+                "(Er der to kolonner med samme navn, bliver kun den sidste kolonne indlæst.)"
+            )
+            raise SystemExit(1)
+
+        return raw.astype(arkdef).replace("nan", "")
+
     except Exception as ex:
         if ignore_failure:
             return None
         fire.cli.print(f"Kan ikke læse {faneblad} fra '{projektnavn}.xlsx'")
         fire.cli.print(f"Mulig årsag: {ex}")
-        sys.exit(1)
+        raise SystemExit(1)
 
 
 # ------------------------------------------------------------------------------
@@ -318,7 +326,7 @@ def find_parameter(projektnavn: str, parameter: str) -> str:
     param = find_faneblad(projektnavn, "Parametre", arkdef.PARAM)
     if parameter not in list(param["Navn"]):
         fire.cli.print(f"FEJL: '{parameter}' ikke angivet under fanebladet 'Parametre'")
-        sys.exit(1)
+        raise SystemExit(1)
 
     return param.loc[param["Navn"] == f"{parameter}"]["Værdi"].to_string(index=False)
 
@@ -332,7 +340,7 @@ def find_sag(projektnavn: str) -> Sag:
             bold=True,
             bg="red",
         )
-        sys.exit(1)
+        raise SystemExit(1)
 
     sagsgang = find_sagsgang(projektnavn)
     sagsid = find_sagsid(sagsgang)
@@ -344,12 +352,12 @@ def find_sag(projektnavn: str) -> Sag:
             bold=True,
             bg="red",
         )
-        sys.exit(1)
+        raise SystemExit(1)
     if not sag.aktiv:
         fire.cli.print(
             f"Sag {sagsid} for {projektnavn} er markeret inaktiv. Genåbn for at gå videre."
         )
-        sys.exit(1)
+        raise SystemExit(1)
     return sag
 
 
@@ -557,12 +565,12 @@ def opret_region_punktinfo(punkt: Punkt) -> PunktInformation:
     pit = fire.cli.firedb.hent_punktinformationtype(region)
     if pit is None:
         fire.cli.print(f"Kan ikke finde region '{region}'")
-        sys.exit(1)
+        raise SystemExit(1)
 
     return PunktInformation(infotype=pit, punkt=punkt)
 
 
-def er_projekt_okay(projektnavn: str):
+def er_projekt_okay(projektnavn: str) -> None:
     """
     Kontroller om det er okay at bruge et givet projekt.
 
@@ -577,16 +585,25 @@ def er_projekt_okay(projektnavn: str):
             bold=True,
             bg="red",
         )
-        sys.exit(1)
+        raise SystemExit(1)
 
-    versionsnummer = find_parameter(projektnavn, "Version")
-    if versionsnummer != fire.__version__:
+    fil_version = packaging.version.parse(find_parameter(projektnavn, "Version"))
+    fire_version = packaging.version.parse(fire.__version__)
+    if fil_version.major != fire_version.major:
         fire.cli.print(
-            f"FEJL: '{projektnavn}' er oprettet med version {versionsnummer} - du har version {fire.__version__} installeret!",
+            f"FEJL: '{projektnavn}' er oprettet med version {fil_version} - du har version {fire_version} installeret!",
             bold=True,
             bg="red",
         )
-        sys.exit(1)
+        raise SystemExit(1)
+
+    if fil_version.minor > fire_version.minor:
+        fire.cli.print(
+            f"ADVARSEL: '{projektnavn}' er oprettet med version {fil_version} - du har version {fire_version} installeret!",
+            bold=True,
+            bg="yellow",
+        )
+        return
 
 
 """

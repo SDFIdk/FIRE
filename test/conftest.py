@@ -16,10 +16,13 @@ from fire.api.model import (
     Sagsinfo,
     Beregning,
     Koordinat,
-    Tidsserie,
+    HøjdeTidsserie,
+    GNSSTidsserie,
     EventType,
     Srid,
     Boolean,
+    GeometriObjekt,
+    Point,
 )
 from fire.io.regneark import (
     arkdef,
@@ -42,6 +45,7 @@ class DummyFireDb(FireDb):
 
 
 persistent_firedb = FireDb(db="ci", debug=False)
+persistent_firedb.config.set("general", "niv_open_files", "false")
 fire.cli.override_firedb(persistent_firedb)
 
 
@@ -92,7 +96,12 @@ def punktfabrik(firedb, sagsevent: Sagsevent):
 
     def fabrik():
         sagsevent.eventtype = EventType.PUNKT_OPRETTET
-        p = Punkt(sagsevent=sagsevent)
+        p = Punkt(
+            sagsevent=sagsevent,
+            geometriobjekter=[
+                GeometriObjekt(sagsevent=sagsevent, geometri=Point((12.1, 55.5)))
+            ],
+        )
         firedb.session.add(p)
         return p
 
@@ -147,8 +156,23 @@ def koordinat(koordinatfabrik):
 
 
 @pytest.fixture()
-def tidsserie(firedb, sagsevent, punkt, punktsamling, koordinatfabrik, srid):
-    ts = Tidsserie(
+def højdetidsserie(firedb, sagsevent, punkt, punktsamling, koordinatfabrik, srid):
+    ts = HøjdeTidsserie(
+        sagsevent=sagsevent,
+        punkt=punkt,
+        punktsamling=punktsamling,
+        navn=f"{fire.uuid()}",
+        formål="Test",
+        referenceramme="FIRE",
+        srid=srid,
+        koordinater=[koordinatfabrik() for _ in range(5)],
+    )
+    firedb.session.add(ts)
+    return ts
+
+
+def gnsstidsserie(firedb, sagsevent, punkt, punktsamling, koordinatfabrik, srid):
+    ts = GNSSTidsserie(
         sagsevent=sagsevent,
         punkt=punkt,
         punktsamling=punktsamling,

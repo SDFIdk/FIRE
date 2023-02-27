@@ -137,15 +137,9 @@ def indsæt(
                 raise SystemExit
 
     # sagshåndtering
-    sag = Sag(
-        id=fire.uuid(),
-        sagsinfos=[
-            Sagsinfo(
-                aktiv="true",
-                behandler=sagsbehandler,
-                beskrivelse="Indsættelse af ny grafik med 'fire grafik'",
-            )
-        ],
+    sag = db.ny_sag(
+        behandler=sagsbehandler,
+        beskrivelse="Indsættelse af ny grafik med 'fire grafik'",
     )
     db.indset_sag(sag, commit=False)
     try:
@@ -159,14 +153,8 @@ def indsæt(
     grafik.type = type
     grafik.filnavn = filnavn
 
-    sagsevent = Sagsevent(
-        sag=sag,
-        eventtype=EventType.GRAFIK_INDSAT,
-        sagseventinfos=[
-            SagseventInfo(
-                beskrivelse=f"Grafik {filnavn} indsættes på punkt {punkt.ident}"
-            )
-        ],
+    sagsevent = sag.ny_sagsevent(
+        beskrivelse=f"Grafik {filnavn} indsættes på punkt {punkt.ident}",
         grafikker=[grafik],
     )
     db.indset_sagsevent(sagsevent, commit=False)
@@ -218,15 +206,9 @@ def slet(filnavn: str, sagsbehandler: str, **kwargs) -> None:
     punkt = grafik.punkt
 
     # sagshåndtering
-    sag = Sag(
-        id=fire.uuid(),
-        sagsinfos=[
-            Sagsinfo(
-                aktiv="true",
-                behandler=sagsbehandler,
-                beskrivelse="Afregistrering af grafik med `fire grafik slet`",
-            )
-        ],
+    sag = db.ny_sag(
+        behandler=sagsbehandler,
+        beskrivelse="Afregistrering af grafik med `fire grafik slet`",
     )
     db.indset_sag(sag, commit=False)
     try:
@@ -235,15 +217,11 @@ def slet(filnavn: str, sagsbehandler: str, **kwargs) -> None:
         fire.cli.firedb.session.rollback()
         raise SystemExit(ex)
 
-    sagsevent = Sagsevent(
-        sag=sag,
-        sagseventinfos=[
-            SagseventInfo(
-                beskrivelse=f"Grafik {filnavn} for {punkt.ident} afregistreret"
-            )
-        ],
+    sagsevent = sag.ny_sagsevent(
+        beskrivelse=f"Grafik {filnavn} for {punkt.ident} afregistreret",
+        grafikker_slettede=[grafik],
     )
-    db.luk_grafik(grafik, sagsevent, commit=False)
+    db.indset_sagsevent(sagsevent, commit=False)
     db.luk_sag(sag, commit=False)
     try:
         # Indsæt alle objekter i denne session

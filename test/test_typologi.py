@@ -1,6 +1,6 @@
 import shutil
 
-from fire.cli.typologi import (
+from fire.typologi import (
     adskil_filnavne,
     adskil_identer,
 )

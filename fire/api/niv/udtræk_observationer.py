@@ -23,13 +23,13 @@ from shapely import geometry
 import pandas as pd
 
 from fire.srid import SRID
-from fire.api.model import Geometry
-from fire.api.model.punkttyper import (
+from fire.api.model import (
     Punkt,
     ObservationstypeID,
     Observation,
     GeometriskKoteforskel,
     TrigonometriskKoteforskel,
+    Geometry,
 )
 from fire.api.niv.enums import (
     NivMetode,
@@ -132,7 +132,7 @@ def punkter_til_geojson(data: pd.DataFrame) -> dict:
         "features": [
             {
                 "type": "Feature",
-                "properties": {k: v for k, v in row.iteritems()},
+                "properties": {k: v for k, v in row.items()},
                 "geometry": {
                     "type": "Point",
                     "coordinates": row[["Øst", "Nord"]].tolist(),
