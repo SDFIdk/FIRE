@@ -3,6 +3,7 @@ from datetime import datetime
 
 import click
 import pandas as pd
+import matplotlib.pyplot as plt
 from rich.table import Table
 from rich.console import Console
 from rich import box
@@ -230,3 +231,59 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     data = {overskrift: kolonne for (overskrift, kolonne) in zip(overskrifter, kolonner)}
     df = pd.DataFrame(data)
     df.to_excel(fil, index=False)
+
+
+def plot_gnss_ts(ts: GNSSTidsserie):
+    """
+    
+    """
+
+    def _plot_ts(label: str, x: list, y: list):
+        plt.plot(
+            x,
+            y, 
+            "-", 
+            linewidth=0.25
+        )
+        plt.plot(
+            x,
+            y,
+            ".",
+            markersize=4,
+            linewidth=0.25,
+            color="black",
+        )
+        
+        plt.grid()
+        plt.ylabel(label)
+
+    plt.figure()
+    plt.suptitle(ts.navn)
+    plt.xlabel("Date")
+
+    plt.subplot(311)
+    _plot_ts("North [m]", ts.t, ts.n)
+
+    plt.subplot(312)
+    _plot_ts("East [m]", ts.t, ts.e)
+
+    plt.subplot(313)
+    _plot_ts("Up [m]", ts.t, ts.u)
+
+    plt.show()
+
+@ts.command()
+@click.argument("tidsserie", required=True, type=str)
+@fire.cli.default_options()
+def plot_gnss(tidsserie: str, **kwargs) -> None:
+    """
+    Plot en GNSS tidsserie
+
+    Et simpelt plot der viser udviklingen i nord, øst og op retningerne over tid.
+    """
+    try:
+        tidsserie = _find_tidsserie(GNSSTidsserie, tidsserie)
+    except NoResultFound:
+        raise SystemExit("Tidsserie ikke fundet")
+
+    plot_gnss_ts(tidsserie)
