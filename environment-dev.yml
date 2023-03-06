@@ -9,6 +9,7 @@ dependencies:
   - fiona=1.8.*
   - gama=2.*
   - graphviz=4.0.*
+  - matplotlib=3.*
   - openpyxl=3.0.*
   - pandas=1.4.*
   - pip=22.1.*

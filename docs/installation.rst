@@ -322,15 +322,7 @@ fra et nyligt åbnet terminalvindue:
     (base) C:\FIRE>mamba activate fire
     (fire) C:\FIRE>git fetch origin
     (fire) C:\FIRE>git checkout fire-{FIREVERSION}
-
-Hvis du vil opdatere til en version med et højere major eller minor-versionsnummer,
-altså x'et eller y'et i ``x.y.z``, bør du desuden lave en opdatering af dit conda
-miljø:
-
-.. code-block::
-
     (fire) C:\FIRE>mamba env update --file environment.yml
-
 
 Måske får du undervejs en advarsel om, at ``mamba``/``conda`` skal opdateres:
 

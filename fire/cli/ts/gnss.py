@@ -1,8 +1,9 @@
 from typing import Type
 from datetime import datetime
-import csv
 
 import click
+import pandas as pd
+import matplotlib.pyplot as plt
 from rich.table import Table
 from rich.console import Console
 from rich import box
@@ -108,7 +109,7 @@ i tidsserien.  Se `fire ts gnss --help` for yderligere detaljer.""",
     "-f",
     required=False,
     type=click.Path(writable=True),
-    help="Skriv den udtrukne tidsserie til fil.",
+    help="Skriv den udtrukne tidsserie til Excel fil.",
 )
 @fire.cli.default_options()
 def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
@@ -164,16 +165,16 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
         > fire ts gnss RDIO
 
         \b
-        Vis tidsserien 'RDO1_IGb08' med standardparametre:\n
-        > fire ts gnss RDO1_IGb08
+        Vis tidsserien 'RDIO_5D_IGb08' med standardparametre:\n
+        > fire ts gnss RDIO_5D_IGb08
 
         \b
         Vis tidsserie med brugerdefinerede parametre:\n
-        > fire ts gnss RDO1_IGb08 --paramatre decimalår,n,e,u,sx,sy,sz
+        > fire ts gnss RDIO_5D_IGb08 --paramatre decimalår,n,e,u,sx,sy,sz
 
         \b
         Gem tidsserie med samtlige tilgængelige parametre:\n
-        > fire ts gnss RDO1_IGb08 -p alle -f RDIO1_IGb08.csv
+        > fire ts gnss RDIO_5D_IGb08 -p alle -f RDIO_5D_IGb08.xlsx
         \b
     """
     if not objekt:
@@ -227,12 +228,62 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     if not fil:
         raise SystemExit
 
-    with open(fil, mode="w") as f:
-        csv_skriver = csv.writer(
-            f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+    data = {overskrift: kolonne for (overskrift, kolonne) in zip(overskrifter, kolonner)}
+    df = pd.DataFrame(data)
+    df.to_excel(fil, index=False)
+
+
+def plot_gnss_ts(ts: GNSSTidsserie):
+    """
+    
+    """
+
+    def _plot_ts(label: str, x: list, y: list):
+        plt.plot(
+            x,
+            y, 
+            "-", 
+            linewidth=0.25
         )
-        csv_skriver.writerow(overskrifter)
-        for række in data:
-            csv_skriver.writerow(
-                [celle if celle is not None else "" for celle in række]
-            )
+        plt.plot(
+            x,
+            y,
+            ".",
+            markersize=4,
+            linewidth=0.25,
+            color="black",
+        )
+        
+        plt.grid()
+        plt.ylabel(label)
+
+    plt.figure()
+    plt.suptitle(ts.navn)
+    plt.xlabel("Date")
+
+    plt.subplot(311)
+    _plot_ts("North [m]", ts.t, ts.n)
+
+    plt.subplot(312)
+    _plot_ts("East [m]", ts.t, ts.e)
+
+    plt.subplot(313)
+    _plot_ts("Up [m]", ts.t, ts.u)
+
+    plt.show()
+
+@ts.command()
+@click.argument("tidsserie", required=True, type=str)
+@fire.cli.default_options()
+def plot_gnss(tidsserie: str, **kwargs) -> None:
+    """
+    Plot en GNSS tidsserie
+
+    Et simpelt plot der viser udviklingen i nord, øst og op retningerne over tid.
+    """
+    try:
+        tidsserie = _find_tidsserie(GNSSTidsserie, tidsserie)
+    except NoResultFound:
+        raise SystemExit("Tidsserie ikke fundet")
+
+    plot_gnss_ts(tidsserie)
