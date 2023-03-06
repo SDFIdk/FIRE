@@ -67,10 +67,6 @@ def regn(projektnavn: str, **kwargs) -> None:
     if not kontrol:
         arbejdssæt["Hvornår"] = punktoversigt["Hvornår"]
 
-    # tmp = Arbejdssæt()
-    # arbejdssæt = from_pandas(tmp,arbejdssæt)
-    # print(arbejdssæt)
-
     fastholdte = find_fastholdte(arbejdssæt.values.tolist(), kontrol)
     if 0 == len(fastholdte):
         fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
