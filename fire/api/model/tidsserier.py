@@ -122,7 +122,7 @@ class GNSSTidsserie(Tidsserie):
     @functools.cached_property
     def X(self) -> List[float]:
         """
-        Liste med tidsseriens x-værdier normaliseret til tidsseriens første koordinat.
+        Liste med tidsseriens x-værdier normaliseret til tidsseriens første element.
 
         Koordinatkomponenten er i geocentrisk repræsentation.
         """
@@ -141,7 +141,7 @@ class GNSSTidsserie(Tidsserie):
     @functools.cached_property
     def Y(self) -> List[float]:
         """
-        Liste med tidsseriens y-værdier normaliseret til tidsseriens første koordinat.
+        Liste med tidsseriens y-værdier normaliseret til tidsseriens første element.
 
         Koordinatkomponenten er i geocentrisk repræsentation.
         """
@@ -151,7 +151,7 @@ class GNSSTidsserie(Tidsserie):
     @functools.cached_property
     def Z(self) -> List[float]:
         """
-        Liste med tidsseriens z-værdier normaliseret til tidsseriens første koordinat.
+        Liste med tidsseriens z-værdier normaliseret til tidsseriens første element.
 
         Koordinatkomponenten er i geocentrisk repræsentation.
         """
@@ -222,30 +222,30 @@ class GNSSTidsserie(Tidsserie):
         """
         # omtrentlig position, godt nok?
         lon, lat = self.punkt.geometri.koordinater
-        return [xyz2neu(x, y, z, lon, lat) for x, y, z in zip(self.X, self.Y, self.Z)]
+        return [xyz2neu(x, y, z, lat, lon) for x, y, z in zip(self.X, self.Y, self.Z)]
 
     @property
     def n(self):
         """
-        Tidsseriens udvikling i nordlig retning, normaliseret.
+        Tidsseriens udvikling i nordlig retning, normaliseret til tidsseriens
+        første element.
         """
-        lon, lat = self.punkt.geometri.koordinater
         return [n for n, _, _ in self._neu()]
 
     @property
     def e(self):
         """
-        Tidsseriens udvikling i nordlig retning, normaliseret.
+        Tidsseriens udvikling i østlig retning, normaliseret til tidsseriens
+        første element.
         """
-        lon, lat = self.punkt.geometri.koordinater
         return [e for _, e, _ in self._neu()]
 
     @property
     def u(self):
         """
-        Tidsseriens udvikling i nordlig retning, normaliseret.
+        Tidsseriens udvikling i op-retningen, normaliseret til tidsseriens 
+        første element.
         """
-        lon, lat = self.punkt.geometri.koordinater
         return [u for _, _, u in self._neu()]
 
     def _obs_liste(self, observationsklasse: Observation, attribut: str):
