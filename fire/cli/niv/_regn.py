@@ -2,13 +2,13 @@ import subprocess
 import webbrowser
 from pathlib import Path
 from math import hypot, sqrt
-from typing import Dict, Tuple, Iterable, NamedTuple, List
-from dataclasses import dataclass
+from typing import Dict, Tuple, List
+
 
 import click
-import pandas as pd
 import numpy as np
 import xmltodict
+from pandas import DataFrame, Timestamp, isna
 
 from fire.io.regneark import arkdef
 import fire.cli
@@ -24,59 +24,6 @@ from . import (
 )
 
 from ._netoversigt import netanalyse
-
-
-@dataclass
-class Observation:
-    """Klasse der indeholder observationer"""
-
-    Journal: str
-    Fra: str
-    Til: str
-    DeltaH: float
-    L: int
-    Opst: int
-    sigma: float
-    delta: float
-    Hvornår: pd.Timestamp
-    Type: str
-
-
-class Arbejdssæt(NamedTuple):
-    """Klasse der indeholder arbejdssæt"""
-
-    punkt: str = ""
-    fasthold: str = ""
-    hvornår: pd.Timestamp = pd.Timestamp("NaT")
-    kote: float = float("nan")
-    sigma: float = float("nan")
-    ny_kote: float = float("nan")
-    ny_sigma: float = float("nan")
-    delta_kote: float = float("nan")
-    opløft: float = float("nan")
-    system: str = ""
-    nord: float = float("nan")
-    øst: float = float("nan")
-    uuid: str = ""
-
-    def __iter__(self):
-        return (getattr(self, field.name) for field in dataclasses.fields(self))
-
-
-def from_pandas(arbejdssæt: Arbejdssæt, df: pd.DataFrame):
-    arbejdssæt.punkt = df[df.columns[0]].values
-    arbejdssæt.fasthold = df[df.columns[1]].values
-    arbejdssæt.hvornår = df[df.columns[2]].values
-    arbejdssæt.kote = df[df.columns[3]].values
-    arbejdssæt.sigma = df[df.columns[4]].values
-    arbejdssæt.ny_kote = df[df.columns[5]].values
-    arbejdssæt.ny_sigma = df[df.columns[6]].values
-    arbejdssæt.delta_kote = df[df.columns[7]].values
-    arbejdssæt.opløft = df[df.columns[8]].values
-    arbejdssæt.system = df[df.columns[9]].values
-    arbejdssæt.nord = df[df.columns[10]].values
-    arbejdssæt.øst = df[df.columns[11]].values
-    arbejdssæt.uuid = df[df.columns[12]].values
 
 
 @niv.command()
@@ -155,7 +102,7 @@ def regn(projektnavn: str, **kwargs) -> None:
     beregning = gama_beregning(
         punkter, koter, varianser, arbejdssæt, len(punktoversigt), tg
     )
-    beregning = pd.DataFrame(beregning, columns=list(arbejdssæt.columns))
+    beregning = DataFrame(beregning, columns=list(arbejdssæt.columns))
     resultater[næste_faneblad] = beregning
 
     # ...og beret om resultaterne
@@ -216,7 +163,7 @@ def spredning(
 
 
 # ------------------------------------------------------------------------------
-def find_fastholdte(punktoversigt: np.ndarray, kontrol: bool) -> Dict[str, float]:
+def find_fastholdte(punktoversigt: List, kontrol: bool) -> Dict[str, float]:
     """Find fastholdte punkter til gama beregning"""
     punktoversigt = np.array(punktoversigt)
     if kontrol:
@@ -225,7 +172,7 @@ def find_fastholdte(punktoversigt: np.ndarray, kontrol: bool) -> Dict[str, float
         relevante = punktoversigt[punktoversigt[:, 1] != ""]
 
     fastholdte_punkter = tuple(relevante[:, 0])
-    fastholdte_koter = tuple(relevante[:, 4])
+    fastholdte_koter = tuple(relevante[:, 3])
     return dict(zip(fastholdte_punkter, fastholdte_koter))
 
 
@@ -320,7 +267,7 @@ def gama_udjævn(projektnavn: str, kontrol: bool):
 
 def læs_gnu_output(
     projektnavn: str,
-) -> Tuple[list[str], list[float], list[float], pd.Timestamp]:
+) -> Tuple[list[str], list[float], list[float], Timestamp]:
     """
     Læser output fra GNU Gama og returnerer relevante parametre til at skrive xlsx fil
     """
@@ -349,18 +296,19 @@ def gama_beregning(
     varianser: list[float],
     arbejdssæt: List[float],
     n_punkter: int,
-    tg: pd.Timestamp,
-) -> list[Observation]:
+    tg: Timestamp,
+) -> List:
 
     arbejdssæt = np.array(arbejdssæt)
     # Tag højde for punkter der allerede eksisterer
     eksisterer = list(set(punkter).intersection(arbejdssæt[:, 0]))
     n_eksisterer = len(eksisterer)
     # Pre-allokér plads til dem der ikke gør
-    tmp = np.ones((len(koter) - n_eksisterer, 14), dtype=float) * 99999
+    tmp = np.empty((len(koter) - n_eksisterer, 14))
+    tmp[:] = np.nan
     # Sæt sammen og formattér
     arbejdssæt = np.vstack((arbejdssæt, tmp))
-    arbejdssæt[:, 2][arbejdssæt[:, 2] == 99999] = pd.Timestamp("NaT")
+    arbejdssæt[:, 2][isna(arbejdssæt[:, 2])] = Timestamp("NaT")
 
     # Skriv resultaterne til arbejdssættet
     arbejdssæt[:, 9] = "DVR90"
@@ -389,7 +337,5 @@ def gama_beregning(
             continue
         arbejdssæt[i, 8] = Delta / dt
         arbejdssæt[i, 2] = tg
-
-    arbejdssæt[arbejdssæt == 99999] = float("nan")
 
     return arbejdssæt
