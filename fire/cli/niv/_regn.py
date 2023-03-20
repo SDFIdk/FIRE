@@ -2,11 +2,13 @@ import subprocess
 import webbrowser
 from pathlib import Path
 from math import hypot, sqrt
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
+
 
 import click
-import pandas as pd
+import numpy as np
 import xmltodict
+from pandas import DataFrame, Timestamp, isna
 
 from fire.io.regneark import arkdef
 import fire.cli
@@ -66,7 +68,7 @@ def regn(projektnavn: str, **kwargs) -> None:
     if not kontrol:
         arbejdssæt["Hvornår"] = punktoversigt["Hvornår"]
 
-    fastholdte = find_fastholdte(arbejdssæt, kontrol)
+    fastholdte = find_fastholdte(arbejdssæt.values.tolist(), kontrol)
     if 0 == len(fastholdte):
         fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
         raise SystemExit(1)
@@ -80,9 +82,23 @@ def regn(projektnavn: str, **kwargs) -> None:
     fire.cli.print(
         f"Fastholder {len(fastholdte)} og beregner nye koter for {len(estimerede_punkter)} punkter"
     )
-    beregning, htmlrapportnavn = gama_beregning(
-        projektnavn, observationer, arbejdssæt, estimerede_punkter, kontrol
+
+    # Skriv Gama-inputfil i XML-format
+    skriv_gama(
+        projektnavn, fastholdte, estimerede_punkter, observationer.values.tolist()
     )
+
+    # Kør GNU Gama og skriv HTML rapport
+    htmlrapportnavn = gama_udjævn(projektnavn, kontrol)
+
+    # Indlæs nødvendige parametre til at skrive Gama output til xlsx
+    punkter, koter, varianser, tg = læs_gnu_output(projektnavn)
+
+    #
+    beregning = gama_beregning(
+        punkter, koter, varianser, arbejdssæt, len(punktoversigt), tg
+    )
+    beregning = DataFrame(beregning, columns=list(arbejdssæt.columns))
     resultater[næste_faneblad] = beregning
 
     # ...og beret om resultaterne
@@ -143,28 +159,29 @@ def spredning(
 
 
 # ------------------------------------------------------------------------------
-def find_fastholdte(punktoversigt: pd.DataFrame, kontrol: bool) -> Dict[str, float]:
+def find_fastholdte(punktoversigt: List, kontrol: bool) -> Dict[str, float]:
+    """Find fastholdte punkter til gama beregning"""
+    punktoversigt = np.array(punktoversigt)
     if kontrol:
-        relevante = punktoversigt[punktoversigt["Fasthold"] == "x"]
+        relevante = punktoversigt[punktoversigt[:, 1] == "x"]
     else:
-        relevante = punktoversigt[punktoversigt["Fasthold"] != ""]
+        relevante = punktoversigt[punktoversigt[:, 1] != ""]
 
-    fastholdte_punkter = tuple(relevante["Punkt"])
-    fastholdteKoter = tuple(relevante["Kote"])
-    return dict(zip(fastholdte_punkter, fastholdteKoter))
+    fastholdte_punkter = tuple(relevante[:, 0])
+    fastholdte_koter = tuple(relevante[:, 3])
+    return dict(zip(fastholdte_punkter, fastholdte_koter))
 
 
-# ------------------------------------------------------------------------------
-def gama_beregning(
+def skriv_gama(
     projektnavn: str,
-    observationer: pd.DataFrame,
-    arbejdssæt: pd.DataFrame,
+    fastholdte: dict,
+    fastholdte: dict,
     estimerede_punkter: Tuple[str, ...],
-    kontrol: bool,
-) -> Tuple[pd.DataFrame, str]:
-    fastholdte = find_fastholdte(arbejdssæt, kontrol)
-
-    # Skriv Gama-inputfil i XML-format
+    observationer: list,
+):
+    """
+    Skriv gama-inputfil i XML-format
+    """
     with open(f"{projektnavn}.xml", "wt") as gamafil:
         # Preambel
         gamafil.write(
@@ -193,14 +210,18 @@ def gama_beregning(
 
         # Observationer
         gamafil.write("<height-differences>\n")
-        for obs in observationer.itertuples(index=False):
-            if obs.Sluk == "x":
+        for obs in observationer:
+            if obs[1] == "x":
                 continue
             gamafil.write(
-                f"<dh from='{obs.Fra}' to='{obs.Til}' "
-                f"val='{obs.ΔH:+.6f}' "
-                f"dist='{obs.L:.5f}' stdev='{spredning(obs.Type, obs.L, obs.Opst, obs.σ, obs.δ):.5f}' "
-                f"extern='{obs.Journal}'/>\n"
+                f"<dh from='{obs[2]}' to='{obs[3]}' "
+                f"val='{obs[4]:+.6f}' "
+                f"dist='{obs[5]:.5f}' stdev='{spredning(obs[17], obs[5], obs[6], obs[7], obs[8]):.5f}' "
+                f"extern='{obs[0]}'/>\n"
+                f"<dh from='{obs[2]}' to='{obs[3]}' "
+                f"val='{obs[4]:+.6f}' "
+                f"dist='{obs[5]:.5f}' stdev='{spredning(obs[17], obs[5], obs[6], obs[7], obs[8]):.5f}' "
+                f"extern='{obs[0]}'/>\n"
             )
 
         # Postambel
@@ -211,6 +232,8 @@ def gama_beregning(
             "</gama-local>\n"
         )
 
+
+def gama_udjævn(projektnavn: str, kontrol: bool):
     # Lad GNU Gama om at køre udjævningen
     if kontrol:
         beregningstype = "kontrol"
@@ -240,8 +263,15 @@ def gama_beregning(
         fire.cli.print(
             f"Check {projektnavn}-resultat-{beregningstype}.html", bg="red", fg="white"
         )
+    return htmlrapportnavn
 
-    # Grav resultater frem fra GNU Gamas outputfil
+
+def læs_gnu_output(
+    projektnavn: str,
+) -> Tuple[list[str], list[float], list[float], Timestamp]:
+    """
+    Læser output fra GNU Gama og returnerer relevante parametre til at skrive xlsx fil
+    """
     with open(f"{projektnavn}-resultat.xml") as resultat:
         doc = xmltodict.parse(resultat.read())
 
@@ -256,42 +286,55 @@ def gama_beregning(
     varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
     varianser = [float(var) for var in varliste]
     assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
+    tg = gyldighedstidspunkt(projektnavn)
+    return (punkter, koter, varianser, tg)
 
-    # Vi overskriver midlertidigt "Fasthold"-søjlen nedenfor, så vi tager en
-    # kopi og retablerer søjlen før resultatreturnering
-    fastholdsøjle = arbejdssæt["Fasthold"].copy()
+
+# ------------------------------------------------------------------------------
+def gama_beregning(
+    punkter: list[str],
+    koter: list[float],
+    varianser: list[float],
+    arbejdssæt: List[float],
+    n_punkter: int,
+    tg: Timestamp,
+) -> List:
+
+    arbejdssæt = np.array(arbejdssæt)
+    # Tag højde for punkter der allerede eksisterer
+    eksisterer = list(set(punkter).intersection(arbejdssæt[:, 0]))
+    n_eksisterer = len(eksisterer)
+    # Pre-allokér plads til dem der ikke gør
+    nye_punkter = np.full((len(koter) - n_eksisterer, 14), np.nan)
+    # Sæt sammen og formattér
+    arbejdssæt = np.vstack((arbejdssæt, nye_punkter))
+    arbejdssæt[:, 2][isna(arbejdssæt[:, 2])] = Timestamp("NaT")
 
     # Skriv resultaterne til arbejdssættet
-    arbejdssæt["uuid"] = ""
-    arbejdssæt["Udelad publikation"] = ""
-    arbejdssæt["Fasthold"] = "x"
-    arbejdssæt["Ny kote"] = None
-    arbejdssæt["Ny σ"] = None
-    arbejdssæt["Δ-kote [mm]"] = None
-    arbejdssæt["Opløft [mm/år]"] = float("NaN")
-    arbejdssæt["System"] = "DVR90"
-    tg = gyldighedstidspunkt(projektnavn)
-    arbejdssæt = arbejdssæt.set_index("Punkt")
+    arbejdssæt[:, 9] = "DVR90"
 
-    for punkt, ny_kote, var in zip(punkter, koter, varianser):
-        arbejdssæt.at[punkt, "Ny kote"] = ny_kote
-        arbejdssæt.at[punkt, "Ny σ"] = sqrt(var)
-        arbejdssæt.at[punkt, "Fasthold"] = ""
-
+    j = 0
+    for i, (punkt, ny_kote, var) in enumerate(zip(punkter, koter, varianser)):
+        i += n_punkter - j
+        # Tjek om punkt allerede findes
+        if arbejdssæt[:, 0].any() == punkt:
+            i = np.where(arbejdssæt[:, 0] == punkt)[0][0]
+            j += 1
+        arbejdssæt[i, 0] = punkt
+        arbejdssæt[i, 5] = ny_kote
+        arbejdssæt[i, 6] = sqrt(var)
         # Ændring i millimeter...
-        Δ = (ny_kote - arbejdssæt.at[punkt, "Kote"]) * 1000.0
+        Delta = (ny_kote - arbejdssæt[i, 3]) * 1000.0
         # ...men vi ignorerer ændringer under mikrometerniveau
-        if abs(Δ) < 0.001:
-            Δ = 0
-        arbejdssæt.at[punkt, "Δ-kote [mm]"] = Δ
-        dt = tg - arbejdssæt.at[punkt, "Hvornår"]
+        if abs(Delta) < 0.001:
+            Delta = 0
+        arbejdssæt[i, 7] = Delta
+        dt = tg - arbejdssæt[i, 2]
         dt = dt.total_seconds() / (365.25 * 86400)
         # t = 0 forekommer ved genberegning af allerede registrerede koter
         if dt == 0:
             continue
-        arbejdssæt.at[punkt, "Opløft [mm/år]"] = Δ / dt
-        arbejdssæt.at[punkt, "Hvornår"] = tg
-    arbejdssæt = arbejdssæt.reset_index()
+        arbejdssæt[i, 8] = Delta / dt
+        arbejdssæt[i, 2] = tg
 
-    arbejdssæt["Fasthold"] = fastholdsøjle
-    return (arbejdssæt, htmlrapportnavn)
+    return list(arbejdssæt)
