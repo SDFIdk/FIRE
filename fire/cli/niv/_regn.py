@@ -304,10 +304,9 @@ def gama_beregning(
     eksisterer = list(set(punkter).intersection(arbejdssæt[:, 0]))
     n_eksisterer = len(eksisterer)
     # Pre-allokér plads til dem der ikke gør
-    tmp = np.empty((len(koter) - n_eksisterer, 14))
-    tmp[:] = np.nan
+    nye_punkter = np.full((len(koter) - n_eksisterer, 14),np.nan)
     # Sæt sammen og formattér
-    arbejdssæt = np.vstack((arbejdssæt, tmp))
+    arbejdssæt = np.vstack((arbejdssæt, nye_punkter))
     arbejdssæt[:, 2][isna(arbejdssæt[:, 2])] = Timestamp("NaT")
 
     # Skriv resultaterne til arbejdssættet
