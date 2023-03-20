@@ -5,7 +5,7 @@ import numpy as np
 from fire.matematik import (
     neu2xyz,
     xyz2neu,
-    Rneu_xyz,
+    Rxyz_neu,
 )
 
 W = 0.001**2
@@ -46,12 +46,12 @@ def test_neu2xyz_og_xyz2neu():
     assert isclose(u, U)
 
 
-def test_Rneu_xyz():
+def test_Rxyz_neu():
     """
     Test at rotationsmatrixen kan levere en fejlfri frem- og tilbage rotation.
     """
 
-    R = Rneu_xyz(55.2, 12.2)
+    R = Rxyz_neu(55.2, 12.2)
     cov_neu = R.T @ COV_XYZ @ R
     cov_xyz_return = R @ cov_neu @ R.T
 

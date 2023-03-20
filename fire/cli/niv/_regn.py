@@ -25,7 +25,6 @@ from . import (
 
 from ._netoversigt import netanalyse
 
-
 @niv.command()
 @fire.cli.default_options()
 @click.argument("projektnavn", nargs=1, type=str)
@@ -68,10 +67,6 @@ def regn(projektnavn: str, **kwargs) -> None:
     if not kontrol:
         arbejdssæt["Hvornår"] = punktoversigt["Hvornår"]
 
-    # tmp = Arbejdssæt()
-    # arbejdssæt = from_pandas(tmp,arbejdssæt)
-    # print(arbejdssæt)
-
     fastholdte = find_fastholdte(arbejdssæt.values.tolist(), kontrol)
     if 0 == len(fastholdte):
         fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
@@ -101,8 +96,24 @@ def regn(projektnavn: str, **kwargs) -> None:
     #
     beregning = gama_beregning(
         punkter, koter, varianser, arbejdssæt, len(punktoversigt), tg
+
+    # Skriv Gama-inputfil i XML-format
+    skriv_gama(
+        projektnavn, fastholdte, estimerede_punkter, observationer.values.tolist()
+    )
+
+    # Kør GNU Gama og skriv HTML rapport
+    htmlrapportnavn = gama_udjævn(projektnavn, kontrol)
+
+    # Indlæs nødvendige parametre til at skrive Gama output til xlsx
+    punkter, koter, varianser, tg = læs_gnu_output(projektnavn)
+
+    #
+    beregning = gama_beregning(
+        punkter, koter, varianser, arbejdssæt, len(punktoversigt), tg
     )
     beregning = DataFrame(beregning, columns=list(arbejdssæt.columns))
+    beregning = pd.DataFrame(beregning, columns=list(arbejdssæt.columns))
     resultater[næste_faneblad] = beregning
 
     # ...og beret om resultaterne
@@ -177,9 +188,16 @@ def find_fastholdte(punktoversigt: List, kontrol: bool) -> Dict[str, float]:
 
 
 def skriv_gama(
+def skriv_gama(
     projektnavn: str,
     fastholdte: dict,
+    fastholdte: dict,
     estimerede_punkter: Tuple[str, ...],
+    observationer: list,
+):
+    """
+    Skriv gama-inputfil i XML-format
+    """
     observationer: list,
 ):
     """
@@ -215,8 +233,14 @@ def skriv_gama(
         gamafil.write("<height-differences>\n")
         for obs in observationer:
             if obs[1] == "x":
+        for obs in observationer:
+            if obs[1] == "x":
                 continue
             gamafil.write(
+                f"<dh from='{obs[2]}' to='{obs[3]}' "
+                f"val='{obs[4]:+.6f}' "
+                f"dist='{obs[5]:.5f}' stdev='{spredning(obs[17], obs[5], obs[6], obs[7], obs[8]):.5f}' "
+                f"extern='{obs[0]}'/>\n"
                 f"<dh from='{obs[2]}' to='{obs[3]}' "
                 f"val='{obs[4]:+.6f}' "
                 f"dist='{obs[5]:.5f}' stdev='{spredning(obs[17], obs[5], obs[6], obs[7], obs[8]):.5f}' "
@@ -262,6 +286,8 @@ def gama_udjævn(projektnavn: str, kontrol: bool):
         fire.cli.print(
             f"Check {projektnavn}-resultat-{beregningstype}.html", bg="red", fg="white"
         )
+    return htmlrapportnavn
+
     return htmlrapportnavn
 
 
@@ -311,7 +337,18 @@ def gama_beregning(
 
     # Skriv resultaterne til arbejdssættet
     arbejdssæt[:, 9] = "DVR90"
+    arbejdssæt[:, 9] = "DVR90"
 
+    j = 0
+    for i, (punkt, ny_kote, var) in enumerate(zip(punkter, koter, varianser)):
+        i += n_punkter - j
+        # Tjek om punkt allerede findes
+        if arbejdssæt[:, 0].any() == punkt:
+            i = np.where(arbejdssæt[:, 0] == punkt)[0][0]
+            j += 1
+        arbejdssæt[i, 0] = punkt
+        arbejdssæt[i, 5] = ny_kote
+        arbejdssæt[i, 6] = sqrt(var)
     j = 0
     for i, (punkt, ny_kote, var) in enumerate(zip(punkter, koter, varianser)):
         i += n_punkter - j
@@ -325,7 +362,12 @@ def gama_beregning(
 
         # Ændring i millimeter...
         Delta = (ny_kote - arbejdssæt[i, 3]) * 1000.0
+        Delta = (ny_kote - arbejdssæt[i, 3]) * 1000.0
         # ...men vi ignorerer ændringer under mikrometerniveau
+        if abs(Delta) < 0.001:
+            Delta = 0
+        arbejdssæt[i, 7] = Delta
+        dt = tg - arbejdssæt[i, 2]
         if abs(Delta) < 0.001:
             Delta = 0
         arbejdssæt[i, 7] = Delta
@@ -337,4 +379,4 @@ def gama_beregning(
         arbejdssæt[i, 8] = Delta / dt
         arbejdssæt[i, 2] = tg
 
-    return arbejdssæt
+    return list(arbejdssæt)
