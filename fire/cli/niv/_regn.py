@@ -25,6 +25,7 @@ from . import (
 
 from ._netoversigt import netanalyse
 
+
 @niv.command()
 @fire.cli.default_options()
 @click.argument("projektnavn", nargs=1, type=str)
@@ -96,24 +97,8 @@ def regn(projektnavn: str, **kwargs) -> None:
     #
     beregning = gama_beregning(
         punkter, koter, varianser, arbejdssæt, len(punktoversigt), tg
-
-    # Skriv Gama-inputfil i XML-format
-    skriv_gama(
-        projektnavn, fastholdte, estimerede_punkter, observationer.values.tolist()
-    )
-
-    # Kør GNU Gama og skriv HTML rapport
-    htmlrapportnavn = gama_udjævn(projektnavn, kontrol)
-
-    # Indlæs nødvendige parametre til at skrive Gama output til xlsx
-    punkter, koter, varianser, tg = læs_gnu_output(projektnavn)
-
-    #
-    beregning = gama_beregning(
-        punkter, koter, varianser, arbejdssæt, len(punktoversigt), tg
     )
     beregning = DataFrame(beregning, columns=list(arbejdssæt.columns))
-    beregning = pd.DataFrame(beregning, columns=list(arbejdssæt.columns))
     resultater[næste_faneblad] = beregning
 
     # ...og beret om resultaterne
@@ -188,16 +173,10 @@ def find_fastholdte(punktoversigt: List, kontrol: bool) -> Dict[str, float]:
 
 
 def skriv_gama(
-def skriv_gama(
     projektnavn: str,
     fastholdte: dict,
     fastholdte: dict,
     estimerede_punkter: Tuple[str, ...],
-    observationer: list,
-):
-    """
-    Skriv gama-inputfil i XML-format
-    """
     observationer: list,
 ):
     """
@@ -231,8 +210,6 @@ def skriv_gama(
 
         # Observationer
         gamafil.write("<height-differences>\n")
-        for obs in observationer:
-            if obs[1] == "x":
         for obs in observationer:
             if obs[1] == "x":
                 continue
@@ -288,8 +265,6 @@ def gama_udjævn(projektnavn: str, kontrol: bool):
         )
     return htmlrapportnavn
 
-    return htmlrapportnavn
-
 
 def læs_gnu_output(
     projektnavn: str,
@@ -330,14 +305,13 @@ def gama_beregning(
     eksisterer = list(set(punkter).intersection(arbejdssæt[:, 0]))
     n_eksisterer = len(eksisterer)
     # Pre-allokér plads til dem der ikke gør
-    nye_punkter = np.full((len(koter) - n_eksisterer, 14),np.nan)
+    nye_punkter = np.full((len(koter) - n_eksisterer, 14), np.nan)
     # Sæt sammen og formattér
     arbejdssæt = np.vstack((arbejdssæt, nye_punkter))
     arbejdssæt[:, 2][isna(arbejdssæt[:, 2])] = Timestamp("NaT")
 
     # Skriv resultaterne til arbejdssættet
     arbejdssæt[:, 9] = "DVR90"
-    arbejdssæt[:, 9] = "DVR90"
 
     j = 0
     for i, (punkt, ny_kote, var) in enumerate(zip(punkter, koter, varianser)):
@@ -349,25 +323,9 @@ def gama_beregning(
         arbejdssæt[i, 0] = punkt
         arbejdssæt[i, 5] = ny_kote
         arbejdssæt[i, 6] = sqrt(var)
-    j = 0
-    for i, (punkt, ny_kote, var) in enumerate(zip(punkter, koter, varianser)):
-        i += n_punkter - j
-        # Tjek om punkt allerede findes
-        if arbejdssæt[:, 0].any() == punkt:
-            i = np.where(arbejdssæt[:, 0] == punkt)[0][0]
-            j += 1
-        arbejdssæt[i, 0] = punkt
-        arbejdssæt[i, 5] = ny_kote
-        arbejdssæt[i, 6] = sqrt(var)
-
         # Ændring i millimeter...
         Delta = (ny_kote - arbejdssæt[i, 3]) * 1000.0
-        Delta = (ny_kote - arbejdssæt[i, 3]) * 1000.0
         # ...men vi ignorerer ændringer under mikrometerniveau
-        if abs(Delta) < 0.001:
-            Delta = 0
-        arbejdssæt[i, 7] = Delta
-        dt = tg - arbejdssæt[i, 2]
         if abs(Delta) < 0.001:
             Delta = 0
         arbejdssæt[i, 7] = Delta
