@@ -5,16 +5,29 @@ import numpy as np
 
 
 @functools.cache
-def Rneu_xyz(φ: float, λ: float) -> np.array:
+def Rxyz_neu(φ: float, λ: float) -> np.array:
     """
-    Rotationsmatrix fra topocentriske (NEU) til geocentriske (XYZ) koordinater.
+    Rotationsmatrix fra geocentriske kartesiske (ECEF, XYZ) koordinater
+    til topocentriske (NEU).
 
     Input:
 
         φ: Breddegrad
         λ: Længdegrad
 
-    Brug rotationsmatrixen til fx at konvertere en kovariansmatrix fra NEU- til XYZ-rum:
+    Omregn med
+
+        neu = R * xyz
+
+    Hvor R er rotationsmatrixen, xyz en vektor med ECEF koordinater og neu er
+    koordinaten i topocentrisk repræsentation. Samme tilgang kan benyttes med
+    koordinatforskelle. Reference fra ESAs Navipedia:
+
+    https://gssc.esa.int/navipedia/index.php/Transformations_between_ECEF_and_ENU_coordinates
+
+
+    Et tilsvarende princip kan *også* bruges til fx at konvertere en kovariansmatrix fra
+    XYZ- til NEU-rum:
 
         cov_xyz = np.array(
             [
@@ -25,11 +38,11 @@ def Rneu_xyz(φ: float, λ: float) -> np.array:
         )
 
         R = Rxyz_neu(lat, lon)
-        cov_xyz = R @ cov_neu @ R.T
+        cov_neu = R @ cov_xyz @ R.T
 
-    Transponer rotationsmatrixen for at gå den anden vej (XYZ->NEU):
+    Transponer rotationsmatrixen for at gå den anden vej (NEU->XYZ):
 
-        cov_neu = R.T @ cov_xyz @ R
+        cov_xyz = R.T @ cov_neu @ R
 
     For reference, se
 
@@ -38,16 +51,18 @@ def Rneu_xyz(φ: float, λ: float) -> np.array:
 
     Jf. denne artikel skal der ikke tages særligt højde for tilfældet hvor koordinaterne
     er relateret til ellipsoide frem for en kugle så længe den ellipsoidiske breddegrad
-    benyttes når koordinaterne er baseret på en ellipsoide.
+    benyttes når koordinaterne er baseret på en ellipsoide. ESA skriver en tilsvarende
+    bemærkning.
     """
     sin = lambda x: np.sin(np.deg2rad(x))
     cos = lambda x: np.cos(np.deg2rad(x))
+
     # Bed Black om at holde fingrene væk - her ved vi bedre
     # fmt: off
     return np.array([
-        [-sin(φ)*cos(λ), -sin(λ), cos(φ)*cos(λ)],
-        [-sin(φ)*sin(λ),  cos(λ), cos(φ)*sin(λ)],
-        [        cos(φ),       0,        sin(φ)],
+        [       -sin(λ),            cos(λ),       0],
+        [-cos(λ)*sin(φ),    -sin(λ)*sin(φ),  cos(φ)],
+        [ cos(λ)*cos(φ),     sin(λ)*cos(φ),  sin(φ)],
     ])
     # fmt: on
 
@@ -72,7 +87,7 @@ def xyz2neu(
         e: e-komponent af topocentrisk koordinat
         u: u-komponent af topocentrisk koordinat
     """
-    R = Rneu_xyz(φ, λ).T
+    R = Rxyz_neu(φ, λ)
     xyz = np.array([x, y, z])
 
     return tuple(R @ xyz)
@@ -98,7 +113,7 @@ def neu2xyz(
         y: y-komponent af geocentrisk koordinat
         z: z-komponent af geocentrisk koordinat
     """
-    R = Rneu_xyz(φ, λ)
+    R = Rxyz_neu(φ, λ).T
     neu = np.array([n, e, u])
 
     return tuple(R @ neu)
