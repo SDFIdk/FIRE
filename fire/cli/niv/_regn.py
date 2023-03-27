@@ -3,10 +3,9 @@ import webbrowser
 from pathlib import Path
 from math import hypot, sqrt
 from typing import Dict, Tuple, List
-
+from dataclasses import dataclass, asdict
 
 import click
-import numpy as np
 import xmltodict
 from pandas import DataFrame, Timestamp, isna
 
@@ -24,6 +23,47 @@ from . import (
 )
 
 from ._netoversigt import netanalyse
+
+
+@dataclass
+class Observationer:
+    journal: List[str]
+    sluk: List[str]
+    fra: List[str]
+    til: List[str]
+    delta_H: List[float]
+    L: List[int]
+    opst: List[int]
+    sigma: List[float]
+    delta: List[float]
+    kommentar: List[str]
+    hvornår: List[Timestamp]
+    T: List[float]
+    sky: List[float]
+    sol: List[float]
+    vind: List[float]
+    sigt: List[float]
+    kilde: List[str]
+    type: List[str]
+    uuid: List[str]
+
+
+@dataclass
+class Arbejdssæt:
+    punkt: List[int]
+    fasthold: List[str]
+    hvornår: List[Timestamp]
+    kote: List[float]
+    sigma: List[float]
+    ny_kote: List[float]
+    ny_sigma: List[float]
+    Delta_kote: List[float]
+    opløft: List[float]
+    system: List[str]
+    nord: List[float]
+    øst: List[float]
+    uuid: List[str]
+    udelad: List[str]
 
 
 @niv.command()
@@ -68,11 +108,14 @@ def regn(projektnavn: str, **kwargs) -> None:
     if not kontrol:
         arbejdssæt["Hvornår"] = punktoversigt["Hvornår"]
 
-    # tmp = Arbejdssæt()
-    # arbejdssæt = from_pandas(tmp,arbejdssæt)
-    # print(arbejdssæt)
+    arb_søjler = arbejdssæt.columns
+    obs_søjler = observationer.columns
+    # Konverter til dataklasse
+    observationer = obs_til_dataklasse(observationer)
+    arbejdssæt = arb_til_dataklasse(arbejdssæt)
 
-    fastholdte = find_fastholdte(arbejdssæt.values.tolist(), kontrol)
+    # Lokalisér fastholdte punkter
+    fastholdte = find_fastholdte(arbejdssæt, kontrol)
     if 0 == len(fastholdte):
         fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
         raise SystemExit(1)
@@ -88,25 +131,28 @@ def regn(projektnavn: str, **kwargs) -> None:
     )
 
     # Skriv Gama-inputfil i XML-format
-    skriv_gama(
-        projektnavn, fastholdte, estimerede_punkter, observationer.values.tolist()
-    )
+    skriv_gama_inputfil(projektnavn, fastholdte, estimerede_punkter, observationer)
 
     # Kør GNU Gama og skriv HTML rapport
     htmlrapportnavn = gama_udjævn(projektnavn, kontrol)
 
     # Indlæs nødvendige parametre til at skrive Gama output til xlsx
-    punkter, koter, varianser, tg = læs_gnu_output(projektnavn)
+    punkter, koter, varianser, t_gyldig = læs_gama_output(projektnavn)
 
-    #
-    beregning = gama_beregning(
-        punkter, koter, varianser, arbejdssæt, len(punktoversigt), tg
-    )
-    beregning = DataFrame(beregning, columns=list(arbejdssæt.columns))
+    # Opdater arbejdssæt med GNU Gama output
+    beregning = opdater_arbejdssæt(punkter, koter, varianser, arbejdssæt, t_gyldig)
+    værdier = []
+    for _, værdi in asdict(beregning).items():
+        værdier.append(værdi)
+    beregning = DataFrame(list(zip(*værdier)), columns=arb_søjler)
     resultater[næste_faneblad] = beregning
 
     # ...og beret om resultaterne
     skriv_punkter_geojson(projektnavn, resultater[næste_faneblad], infiks=infiks)
+    obs = []
+    for _, o in asdict(observationer).items():
+        obs.append(o)
+    observationer = DataFrame(list(zip(*obs)), columns=obs_søjler)
     skriv_observationer_geojson(
         projektnavn,
         resultater[næste_faneblad].set_index("Punkt"),
@@ -118,6 +164,50 @@ def regn(projektnavn: str, **kwargs) -> None:
         webbrowser.open_new_tab(htmlrapportnavn)
         fire.cli.print("Færdig! - åbner regneark og resultatrapport for check.")
         fire.cli.åbn_fil(f"{projektnavn}.xlsx")
+
+
+# -----------------------------------------------------------------------------
+def obs_til_dataklasse(obs: DataFrame):
+    return Observationer(
+        journal=list(obs["Journal"]),
+        sluk=list(obs["Sluk"]),
+        fra=list(obs["Fra"]),
+        til=list(obs["Til"]),
+        delta_H=list(obs["ΔH"]),
+        L=list(obs["L"]),
+        opst=list(obs["Opst"]),
+        sigma=list(obs["σ"]),
+        delta=list(obs["δ"]),
+        kommentar=list(obs["Kommentar"]),
+        hvornår=list(obs["Hvornår"]),
+        T=list(obs["T"]),
+        sky=list(obs["Sky"]),
+        sol=list(obs["Sol"]),
+        vind=list(obs["Vind"]),
+        sigt=list(obs["Sigt"]),
+        kilde=list(obs["Kilde"]),
+        type=list(obs["Type"]),
+        uuid=list(obs["uuid"]),
+    )
+
+
+def arb_til_dataklasse(arb: DataFrame):
+    return Arbejdssæt(
+        punkt=list(arb["Punkt"]),
+        fasthold=list(arb["Fasthold"]),
+        hvornår=list(arb["Hvornår"]),
+        kote=list(arb["Kote"]),
+        sigma=list(arb["σ"]),
+        ny_kote=list(arb["Ny kote"]),
+        ny_sigma=list(arb["Ny σ"]),
+        Delta_kote=list(arb["Δ-kote [mm]"]),
+        opløft=list(arb["Opløft [mm/år]"]),
+        system=list(arb["System"]),
+        nord=list(arb["Nord"]),
+        øst=list(arb["Øst"]),
+        uuid=list(arb["uuid"]),
+        udelad=list(arb["Udelad publikation"]),
+    )
 
 
 # ------------------------------------------------------------------------------
@@ -163,24 +253,24 @@ def spredning(
 
 
 # ------------------------------------------------------------------------------
-def find_fastholdte(punktoversigt: List, kontrol: bool) -> Dict[str, float]:
+def find_fastholdte(arbejdssæt: Arbejdssæt, kontrol: bool) -> Dict[str, float]:
     """Find fastholdte punkter til gama beregning"""
-    punktoversigt = np.array(punktoversigt)
-    if kontrol:
-        relevante = punktoversigt[punktoversigt[:, 1] == "x"]
-    else:
-        relevante = punktoversigt[punktoversigt[:, 1] != ""]
 
-    fastholdte_punkter = tuple(relevante[:, 0])
-    fastholdte_koter = tuple(relevante[:, 3])
+    if kontrol:
+        relevante = arbejdssæt.fasthold == "x"
+    else:
+        relevante = arbejdssæt.fasthold != ""
+
+    fastholdte_punkter = tuple([arbejdssæt.punkt[relevante]])
+    fastholdte_koter = tuple([arbejdssæt.kote[relevante]])
     return dict(zip(fastholdte_punkter, fastholdte_koter))
 
 
-def skriv_gama(
+def skriv_gama_inputfil(
     projektnavn: str,
     fastholdte: dict,
     estimerede_punkter: Tuple[str, ...],
-    observationer: list,
+    observationer: Observationer,
 ):
     """
     Skriv gama-inputfil i XML-format
@@ -213,14 +303,25 @@ def skriv_gama(
 
         # Observationer
         gamafil.write("<height-differences>\n")
-        for obs in observationer:
-            if obs[1] == "x":
+        for (sluk, fra, til, delta_H, L, type, opst, sigma, delta, journal) in zip(
+            observationer.sluk,
+            observationer.fra,
+            observationer.til,
+            observationer.delta_H,
+            observationer.L,
+            observationer.type,
+            observationer.opst,
+            observationer.sigma,
+            observationer.delta,
+            observationer.journal,
+        ):
+            if sluk == "x":
                 continue
             gamafil.write(
-                f"<dh from='{obs[2]}' to='{obs[3]}' "
-                f"val='{obs[4]:+.6f}' "
-                f"dist='{obs[5]:.5f}' stdev='{spredning(obs[17], obs[5], obs[6], obs[7], obs[8]):.5f}' "
-                f"extern='{obs[0]}'/>\n"
+                f"<dh from='{fra}' to='{til}' "
+                f"val='{delta_H:+.6f}' "
+                f"dist='{L:.5f}' stdev='{spredning(type, L, opst, sigma, delta):.5f}' "
+                f"extern='{journal}'/>\n"
             )
 
         # Postambel
@@ -265,9 +366,9 @@ def gama_udjævn(projektnavn: str, kontrol: bool):
     return htmlrapportnavn
 
 
-def læs_gnu_output(
+def læs_gama_output(
     projektnavn: str,
-) -> Tuple[list[str], list[float], list[float], Timestamp]:
+) -> Tuple[List[str], List[float], List[float], Timestamp]:
     """
     Læser output fra GNU Gama og returnerer relevante parametre til at skrive xlsx fil
     """
@@ -280,9 +381,10 @@ def læs_gnu_output(
     # Men rækkefølgen anvendt her passer sammen med det Gama præsenterer i
     # html-rapportudgaven af beregningsresultatet.
     koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
+    varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
+    # try:
     punkter = [punkt["id"] for punkt in koteliste]
     koter = [float(punkt["z"]) for punkt in koteliste]
-    varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
     varianser = [float(var) for var in varliste]
     assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
     tg = gyldighedstidspunkt(projektnavn)
@@ -290,52 +392,59 @@ def læs_gnu_output(
 
 
 # ------------------------------------------------------------------------------
-def gama_beregning(
-    punkter: list[str],
-    koter: list[float],
-    varianser: list[float],
-    arbejdssæt: List[float],
-    n_punkter: int,
+def opdater_arbejdssæt(
+    punkter: List[str],
+    koter: List[float],
+    varianser: List[float],
+    arbejdssæt: Arbejdssæt,
     tg: Timestamp,
-) -> List:
+) -> Arbejdssæt:
 
-    arbejdssæt = np.array(arbejdssæt)
-    # Tag højde for punkter der allerede eksisterer
-    eksisterer = list(set(punkter).intersection(arbejdssæt[:, 0]))
-    n_eksisterer = len(eksisterer)
-    # Pre-allokér plads til dem der ikke gør
-    tmp = np.empty((len(koter) - n_eksisterer, 14))
-    tmp[:] = np.nan
-    # Sæt sammen og formattér
-    arbejdssæt = np.vstack((arbejdssæt, tmp))
-    arbejdssæt[:, 2][isna(arbejdssæt[:, 2])] = Timestamp("NaT")
+    for j, (punkt, ny_kote, var) in enumerate(zip(punkter, koter, varianser)):
+        if punkt in arbejdssæt.punkt:
+            # Hvis punkt findes, sæt indeks til hvor det findes
+            i = arbejdssæt.punkt.index(punkt)
+            if i > j:
+                # Gem info i det punkt hvis allerede skrevet
+                arbejdssæt.punkt.append(arbejdssæt.punkt[i])
+                arbejdssæt.ny_sigma.append(arbejdssæt.ny_sigma[i])
+                arbejdssæt.hvornår.append(arbejdssæt.hvornår[i])
+                arbejdssæt.system.append("DVR90")
+            # Overskriv info i punkt der findes
+            arbejdssæt.punkt[i] = punkt
+            arbejdssæt.ny_kote[i] = ny_kote
+            arbejdssæt.ny_sigma[i] = sqrt(var)
 
-    # Skriv resultaterne til arbejdssættet
-    arbejdssæt[:, 9] = "DVR90"
+            # Ændring i millimeter...
+            Delta = (ny_kote - arbejdssæt.kote[i]) * 1000.0
+            # ...men vi ignorerer ændringer under mikrometerniveau
+            if abs(Delta) < 0.001:
+                Delta = 0
+            arbejdssæt.Delta_kote[i] = Delta
+            dt = tg - arbejdssæt.hvornår[i]
+            dt = dt.total_seconds() / (365.25 * 86400)
+            # t = 0 forekommer ved genberegning af allerede registrerede koter
+            if dt == 0:
+                continue
+            arbejdssæt.opløft[i] = Delta / dt
+            arbejdssæt.hvornår[i] = tg
+            arbejdssæt.system[i] = "DVR90"
+        else:
+            # Tilføj nye punkter
+            arbejdssæt.punkt.append(punkt)
+            arbejdssæt.ny_sigma.append(sqrt(var))
+            arbejdssæt.hvornår.append(tg)
+            arbejdssæt.ny_kote.append(ny_kote)
+            arbejdssæt.system.append("DVR90")
 
-    j = 0
-    for i, (punkt, ny_kote, var) in enumerate(zip(punkter, koter, varianser)):
-        i += n_punkter - j
-        # Tjek om punkt allerede findes
-        if arbejdssæt[:, 0].any() == punkt:
-            i = np.where(arbejdssæt[:, 0] == punkt)[0][0]
-            j += 1
-        arbejdssæt[i, 0] = punkt
-        arbejdssæt[i, 5] = ny_kote
-        arbejdssæt[i, 6] = sqrt(var)
-
-        # Ændring i millimeter...
-        Delta = (ny_kote - arbejdssæt[i, 3]) * 1000.0
-        # ...men vi ignorerer ændringer under mikrometerniveau
-        if abs(Delta) < 0.001:
-            Delta = 0
-        arbejdssæt[i, 7] = Delta
-        dt = tg - arbejdssæt[i, 2]
-        dt = dt.total_seconds() / (365.25 * 86400)
-        # t = 0 forekommer ved genberegning af allerede registrerede koter
-        if dt == 0:
-            continue
-        arbejdssæt[i, 8] = Delta / dt
-        arbejdssæt[i, 2] = tg
-
+            # Fyld
+            arbejdssæt.fasthold.append("")
+            arbejdssæt.kote.append(None)
+            arbejdssæt.sigma.append(None)
+            arbejdssæt.Delta_kote.append(None)
+            arbejdssæt.opløft.append(None)
+            arbejdssæt.øst.append(None)
+            arbejdssæt.nord.append(None)
+            arbejdssæt.uuid.append(None)
+            arbejdssæt.udelad.append("")
     return arbejdssæt
