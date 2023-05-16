@@ -144,7 +144,7 @@ Er metode ikke angivet, søger programmet blandt begge observationstyper.
 @click.option(
     "-dt",
     "--til",
-    help="Hent observationer til, men ikke med, denne dato. Angives på formen {DATE_FORMAT}.",
+    help=f"Hent observationer til, men ikke med, denne dato. Angives på formen {DATE_FORMAT}.",
     required=False,
     type=Datetime(format=DATE_FORMAT),
 )
