@@ -174,7 +174,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
 
         return [gi_ident(p, lnr) for lnr, p in enumerate(punkter, start=løbenr)]
 
-    def fejlmeld_koordinat(self, sagsevent: Sagsevent, koordinat: Koordinat):
+    def fejlmeld_koordinat(self, koordinat: Koordinat, sagsevent: Sagsevent, commit = True):
         """
         Fejlmeld en allerede eksisterende koordinat.
 
@@ -194,13 +194,18 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         if len(punkt.koordinater) == 1:
             self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
 
+        # byg relevant tidsserie
+        tidsserie = []
+        for k in punkt.koordinater:
+            if k.srid != srid:
+                continue
+            tidsserie.append(k)
+
         # Er koordinaten den sidste i tidsserien?
-        if koordinat.registreringtil is None:
+        if koordinat.registreringtil is None and len(tidsserie) > 1:
             # Find seneste ikke-fejlmeldte koordinat så den
             # bruges som den seneste gyldige koordinat
-            for forrige_koordinat in reversed(punkt.koordinater[0:-1]):
-                if forrige_koordinat.srid != srid:
-                    continue
+            for forrige_koordinat in reversed(tidsserie[0:-1]):
                 if not forrige_koordinat.fejlmeldt:
                     break
 
@@ -217,7 +222,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
                     sz=forrige_koordinat.sz,
                     transformeret=forrige_koordinat.transformeret,
                     artskode=forrige_koordinat.artskode,
-                    _registreringfra=func.sysdate(),
+                    _registreringfra=func.current_timestamp(),
                 )
 
                 # Sikr at den forrige koordinat *også* fejlmeldes, så vi
@@ -232,11 +237,14 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
                 self.session.add(sagsevent)
 
         koordinat.fejlmeldt = True
+        koordinat._registreringtil = func.current_timestamp()
+
         if ny_koordinat:
             koordinat._registreringtil = ny_koordinat._registreringfra
 
         self.session.add(koordinat)
-        self.session.commit()
+        if commit:
+            self.session.commit()
 
     def _generer_tilladte_løbenumre(
         self, fikspunktstype: FikspunktsType
