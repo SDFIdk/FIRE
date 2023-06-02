@@ -93,8 +93,8 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         opdaterede_punkter.append(punkt)
         punktdata["uuid"] = event_id
 
-        z = (punktdata["Ny kote"],)
-        sz = (punktdata["Ny σ"],)
+        z = punktdata["Ny kote"]
+        sz = punktdata["Ny σ"]
         kote = ny_kote(punkt=punkt, z=z, sz=sz)
         til_registrering.append(kote)
         ny_punktoversigt = frame.insert(ny_punktoversigt, index, punktdata)
@@ -115,7 +115,6 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     sagsevent = sag.ny_sagsevent(
         id=event_id,
         beskrivelse=sagseventtekst,
-        eventtype=EventType.KOORDINAT_BEREGNET,
         htmler=[clob_html],
         koordinater=til_registrering,
     )
