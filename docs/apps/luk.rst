@@ -9,3 +9,7 @@ typer objekter i databasen.
 .. click:: fire.cli.luk:punkt
   :prog: fire luk punkt
   :show-nested:
+
+.. click:: fire.cli.luk:koordinat
+  :prog: fire luk koordinat
+  :show-nested:
