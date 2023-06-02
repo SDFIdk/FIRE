@@ -115,7 +115,6 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     sagsevent = sag.ny_sagsevent(
         id=event_id,
         beskrivelse=sagseventtekst,
-        eventtype=EventType.KOORDINAT_BEREGNET,
         htmler=[clob_html],
         koordinater=til_registrering,
     )
