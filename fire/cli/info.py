@@ -384,28 +384,6 @@ def punkt(
     punktummer og manglende foranstillede nuller, i ofte forekommende, let
     genkendelige tilfælde (GNSS-id, GI/GM-numre, lands- og købstadsnumre).
 
-    Hvis der indgår procenttegn i det søgte punktnavn opfattes disse som
-    jokertegn, og søgningen returnerer alle punkter der matcher mønstret.
-
-    Punkt-klassen er omfattende og består af følgende elementer:
-
-    Punkt = Punkt(\n
-        'geometriobjekter',   -- lokationskoordinat\n
-        'id',                 -- uuid: intern databaseidentifikation\n
-        'koordinater',        -- alle tilgængelige koordinater\n
-        'metadata',           -- øh\n
-        'objektid',           -- databaserækkenummer\n
-        'observationer_fra',  -- alle observationer udført fra punkt\n
-        'observationer_til',  -- alle observationer udført til punkt\n
-        'punktinformationer', -- attributter og punktbeskrivelser\n
-        'registreringfra',    -- oprettelsesdato/registreringsdato\n
-        'registreringtil',    -- invalideringstidspunkt\n
-        'sagsevent',          -- ?? seneste sagsevent??\n
-        'sagseventfraid',     -- sagsevent for punktoprettelsen\n
-        'sagseventtilid',     -- sagsevent for punktinvalideringen\n
-        'slettet'             -- øh\n
-    )
-
     Anfører man ikke specifikke tilvalg vises kun basale dele: Attributter og
     punktbeskrivelser + gældende koordinater.
 
