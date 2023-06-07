@@ -262,7 +262,10 @@ class Punkt(FikspunktregisterObjekt):
     @property
     def tabtgået(self) -> bool:
         for punktinfo in self.punktinformationer:
-            if punktinfo.infotype.name == "ATTR:tabtgået":
+            if (
+                punktinfo.infotype.name == "ATTR:tabtgået"
+                and punktinfo.registreringtil is None
+            ):
                 return True
         return False
 
