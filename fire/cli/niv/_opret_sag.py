@@ -87,10 +87,15 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
             fire.cli.print(f"Sag '{projektnavn}' oprettet")
         else:
             fire.cli.firedb.session.rollback()
-            fire.cli.print("Opretter IKKE sag")
+            advarsel = click.style(
+            f"BEMÆRK: Sag oprettes IKKE i databasen!",
+            bg="yellow",
+            fg="black",
+            )
+            fire.cli.print(advarsel)
             # Ved demonstration af systemet er det nyttigt at kunne oprette
             # et sagsregneark, uden at oprette en tilhørende sag
-            if not bekræft("Opret sagsregneark alligevel?", gentag=False):
+            if not bekræft("Vil du alligevel oprette et sagsregneark?", gentag=False):
                 return
 
     fire.cli.print(f"Skriver sagsregneark '{projektnavn}.xlsx'")
