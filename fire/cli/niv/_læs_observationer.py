@@ -32,7 +32,48 @@ from . import (
     type=str,
 )
 def læs_observationer(projektnavn: str, **kwargs) -> None:
-    """Importer data fra observationsfiler og opbyg punktoversigt"""
+    """Importer data fra observationsfiler og opbyg punktoversigt.
+
+    Observationsfiler fra målebilernes instrumenter tilknyttes projektet ved at
+    registrere dem i sagsregnearkets "Filoversigt"-faneblad. Fanebladet har fire
+    kolonner, "Filnavn", "Type", "σ" og "δ", der alle skal udfyldes for at kunne
+    indlæse observationerne i regnearket til videre bearbejdelse.
+
+    \f
+    =======  ===========================================
+    Kolonne  Beskrivelse
+    =======  ===========================================
+    Filnavn  Observationsfilens sti og navn.
+    Type     Nivellementstype, enten "mgl" eller "mtl".
+    σ        A priori spredning. Enheden er mm/sqrt(km).
+    δ        Centreringsfejl. Enheden er mm.
+    =======  ===========================================
+
+    For hver observationsfil laves en række med ovenstående felter udfyldt. I
+    tabellen herunder ses spredningsværdier der typisk bruges til forskellige
+    kvalitetskrav for henholdsvis geometetrisk og trigonometrisk nivellement.
+
+    =============  ========  ========
+    Krav \\ Metode    MGL       MTL
+    =============  ========  ========
+    Præcision      0.6       1.5
+    Kvalitet       1.0       2.0
+    Detail         1.5       3.0
+    =============  ========  ========
+
+
+    Herefter kan observationer læses med::
+
+        fire niv læs-observationer SAG
+
+    Når programmet er kørt færdigt er der tilføjet to nye faneblade til regnearket:
+    "Observationer" og "Punktoversigt". Herudover er der lavet to nye GeoJSON-filer
+    med henholdsvis observationer og punkter, som kan indlæses i et GIS-program for
+    at skabe overblik over det net af punkter der er målt i. Disse filer kan opdateres
+    af de andre :program:`fire niv` programmer, fx efter koter er beregnet på baggrund
+    af de indlæste observationer.
+
+    """
     resultater = {}
     er_projekt_okay(projektnavn)
     # Opbyg oversigt over nyetablerede punkter

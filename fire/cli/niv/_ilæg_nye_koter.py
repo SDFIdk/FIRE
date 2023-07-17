@@ -55,7 +55,26 @@ def punktdata_ikke_skal_opdateres(punktdata: dict) -> bool:
     help="Angiv andet brugernavn end den aktuelt indloggede",
 )
 def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
-    """Registrer nyberegnede koter i databasen"""
+    """Registrer nyberegnede koter i databasen.
+
+    Koter fra sagsregnearket lægges i databasen. Koter med "x" i kolonnen
+    "Udelad publikation" udelades fra indlæsningen. Det samme gælder for koter med
+    indhold i "uuid" kolonnen. Uuid'et er et database-ID og betyder at koten allerede
+    er registreret i databasen.
+
+    Ikke alt information i regnearket indlæses i databasen. De indlæste data for hver
+    kote er
+
+        1. Koten, "Ny kote"
+        2. Spredningen på koten, "Ny σ"
+        3. Højdereferencesystemet, "System"
+        4. Beregningstidspunktet, "Hvornår"
+
+    Herudover gemmes naturligvis hvilket punkt en kote hører til.
+    Information om forskel mellem ny og gammel kote, samt estimeret opløfthastighed
+    registreres ikke direkte i databasen. Denne information er dog tilgængelig i
+    sagsregnearket, der lagres i databasen når sagen lukkes.
+    """
     er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)

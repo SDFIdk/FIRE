@@ -40,7 +40,27 @@ from . import (
     help="Angiv andet brugernavn end den aktuelt indloggede",
 )
 def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
-    """Registrer nye observationer i databasen"""
+    """Registrer nye observationer i databasen.
+
+    Observationer fra sagsregnearket lægges i databasen. Observationer med "x" i kolonnen
+    "Sluk" udelades fra indlæsningen. Det samme gælder for observationer med indhold
+    i "uuid" kolonnen. Uuid'et er et database-ID og betyder at observationen allerede
+    er registreret i databasen.¨
+
+    Ikke alt information i regnearket indlæses i databasen. De indlæste data for hver
+    observation er
+
+        1. Koteforskellen, "ΔH"
+        2. Nivellementslængden, "L"
+        3. Antallet af opstillinger, "opst"
+        4. Den empiriske spredning, "σ"
+        5. Den empiriske centreringsfejl, "δ"
+
+    Herudover gemmes opstillings- og sigtepunkt, samt observationstidspunktet.
+    Information om vind og vejr og kommentarer registreres ikke direkte i databasen.
+    Denne information er dog tilgængelig i sagsregnearket, der lagres i databasen
+    når sagen lukkes.
+    """
     er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
