@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from click.testing import CliRunner
 
@@ -114,3 +115,85 @@ def test_observationer(mocker):
         print(result)
         print(result.output)
         assert result.exit_code == 0
+
+
+def _check_fastholdt(df, ark, punkt):
+    return df[ark].loc[df[ark]["Punkt"] == punkt]["Fasthold"].values[0] != ""
+
+
+def _check_tom_kote(df, ark, punkt):
+    # pandas opfatter tomme celler som NaN når de tilgås via .values
+    return np.isnan(df[ark].loc[df[ark]["Punkt"] == punkt]["Ny kote"].values[0])
+
+
+def _sammenlign_kolonner(df, ark1, ark2, kolonnenavn):
+    return df[ark1][kolonnenavn].equals(df[ark2][kolonnenavn])
+
+
+def test_regn():
+    """Test fire niv kommandoer relateret til punktrevision
+
+    Sagen "test_regn" er på forhånd oprettet uden om databasen, hvilket gør det
+    muligt at benytte udjævningsfunktionaliteten i `fire niv` uden sagsoprettelse
+    m.m.
+    """
+    fastholdte_punkter = [
+        "101-01-09014",
+        "102-02-09004",
+        "103-04-00815",
+        "98-07-00010",
+    ]
+    runner = CliRunner()
+
+    filename = "test_regn.xlsx"
+    with open(Path(__file__).resolve().parent / filename, "rb") as f:
+        filedata = f.read()
+
+    with runner.isolated_filesystem():
+        # kopier filer til isoleret filsystem
+        with open(filename, "wb") as f:
+            f.write(filedata)
+
+        # kontrolberegning
+        result = runner.invoke(niv, ["regn", "test_regn"])
+        print(result.output)
+        assert result.exit_code == 0
+
+        regneark = pd.read_excel(filename, sheet_name=None)
+        # Er de forventede faneblad oprettet?
+        assert "Kontrolberegning" in regneark.keys()
+        assert "Singulære" in regneark.keys()
+        assert "Netgeometri" in regneark.keys()
+
+        # Sanity check på tværs af faneblade
+        assert _sammenlign_kolonner(
+            regneark, "Punktoversigt", "Kontrolberegning", "Fasthold"
+        )
+        for punkt in fastholdte_punkter:
+            assert _check_fastholdt(regneark, "Kontrolberegning", punkt)
+            assert _check_tom_kote(regneark, "Kontrolberegning", punkt)
+
+        regneark = None
+        del regneark
+
+        # endelig beregning
+        fastholdte_punkter.extend(["101-02-09023", "102-03-09170"])
+        faneblad = find_faneblad("test_regn", "Kontrolberegning", arkdef.PUNKTOVERSIGT)
+        faneblad.loc[faneblad["Punkt"] == "101-02-09023", "Fasthold"] = "e"
+        faneblad.loc[faneblad["Punkt"] == "102-03-09170", "Fasthold"] = "e"
+        skriv_ark("test_regn", {"Kontrolberegning": faneblad})
+
+        result = runner.invoke(niv, ["regn", "test_regn"])
+        print(result.output)
+        assert result.exit_code == 0
+
+        regneark = pd.read_excel(filename, sheet_name=None)
+        # Er de forventede faneblad oprettet?
+        assert "Endelig beregning" in regneark.keys()
+        assert "Kontrolberegning" in regneark.keys()
+        assert "Singulære" in regneark.keys()
+        assert "Netgeometri" in regneark.keys()
+
+        for punkt in fastholdte_punkter:
+            assert _check_fastholdt(regneark, "Endelig beregning", punkt)
+            assert _check_tom_kote(regneark, "Endelig beregning", punkt)
