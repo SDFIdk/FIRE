@@ -255,14 +255,19 @@ def spredning(
 # ------------------------------------------------------------------------------
 def find_fastholdte(arbejdssæt: Arbejdssæt, kontrol: bool) -> Dict[str, float]:
     """Find fastholdte punkter til gama beregning"""
-
     if kontrol:
-        relevante = arbejdssæt.fasthold == "x"
+        # I kontrolberegningen markeres fastholdte punkter med "x" ...
+        relevante = [i for i, f in enumerate(arbejdssæt.fasthold) if f == "x"]
     else:
-        relevante = arbejdssæt.fasthold != ""
+        # ... men i den endelige beregning kan andre tegn også bruges, fx
+        # "e". Formålet er, at let kunne skelne mellem punkter fastholdt
+        # i kontrolberegningen og yderligere punkter der fastholdes i
+        # den endelige beregning
+        relevante = [i for i, f in enumerate(arbejdssæt.fasthold) if f != ""]
 
-    fastholdte_punkter = tuple([arbejdssæt.punkt[relevante]])
-    fastholdte_koter = tuple([arbejdssæt.kote[relevante]])
+    fastholdte_punkter = (arbejdssæt.punkt[i] for i in relevante)
+    fastholdte_koter = (arbejdssæt.kote[i] for i in relevante)
+
     return dict(zip(fastholdte_punkter, fastholdte_koter))
 
 
