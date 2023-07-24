@@ -452,4 +452,13 @@ def opdater_arbejdssæt(
             arbejdssæt.nord.append(None)
             arbejdssæt.uuid.append(None)
             arbejdssæt.udelad.append("")
+
+    fastholdte = [i for i, f in enumerate(arbejdssæt.fasthold) if f != ""]
+    for i in fastholdte:
+        arbejdssæt.ny_kote[i] = None
+        arbejdssæt.ny_sigma[i] = None
+        arbejdssæt.Delta_kote[i] = None
+        arbejdssæt.ny_kote[i] = None
+        arbejdssæt.opløft[i] = None
+
     return arbejdssæt

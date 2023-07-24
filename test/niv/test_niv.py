@@ -118,7 +118,7 @@ def test_observationer(mocker):
 
 
 def _check_fastholdt(df, ark, punkt):
-    return df[ark].loc[df[ark]["Punkt"] == punkt]["Fasthold"].values[0] == "x"
+    return df[ark].loc[df[ark]["Punkt"] == punkt]["Fasthold"].values[0] != ""
 
 
 def _check_tom_kote(df, ark, punkt):
@@ -137,12 +137,12 @@ def test_regn():
     muligt at benytte udjævningsfunktionaliteten i `fire niv` uden sagsoprettelse
     m.m.
     """
-    fastholdte_punkter = (
+    fastholdte_punkter = [
         "101-01-09014",
         "102-02-09004",
         "103-04-00815",
         "98-07-00010",
-    )
+    ]
     runner = CliRunner()
 
     filename = "test_regn.xlsx"
@@ -177,6 +177,12 @@ def test_regn():
         del regneark
 
         # endelig beregning
+        fastholdte_punkter.extend(["101-02-09023", "102-03-09170"])
+        faneblad = find_faneblad("test_regn", "Kontrolberegning", arkdef.PUNKTOVERSIGT)
+        faneblad.loc[faneblad["Punkt"] == "101-02-09023", "Fasthold"] = "e"
+        faneblad.loc[faneblad["Punkt"] == "102-03-09170", "Fasthold"] = "e"
+        skriv_ark("test_regn", {"Kontrolberegning": faneblad})
+
         result = runner.invoke(niv, ["regn", "test_regn"])
         print(result.output)
         assert result.exit_code == 0
@@ -188,12 +194,6 @@ def test_regn():
         assert "Singulære" in regneark.keys()
         assert "Netgeometri" in regneark.keys()
 
-        assert _sammenlign_kolonner(
-            regneark, "Punktoversigt", "Endelig beregning", "Fasthold"
-        )
-        assert _sammenlign_kolonner(
-            regneark, "Kontrolberegning", "Endelig beregning", "Fasthold"
-        )
         for punkt in fastholdte_punkter:
             assert _check_fastholdt(regneark, "Endelig beregning", punkt)
             assert _check_tom_kote(regneark, "Endelig beregning", punkt)
