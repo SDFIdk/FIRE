@@ -234,7 +234,7 @@ def bernese(
     beregninger.
 
     Som udgangspunkt indlæses koordinater i databasen uden at tilknytte dem til
-    tidsserier. Hvis en tidsserietype specificeres med `--tidsserie` tilføjes
+    tidsserier. Hvis en tidsserietype specificeres med ``--tidsserie`` tilføjes
     koordinaterne også til de relevante tidsserier for de givne punkter. Disse kan
     efterfølgende tilgås via tidsseriens navn, fx "RDIO_5D_IGb08".
 
@@ -248,21 +248,26 @@ def bernese(
     for de berørte stationer.
 
     \b
-    EKSEMPLER
-    ---------
+    **EKSEMPLER**
 
-        Indlæs koordinater uden at tilknytte dem til tidsserier:
+    Indlæs koordinater uden at tilknytte dem til tidsserier::
 
-        > fire indlæs bernese INGEN ADDNEQ2_2096 COMB2096.CRD COMB2096.COV
+        fire indlæs bernese INGEN ADDNEQ2_2096 COMB2096.CRD COMB2096.COV
+    
 
-        Indlæs koordinater fra en 5D-beregning med tilhørende tilknytning til
-        tidsserier:
+    Indlæs koordinater fra en 5D-beregning med tilhørende tilknytning til
+    tidsserier::
 
-        > fire indlæs bernese 5D ADDNEQ2_1373 COMB1713.CRD
+        fire indlæs bernese 5D ADDNEQ2_1373 COMB1713.CRD
 
-        Undlad at indlæse koordinater fra udvalgte stationer:
+    Undlad at indlæse koordinater fra udvalgte stationer::
 
-        > fire indlæs bernese 5D -I BUDP -I SMID ADDNEQ2_1373 COMB1713.CRD
+        fire indlæs bernese 5D -I BUDP -I SMID ADDNEQ2_1373 COMB1713.CRD
+
+    \f
+
+    Efter data er indlæst kan tidsserierne inspiceres med :ref:`fire ts gnss<fire_ts_gnss>`
+    og :ref:`fire ts plot-gnss<fire_ts_plot-gnss>`.
 
     """
     inkluder_koordinater_i_tidsserier = tidsserietype != "INGEN"

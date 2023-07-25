@@ -201,7 +201,46 @@ def udtræk_revision(
 ) -> None:
     """Gør klar til punktrevision: Udtræk eksisterende information.
 
-    fire niv udtræk-revision projektnavn distrikts-eller-punktnavn(e)
+    Programmets primære funktion er at udtrække fikspunktsinformationer i
+    forbindelse med punktrevision i kommunale vedligeholdsopgaver, men det kan
+    også bruges til at redigere fikspunktsoplysninger og tilføje nye punkter
+    og koordinater.
+
+    Fikspunktsinformation udtrækkes ved at angive enten navne på
+    opmålingsdistrikter eller individuelle punkter, eksempelvis::
+
+        fire niv udtræk-revision SAG K-63 103-03 SKEJ RDO1
+
+    De udtrukne punkter og tilhørende informationer er da at finde i et nyt
+    regneark kaldet ``SAG-revision.xlsx``. Regnearket har kolonner med overskrifterne
+    "Punkt", "Attribut", "Talværdi", "Tekstværdi", "Sluk", "Ny værdi", "Id" og
+    "Ikke besøgt". For hvert punkt grupperes de tilknyttede informationer i
+    blokke af rækker. "Attribut", "Talværdi" og "Tekstværdi" udfyldes med de
+    relevante data. For at lette efterfølgende redigeringsarbejde er tekstværdier
+    også at finde som kopi i "Ny værdi", da mange revisionsopdateringer kun
+    kræver småjusteringer af eksisterende information.
+
+    Ved udtræk af punkter via opmålingsdistrikt frasorteres punkter, der i
+    udgangspunktet er irrelevante i en punktrevision. Det drejer sig om punkter,
+    der har en eller flere af følgende tilknyttede attributter:
+
+    \b
+        ATTR:hjælpepunkt``
+        ATTR:tabtgået``
+        ATTR:teknikpunkt
+        ATTR:MV_punkt
+
+    Derudover frasorteres også punkter med en regionskode der ikke er dansk, fx
+    REGION:SJ.
+
+    Visse attributter gemmes ikke i regnearket da de sjældent skal ændres og primært
+    er støj i punktrevisionsøjemed. Det er dog muligt at få dem med i udtrækket ved
+    brug af ``--alle-attributter``.
+
+    Attributrækker hvor der er sat et "x" i "Sluk"-kolonnen er ikke oprettede i databasen
+    og skal betragtes som genveje til hurtig oprettelse af disse attributter i forbindelse
+    indlæsning af revisionsændringerne. Bemærk også at "Id"-kolonnen er tom for disse
+    rækker, hvilket betyder at attributten ikke findes i databasen.
     """
     er_projekt_okay(projektnavn)
     find_sag(projektnavn)

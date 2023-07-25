@@ -189,7 +189,247 @@ def ilæg_revision(
     sagsbehandler: str,
     **kwargs,
 ) -> None:
-    """Læg reviderede punktdata i databasen"""
+    """Læg reviderede punktdata i databasen.
+
+    Ændringer i revisionsregnearket, udtrukket med ``fire niv udtræk-revision``,
+    lægges i databasen med dette program. Programmet understøtter primært punktrevision
+    som en del af kommunalt vedligehold, men også mere avancerede brugsscenarier
+    understøttes. De typiske ændringer i en revision er tilføjelse, ændring eller
+    fjernelse af en attribut, samt opdatering af lokationskoordinater. Herudover er det
+    også muligt at oprette nye punkter og koordinater.
+
+    Revisionsregnearket er struktureret så punkter og tilhørende attributter grupperes
+    sammen i blokke af rækker. Hver blok separeres af nogle tommer rækker. Første
+    række i en blok adskiller sig fra de resterende, da den indeholder punktets primære
+    ident, lokationskoordinat og har i et nyudtrukket revisionsark "x" i kolonnen
+    "Ikke besøgt". Hver række i en blok tilsvarer et objekt i databasen. I kolonnen "Attribut"
+    angives hvilken type objekt der er tale om og hører en værdi med til denne attribut
+    er den angivet i enten "tal-" eller "tekstværdi" kolonennen.
+
+    Ændring af information om et eksisterende punkt, altså en typisk punktrevision,
+    starter med at fjerne krydset i "Ikke besøgt" for det punkt der skal ændres. Krydset
+    har to praktiske formål:
+
+    \b
+        1. Skabe overblik i omfattende revisionsregneark
+        2. Øge effektiviteten af indlæsning, da kun punkter uden kryds tages i betragtning
+
+    Hvis en attributværdi skal ændres angives den nye værdi i kolonnen "Ny værdi". For
+    tekstattributter vil der allerede stå en kopi af den eksisterende værdi, så det er
+    nemt at lave små ændringer. Ved indlæsning i databasen medtages kun rækker hvor
+    "Ny værdi" afviger fra den oprindelige.
+
+    Hvis en attribut skal fjernes, gøres det ved at sætte "x" i kolonnen "Sluk". Det
+    resulterer i at attributten afregistreres i databasen så den ikke længere fremgår
+    som en aktuel værdi. Attributten slettes ikke, så det vil være muligt at genoprette
+    den i tilfælde af fejl.
+
+    Hvis en ny attribut skal tilføjes, gøres det ved at tilføje en ny række hvor kolonnerne
+    "Attribut" og, hvis relevant, "Ny værdi" er udfyldt.
+
+    Når alle ændringer er udført gemmes og lukkes regnearket, hvorefter ilægningskommandoen
+    køres::
+
+        fire niv ilæg-revision SAG
+
+    \f
+
+    **Eksempel**
+
+    I det følgende eksempel demonstreres al den tilgængelige funktionalitet i
+    :program:`fire niv ilæg-revision`. Det vil sige redigering af eksisterende information
+    om et punkt og tilføjelse af nye punkter og koordinater. Sidstnævnte er avanceret
+    funktionalitet der typisk kun er behov for i særtilfælde, fx oprettelse af en ny
+    GNSS-stationer i Grønland.
+
+    Først udtrækkets et revisionsregneark for et enkelt punkt med::
+
+        fire niv udtræk-revision --db test SAG 96-01-09014
+
+    Indholdet af regneark kan ses på figuren herunder
+
+    .. image:: figures/fire_niv_ilæg_revision_før.png
+        :width: 800
+        :alt: Revisionsregneark udtrukket med ``fire niv udtræk-revision``.
+
+    Inspiceres punktet med :program:`fire info punkt` ses det at de to stemmer overens,
+    omend enkelte attributter er udeladt i regnearket.
+
+    .. code-block:: console
+
+        > fire info punkt --db test 96-01-09014
+
+        --------------------------------------------------------------------------------
+        PUNKT 96-01-09014
+        --------------------------------------------------------------------------------
+        Lokation                    POINT (10.5253353662749 56.231632845085)
+        Oprettelsesdato             1951-07-01 00:00:00
+        AFM:2779                    Plade mærket G.I.
+        AFM:vertikal
+        AFM:højde_over_terræn       0.45
+        ATTR:beskrivelse            Agri Kirke.
+                                    Punkt i tårn, N. side.
+                                    0.47 m fra V. hjørne.
+                                    0.17 m over grundsten.
+        ATTR:højdefikspunkt
+        ATTR:bemærkning             Rev. uge 44 2018 PN.
+        REGION:DK
+        IDENT:refgeo_id             390708
+        IDENT:landsnr               96-01-09014
+
+        --- KOORDINATER ---
+        * 2009-11-16 09:27  EPSG:5799       n 100.00800 (2)
+        * 1990-02-27 15:20  DK:GM91         n 100.05200 (5)
+
+    På nedenstående figur ses markeret med gult de ændringer der er lavet i
+    regnearket, med henblik på at tilpasse et eksisterende punkt og tilføje
+    et nyt.
+
+    .. image:: figures/fire_niv_ilæg_revision_efter.png
+        :width: 800
+        :alt: Revisionsregneark udtrukket med ``fire niv udtræk-revision``.
+
+
+    For det eksisterende punkt er følgende ændringer lavet:
+
+    \b
+      - Lokationskoordinat opdateret.
+      - ATTR:muligt_datumstabil tilføjet (ved at fjerne "x" i "Sluk").
+      - ATTR:beskrivelse opdateret.
+      - AFM:vertikal slukket (bemærk at indholdet i "Ny værdi" er slettet).
+      - AFM:højde_over_terræn er opdateret.
+      - ATTR:bemærkning er opdateret.
+      - AFM:postament er tilføjet.
+      - IDENT:GNSS med værdien "AGR2" er tilføjet.
+
+    Derudover tilføjes et nyt punkt med følgende egenskaber:
+
+    \b
+      - Lokationskoordinat (56.231888 N; 10.525849 E)
+      - Attributterne ATTR:beskrivelse, REGION:DK, AFM:horisontalvertikal og IDENT:GNSS
+      - ETRS89-koordinat (EPSG:4937)
+      - DVR90-kote (EPSG:5799)
+
+    For at tilføje det nye punkt bruges den særlige attribut "OPRET", hvor lokationskoordinaten
+    angives i "Ny værdi". De efterfølgenge rækker tilhører samme blok af attributter og
+    tilknyttes alle til det nye punkt. Lokationskoordinaten kan både angives som UTM32-koordinat
+    eller som geografisk koordinat.
+
+    .. note::
+        Bemærk at der *ikke* automatisk tilføjes attributter på punkter og den beskrevne
+        metode er derfor en komplet manuel manøvre. Det vil typisk være smartere at bruge
+        :program:`fire niv ilæg-nye-punkter` til at oprette nye danske fikspunkter, da
+        landsnummer m.m. så oprettes korrekt.
+
+    Oprettelse af nye koordinater sker ved at angive en SRID som attribut, og derefter
+    indsætte udfylde "Ny værdi" på følgende form::
+
+        x y z t sx sy sz
+
+    Hvor `x`, `y` og `z` er de tre rumlige koordinatkomponenter, `t` er koordinatens
+    tilblivelsestidspunkt givet i decimalår og `sx`, `sy` og `sz` er de tre
+    koordinatkomponenters spredninger givet i mm. Indsættes koter, hvor kun z-komponenten
+    er relevant, skrives `nan` i `x`, `y`, `sx` og `sy`. "Nan" står for "not a number"
+    og fortæller programmet at denne værdi ikke er relevant. Tallene skal være adskilt
+    af enten mellemrum eller linjeskift. Sidstenævnte kan øge læsbarheden af koordinaten,
+    som set i figuren ovenfor.
+
+    Ved kørsel af :program:`fire niv ilæg-revision` kontrolleres det om indholdet
+    af revisionsarket er på den rette form hvorefter det forsøges indsættes i
+    databasen. Er der fejl eller noget der virker forkert kommer programmet med
+    en advarsel eller fejlrapport. Når alt går godt fås output i stil med nedenstående:
+
+    .. code-block:: console
+
+        > fire niv ilæg-revision --db test SAG
+        Sags/projekt-navn: SAG  (026699f1-96bb-4503-8eab-d618c9a777bf)
+        Sagsbehandler:     b012349
+
+        Opretter nyt punkt 98ea4050: 56.231888 N 10.525849 E
+
+        Behandler 2 punkter
+        96-01-09014
+            Opretter nyt punktinfo-element: ATTR:muligt_datumstabil
+            Retter punktinfo-element: ATTR:beskrivelse
+            Slukker: AFM:2779
+            Slukker: AFM:højde_over_terræn
+            Retter punktinfo-element: ATTR:bemærkning
+            Opretter nyt punktinfo-element: AFM:postament
+            Opretter nyt punktinfo-element: IDENT:GNSS
+        98ea4050-d8fb-45df-9f20-80f70b8a75cd
+            Opretter nyt punktinfo-element: ATTR:beskrivelse
+            Opretter nyt punktinfo-element: REGION:DK
+            Opretter nyt punktinfo-element: AFM:horisontalvertikal
+            Opretter nyt punktinfo-element: IDENT:GNSS
+
+        --------------------------------------------------
+        Punkter færdigbehandlet, klar til at
+        - oprette 9 attributter fordelt på 3 punkter
+        - slukke for 2 attributter fordelt på 1 punkter
+        - rette 2 attributter fordelt på 1 punkter
+        - rette 1 lokationskoordinater
+        Er du sikker på du vil indsætte ovenstående i test-databasen (ja/NEJ):
+        ja
+        Gentag svar for at bekræfte (ja/NEJ)
+        ja
+        Skriver: {'Sagsgang'}
+        Til filen 'SAG.xlsx'
+        Overskriver fanebladene {'Sagsgang'}
+            med opdaterede versioner.
+        Foregående versioner beholdes i 'ex'-filen 'SAG-ex.xlsx'
+
+    Her gives en rapport over de ændringer der er laves, samt en afsluttende opsummering
+    af revisionen. Her bør man inspicere outputtet for at sikre sig at det der indsættes
+    i databasen er korrekt. Er det tilfældet kan man taste ja til at data indsættes.
+
+    Efter revisionen er lagt i databasen kan vi nu tage et kig på de to opdatere punkter
+    og se at ændringer er trådt i kraft:
+
+    .. code-block:: console
+
+        >fire info punkt --db test 96-01-09014
+
+        --------------------------------------------------------------------------------
+        PUNKT AGR2
+        --------------------------------------------------------------------------------
+        Lokation                    POINT (10.52533304 56.2316149)
+        Oprettelsesdato             1951-07-01 00:00:00
+        AFM:vertikal
+        ATTR:højdefikspunkt
+        REGION:DK
+        IDENT:refgeo_id             390708
+        IDENT:landsnr               96-01-09014
+        ATTR:muligt_datumstabil
+        ATTR:beskrivelse            Agri Kirke.
+                                    Punkt i tårn, N. side.
+                                    0.49 m fra V. hjørne.
+                                    0.17 m over grundsten.
+        ATTR:bemærkning             Rev. uge 46 2023 KE.
+        AFM:postament
+        IDENT:GNSS                  AGR2
+
+        --- KOORDINATER ---
+        * 2009-11-16 09:27  EPSG:5799       n 100.00800 (2)
+        * 1990-02-27 15:20  DK:GM91         n 100.05200 (5)
+
+        > fire info punkt --db test AGR3
+
+        --------------------------------------------------------------------------------
+        PUNKT AGR3
+        --------------------------------------------------------------------------------
+        Lokation                    POINT (10.525849 56.231888)
+        Oprettelsesdato             2023-07-18 14:28:50.303283
+        ATTR:beskrivelse            Parkeringsplads ved Agri Kirke
+        REGION:DK
+        AFM:horisontalvertikal
+        IDENT:GNSS                  AGR3
+        IDENT:landsnr               96-01-00008
+
+        --- KOORDINATER ---
+        * 2023-07-25 20:38  EPSG:5799       n 101.42400 (5)
+        * 2023-07-18 04:40  EPSG:4937       n 10.5258490000, 56.2318880000, 101.32000  (15, 15, 45)
+
+    """
     er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)
@@ -227,11 +467,6 @@ def ilæg_revision(
             "Ingen besøgte punkter til ilægning. Stopper.", fg="yellow", bold=True
         )
         raise SystemExit
-
-    # Tildel navne til endnu ikke oprettede punkter
-    oprettelse = revision.query("Attribut == 'OPRET'")
-    for i, _ in oprettelse.iterrows():
-        revision.loc[i, "Punkt"] = f"NYTPUNKT{i}"
 
     # Udfyld udeladte identer
     punkter = list(revision["Punkt"])

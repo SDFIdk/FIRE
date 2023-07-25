@@ -40,7 +40,59 @@ from fire.api.model import (
     help="Angiv andet brugernavn end den aktuelt indloggede",
 )
 def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) -> None:
-    """Registrer ny sag i databasen"""
+    """
+    Registrer ny sag i databasen.
+
+    \f
+    Ved oprettelse af en ny sag skal angives et projektnavn samt en beskrivele af projektet.
+    Man *kan* undlade beskrivelsen, men det vil oftest være en fordel at have den med, da
+    det gør det nemmere at få et indblik i sagen hvis den på et tidspunkt skal genbesøges.
+    En projektbeskrivelse kan fx være "Kommunalvedligeholdsopgave i Svendborg" eller
+    "Ny GNSS station STAT oprettet i databasen".
+
+    **Eksempel**
+
+    .. code-block:: console
+
+        > fire niv opret-sag SAG "Eksempel på oprettelse af en sag, inkl. beskrivelse"
+
+    Når en sag oprettes, som i ovenstående eksempel, placeres en Excel-fil i den mappe kommandoen
+    er kørt i. Det vil sige at hvis man afvikler ``fire niv opret-sag`` i mappen
+    ``C:\\projekter\\svendborg_vedligehold`` vil regnearkets placering i filsystemet være
+    ``C:\\projekter\\svendborg_vedligehold\\SAG.xlsx``.
+
+    .. hint::
+
+        Det kan være en fordel at lave en mappe for hver sag du arbejder med, så alle
+        filer der er tilknyttet sagen er organiseret samme sted.
+
+    Når :program:`fire niv opret-sag` kommandoen køres bliver du som bruger spurgt om
+    du vil oprette sagen. Siger du "ja" til det bliver du bedt om at bekræfte dig valg
+    med endnu et "ja". Bemærk at du her begge gange skal skrive "ja" - alt andet betragtes
+    som et nej.
+
+    Vælges "nej" første gang spørger programmet om man alligevel vil oprette et sagsregneark.
+    Siges der ja til dette laves et sagsregneark, men sagen oprettes *ikke* i databasen. Formålet
+    med denne funktionalitet er, at give mulighed for at lave udjævninger af eksisterende
+    observationer uden at have intention om indlæse de resulterende koter i databasen.
+
+    ====================== ===========================================================
+    Faneblad               Beskrivelse
+    ====================== ===========================================================
+    Projektside            Her kan man løbende indtaste relevant info for projektet.
+    Sagsgang               Her vil sagens hændelserne fremgå efterhånden som de
+                           forekommer.
+    Nyetablerede punkter   Her kan man indtaste nye punkter som oprettes i forbindelse
+                           projektet.
+    Notater                Egne noter om sagen.
+    Filoversigt            Her kan man indtaste filnavnene på opmålingsfilerne. husk
+                           at definere stien, hvis ikke filen ligger samme sted som
+                           projektfilen.
+    Parametre              Her er angivet relevante parametre for sagen, fx hvilken
+                           database der arbejdes op imod og versionsnummer af FIRE.
+    ====================== ===========================================================
+
+    """
 
     if os.path.isfile(f"{projektnavn}.xlsx"):
         fire.cli.print(
@@ -88,9 +140,9 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
         else:
             fire.cli.firedb.session.rollback()
             advarsel = click.style(
-            f"BEMÆRK: Sag oprettes IKKE i databasen!",
-            bg="yellow",
-            fg="black",
+                f"BEMÆRK: Sag oprettes IKKE i databasen!",
+                bg="yellow",
+                fg="black",
             )
             fire.cli.print(advarsel)
             # Ved demonstration af systemet er det nyttigt at kunne oprette

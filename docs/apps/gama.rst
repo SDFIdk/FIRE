@@ -1,6 +1,22 @@
-.. click:: fire.cli.gama:gama
-  :prog: fire gama
-  :show-nested:
+fire gama
+==========
+
+.. deprecated:: 1.6
+
+Kommandogruppen :program:`fire gama` tilbyder mulighed for udtræk
+og indlæsning af nivellementsobservationer og beregningsresultater.
+
+Funktionaliteten er ikke vedligeholdt og blev indført som noget af
+det første da FIRE oprindeligt blev udviklet. Tilsvarende, og bedre,
+funktionalitet tilbydes med :ref:`kommandolinjeprogrammer_niv`
+programmerne.
+
+.. program-output:: fire gama --help
+
+.. warning::
+
+    Kommandogruppen forventes at blive fjernet i en kommende version
+    af FIRE programpakken.
 
 Parameterfil
 ------------
@@ -27,3 +43,12 @@ Parameter-filen er en .ini-fil med følgende indhold
   update-constrained-coordinates=no
 
   [points-observations-attributes]
+
+
+.. click:: fire.cli.gama:read
+  :prog: fire gama read
+  :nested: full
+
+.. click:: fire.cli.gama:write
+  :prog: fire gama write
+  :nested: full

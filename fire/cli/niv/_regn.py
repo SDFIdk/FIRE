@@ -72,11 +72,92 @@ class Arbejdssæt:
 def regn(projektnavn: str, **kwargs) -> None:
     """Beregn nye koter.
 
-    Hvis der allerede er foretaget kontrolberegning udfører vi en endelig
-    beregning. Valget styres via navnet på seneste oversigtsfaneblad, som
-    går fra 'Punktoversigt' (skabt af 'læs_observationer'), via
-    'Kontrolberegning' (der skrives ved første kald til denne funktion),
-    til 'Endelig beregning' (der skrives ved efterfølgende kald).
+    Forudsat nivellementsobservationer allerede er indlæst i sagsregnearket
+    kan der beregnes nye koter på baggrund af disse observationer. Beregning
+    af koter med dette program er en totrinsprocedure. Først udføres en
+    kontrolberegning med et minimum af fastholdte punkter, med henblik på at
+    kvaliteteskontrollere det tilgængelige observationsmateriale. Er der ingen
+    åbenlyse fejl i observationerne kan der fortsættes til den endelige beregning.
+
+    \f
+    I den endelige beregning bør det overvejes mere grundigt hvilke punkter der
+    fastholdes, samt om det kan være fordelagtigt at vægte nogle observationer
+    højere eller lavere end andre.
+
+    Hver kørsel af :program:`fire niv regn` starter med en analyse af det aktuelle
+    nivellementsnet. Det er muligt at de indlæste observationer og punkter tilsammen
+    udgør mere end et selvstændigt nivellementsnet, i så fald udgøres den samlede
+    beregning af flere subnet. Udjævning i hvert subnet forudsætter mindst et
+    fastholdt punkt. Når netanalysen er kørt vil programmet gøre opmærksom på hvis
+    der er flere subnet og komme med forslag til et punkt i hvert subnet som kan
+    fastholdes. Er der ingen fastholdte punkter afsluttes programmet med det samme.
+    Netanalysen gemmes i sagsregnearket i fanebladene "Netgeometri" og "Singulære".
+    Sidstnævnte er en oversigt over punkter der ikke er knyttet til resten af det
+    målte net. "Netgeometri" beskriver hvordan nettet er opbygget ved at angive
+    hvert punkts nabopunkter. Dette er blot en oversigt og bør ikke ændres af brugeren.
+
+    Første gang :program:`fire niv regn` køres udføres kontrolberegningen. Den har
+    til formål at sikre at opmålingsarbejdet er forløbet korrekt, herunder at
+
+        1. der er målt til de rigtige punkter
+        2. observationerne ikke helt er i skoven
+
+    I fanebladet "Punktoversigt" angives hvilke punkter der skal fastholdes i
+    kontrolberegningen. Sæt et "x" i kolonnen "Fasthold" for de relevante punkter.
+    Typisk fastholdes kun et punkt pr subnet. Når beregningen er udført tilføjes
+    fanebladet "Kontrolberegning" til sagsregnearket. Dette faneblad har samme opbygning
+    som punktoversigten, dog nu med indhold i kolonnerne "Ny kote", "Ny σ", "Δ-kote"
+    og "Opløft", der udgør beregningsresultatet.
+
+    Den endelig beregning udføres ved at køre :program:`fire niv regn` igen. Hvis
+    fanebladet "Kontrolberegning" er i sagsregnearket ved programmet det skal lave
+    den endelige beregning. Er der behov for en ny kontrolberegning kan dette faneblad
+    slettes og :program:`fire niv regn` køres på ny.
+    I den endelige beregning finjusteres resultaterne fra kontrolberegningen. Formålet
+    er, at producere de bedst mulige koter ud fra de tilgængelige observationer.
+    Det *kan* indebære at fastholde andre punkter, eller måske flere end et.
+    Det kan også være nødvendigt at vægte udvalgte observationer fra eller helt at
+    udelukke dem fra udjævningen.
+    Fastholdelse af punkter i den endelige beregning foretages i fanebladet "Kontrolberegning".
+    Som udgangspunkt er de fastholdte punkter fra kontrolberegningen også markeret fastholdte
+    i den endelige beregning. Er der behov for flere fastholdte punkter bør de angives med "e",
+    så det er tydeligt hvilke fastholdte punkter der er forskellige fra kontrolberegningen.
+    Vægten på de enkelte observationer kan justeres ved at ændre σ-værdien i fanebladet
+    "Observationer" for den pågældende observation. Når den endelige beregning er udført
+    findes resultatet i fanebladet "Endelig beregning".
+
+    Udover beregningsresultaterne i sagsregnearket dannes der efter en beregning en række
+    filer som placeres i samme mappe som sagsregnearket. Det drejer sig om beregningsrapporter
+    m.m. fra udjævningsprogrammet GNU Gama og en række GIS-filer der indeholder et overblik
+    over punkter og observationer, der indgår i udjævningen.
+
+    Følgende filer relaterer sig til GNU Gama
+
+    ==========================  =============================================================
+    Filnavn                     Beskrivelse
+    ==========================  =============================================================
+    SAG.xml                     Input fil til gama, lavet ud fra data i regneark
+    SAG-resultat.xml            Output fil fra gama, læses af fire og oversættes til regneark
+    SAG-resultat-kontrol.html   Beregningsrapport for kontrolberegning
+    SAG-resultat-endelig.html   Beregningsrapport for endelige beregning
+    ==========================  =============================================================
+
+    Input og output filer til Gama overskrives for hver beregning der udføres,
+    men beregningsrapporten gemmes særskilt for kontrol og endelig beregning.
+
+    De genererede GIS-filer er
+
+    ==============================  ==============================================
+    Filnavn                         Beskrivelse
+    ==============================  ==============================================
+    SAG-kon-punkter.geojson         Punkter brugt i kontrolberegningen
+    SAG-kon-observationer.geojson   Observationer brugt i kontrolberegningen
+    SAG-punkter.geojson             Punkter brugt i den endelige beregning
+    SAG-observationer.geojson       Observationer brugt i den endelige beregning
+    ==============================  ==============================================
+
+    Formatet på GIS-filerne er GeoJSON, der let kan indlæses i QGIS for at danne et
+    bedre overblik over nivellementsnettet der regnes på.
     """
     er_projekt_okay(projektnavn)
 

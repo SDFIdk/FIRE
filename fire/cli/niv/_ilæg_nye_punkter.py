@@ -58,7 +58,66 @@ FIKSPUNKTSYPER = {
     help="Angiv andet brugernavn end den aktuelt indloggede",
 )
 def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
-    """Registrer nyoprettede punkter i databasen"""
+    """Registrer nyoprettede punkter i databasen.
+
+    Nye punkter tilføjes i fanebladet "Nyetablerede punkter" i projektregnearket
+    og et typisk kald vil være::
+
+        fire niv ilæg-nye-punkter SAG
+
+    Under fanebladet "Nyetablerede punkter" findes et antal kolonner hvor information
+    om de nye punkter indtastes. En linje pr. nyt punkt. For at tilføje et punkt skal
+    følgende kolonner være udfyldt:
+
+    \b
+    - Et foreløbigt navn
+    - En længdegrad/Y, Nord (UTM eller grader)
+    - En breddegrad/X, Øst (UTM eller grader)
+    - En angivelse af fikspunktets type
+
+    .. image:: ../workshop/figures/firenivilægpunkter.PNG
+    :width: 800
+    :alt: Opret nye punkter, excel-visning
+
+    De resterende kolonner kan også udfyldes, men den videre proces er ikke
+    afhængig af dem. Det man ikke kan udfylde, er "Landsnummer" og "uuid", da det først
+    genereres det øjeblik punktet lægges i databasen.
+
+    Fikspunktstypen afgør hvilket interval landsnummerets løbenummer placeres i. Der kan
+    vælges mellem følgende typer:
+
+    \b
+    - GI
+    - MV
+    - HØJDE
+    - JESSEN
+    - VANDSTANDSBRÆT
+
+    Hvis et punkt angives som værende et GI-punkt får det tildelt både et landsnummer og
+    et GI-nummer. Det næste ledige GI-nummer vælges automatisk.
+
+    .. note::
+        Koordinater kan skrives både med UTM-format og med gradetal. ``fire`` genkender
+        selv formatet og konverterer til geografiske koordinater, som er standard i ``fire``.
+
+    Under afmærkning kan følgende typer indtastes:
+
+    1. ukendt
+    2. bolt
+    3. lodret bolt
+    4. skruepløk
+    5. ingen
+
+    Ved oprettelse af punktet indsættes automatisk en ``ATTR:bemærkning`` med info om
+    nyetablering i indeværende år af den givne sagsbehandler. Sidstnævnte fremstår som
+    brugerens B-nummer medmindre andet er angivet med ``--sagsbehandler`` når kommandoen
+    kaldes.
+
+    Samtidigt med at punkter lægges i databasen opdateres sagsregnearket også. Når
+    :program:`fire niv ilæg-nye-punkter` har kørt indeholder fanen "Nyetablerede punkter"
+    også punkternes netop tildelte landsnumre og UUID'er.
+
+    """
     er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
     sagsgang = find_sagsgang(projektnavn)

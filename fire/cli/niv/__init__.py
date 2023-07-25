@@ -29,22 +29,15 @@ niv_help = f"""Nivellement: Arbejdsflow, beregning og analyse
 
 Underkommandoerne:
 
+\b
     opret-sag
-
     udtræk-revision
-
     ilæg-revision
-
     ilæg-nye-punkter
-
     læs-observationer
-
     regn
-
     ilæg-observationer
-
     ilæg-nye-koter
-
     luk-sag
 
 definerer, i den anførte rækkefølge, nogenlunde arbejdsskridtene i et
@@ -54,14 +47,12 @@ Til beregning af eksisterende observationer, findes en alternativ underkommando
 til `læs-observationer`, kaldet `udtræk-observationer`. En arbejdsgang med denne
 kommando kan se ud på følgende måde:
 
+\b
     opret-sag
-
     udtræk-observationer
-
     regn
-
     luk-sag
-
+\b
 Underkommandoer
 ---------------
 
@@ -91,28 +82,29 @@ ILÆG-NYE-KOTER lægger nyberegnede koter i databasen.
 
 LUK-SAG arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
 
-Eksempel:
+\b
+Eksempel
+--------
 
-{grøn('fire niv opret-sag andeby_2020 "Vedligehold Andeby"')}
+    {grøn('fire niv opret-sag andeby_2020 "Vedligehold Andeby"')}
 
-{grøn('fire niv udtræk-revision andeby_2020 K-99 102-08')}
+    {grøn('fire niv udtræk-revision andeby_2020 K-99 102-08')}
 
-{grøn('fire niv ilæg-revision andeby_2020')}
+    {grøn('fire niv ilæg-revision andeby_2020')}
 
-{grøn('fire niv ilæg-nye-punkter andeby_2020')}
+    {grøn('fire niv ilæg-nye-punkter andeby_2020')}
 
-{grøn('fire niv læs-observationer andeby_2020')}
+    {grøn('fire niv læs-observationer andeby_2020')}
 
-{grøn('fire niv regn andeby_2020')}     <- kontrolberegning
+    {grøn('fire niv regn andeby_2020')}     <- kontrolberegning
 
-{grøn('fire niv regn andeby_2020')}     <- endelig beregning
+    {grøn('fire niv regn andeby_2020')}     <- endelig beregning
 
-{grøn('fire niv ilæg-observationer andeby_2020')}
+    {grøn('fire niv ilæg-observationer andeby_2020')}
 
-{grøn('fire niv ilæg-nye-koter andeby_2020')}
+    {grøn('fire niv ilæg-nye-koter andeby_2020')}
 
-{grøn('fire niv luk-sag andeby_2020')}
-
+    {grøn('fire niv luk-sag andeby_2020')}
 """
 
 
