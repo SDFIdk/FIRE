@@ -33,7 +33,15 @@ from fire.cli.niv import (
     help="Angiv andet brugernavn end den aktuelt indloggede",
 )
 def luk_sag(projektnavn: str, sagsbehandler, **kwargs) -> None:
-    """Luk sag i databasen"""
+    """
+    Luk sag i databasen.
+
+    Efter endt arbejde med en sag skal den lukkes. Når en sag lukkes fremgår
+    den ikke længere af listen over åbne sager (se ``fire info sag``) og det
+    muligheden for at ændre i den ophører. Når en sag lukkes gemmes
+    sagsregneark og observationsfiler i databasen, så disse ved behov kan findes
+    i fremtiden.
+    """
     er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
 

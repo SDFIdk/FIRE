@@ -6,7 +6,7 @@ Kommandolinjeprogrammer
 
     info
     niv
-    gnss
+    indlæs
     grafik
     gama
     luk

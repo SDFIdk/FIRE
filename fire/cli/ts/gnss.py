@@ -101,8 +101,8 @@ GNSS_TS_PARAMETRE = {
     type=str,
     default="t,x,sx,y,sy,z,sz",
     help="""Vælg hvilke parametre i tidsserien der skal udtrækkes. Som standard
-sat til 't,x,sx,y,sy,z,sz'. Bruges værdien 'alle' udtrækkes alle muligere parametre
-i tidsserien.  Se `fire ts gnss --help` for yderligere detaljer.""",
+sat til 't,x,sx,y,sy,z,sz'. Bruges værdien 'alle' udtrækkes alle mulige parametre
+i tidsserien.  Se ``fire ts gnss --help`` for yderligere detaljer.""",
 )
 @click.option(
     "--fil",
@@ -114,13 +114,14 @@ i tidsserien.  Se `fire ts gnss --help` for yderligere detaljer.""",
 @fire.cli.default_options()
 def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     """
-    Udtræk en GNSS tidsserie
+    Udtræk en GNSS tidsserie.
 
-    'OBJEKT' sættes til enten et punkt eller et specifik navngiven tidsserie.
-    Hvis 'OBJEKT' er et punkt udskrives en oversigt over de tilgængelige
+
+    "OBJEKT" sættes til enten et punkt eller et specifik navngiven tidsserie.
+    Hvis "OBJEKT" er et punkt udskrives en oversigt over de tilgængelige
     tidsserier til dette punkt. Hvis 'OBJEKT' er en tidsserie udskrives
     tidsserien på skærmen. Hvilke parametre der udskrives kan specificeres
-    i en kommasepararet liste med '--parameter'. Følgende parametre kan vælges:
+    i en kommasepararet liste med ``--parameter``. Følgende parametre kan vælges::
 
     \b
         t               Tidspunkt for koordinatobservation
@@ -151,31 +152,29 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
         rkyz            Residualkovariansmatricens YZ-komponent
         rkzz            Residualkovariansmatricens ZZ-komponent
 
-    Tidsserien kan skrives til en fil ved brug af '--fil', der resulterer i
+    Tidsserien kan skrives til en fil ved brug af ``--fil``, der resulterer i
     en csv-fil på den angivne placering. Denne fil kan efterfølgende åbnes
     i Excel, eller et andet passende program, til videre analyse.
 
 
     \b
-    EKSEMPLER
-    ---------
+    **EKSEMPLER**
+    
+    Vis alle tidsserier for punktet RDIO::
 
-        \b
-        Vis alle tidsserier for punktet RDIO:\n
-        > fire ts gnss RDIO
+        fire ts gnss RDIO
 
-        \b
-        Vis tidsserien 'RDIO_5D_IGb08' med standardparametre:\n
-        > fire ts gnss RDIO_5D_IGb08
+    Vis tidsserien 'RDIO_5D_IGb08' med standardparametre::
+    
+        fire ts gnss RDIO_5D_IGb08
 
-        \b
-        Vis tidsserie med brugerdefinerede parametre:\n
-        > fire ts gnss RDIO_5D_IGb08 --paramatre decimalår,n,e,u,sx,sy,sz
+    Vis tidsserie med brugerdefinerede parametre::
 
-        \b
-        Gem tidsserie med samtlige tilgængelige parametre:\n
-        > fire ts gnss RDIO_5D_IGb08 -p alle -f RDIO_5D_IGb08.xlsx
-        \b
+        fire ts gnss RDIO_5D_IGb08 --paramatre decimalår,n,e,u,sx,sy,sz
+
+    Gem tidsserie med samtlige tilgængelige parametre::
+
+        fire ts gnss RDIO_5D_IGb08 -p alle -f RDIO_5D_IGb08.xlsx
     """
     if not objekt:
         _print_tidsserieoversigt(GNSSTidsserie)
@@ -228,23 +227,18 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     if not fil:
         raise SystemExit
 
-    data = {overskrift: kolonne for (overskrift, kolonne) in zip(overskrifter, kolonner)}
+    data = {
+        overskrift: kolonne for (overskrift, kolonne) in zip(overskrifter, kolonner)
+    }
     df = pd.DataFrame(data)
     df.to_excel(fil, index=False)
 
 
 def plot_gnss_ts(ts: GNSSTidsserie):
-    """
-    
-    """
+    """ """
 
     def _plot_ts(label: str, x: list, y: list):
-        plt.plot(
-            x,
-            y, 
-            "-", 
-            linewidth=0.25
-        )
+        plt.plot(x, y, "-", linewidth=0.25)
         plt.plot(
             x,
             y,
@@ -253,7 +247,7 @@ def plot_gnss_ts(ts: GNSSTidsserie):
             linewidth=0.25,
             color="black",
         )
-        
+
         plt.grid()
         plt.ylabel(label)
 
@@ -272,6 +266,7 @@ def plot_gnss_ts(ts: GNSSTidsserie):
 
     plt.show()
 
+
 @ts.command()
 @click.argument("tidsserie", required=True, type=str)
 @fire.cli.default_options()
@@ -280,6 +275,23 @@ def plot_gnss(tidsserie: str, **kwargs) -> None:
     Plot en GNSS tidsserie
 
     Et simpelt plot der viser udviklingen i nord, øst og op retningerne over tid.
+
+    "TIDSSERIE" er et GNSS-tidsserie ID fra FIRE. Eksisterende GNSS-tidsserier kan
+    fremsøges med kommandoen ``fire ts gnss <punktnummer>``.
+
+    \f
+    **EKSEMPLER**
+
+    Plot af 5D-tidsserie for BUDP::
+
+        fire ts plot-gnss BUDP_5D_IGB05
+
+    Resulterer i visning af nedenstående plot.
+        
+    .. image:: figures/fire_ts_plot_gnss_BUDP_5D_IGb08.png
+        :width: 800
+        :alt: Eksempel på plot af 5D-tidsserie for BUDP. Genereret med FIRE v. 1.6.1.
+    
     """
     try:
         tidsserie = _find_tidsserie(GNSSTidsserie, tidsserie)

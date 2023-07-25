@@ -172,53 +172,45 @@ def udtræk_observationer(
     """
     Udtræk nivellement-observationer for et eksisterende projekt ud fra søgekriterier.
 
-    KRITERIER kan være både identer (landsnumre) og geometri-filer.
+    Kriterierne kan være både identer (landsnumre) og geometri-filer. Programmet skelner
+    automatisk kriterierne fra hinanden. Kriterier, der ikke passer i disse kategorier,
+    bliver vist i terminal-output og derefter ignoreret. Bemærk at data i geometrifiler skal
+    være refereret til WGS84.
 
-    Programmet skelner automatisk kriterierne fra hinanden. Kriterier, der ikke
-    passer i disse kategorier, bliver vist i terminal-output og derefter ignoreret.
+    **Eksempel**::
 
-        BEMÆRK: Geometrifiler skal være i WGS84
+        fire niv udtræk-observationer SAG 125-03-09003 rectangle.geojson
 
-    Eksempel:
+    I et allerede oprettet et projekt, kan man fremsøge observationer inden for et givet
+    tidsrum (fra og til), givet standard kvalitetskriterier samt observationsmetode og
+    afstand til identer/geometri.
 
-        fire niv udtræk-observationer projekt_x 125-03-09003 rectangle.geojson
+    Det er kombinationen af valgt nøjagtighed og metode, der afgør valget af kriterium,
+    hvormed fundne observationer skal filtreres fra. Resultatet af søgningen er samtlige,
+    aktive observationer i databasen, der opfylder ovenstående.
 
-    Brugscenarium:
+    Resultatet skrives til det eksisterende projekt-regneark i fanerne
+    "Observationer" og "Punktoversigt".
 
-        En bruger, der har oprettet et projekt, kan fremsøge observationer
-        inden for et givet tidsrum (fra og til), givet standard kvalitets-
-        kriterier samt observationsmetode og afstand til identer/geometri.
+    \f
+    .. warning:: Eksisterende data i disse ark overskrives!
 
-        Det er kombinationen af valgt nøjagtighed og metode, der afgør valget
-        af kriterium, hvormed fundne observationer skal filtreres fra.
+    **Fremsøgningsproces**
 
-        Resultatet af søgningen er samtlige, aktive observationer i databasen,
-        der opfylder ovenstående.
+    Kommandolinje-argumenterne afgør fremsøgningsprocessen. Se de enkelte
+    kommandolinje-argumenters dokumentation herunder for flere detaljer om deres
+    betydning for fremsøgningsprocessen.
 
-        Resultatet skrives til det eksisterende projekt-regneark i fanerne
-        `Observationer` og `Punktoversigt`.
+    Ved angivelse af identer i KRITERIER fremsøges kun observationer mellem de adspurgte
+    punkter. Ønskes alle observationer til de adspurgte punkter kan ``--alle-obs``
+    tilføjes kaldet.
 
-            BEMÆRK: Eksisterende data i disse ark overskrives!
+    **Geometrifiler**
 
-    Fremsøgningsproces:
-
-        Kommandolinie-argumenterne afgør fremsøgningsprocessen.
-
-        Se de enkelte kommando-linie-argumenters dokumentation for flere
-        detaljer om deres betydning for fremsøgningsprocessen.
-
-        Ved angivelse af identer i KRITERIER fremsøges kun observationer
-        mellem de adspurgte punkter. Ønskes alle observationer til de
-        adspurgte punkter kan `--alle-obs` tilføjes kaldet.
-
-    Geometrifiler:
-
-        Det er muligt at søge inden for en vilkårlig polygon, i punkter
-        og langs linier. Sidstnævnte kan eksempelvis bruges sammen med en
-        bufferafstand til at søge langs en vej, hvis forløb er angivet
-        liniestykker i geometrifilen. Man kan altså søge langs vilkårlige
-        vejsegmenter eller hvad som helst andet, man ønsker.
-
+    Det er muligt at søge inden for en vilkårlig polygon, i punkter og langs linjer.
+    Sidstnævnte kan eksempelvis bruges sammen med en bufferafstand til at søge langs
+    en vej, hvis forløb er angivet linjestykker i geometrifilen. Man kan altså søge
+    langs vilkårlige vejsegmenter eller hvad som helst andet, man ønsker.
     """
 
     # Arrangér kommandolinie-inputtet

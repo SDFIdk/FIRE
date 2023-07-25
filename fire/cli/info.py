@@ -375,9 +375,9 @@ def punkt(
     **kwargs,
 ) -> None:
     """
-    Vis al tilgængelig information om et fikspunkt
+    Vis al tilgængelig information om et fikspunkt.
 
-    IDENT kan være enhver form for navn et punkt er kendt som, blandt andet
+    **IDENT** kan være enhver form for navn et punkt er kendt som, blandt andet
     GNSS stationsnummer, G.I./G.M.-nummer, refnr, landsnummer, uuid osv.
 
     Søgningen er delvist versalfølsom, men tager højde for minuskler, udeladte
@@ -387,15 +387,18 @@ def punkt(
     Anfører man ikke specifikke tilvalg vises kun basale dele: Attributter og
     punktbeskrivelser + gældende koordinater.
 
-    Tilvalg `--detaljer/-D` udvider med sjældnere brugte informationer
+    Tilvalg ``--detaljer/-D`` udvider med sjældnere brugte informationer
 
-    Tilvalg `--koord/-K` kan sættes til ts, alle, ingen - eller kombinationer:
-    fx ts,alle. `alle` tilvælger historiske koordinater, `ts` tilvælger
-    tidsseriekoordinater, `ingen`fravælger alle koordinatoplysninger.
+    Tilvalg ``--koord/-K`` kan sættes til ts, alle, ingen - eller kombinationer:
+    fx ``ts,alle``. ``alle`` tilvælger historiske koordinater, ``ts`` tilvælger
+    tidsseriekoordinater, ``ingen`` fravælger alle koordinatoplysninger.
 
-    Tilvalg `--obs/-O` kan sættes til alle eller niv. Begge tilvælger visning
+    Tilvalg ``--obs/-O`` kan sættes til ``alle`` eller ``niv``. Begge tilvælger visning
     af observationer til/fra det søgte punkt. P.t. understøttes kun visning af
     nivellementsobservationer.
+
+    Hvis der findes skitser eller billedmateriale for et punkt angives disse
+    under sektionen "Grafik" og kan vises med ``fire grafik`` kommandoen.
     """
 
     ident = klargør_ident_til_søgning(ident)
@@ -432,14 +435,14 @@ def punkt(
 @click.argument("srid", required=False)
 def srid(srid: str, ts: bool, **kwargs):
     """
-    Information om et givent SRID (Spatial Reference ID)
+    Information om et givent SRID (Spatial Reference ID).
 
     Eksempler på SRID'er: EPSG:25832, DK:SYS34, TS:81013
 
     Anføres SRID ikke gives liste af mulige SRID. Som standard uden lokale
     tidsseriekoordinatsystemer.
 
-    Tilvalg ``-T/--ts` kan kun vælges uden angiven SRID. Udvider listen med
+    Tilvalg ``-T/--ts`` kan kun vælges uden angiven SRID. Udvider listen med
     lokale tidsseriekoordinatsystemer.
     """
     if not srid:
@@ -482,15 +485,16 @@ def srid(srid: str, ts: bool, **kwargs):
 )
 def infotype(infotype: str, søg: bool, **kwargs):
     """
-    Information om en punktinfotype.
+    Information om en punktinformationstype.
 
-    Eksempler på punktinfotyper: IDENT:GNSS, AFM:diverse, ATTR:beskrivelse.
+    Eksempler på punktinformationstyper: ``IDENT:GNSS``, ``AFM:diverse``,
+    ``ATTR:beskrivelse``.
 
-    Angives INFOTYPE ikke vises en liste med alle tilgængelige punktinfotyper.
+    Angives **INFOTYPE** ikke vises en liste med alle tilgængelige punktinfotyper.
     Denne liste kan snævres ind ved at angive starten af et navn på en punktinfotype,
     fx "IDENT" eller "attr".
 
-    Med tilvalg `--søg/-s` vises punktinfotyper og tilhørende beskrivelser,
+    Med tilvalg ``--søg/-s`` vises punktinfotyper og tilhørende beskrivelser,
     for alle de punktinfotyper, som matcher INFOTYPE et vilkårligt sted i
     enten navn eller beskrivelse.
     """
@@ -557,9 +561,9 @@ def infotype(infotype: str, søg: bool, **kwargs):
 @click.argument("obstype", required=False)
 def obstype(obstype: str, **kwargs):
     """
-    Information om en given observationstype
+    Information om en given observationstype.
 
-    Anføres `obstype` ikke gives liste af mulige obstyper.
+    Anføres **OBSTYPE** ikke gives liste af mulige obstyper.
     """
     if not obstype:
         obstyper = fire.cli.firedb.hent_observationstyper()
@@ -594,7 +598,7 @@ def sag(sagsid: str, **kwargs):
     """
     Information om en sag.
 
-    Kaldes `fire info sag` uden sagsid listes alle aktive sager
+    Anføres **SAG** ikke sagsid listes alle aktive sager.
     """
     if sagsid:
         sag = fire.cli.firedb.hent_sag(sagsid)

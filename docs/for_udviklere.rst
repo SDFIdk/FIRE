@@ -60,7 +60,7 @@ Test-suiten køres med::
 
     Se :ref:`testlokalt` for mere om hvordan et testmiljø kan sættes op lokalt.
 
-For at test-suiten kører korrekt skal der i `fire.ini` indsættes en `[test_connection]`
+For at test-suiten kører korrekt skal der i ``fire.ini`` indsættes en ``[test_connection]``
 sektion::
 
     [test_connection]
@@ -71,7 +71,7 @@ sektion::
     service = <servicenavn>
 
 På maskiner der både arbejder op mod produktions- og testdatabase er det vigtigt at
-`[test_connection]` er forskellig fra `[connection]`, da det ellers risikeres at der
+``[test_connection]`` er forskellig fra ``[connection]``, da det ellers risikeres at der
 indsættes ugyldigt data i produktionsdatabasen.
 
 Kodestil
@@ -101,7 +101,7 @@ Dokumentation
 
 HTML dokumentation kan genereres lokalt ved hjælp af følgende kommando::
 
-    sphinx-build -b html ./docs ./docs/_build
+    sphinx-build -b html ./docs ./docs/_build -E
 
 hvorefter dokumentationen vil være at finde i ``docs/_build``.
 
@@ -115,6 +115,22 @@ opdateres (filer i ``docs/api``). Dette kan gøres med::
 
     sphinx-apidoc -E -d 3 -o docs\api fire
 
+Samspil mellem Click og Sphinx
++++++++++++++++++++++++++++++++
+
+Sphinx er sat op til at bruge modulet ``sphinx_click``, der gør det muligt at
+auto-genere dokumentation af click kommandolinje programmer. Dette udnyttes i
+høj grad i FIRE programmerne. Brugen af ``sphinx_click`` gør det muligt skrive
+et programs dokumentation udelukkende i docstring af programmets click entry-point
+funktion. Se fx ``fire.cli.niv:regn``. Et par forhold er værd at notere sig når
+sphinx-dokumentationen skrives direkte i docstring:
+
+1. Alt efter ``\f`` medtages ikke i hjælpteksten på kommandolinjen
+2. Man kan bruge ``\b`` til at undgå at click omformatere tekst i hjælpteksten på kommandolinjen
+3. Man kan sagtens benytte sig af alle formateringsmulighederne i Sphinx, dog vil nogle elementer
+   kun virke hvis de kommer efter ``\f``. Formodentligt fordi click ellers ombryder teksten.
+4. Undlad almindelige RST-overskrifter i docstrings, da de forplumrer indholdsfortegnelsen.
+   Underoverskrifter kan laves med ``**fed**`` i stedet.
 
 GitHub og Continuous Integration
 ---------------------------------

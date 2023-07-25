@@ -27,6 +27,8 @@ from fire.cli.niv import bekræft
 def grafik():
     """
     Håndtering af skitser og fotos af fikspunkter.
+
+    Grafik bruges som fællesbetegnelse for skitser og fotos.
     """
     pass
 
@@ -38,12 +40,16 @@ def vis(filnavn: str, **kwargs) -> None:
     """
     Vis en grafik fra databasen.
 
-    EKSEMPEL
+    **EKSEMPEL**
 
-    > fire grafik vis K-1-12345.png
+    Vis fikspunktsskitse for GNSS-stationen BUDP::
 
-    Filnavnet til en grafik kan fx findes med `fire info punkt`.
+        fire grafik vis 1-13-00829.png
 
+    Filnavnet til en grafik kan fx findes med ``fire info punkt``.
+
+    Kommandoen åbner grafikken i systemets standardbilledviser. Har du brug for en lokal
+    kopi af grafikken kan den gemmes ved hjælp af programmets indbyggede funktionalitet.
     """
     db = fire.cli.firedb
 
@@ -96,20 +102,19 @@ def indsæt(
     r"""
     Indsæt grafik i databasen.
 
-    EKSEMPLER
+    **EKSEMPLER**
 
-    Indsæt skitse fra PNG-fil:
+    Indsæt skitse fra PNG-fil::
 
-        > fire grafik indsæt K-01-01234 K-01-01234.png
+        fire grafik indsæt K-01-01234 K-01-01234.png
 
-    Anvend andet filnavn i databasen:
+    Anvend andet filnavn i databasen::
 
-        > fire grafik indsæt G.M.902 IMG_5234.jpg --filnavn aarhus_domkirke.jpg
+        fire grafik indsæt G.M.902 IMG_5234.jpg --filnavn aarhus_domkirke.jpg
 
-    Eksplicer grafiktype og filnavn:
+    Eksplicer grafiktype og filnavn::
 
-        > fire grafik indsæt K-01-012345 C:\tmp\skitse.png --type skitse --filnavn K-01-012345.png
-
+        fire grafik indsæt K-01-012345 C:\tmp\skitse.png --type skitse --filnavn K-01-012345.png
     """
     db = fire.cli.firedb
     try:
@@ -195,6 +200,14 @@ def slet(filnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     Grafikken identificeres ud fra sit filnavn. Filnavnet på en grafik kan findes ved
     opslag med ``fire info punkt <ident>``.
+
+    **EKSEMPEL**::
+
+        fire grafik slet 9-99-99999.png
+
+    Sletning af grafik bør kun ske i tilfælde at materialet er decideret misvisende
+    eller indeholder information, der ikke kan forsvares at langtidsopbevare i en
+    statslig database, fx i tilfælde af der findes personshenførbare informationer.
     """
     db = fire.cli.firedb
 
