@@ -140,9 +140,10 @@ Tryk på "Ny" og indtast stien ``C:\Program Files\Git\usr\bin``. Næste gang du
 ``ls``.
 
 
-.. _fire-install:
+
 FIRE
 ----
+.. _fire-install:
 
 Nedenfor installerer vi først afhængighederne til FIRE, og dernæst selve programmet.
 
