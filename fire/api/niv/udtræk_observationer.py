@@ -125,6 +125,11 @@ def opstillingspunkter(observationer: Iterable[Observation]) -> List[Punkt]:
     return list(set(o.opstillingspunkt for o in observationer))
 
 
+def sigtepunkter(observationer: Iterable[Observation]) -> List[Punkt]:
+    """Returnerer unikke sigtepunkter for observationerne."""
+    return list(set(o.sigtepunkt for o in observationer))
+
+
 def punkter_til_geojson(data: pd.DataFrame) -> dict:
     """Konvertér punkter til geojson-tekststreng."""
     return {

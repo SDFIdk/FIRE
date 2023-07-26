@@ -40,6 +40,7 @@ from fire.api.niv.udtræk_observationer import (
     brug_alle_på_alle,
     observationer_inden_for_spredning,
     opstillingspunkter,
+    sigtepunkter,
     timestamp,
     punkter_til_geojson,
     ResultatSæt,
@@ -308,8 +309,10 @@ def udtræk_observationer(
     fire.cli.print("Filtrér observationer")
     observationer = list(observationer_inden_for_spredning(resultatsæt, spredning))
 
-    fire.cli.print("Indsaml opstillingspunkter fra observationer")
-    punkter = opstillingspunkter(observationer)
+    fire.cli.print("Indsaml opstillings- og sigtepunkter fra observationer")
+    opstillings_punkter = opstillingspunkter(observationer)
+    sigte_punkter = sigtepunkter(observationer)
+    punkter = list(set(opstillings_punkter) | set(sigte_punkter))
 
     # Gem resultatet
     # --------------
@@ -318,15 +321,6 @@ def udtræk_observationer(
     fire.cli.print("Gem observationer og punkter i projekt-regnearket")
     ark_observationer = til_nyt_ark_observationer(observationer)
     ark_punktoversigt = til_nyt_ark_punktoversigt(punkter)
-
-    # Kontrol
-    fire.cli.print(
-        "Check: Punktoversigt har alle punkter i Observationer[Fra]: ", nl=False
-    )
-    if not all(ark_punktoversigt["Punkt"].isin(ark_observationer["Fra"])):
-        fire.cli.print("Nej", fg="red")
-    else:
-        fire.cli.print("Ja", fg="green")
 
     # Forbered ark-skrivning
     faner = {
