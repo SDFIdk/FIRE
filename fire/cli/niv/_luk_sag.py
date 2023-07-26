@@ -1,4 +1,5 @@
 from io import BytesIO
+from pathlib import Path
 from zipfile import ZipFile
 import getpass
 
@@ -39,20 +40,29 @@ def luk_sag(projektnavn: str, sagsbehandler, **kwargs) -> None:
     Efter endt arbejde med en sag skal den lukkes. Når en sag lukkes fremgår
     den ikke længere af listen over åbne sager (se ``fire info sag``) og det
     muligheden for at ændre i den ophører. Når en sag lukkes gemmes
-    sagsregneark og observationsfiler i databasen, så disse ved behov kan findes
-    i fremtiden.
+    sagsregneark, observationsfiler, beregningsrapporter og GeoJSON filer i
+    databasen, så disse ved behov kan findes i fremtiden.
     """
     er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
 
     # Find sagsmateriale og zip det for let indlæsning i databasen
-    sagsmaterialer = [f"{projektnavn}.xlsx"]
+    sagsmaterialer = [
+        f"{projektnavn}.xlsx",
+        f"{projektnavn}-revision.xlsx",
+        f"{projektnavn}.xml",
+        f"{projektnavn}-resultat.xml",
+        f"{projektnavn}-resultat-endelig.html",
+        f"{projektnavn}-observationer.geojson",
+        f"{projektnavn}-punkter.geojson",
+    ]
     filoversigt = find_faneblad(projektnavn, "Filoversigt", arkdef.FILOVERSIGT)
     sagsmaterialer.extend(list(filoversigt["Filnavn"]))
     zipped = BytesIO()
     with ZipFile(zipped, "w") as zipobj:
         for fil in sagsmaterialer:
-            zipobj.write(fil)
+            if Path(fil).exists():
+                zipobj.write(fil)
 
     # Tilføj materiale til sagsevent
     sagsevent = sag.ny_sagsevent(
