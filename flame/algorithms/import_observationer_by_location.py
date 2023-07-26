@@ -46,7 +46,6 @@ import processing
 
 
 class ImportObservationerByLocationAlgorithm(QgsProcessingAlgorithm):
-
     OUTPUT = "OUTPUT"
     INPUT = "INPUT"
     OBSERVATION_TYPE = "OBSERVATION_TYPE"

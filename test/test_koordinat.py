@@ -116,7 +116,6 @@ def test_fejlmeld_koordinat_enlig_koordinat(
 def test_fejlmeld_koordinat_sidste_koordinat_i_tidsserie(
     firedb: FireDb, sag: Sag, punkt: Punkt, srid: Srid
 ):
-
     for i in range(2):
         se = Sagsevent(
             id=str(uuid.uuid4()), sag=sag, eventtype=EventType.KOORDINAT_BEREGNET
@@ -153,7 +152,6 @@ def test_fejlmeld_koordinat_sidste_koordinat_i_tidsserie(
 def test_fejlmeld_koordinat_midt_i_tidsserie(
     firedb: FireDb, sag: Sag, punkt: Punkt, srid: Srid
 ):
-
     koordinater = []
     for i in range(3):
         se = Sagsevent(

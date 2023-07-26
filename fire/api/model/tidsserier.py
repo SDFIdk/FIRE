@@ -243,7 +243,7 @@ class GNSSTidsserie(Tidsserie):
     @property
     def u(self):
         """
-        Tidsseriens udvikling i op-retningen, normaliseret til tidsseriens 
+        Tidsseriens udvikling i op-retningen, normaliseret til tidsseriens
         første element.
         """
         return [u for _, _, u in self._neu()]

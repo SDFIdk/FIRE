@@ -10,7 +10,6 @@ from pathlib import Path
 
 class Settings:
     def __init__(self):
-
         RC_NAME = "fire_settings.json"
 
         if os.environ.get("HOME"):

@@ -62,12 +62,11 @@ jobs:
 
     - name: Forbered conda environment
       run: |
-        sed -i '/msys2/d' environment-dev.yml
-        sed -i '/m2-zip/d' environment-dev.yml
-        sed -i '/qgis/d' environment-dev.yml
+        sed -i '/bzip2/d' environment-dev.yml
+        cat environment-dev.yml
 
     - name: Cache conda
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       env:
         # Increase this value to reset cache if environment-dev.yml has not changed
         CACHE_NUMBER: 0
@@ -78,8 +77,10 @@ jobs:
     - name: Setup conda
       uses: conda-incubator/setup-miniconda@v2
       with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          use-mamba: true
           environment-file: environment-dev.yml
-          python-version: 3.9
           auto-activate-base: false
           activate-environment: fire-dev
           use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!

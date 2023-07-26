@@ -253,7 +253,7 @@ def bernese(
     Indlæs koordinater uden at tilknytte dem til tidsserier::
 
         fire indlæs bernese INGEN ADDNEQ2_2096 COMB2096.CRD COMB2096.COV
-    
+
 
     Indlæs koordinater fra en 5D-beregning med tilhørende tilknytning til
     tidsserier::

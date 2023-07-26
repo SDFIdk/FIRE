@@ -159,13 +159,13 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
 
     \b
     **EKSEMPLER**
-    
+
     Vis alle tidsserier for punktet RDIO::
 
         fire ts gnss RDIO
 
     Vis tidsserien 'RDIO_5D_IGb08' med standardparametre::
-    
+
         fire ts gnss RDIO_5D_IGb08
 
     Vis tidsserie med brugerdefinerede parametre::
@@ -287,11 +287,11 @@ def plot_gnss(tidsserie: str, **kwargs) -> None:
         fire ts plot-gnss BUDP_5D_IGB05
 
     Resulterer i visning af nedenstående plot.
-        
+
     .. image:: figures/fire_ts_plot_gnss_BUDP_5D_IGb08.png
         :width: 800
         :alt: Eksempel på plot af 5D-tidsserie for BUDP. Genereret med FIRE v. 1.6.1.
-    
+
     """
     try:
         tidsserie = _find_tidsserie(GNSSTidsserie, tidsserie)

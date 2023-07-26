@@ -12,7 +12,6 @@ class GamaReader(object):
         self.input_stream = input_stream
 
     def read(self, sags_id):
-
         sag = self.fireDb.hent_sag(sags_id)
 
         namespace = "{http://www.gnu.org/software/gama/gama-local-adjustment}"

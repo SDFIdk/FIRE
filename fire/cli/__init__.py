@@ -16,6 +16,7 @@ from fire.api import FireDb
 # spytter exceptionelt meget (irrellevant) output ud ved fejl
 rich.traceback.install(show_locals=True, suppress=[click, sqlalchemy])
 
+
 # Undgå enorme, ubrugelige tracebacks når programmet afbrydes med CTRL+C
 def luk_pænt_ved_ctrl_c(signal, frame):
     raise SystemExit

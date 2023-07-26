@@ -147,7 +147,7 @@ def udfyld_udeladte_identer(ark: pd.DataFrame) -> pd.DataFrame:
 
     # Udfyld med hvert punkts ident frem ti ldet næste punkt
     udfyldningsværdi = ""
-    for (i, celleværdi_eksisterende) in enumerate(punkter):
+    for i, celleværdi_eksisterende in enumerate(punkter):
         if (trimmet := celleværdi_eksisterende.strip()) != "":
             # Opdatér udfyldningsværdi, så alle felter
             # i samme kolonne får tilskrevet samme
@@ -455,7 +455,7 @@ def ilæg_revision(
     slut_position = revision.index[-1] + 1
     grænser = start_positioner + [slut_position]
     # Slet rækker for ikke-besøgte punkter
-    for (start, stop) in zip(grænser[:-1], grænser[1:]):
+    for start, stop in zip(grænser[:-1], grænser[1:]):
         ikke_besøgt = revision.loc[start]["Ikke besøgt"].strip().lower()
         besøgt = ikke_besøgt != "x"
         if besøgt:

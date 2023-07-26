@@ -10,7 +10,6 @@ from fire.api.niv.kriterier import (
 
 
 def test_mildeste_kvalitetskrav():
-
     # Genveje
     # Medlemmer
     P, K, D = (Nøjagtighed.P, Nøjagtighed.K, Nøjagtighed.D)

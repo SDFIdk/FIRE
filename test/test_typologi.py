@@ -33,7 +33,6 @@ def test_adskil_filnavne(tmp_path, identer_gyldige, identer_ugyldige):
 
 
 def test_adskil_identer(identer_gyldige, identer_ugyldige):
-
     gyldige = identer_gyldige
     ugyldige = identer_ugyldige
 

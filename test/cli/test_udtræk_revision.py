@@ -7,7 +7,6 @@ from fire.cli.niv._udtræk_revision import (
 
 
 def test_lokations_streng():
-
     lokation = (1.11111, 2.2222)
     expected = "2.222 m   1.111 m"
     result = lokationskoordinat_streng(lokation)
@@ -25,7 +24,6 @@ def test_lokations_streng():
 
 
 def test_flyt_attributter_til_toppen():
-
     # Arrange
     @dataclass
     class _type:
