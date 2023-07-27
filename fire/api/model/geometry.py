@@ -56,7 +56,6 @@ class Geometry(expression.Function):
 
 
 class Point(Geometry):
-
     inherit_cache = True
 
     def __init__(self, p, srid=4326):
@@ -121,7 +120,6 @@ def from_wkt(geom):
     for line in wkt_linestring_match.findall(geom):
         rings = [[]]
         for pair in line.split(","):
-
             if not pair.strip():
                 rings.append([])
                 continue

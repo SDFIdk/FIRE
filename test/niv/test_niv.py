@@ -77,7 +77,7 @@ def test_observationer(mocker):
 
     with runner.isolated_filesystem():
         # kopier filer til isoleret filsystem
-        for (filename, data) in files:
+        for filename, data in files:
             with open(filename, "w") as f:
                 f.writelines(data)
 

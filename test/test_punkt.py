@@ -153,7 +153,6 @@ def test_ident(firedb: FireDb, punkt: Punkt):
 
 
 def test_identer(firedb: FireDb):
-
     punkt = firedb.hent_punkt("8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c")
 
     assert "SKEJ" in punkt.identer

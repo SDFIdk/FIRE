@@ -47,7 +47,6 @@ def test_indset_sagsevent(firedb: FireDb, sag: Sag):
 
 
 def test_indset_sagsevent_materiale(firedb: FireDb, sag: Sag):
-
     blob = os.urandom(1000)
 
     sagseventinfo = SagseventInfo(

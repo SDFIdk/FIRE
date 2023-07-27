@@ -389,7 +389,7 @@ def skriv_gama_inputfil(
 
         # Observationer
         gamafil.write("<height-differences>\n")
-        for (sluk, fra, til, delta_H, L, type, opst, sigma, delta, journal) in zip(
+        for sluk, fra, til, delta_H, L, type, opst, sigma, delta, journal in zip(
             observationer.sluk,
             observationer.fra,
             observationer.til,
@@ -485,7 +485,6 @@ def opdater_arbejdssæt(
     arbejdssæt: Arbejdssæt,
     tg: Timestamp,
 ) -> Arbejdssæt:
-
     for j, (punkt, ny_kote, var) in enumerate(zip(punkter, koter, varianser)):
         if punkt in arbejdssæt.punkt:
             # Hvis punkt findes, sæt indeks til hvor det findes

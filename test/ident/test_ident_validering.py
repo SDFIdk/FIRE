@@ -30,7 +30,6 @@ def test_kan_være_købstadsnummer():
 
 
 def test_kan_være_gnssid():
-
     eksisterende_gnssider = [
         ["AAAL", "AARH", "AGGR", "ALSL", "ARNM"],
         ["AVER", "BANH", "BEJS", "BISL", "BLAR"],
@@ -61,7 +60,6 @@ def test_kan_være_gnssid():
 
 
 def test_kan_være_gi_nummer():
-
     eksisterende_gi_numre = [
         ["G.M.144", "G.M.144.1", "G.M.143/144", "G.M.1456.1"],
         ["G.M.1499/1500", "G.M.15", "G.M.2", "G.M.35/36.1"],

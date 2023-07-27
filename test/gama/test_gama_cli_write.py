@@ -16,7 +16,7 @@ def _run_cli(runner, title, args, used_files=[]):
         with open(Path(__file__).resolve().parent / filename) as f:
             files.append((filename, f.readlines()))
     with runner.isolated_filesystem():
-        for (filename, data) in files:
+        for filename, data in files:
             with open(filename, "w") as f:
                 f.writelines(data)
 

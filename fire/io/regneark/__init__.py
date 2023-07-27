@@ -28,6 +28,7 @@ from fire.api.model import (
 from fire.api.niv.enums import NivMetode
 from fire.srid import SRID
 from fire.io.regneark import arkdef
+import fire.io.dataframe as frame
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
@@ -186,7 +187,7 @@ def til_nyt_ark(
     """
     data_dict = (rækkemager(entitet) for entitet in entiteter)
     data_df = pd.DataFrame(data_dict, columns=arkdefinition.keys())
-    ark = nyt_ark(arkdefinition).append(data_df)
+    ark = frame.append_df(nyt_ark(arkdefinition), data_df)
     if sorter_efter is not None:
         return ark.sort_values(sorter_efter)
     return ark

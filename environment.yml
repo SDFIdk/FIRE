@@ -4,13 +4,14 @@ channels:
 dependencies:
   - click=8.1.*
   - cx_oracle=8.3.*
-  - fiona=1.8.*
+  - fiona=1.9.*
   - gama=2.*
   - openpyxl=3.0.*
   - matplotlib=3.*
-  - pandas=1.4.*
-  - pyproj=3.3.*
-  - python=3.9.*
-  - rich=12.6.*
+  - numpy=1.25.*
+  - pandas=2.0.*
+  - pyproj=3.6.*
+  - python=3.11.*
+  - rich=13.*
   - sqlalchemy=1.4.*
   - xmltodict=0.13.*

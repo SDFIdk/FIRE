@@ -91,7 +91,6 @@ def test_udvid_punktsamling(firedb, sagseventfabrik, punktsamling, punkt):
 
 
 def test_luk_punktsamling(firedb, sagsevent, punktsamling):
-
     firedb.session.flush()
 
     assert punktsamling.sagseventtilid is None

@@ -239,7 +239,6 @@ def udtræk_observationer(
 
     # Søg baseret på identer
     if identer:
-
         fire.cli.print("Klargør identer", bold=True)
         identer_klargjort: List[str] = klargør_identer_til_søgning(identer)
 

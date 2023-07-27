@@ -36,7 +36,6 @@ from fire.api.niv.udtræk_observationer import (
 
 
 def test_filterkriterier():
-
     # Opsæt og test ét tilfælde
     nøjagtigheder = [Nøjagtighed.P, Nøjagtighed.K, Nøjagtighed.D]
     spredning = filterkriterier(nøjagtigheder)
@@ -141,7 +140,6 @@ def test_brug_alle_på_alle():
 
 
 def test_observationer_inden_for_spredning():
-
     # Observationstype-id
     mgl = ObservationstypeID.geometrisk_koteforskel
     mtl = ObservationstypeID.trigonometrisk_koteforskel
@@ -197,7 +195,6 @@ def test_timestamp_string():
 
 
 def test_punkter_til_geojson(ark_punktoversigt, række_punktoversigt):
-
     # Arrange
     øst = 8.0
     nord = 55.0

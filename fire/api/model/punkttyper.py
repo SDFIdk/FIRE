@@ -91,7 +91,6 @@ class Artskode(enum.Enum):
 
 
 class FikspunktsType(enum.Enum):
-
     GI = 1
     MV = 2
     HØJDE = 3

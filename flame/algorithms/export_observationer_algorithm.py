@@ -22,7 +22,6 @@ from qgis.core import (
 
 
 class ExportObservationerAlgorithm(QgsProcessingAlgorithm):
-
     OUTPUT = "OUTPUT"
     INPUT = "INPUT"
     EXPRESSION = "EXPRESSION"

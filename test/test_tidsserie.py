@@ -72,7 +72,6 @@ def test_udvid_tidsserie(firedb, højdetidsserie, koordinat):
 
 
 def test_hent_tidsserie_fra_punkt(firedb):
-
     punkt = firedb.hent_punkt("K-63-19113")
     assert len(punkt.tidsserier) == 1
     assert len(punkt.tidsserier[0].koordinater) == 4
