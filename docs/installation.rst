@@ -351,6 +351,13 @@ praksis ved at fjerne miljøet ``fire``:
 
     C:\>mamba env remove -n fire
 
+.. note::
+
+    Hvis ``fire``-miljøet er aktiveret, skal det først deaktivers før det er 
+    muligt at slette det. Gøres med kommandoen::
+
+        (fire) C:\>mamba deactivate
+
 Herefter fjernes git repositoriet med FIRE kildekoden:
 
 .. code-block::
