@@ -149,6 +149,15 @@ class GNSSTidsserie(Tidsserie):
         return [y - y0 for y in self.y]
 
     @functools.cached_property
+    def z(self) -> List[float]:
+        """
+        Liste med z-komponenter fra tidsseriens koordinater.
+
+        Koordinatkomponenten er i geocentrisk repræsentation.
+        """
+        return [k.z for k in self.koordinater]
+
+    @functools.cached_property
     def Z(self) -> List[float]:
         """
         Liste med tidsseriens z-værdier normaliseret til tidsseriens første element.
@@ -157,15 +166,6 @@ class GNSSTidsserie(Tidsserie):
         """
         z0 = self.z[0]
         return [z - z0 for z in self.z]
-
-    @functools.cached_property
-    def z(self) -> List[float]:
-        """
-        Liste med z-komponenter fra tidsseriens koordinater.
-
-        Koordinatkomponenten er i geocentrisk repræsentation.
-        """
-        return [k.z for k in self.koordinater]
 
     @functools.cached_property
     def sx(self) -> List[float]:
