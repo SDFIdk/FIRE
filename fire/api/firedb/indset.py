@@ -18,13 +18,13 @@ from fire.api.model import (
 
 class FireDbIndset(FireDbBase):
     def indset_sag(self, sag: Sag, commit: bool = True):
-        if not self._is_new_object(sag):
-            raise Exception(f"Sag allerede tilføjet databasen: {sag}")
         if len(sag.sagsinfos) < 1:
             raise Exception("Mindst et SagsInfo objekt skal tilføjes Sagen")
         if sag.sagsinfos[-1].aktiv != "true":
             raise Exception("Sidst SagsInfo på sagen skal have aktiv = 'true'")
-        self.session.add(sag)
+        
+        if self._is_new_object(sag):
+            self.session.add(sag)
 
         if commit:
             self.session.commit()
