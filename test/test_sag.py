@@ -241,3 +241,16 @@ def test_ny_sagsevent_slettede(firedb: FireDb, sag: Sag, koordinatfabrik: Callab
 
     for i in range(5):
         assert koordinater[i].registreringtil is not None
+
+def test_indset_ny_sag(firedb: FireDb):
+    """
+    Test samspil mellem FireDb.ny_sag og FireDb.indset_sag.
+
+    Test specifikt tilføjet i forbindelse med fix af en bug i indset_sag(),
+    der resulterede i en exception ved nedenstående kombination af ny_sag()
+    og indset_sag(), hvilket åbenlyst ikke er hensigtsmæssigt.
+    """
+    sag = firedb.ny_sag(behandler="test", beskrivelse="Bare en test")
+    firedb.indset_sag(sag)
+
+    
