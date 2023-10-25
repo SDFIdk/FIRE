@@ -33,10 +33,19 @@ class FireDbHent(FireDbBase):
         """
         Returnerer det første punkt der matcher 'ident'
 
+        Prioriterer punkter som matcher 1:1.
         Hvis intet punkt findes udsendes en NoResultFound exception.
         """
         if ident not in self._cache["punkt"].keys():
-            punkt = self.hent_punkter(ident)[0]
+            punkter = self.hent_punkter(ident)
+            for pkt in punkter:
+                if ident in pkt.identer:
+                    punkt = pkt
+                    break
+            else:
+                punkt = punkter[0]
+                ident = punkt.ident
+
             for idt in punkt.identer:
                 self._cache["punkt"][idt] = punkt
             self._cache["punkt"][punkt.id] = punkt
