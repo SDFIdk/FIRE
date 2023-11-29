@@ -1,5 +1,6 @@
 import datetime
 import json
+import math
 import os
 import os.path
 from pathlib import Path
@@ -381,7 +382,7 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
     """Omsæt punktinformationer til JSON-egnet dict"""
     for i in range(punkter.shape[0]):
         # Fastholdte punkter har ingen ny kote, så vi viser den gamle
-        if punkter.at[i, "Ny kote"] is None:
+        if math.isnan(punkter.at[i, "Ny kote"]) or punkter.at[i, "Ny kote"] is None:
             fastholdt = True
             delta = 0.0
             kote = float(punkter.at[i, "Kote"])
