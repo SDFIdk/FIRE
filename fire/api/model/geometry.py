@@ -27,6 +27,14 @@ class Geometry(expression.Function):
         elif isinstance(geometry, dict) and "type" in geometry:
             self._geom = geometry
             self._wkt = None
+        # nyere versioner af fiona giver features som en fiona.model.Geometry,
+        # opfører sig som en dict, men kan lidt mere. Ideelt set testes for
+        # `isinstance(fiona.model.Geometry) and "type" in geometry` men for at
+        # undgå import errors mv ved brug af ældre fiona benyttes denne løsning
+        # for nuværende.
+        elif "type" in geometry:
+            self._geom = geometry
+            self._wkt = None
         else:
             raise TypeError(
                 "Skal være enten en koordinat, en WKT streng eller en GeoJSON-agtig dictionary"
