@@ -158,7 +158,8 @@ def koordinatrapport(
             continue
         if koord.registreringtil is not None:
             if alle or (ts and tskoord) or historik:
-                fire.cli.print(". " + koordinat_linje(koord), fg="red")
+                markør = "X" if koord.fejlmeldt else "."
+                fire.cli.print(f"{markør} " + koordinat_linje(koord), fg="red")
         else:
             fire.cli.print("* " + koordinat_linje(koord), fg="green")
     fire.cli.print("")
