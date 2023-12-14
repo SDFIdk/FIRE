@@ -82,6 +82,19 @@ def test_hent_punkt(firedb: FireDb, punkt: Punkt):
     s = p.sagsevent
     assert isinstance(s, Sagsevent)
 
+def test_hent_punkt(firedb: FireDb):
+    """
+    Test at `hent_punkt()` returnerer det eksakte match i tilfælde af der
+    findes ens identer, hvor et eller flere har foranstillet landekode.
+    Eksempelvis "SAND" og "FO  SAND". Her tester vi med "RDO1" og "GL  RDO1"
+    der er opfundet til lejligheden.
+    """
+    punkt = firedb.hent_punkt("RDO1")
+    assert punkt.gnss_navn == "RDO1"
+
+    punkt = firedb.hent_punkt("GL  RDO1")
+    assert punkt.gnss_navn == "GL  RDO1"
+
 
 def test_hent_alle_punkter(firedb: FireDb):
     p = firedb.hent_alle_punkter()
@@ -188,7 +201,7 @@ def test_soeg_punkter(firedb: FireDb):
     punkter = firedb.soeg_punkter("%rd%")
 
     for punkt in punkter:
-        assert punkt.ident in ("RDIO", "RDO1")
+        assert punkt.ident in ("RDIO", "RDO1", "GL  RDO1")
 
     kun_et_punkt = firedb.soeg_punkter("K-63-%", antal=1)
     assert len(kun_et_punkt) == 1
