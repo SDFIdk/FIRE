@@ -106,7 +106,7 @@ def test_fejlmeld_koordinat_enlig_koordinat(
     firedb.session.commit()
 
     firedb.fejlmeld_koordinat(
-        Sagsevent(eventtype=EventType.KOORDINAT_BEREGNET, sag=sag), koordinat
+        koordinat, Sagsevent(eventtype=EventType.KOORDINAT_BEREGNET, sag=sag), 
     )
 
     assert koordinat.fejlmeldt is True
@@ -140,7 +140,7 @@ def test_fejlmeld_koordinat_sidste_koordinat_i_tidsserie(
     firedb.session.commit()
 
     firedb.fejlmeld_koordinat(
-        Sagsevent(sag=sag, eventtype=EventType.KOORDINAT_NEDLAGT), koordinat
+        koordinat, Sagsevent(sag=sag, eventtype=EventType.KOORDINAT_NEDLAGT)
     )
 
     assert koordinat.fejlmeldt is True
@@ -178,7 +178,7 @@ def test_fejlmeld_koordinat_midt_i_tidsserie(
     firedb.session.commit()
 
     firedb.fejlmeld_koordinat(
-        Sagsevent(sag=sag, eventtype=EventType.KOORDINAT_NEDLAGT), koordinater[1]
+        koordinater[1], Sagsevent(sag=sag, eventtype=EventType.KOORDINAT_NEDLAGT)
     )
 
     assert koordinater[1].fejlmeldt is True
@@ -220,7 +220,7 @@ def test_fejlmeld_koordinat_midt_i_tidsserie_flere_srider(
     firedb.session.commit()
 
     firedb.fejlmeld_koordinat(
-        Sagsevent(sag=sag, eventtype=EventType.KOORDINAT_NEDLAGT), koordinater[3]
+        koordinater[3], Sagsevent(sag=sag, eventtype=EventType.KOORDINAT_NEDLAGT)
     )
 
     assert koordinater[3].fejlmeldt is True

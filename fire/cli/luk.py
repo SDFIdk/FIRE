@@ -7,7 +7,7 @@ from cx_Oracle import DatabaseError
 import fire
 import fire.cli
 from fire.cli import rød
-from fire.api.model import Sag, Sagsinfo, Sagsevent, SagseventInfo, EventType
+from fire.api.model import Sag, Sagsinfo, Sagsevent, SagseventInfo, EventType, Koordinat
 from fire.cli.niv import bekræft
 
 
@@ -107,3 +107,86 @@ def punkt(uuid: str, sagsbehandler, **kwargs) -> None:
         else:
             db.session.rollback()
             fire.cli.print(f"Punkt {punkt.ident} ({uuid} IKKE lukket!")
+
+
+
+@luk.command()
+@click.argument("objektid", type=str)
+@click.option(
+    "--sagsbehandler",
+    default=getpass.getuser(),
+    type=str,
+    help="Angiv andet brugernavn end den aktuelt indloggede",
+)
+@fire.cli.default_options()
+def koordinat(objektid: str, sagsbehandler, **kwargs) -> None:
+    """
+    Fejlmeld en koordinat i FIRE databasen.
+
+    Når en koordinat fejlmeldes afregistreres den i databasen og
+    det angives samtidigt at koordinaten ikke er gyldig i tidsserier.
+
+    Koordinatens objektid skal findes ved manuelt opslag i databasen.
+    Det kan fx gøres med et udtræk som følgende:
+
+    \b
+        SELECT * FROM koordinat k
+        JOIN PUNKTINFO p ON p.PUNKTID = k.PUNKTID
+        JOIN SRIDTYPE s ON k.SRIDID = s.SRIDID
+        WHERE p.tekst = '147-06-00001' AND s.srid = 'EPSG:5799';
+    """
+    db = fire.cli.firedb
+    sag = db.ny_sag(sagsbehandler, beskrivelse="Fejlmelding af koordinat med 'fire luk'")
+    db.session.add(sag)
+    db.session.flush()
+    sagsevent = Sagsevent(
+        sag=sag,
+        eventtype=EventType.KOORDINAT_NEDLAGT,
+        sagseventinfos=[
+            SagseventInfo(beskrivelse=f"'fire luk koordinat med {objektid}"),
+        ],
+    )
+
+    try:
+        koordinat = (
+            db.session.query(Koordinat)
+            .filter(
+                Koordinat.objektid == objektid,
+            )
+            .one()
+        )
+    except NoResultFound:
+        fire.cli.print(f"Koordinat med objektid {objektid} ikke fundet!")
+        raise SystemExit
+
+    punkt = koordinat.punkt
+    srid = koordinat.srid
+
+    try:
+        # Indsæt alle objekter i denne session
+        db.fejlmeld_koordinat(koordinat, sagsevent, commit=False)
+        db.session.flush()
+        db.luk_sag(sag, commit=False)
+        db.session.flush()
+    except DatabaseError as e:
+        # rul tilbage hvis databasen smider en exception
+        db.session.rollback()
+        fire.cli.print(f"Der opstod en fejl - koordinat med objektid {objektid} IKKE lukket!")
+        print(e)
+    else:
+        tekst = f"""
+Er du sikker på at du vil lukke {punkt.ident}'s {srid.name}-koordinat med objektid={objektid}:
+
+  {koordinat.registreringfra=}
+  {koordinat.x=} ({koordinat.sx})
+  {koordinat.y=} ({koordinat.sy})
+  {koordinat.z=} ({koordinat.sz})
+  {koordinat.t=}
+
+"""
+        if bekræft(tekst):
+            db.session.commit()
+            fire.cli.print(f"Koordinat ({objektid}) lukket!")
+        else:
+            db.session.rollback()
+            fire.cli.print(f"Koordinat ({objektid}) IKKE lukket!")
