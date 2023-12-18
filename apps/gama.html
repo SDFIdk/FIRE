@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="dk" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fire gama &mdash; FIRE 1.6.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="fire luk" href="luk.html" />
+    <link rel="prev" title="fire grafik" href="grafik.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> FIRE
+          </a>
+              <div class="version">
+                1.6.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../konfiguration.html">Konfigurationsfil</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installationsvejledning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datamodel.html">FIREs Datamodel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../for_udviklere.html">Udviklingsguide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kommandolinjeprogrammer</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="info.html">fire info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="niv.html">fire niv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indl%C3%A6s.html">fire indlæs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grafik.html">fire grafik</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">fire gama</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parameterfil">Parameterfil</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fire-gama-read">fire gama read</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fire-gama-write">fire gama write</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="luk.html">fire luk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.html">fire ts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tips/index.html">Tips og tricks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workshop/index.html">Workshop</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">FIRE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Kommandolinjeprogrammer</a> &raquo;</li>
+      <li>fire gama</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/apps/gama.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fire-gama">
+<h1>fire gama<a class="headerlink" href="#fire-gama" title="Permalink to this heading"></a></h1>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 1.6.</span></p>
+</div>
+<p>Kommandogruppen <strong class="program">fire gama</strong> tilbyder mulighed for udtræk
+og indlæsning af nivellementsobservationer og beregningsresultater.</p>
+<p>Funktionaliteten er ikke vedligeholdt og blev indført som noget af
+det første da FIRE oprindeligt blev udviklet. Tilsvarende, og bedre,
+funktionalitet tilbydes med <a class="reference internal" href="niv.html#kommandolinjeprogrammer-niv"><span class="std std-ref">fire niv</span></a>
+programmerne.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Usage: fire gama [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  read   Læs en gama resultatfil (se --help)
+  write  Skriv en gama input fil
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Kommandogruppen forventes at blive fjernet i en kommende version
+af FIRE programpakken.</p>
+</div>
+<section id="parameterfil">
+<h2>Parameterfil<a class="headerlink" href="#parameterfil" title="Permalink to this heading"></a></h2>
+<p>Parameter-filen er en .ini-fil med følgende indhold</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[network-attributes]</span>
+<span class="na">axes-xy</span><span class="o">=</span><span class="s">en</span>
+<span class="na">angles</span><span class="o">=</span><span class="s">left-handed</span>
+<span class="na">epoch</span><span class="o">=</span><span class="s">0.0</span>
+
+<span class="k">[network-parameters]</span>
+<span class="na">algorithm</span><span class="o">=</span><span class="s">gso</span>
+<span class="na">angles</span><span class="o">=</span><span class="s">400</span>
+<span class="na">conf-pr</span><span class="o">=</span><span class="s">0.95</span>
+<span class="na">cov-band</span><span class="o">=</span><span class="s">0</span>
+<span class="na">ellipsoid</span><span class="o">=</span><span class="s">grs80</span>
+<span class="na">latitude</span><span class="o">=</span><span class="s">55.7</span>
+<span class="na">sigma-act</span><span class="o">=</span><span class="s">apriori</span>
+<span class="na">sigma-apr</span><span class="o">=</span><span class="s">1.0</span>
+<span class="na">tol-abs</span><span class="o">=</span><span class="s">1000.0</span>
+<span class="na">update-constrained-coordinates</span><span class="o">=</span><span class="s">no</span>
+
+<span class="k">[points-observations-attributes]</span>
+</pre></div>
+</div>
+<section id="fire-gama-read">
+<h3>fire gama read<a class="headerlink" href="#fire-gama-read" title="Permalink to this heading"></a></h3>
+<p>Læs en gama resultatfil (se --help)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>fire<span class="w"> </span>gama<span class="w"> </span><span class="nb">read</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-gama-read-i">
+<span id="cmdoption-fire-gama-read-in"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--in</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;input&gt;</span></span><a class="headerlink" href="#cmdoption-fire-gama-read-i" title="Permalink to this definition"></a></dt>
+<dd><p>navn på gama output, der skal indlæses (.xml)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-gama-read-c">
+<span id="cmdoption-fire-gama-read-cid"></span><span class="sig-name descname"><span class="pre">-c</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--cid</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;case_id&gt;</span></span><a class="headerlink" href="#cmdoption-fire-gama-read-c" title="Permalink to this definition"></a></dt>
+<dd><p>Sagsnummer som beregningen gemmes under i databasen</p>
+</dd></dl>
+
+</section>
+<section id="fire-gama-write">
+<h3>fire gama write<a class="headerlink" href="#fire-gama-write" title="Permalink to this heading"></a></h3>
+<p>Skriv en gama input fil</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>fire<span class="w"> </span>gama<span class="w"> </span>write<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-gama-write-o">
+<span id="cmdoption-fire-gama-write-out"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--out</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-fire-gama-write-o" title="Permalink to this definition"></a></dt>
+<dd><p>Navn på gama input, der skal skabes (.xml)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><p>output.xml</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-gama-write-g">
+<span id="cmdoption-fire-gama-write-geometri"></span><span class="sig-name descname"><span class="pre">-g</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--geometri</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;geometri&gt;</span></span><a class="headerlink" href="#cmdoption-fire-gama-write-g" title="Permalink to this definition"></a></dt>
+<dd><p>wkt. Anvendes som geometri i udvælgelsen af observationer</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-gama-write-gf">
+<span id="cmdoption-fire-gama-write-geometrifil"></span><span class="sig-name descname"><span class="pre">-gf</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--geometrifil</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;geometrifil&gt;</span></span><a class="headerlink" href="#cmdoption-fire-gama-write-gf" title="Permalink to this definition"></a></dt>
+<dd><p>Fil, som indeholder en wkt-streng. Anvendes som geometri i udvælgelsen af observationer</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-gama-write-b">
+<span id="cmdoption-fire-gama-write-buffer"></span><span class="sig-name descname"><span class="pre">-b</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--buffer</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;buffer&gt;</span></span><a class="headerlink" href="#cmdoption-fire-gama-write-b" title="Permalink to this definition"></a></dt>
+<dd><p>Den buffer omkring den givne geometri som skal bruges i udvælgelsen af observationer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><p>0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-gama-write-df">
+<span id="cmdoption-fire-gama-write-fra"></span><span class="sig-name descname"><span class="pre">-df</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--fra</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;fra&gt;</span></span><a class="headerlink" href="#cmdoption-fire-gama-write-df" title="Permalink to this definition"></a></dt>
+<dd><p>Fra-dato, som bruges i udvælgelsen af observationer</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-gama-write-dt">
+<span id="cmdoption-fire-gama-write-til"></span><span class="sig-name descname"><span class="pre">-dt</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--til</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;til&gt;</span></span><a class="headerlink" href="#cmdoption-fire-gama-write-dt" title="Permalink to this definition"></a></dt>
+<dd><p>Til-dato, som bruges i udvælgelsen af observationer.</p>
+<p>Datoen har tidspunktet 00:00:00, så hvis observationer til og med denne dato, skal dagen efter angives.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-gama-write-f">
+<span id="cmdoption-fire-gama-write-fixpunkter"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--fixpunkter</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;fixpunkter&gt;</span></span><a class="headerlink" href="#cmdoption-fire-gama-write-f" title="Permalink to this definition"></a></dt>
+<dd><p>Komma-separeret liste af punkt-id'er, som skal fastholdes</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-gama-write-ff">
+<span id="cmdoption-fire-gama-write-fixpunkterfil"></span><span class="sig-name descname"><span class="pre">-ff</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--fixpunkterfil</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;fixpunkterfil&gt;</span></span><a class="headerlink" href="#cmdoption-fire-gama-write-ff" title="Permalink to this definition"></a></dt>
+<dd><p>Fil, som indeholder komma-separeret liste af punkt-id'er, som skal fastholdes</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="grafik.html" class="btn btn-neutral float-left" title="fire grafik" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="luk.html" class="btn btn-neutral float-right" title="fire luk" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019-2023 SDFI, Septima.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

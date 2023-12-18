@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="dk" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fire ts &mdash; FIRE 1.6.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tips og tricks" href="../tips/index.html" />
+    <link rel="prev" title="fire luk" href="luk.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> FIRE
+          </a>
+              <div class="version">
+                1.6.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../konfiguration.html">Konfigurationsfil</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installationsvejledning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datamodel.html">FIREs Datamodel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../for_udviklere.html">Udviklingsguide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kommandolinjeprogrammer</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="info.html">fire info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="niv.html">fire niv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="indl%C3%A6s.html">fire indlæs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grafik.html">fire grafik</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gama.html">fire gama</a></li>
+<li class="toctree-l2"><a class="reference internal" href="luk.html">fire luk</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">fire ts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fire-ts-gnss">fire ts gnss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fire-ts-plot-gnss">fire ts plot-gnss</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tips/index.html">Tips og tricks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workshop/index.html">Workshop</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">FIRE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Kommandolinjeprogrammer</a> &raquo;</li>
+      <li>fire ts</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/apps/ts.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fire-ts">
+<h1>fire ts<a class="headerlink" href="#fire-ts" title="Permalink to this heading"></a></h1>
+<p>Kommandogruppen <strong class="program">fire ts</strong> indeholder værktøjer
+til indlæsning af data fra forskellige kilder.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Usage: fire ts [OPTIONS] COMMAND [ARGS]...
+
+  Håndtering af koordinattidsserier.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  gnss       Udtræk en GNSS tidsserie.
+  plot-gnss  Plot en GNSS tidsserie
+</pre></div>
+</div>
+<section id="fire-ts-gnss">
+<span id="fire-ts-gnss"></span><h2>fire ts gnss<a class="headerlink" href="#fire-ts-gnss" title="Permalink to this heading"></a></h2>
+<p>Udtræk en GNSS tidsserie.</p>
+<p>&quot;OBJEKT&quot; sættes til enten et punkt eller et specifik navngiven tidsserie.
+Hvis &quot;OBJEKT&quot; er et punkt udskrives en oversigt over de tilgængelige
+tidsserier til dette punkt. Hvis 'OBJEKT' er en tidsserie udskrives
+tidsserien på skærmen. Hvilke parametre der udskrives kan specificeres
+i en kommasepararet liste med <code class="docutils literal notranslate"><span class="pre">--parameter</span></code>. Følgende parametre kan vælges:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">|</span>     <span class="n">t</span>               <span class="n">Tidspunkt</span> <span class="k">for</span> <span class="n">koordinatobservation</span>
+<span class="o">|</span>     <span class="n">x</span>               <span class="n">Koordinatens</span> <span class="n">x</span><span class="o">-</span><span class="n">komponent</span> <span class="p">(</span><span class="n">geocentrisk</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">sx</span>              <span class="n">x</span><span class="o">-</span><span class="n">komponentens</span> <span class="n">spredning</span> <span class="p">(</span><span class="n">i</span> <span class="n">mm</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">y</span>               <span class="n">Koordinatens</span> <span class="n">y</span><span class="o">-</span><span class="n">komponent</span> <span class="p">(</span><span class="n">geocentrisk</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">sy</span>              <span class="n">y</span><span class="o">-</span><span class="n">komponentens</span> <span class="n">spredning</span> <span class="p">(</span><span class="n">i</span> <span class="n">mm</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">z</span>               <span class="n">Koordinatens</span> <span class="n">z</span><span class="o">-</span><span class="n">komponent</span> <span class="p">(</span><span class="n">geocentrisk</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">sz</span>              <span class="n">z</span><span class="o">-</span><span class="n">komponentens</span> <span class="n">spredning</span> <span class="p">(</span><span class="n">i</span> <span class="n">mm</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">X</span>               <span class="n">Koordinatens</span> <span class="n">x</span><span class="o">-</span><span class="n">komponent</span> <span class="p">(</span><span class="n">geocentrisk</span><span class="p">,</span> <span class="n">normaliseret</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">Y</span>               <span class="n">Koordinatens</span> <span class="n">y</span><span class="o">-</span><span class="n">komponent</span> <span class="p">(</span><span class="n">geocentrisk</span><span class="p">,</span> <span class="n">normaliseret</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">Z</span>               <span class="n">Koordinatens</span> <span class="n">z</span><span class="o">-</span><span class="n">komponent</span> <span class="p">(</span><span class="n">geocentrisk</span><span class="p">,</span> <span class="n">normaliseret</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">n</span>               <span class="n">Normaliseret</span> <span class="n">nordlig</span> <span class="n">komponent</span> <span class="p">(</span><span class="n">topocentrisk</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">e</span>               <span class="n">Normaliseret</span> <span class="n">østlig</span> <span class="n">komponent</span> <span class="p">(</span><span class="n">topocentrisk</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">u</span>               <span class="n">Normaliseret</span> <span class="n">vertikal</span> <span class="n">komponent</span> <span class="p">(</span><span class="n">topocentrisk</span><span class="p">)</span>
+<span class="o">|</span>     <span class="n">decimalår</span>       <span class="n">Tidspunkt</span> <span class="k">for</span> <span class="n">koordinatobservation</span> <span class="n">i</span> <span class="n">decimalår</span>
+<span class="o">|</span>     <span class="n">obslængde</span>       <span class="n">Observationslængde</span> <span class="n">givet</span> <span class="n">i</span> <span class="n">timer</span>
+<span class="o">|</span>     <span class="n">kkxx</span>            <span class="n">Koordinatkovariansmatricens</span> <span class="n">XX</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">kkxy</span>            <span class="n">Koordinatkovariansmatricens</span> <span class="n">XY</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">kkxz</span>            <span class="n">Koordinatkovariansmatricens</span> <span class="n">XZ</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">kkyy</span>            <span class="n">Koordinatkovariansmatricens</span> <span class="n">YY</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">kkyz</span>            <span class="n">Koordinatkovariansmatricens</span> <span class="n">YZ</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">kkzz</span>            <span class="n">Koordinatkovariansmatricens</span> <span class="n">ZZ</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">rkxx</span>            <span class="n">Residualkovariansmatricens</span> <span class="n">XX</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">rkxy</span>            <span class="n">Residualkovariansmatricens</span> <span class="n">XY</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">rkxz</span>            <span class="n">Residualkovariansmatricens</span> <span class="n">XZ</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">rkyy</span>            <span class="n">Residualkovariansmatricens</span> <span class="n">YY</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">rkyz</span>            <span class="n">Residualkovariansmatricens</span> <span class="n">YZ</span><span class="o">-</span><span class="n">komponent</span>
+<span class="o">|</span>     <span class="n">rkzz</span>            <span class="n">Residualkovariansmatricens</span> <span class="n">ZZ</span><span class="o">-</span><span class="n">komponent</span>
+</pre></div>
+</div>
+<p>Tidsserien kan skrives til en fil ved brug af <code class="docutils literal notranslate"><span class="pre">--fil</span></code>, der resulterer i
+en csv-fil på den angivne placering. Denne fil kan efterfølgende åbnes
+i Excel, eller et andet passende program, til videre analyse.</p>
+<div class="line-block">
+<div class="line"><strong>EKSEMPLER</strong></div>
+</div>
+<p>Vis alle tidsserier for punktet RDIO:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fire</span> <span class="n">ts</span> <span class="n">gnss</span> <span class="n">RDIO</span>
+</pre></div>
+</div>
+<p>Vis tidsserien 'RDIO_5D_IGb08' med standardparametre:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fire</span> <span class="n">ts</span> <span class="n">gnss</span> <span class="n">RDIO_5D_IGb08</span>
+</pre></div>
+</div>
+<p>Vis tidsserie med brugerdefinerede parametre:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fire</span> <span class="n">ts</span> <span class="n">gnss</span> <span class="n">RDIO_5D_IGb08</span> <span class="o">--</span><span class="n">paramatre</span> <span class="n">decimalår</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">sx</span><span class="p">,</span><span class="n">sy</span><span class="p">,</span><span class="n">sz</span>
+</pre></div>
+</div>
+<p>Gem tidsserie med samtlige tilgængelige parametre:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fire</span> <span class="n">ts</span> <span class="n">gnss</span> <span class="n">RDIO_5D_IGb08</span> <span class="o">-</span><span class="n">p</span> <span class="n">alle</span> <span class="o">-</span><span class="n">f</span> <span class="n">RDIO_5D_IGb08</span><span class="o">.</span><span class="n">xlsx</span>
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>fire<span class="w"> </span>ts<span class="w"> </span>gnss<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>OBJEKT<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-gnss-p">
+<span id="cmdoption-fire-ts-gnss-parametre"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--parametre</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;parametre&gt;</span></span><a class="headerlink" href="#cmdoption-fire-ts-gnss-p" title="Permalink to this definition"></a></dt>
+<dd><p>Vælg hvilke parametre i tidsserien der skal udtrækkes. Som standard
+sat til 't,x,sx,y,sy,z,sz'. Bruges værdien 'alle' udtrækkes alle mulige parametre
+i tidsserien.  Se <code class="docutils literal notranslate"><span class="pre">fire</span> <span class="pre">ts</span> <span class="pre">gnss</span> <span class="pre">--help</span></code> for yderligere detaljer.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-gnss-f">
+<span id="cmdoption-fire-ts-gnss-fil"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--fil</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;fil&gt;</span></span><a class="headerlink" href="#cmdoption-fire-ts-gnss-f" title="Permalink to this definition"></a></dt>
+<dd><p>Skriv den udtrukne tidsserie til Excel fil.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-gnss-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;db&gt;</span></span><a class="headerlink" href="#cmdoption-fire-ts-gnss-db" title="Permalink to this definition"></a></dt>
+<dd><p>Vælg en specifik databaseforbindelse - default_connection i fire.ini bruges hvis intet vælges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options</dt>
+<dd class="field-odd"><p>prod | test</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-gnss-m">
+<span id="cmdoption-fire-ts-gnss-monokrom"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--monokrom</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-fire-ts-gnss-m" title="Permalink to this definition"></a></dt>
+<dd><p>Vis ikke farver i terminalen</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-gnss-debug">
+<span class="sig-name descname"><span class="pre">--debug</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-fire-ts-gnss-debug" title="Permalink to this definition"></a></dt>
+<dd><p>Vis debug output fra FIRE-databasen.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-gnss-help">
+<span class="sig-name descname"><span class="pre">--help</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-fire-ts-gnss-help" title="Permalink to this definition"></a></dt>
+<dd><p>Vis denne hjælp tekst</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-gnss-arg-OBJEKT">
+<span id="cmdoption-fire-ts-gnss-arg-objekt"></span><span class="sig-name descname"><span class="pre">OBJEKT</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-fire-ts-gnss-arg-OBJEKT" title="Permalink to this definition"></a></dt>
+<dd><p>Optional argument</p>
+</dd></dl>
+
+</section>
+<section id="fire-ts-plot-gnss">
+<span id="fire-ts-plot-gnss"></span><h2>fire ts plot-gnss<a class="headerlink" href="#fire-ts-plot-gnss" title="Permalink to this heading"></a></h2>
+<p>Plot en GNSS tidsserie</p>
+<p>Et simpelt plot der viser udviklingen i nord, øst og op retningerne over tid.</p>
+<p>&quot;TIDSSERIE&quot; er et GNSS-tidsserie ID fra FIRE. Eksisterende GNSS-tidsserier kan
+fremsøges med kommandoen <code class="docutils literal notranslate"><span class="pre">fire</span> <span class="pre">ts</span> <span class="pre">gnss</span> <span class="pre">&lt;punktnummer&gt;</span></code>.</p>
+<p><strong>EKSEMPLER</strong></p>
+<p>Plot af 5D-tidsserie for BUDP:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fire</span> <span class="n">ts</span> <span class="n">plot</span><span class="o">-</span><span class="n">gnss</span> <span class="n">BUDP_5D_IGB05</span>
+</pre></div>
+</div>
+<p>Resulterer i visning af nedenstående plot.</p>
+<a class="reference internal image-reference" href="../_images/fire_ts_plot_gnss_BUDP_5D_IGb08.png"><img alt="Eksempel på plot af 5D-tidsserie for BUDP. Genereret med FIRE v. 1.6.1." src="../_images/fire_ts_plot_gnss_BUDP_5D_IGb08.png" style="width: 800px;" /></a>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>fire<span class="w"> </span>ts<span class="w"> </span>plot-gnss<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>TIDSSERIE
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-plot-gnss-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;db&gt;</span></span><a class="headerlink" href="#cmdoption-fire-ts-plot-gnss-db" title="Permalink to this definition"></a></dt>
+<dd><p>Vælg en specifik databaseforbindelse - default_connection i fire.ini bruges hvis intet vælges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options</dt>
+<dd class="field-odd"><p>prod | test</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-plot-gnss-m">
+<span id="cmdoption-fire-ts-plot-gnss-monokrom"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--monokrom</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-fire-ts-plot-gnss-m" title="Permalink to this definition"></a></dt>
+<dd><p>Vis ikke farver i terminalen</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-plot-gnss-debug">
+<span class="sig-name descname"><span class="pre">--debug</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-fire-ts-plot-gnss-debug" title="Permalink to this definition"></a></dt>
+<dd><p>Vis debug output fra FIRE-databasen.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-plot-gnss-help">
+<span class="sig-name descname"><span class="pre">--help</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-fire-ts-plot-gnss-help" title="Permalink to this definition"></a></dt>
+<dd><p>Vis denne hjælp tekst</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-fire-ts-plot-gnss-arg-TIDSSERIE">
+<span id="cmdoption-fire-ts-plot-gnss-arg-tidsserie"></span><span class="sig-name descname"><span class="pre">TIDSSERIE</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-fire-ts-plot-gnss-arg-TIDSSERIE" title="Permalink to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="luk.html" class="btn btn-neutral float-left" title="fire luk" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tips/index.html" class="btn btn-neutral float-right" title="Tips og tricks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019-2023 SDFI, Septima.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
