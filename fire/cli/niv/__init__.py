@@ -380,28 +380,47 @@ def _geojson_filnavn(projektnavn: str, infiks: str, variant: str):
 
 def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
     """Omsæt punktinformationer til JSON-egnet dict"""
+
+    def _none_eller_nan(værdi: float) -> bool:
+        """
+        Check om værdi er None eller NaN.
+
+        Vi checker både for None og NaN, da Pandas og Numpy kan være lidt
+        drilske på dette område, og har udvist skiftende adfærd gennem tiden.
+        """
+        return værdi is None or math.isnan(værdi)
+
     for i in range(punkter.shape[0]):
+        # Nye punkter har hverken ny eller gammel kote.
+        # Vi rammer ind i denne situation ved læsning af observationer til nye punkter,
+        # der endnu ikke er regnet en kote for.
+        if _none_eller_nan(punkter.at[i, "Kote"]) and _none_eller_nan(
+            punkter.at[i, "Ny kote"]
+        ):
+            fastholdt = False
+            delta = None
+            kote = None
+            sigma = None
+
         # Fastholdte punkter har ingen ny kote, så vi viser den gamle
-        if math.isnan(punkter.at[i, "Ny kote"]) or punkter.at[i, "Ny kote"] is None:
+        elif _none_eller_nan(punkter.at[i, "Ny kote"]) and not _none_eller_nan(
+            punkter.at[i, "Kote"]
+        ):
             fastholdt = True
             delta = 0.0
             kote = float(punkter.at[i, "Kote"])
             sigma = float(punkter.at[i, "σ"])
+
+        # Gamle punkter med nye koter er "standardtilfældet"
         else:
             fastholdt = False
             delta = float(punkter.at[i, "Δ-kote [mm]"])
             kote = float(punkter.at[i, "Ny kote"])
             sigma = float(punkter.at[i, "Ny σ"])
 
-        # Endnu uberegnede punkter
-        if kote is None:
-            kote = 0.0
-            delta = 0.0
-            sigma = 0.0
-
         # Ignorerede ændringer (under 1 um)
-        if delta is None:
-            delta = 0.0
+        if _none_eller_nan(delta):
+            delta = None
 
         # Forbered punktnumre til attributtabellen. Hvis muligt finder vi information
         # i databasen og bruger punktets landsnummer som ID, ellers bruges strengen
@@ -409,10 +428,10 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
         try:
             punkt = firedb.hent_punkt(punkter.at[i, "Punkt"])
             landsnr = punkt.landsnummer
-            gi_nummer = punkt.ident if kan_være_gi_nummer(punkt.ident) else ""
+            gi_nummer = punkt.ident if kan_være_gi_nummer(punkt.ident) else None
         except NoResultFound:
             landsnr = punkter.at[i, "Punkt"]
-            gi_nummer = ""
+            gi_nummer = None
 
         feature = {
             "type": "Feature",
