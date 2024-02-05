@@ -6,10 +6,11 @@ dependencies:
   - cx_oracle=8.3.*
   - fiona=1.9.*
   - gama=2.*
-  - openpyxl=3.0.*
+  - openpyxl=3.1.*
   - matplotlib=3.*
-  - numpy=1.25.*
-  - pandas=2.0.*
+  - numpy=1.26.*
+  - pyarrow=15.*
+  - pandas=2.2.*
   - pyproj=3.6.*
   - python=3.11.*
   - rich=13.*
