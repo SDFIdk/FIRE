@@ -11,3 +11,4 @@ GRANT create sequence TO fire;
 GRANT create synonym TO fire;
 
 GRANT UNLIMITED TABLESPACE TO fire;
+GRANT CREATE MATERIALIZED VIEW TO fire;

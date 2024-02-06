@@ -13,6 +13,7 @@ echo "Waky waky"
 
 echo exit | ORACLE_PATH=misc/oracle sqlplus -S system/oracle@//localhost:1521/XEPDB1 @test/ci/init.sql
 echo exit | ORACLE_PATH=misc/oracle sqlplus -S fire/fire@//localhost:1521/XEPDB1 @sql/ddl.sql
+echo exit | ORACLE_PATH=misc/oracle sqlplus -S fire/fire@//localhost:1521/XEPDB1 @sql/views.sql
 echo exit | ORACLE_PATH=misc/oracle sqlplus -S fire/fire@//localhost:1521/XEPDB1 @test/sql/testdata.sql
 
 conda deactivate
