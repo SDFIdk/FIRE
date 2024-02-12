@@ -216,8 +216,8 @@ WITH
 	)
 SELECT
 	geometrier.geometri,
-	landsnr.ident LANDSNR,
 	gnss_ident.ident GNSS_NAVN,
+	landsnr.ident LANDSNR,
 	etrs89.t  ETRS89_T,
 	etrs89.x  ETRS89_LON,
 	etrs89.y  ETRS89_LAT,
@@ -290,8 +290,8 @@ WITH
 	)
 SELECT
 	geometrier.geometri,
-	landsnr.ident LANDSNR,
 	gnss_ident.ident GNSS_NAVN,
+	landsnr.ident LANDSNR,
 	etrs89.t  ETRS89_T,
 	etrs89.x  ETRS89_LON,
 	etrs89.y  ETRS89_LAT,
@@ -364,8 +364,8 @@ WITH
 	)
 SELECT
 	geometrier.geometri,
-	landsnr.ident LANDSNR,
 	gnss_ident.ident GNSS_NAVN,
+	landsnr.ident LANDSNR,
 	etrs89.t  ETRS89_T,
 	etrs89.x  ETRS89_LON,
 	etrs89.y  ETRS89_LAT,
@@ -439,8 +439,8 @@ WITH
 	)
 SELECT
 	geometrier.geometri,
-	landsnr.ident LANDSNR,
 	gnss_ident.ident GNSS_NAVN,
+	landsnr.ident LANDSNR,
 	etrs89.t  ETRS89_T,
 	etrs89.x  ETRS89_LON,
 	etrs89.y  ETRS89_LAT,
