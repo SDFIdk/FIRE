@@ -641,6 +641,11 @@ WITH
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
 		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
 	),
+	ekstern_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:ekstern' AND pi.registreringtil IS NULL
+	),
 	etrs89 AS (
 		SELECT k.punktid,k.t,k.x,k.y,k.z FROM koordinat k
 		JOIN sridtype st ON k.sridid=st.sridid
@@ -662,8 +667,9 @@ WITH
 	)
 SELECT
 	geometrier.geometri,
-	landsnr.ident LANDSNR,
 	gnss_ident.ident GNSS_NAVN,
+	landsnr.ident LANDSNR,
+	ekstern_ident.ident EKSTERN_IDENT,
 	etrs89.t  ETRS89_T,
 	etrs89.x  ETRS89_LON,
 	etrs89.y  ETRS89_LAT,
@@ -673,6 +679,7 @@ SELECT
 FROM punkter
 LEFT JOIN gnss_ident ON punkter.punktid=gnss_ident.punktid
 LEFT JOIN landsnr ON punkter.punktid=landsnr.punktid
+LEFT JOIN ekstern_ident ON punkter.punktid=ekstern_ident.punktid
 LEFT JOIN etrs89 ON punkter.punktid=etrs89.punktid
 LEFT JOIN dvr90 ON punkter.punktid=dvr90.punktid
 LEFT JOIN tabtgaaet ON punkter.punktid=tabtgaaet.punktid
@@ -716,6 +723,11 @@ WITH
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
 		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
 	),
+	ekstern_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:ekstern' AND pi.registreringtil IS NULL
+	),
 	etrs89 AS (
 		SELECT k.punktid,k.t,k.x,k.y,k.z FROM koordinat k
 		JOIN sridtype st ON k.sridid=st.sridid
@@ -737,8 +749,9 @@ WITH
 	)
 SELECT
 	geometrier.geometri,
-	landsnr.ident LANDSNR,
 	gnss_ident.ident GNSS_NAVN,
+	landsnr.ident LANDSNR,
+	ekstern_ident.ident EKSTERN_IDENT,
 	etrs89.t  ETRS89_T,
 	etrs89.x  ETRS89_LON,
 	etrs89.y  ETRS89_LAT,
@@ -748,6 +761,7 @@ SELECT
 FROM punkter
 LEFT JOIN gnss_ident ON punkter.punktid=gnss_ident.punktid
 LEFT JOIN landsnr ON punkter.punktid=landsnr.punktid
+LEFT JOIN ekstern_ident ON punkter.punktid=ekstern_ident.punktid
 LEFT JOIN etrs89 ON punkter.punktid=etrs89.punktid
 LEFT JOIN dvr90 ON punkter.punktid=dvr90.punktid
 LEFT JOIN tabtgaaet ON punkter.punktid=tabtgaaet.punktid
@@ -790,6 +804,11 @@ WITH
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
 		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
 	),
+	ekstern_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:ekstern' AND pi.registreringtil IS NULL
+	),
 	etrs89 AS (
 		SELECT k.punktid,k.t,k.x,k.y,k.z FROM koordinat k
 		JOIN sridtype st ON k.sridid=st.sridid
@@ -811,8 +830,9 @@ WITH
 	)
 SELECT
 	geometrier.geometri,
-	landsnr.ident LANDSNR,
 	gnss_ident.ident GNSS_NAVN,
+	landsnr.ident LANDSNR,
+	ekstern_ident.ident EKSTERN_IDENT,
 	etrs89.t  ETRS89_T,
 	etrs89.x  ETRS89_LON,
 	etrs89.y  ETRS89_LAT,
@@ -822,6 +842,7 @@ SELECT
 FROM punkter
 LEFT JOIN gnss_ident ON punkter.punktid=gnss_ident.punktid
 LEFT JOIN landsnr ON punkter.punktid=landsnr.punktid
+LEFT JOIN ekstern_ident ON punkter.punktid=ekstern_ident.punktid
 LEFT JOIN etrs89 ON punkter.punktid=etrs89.punktid
 LEFT JOIN dvr90 ON punkter.punktid=dvr90.punktid
 LEFT JOIN tabtgaaet ON punkter.punktid=tabtgaaet.punktid
