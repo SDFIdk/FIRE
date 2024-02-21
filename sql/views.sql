@@ -71,6 +71,11 @@ WITH
         pi.registreringtil IS NULL
     GROUP BY pi.punktid
   ),
+  gi_ident AS (
+	SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+	JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+	WHERE pit.infotype='IDENT:GI' AND pi.registreringtil IS NULL
+  ),
   -- punkter med følgende attributter er uønskede (listen bør korrespondere med "fire niv udtræk-revision")
   irrelevantpkt AS (
     SELECT infotypeid id
@@ -124,6 +129,7 @@ SELECT
   geometrier.geometri geometri,
   p.id punktid,
   landsnumre.landsnummer landsnr,
+  gi_ident.ident gi_nr,
   koter.z dvr90_kote,
   koter.sz kotespredning,
   koter.t beregningstidspunkt,
@@ -133,6 +139,7 @@ FROM punkt p
 JOIN landsnumre ON landsnumre.punktid = p.id
 JOIN geometrier ON geometrier.punktid = p.id
 -- ikke alle punkter har beskrivelse m.m.
+LEFT JOIN gi_ident ON gi_ident.punktid = p.id
 LEFT JOIN beskrivelser ON beskrivelser.punktid = p.id
 LEFT JOIN koter ON koter.punktid = p.id
 LEFT JOIN irrelevantepunkter ON irrelevantepunkter.punktid = p.id
