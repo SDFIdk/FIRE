@@ -147,9 +147,17 @@ def koordinatrapport(
     """
     Hjælpefunktion for 'punkt_fuld_rapport': Udskriv formateret koordinatliste
     """
+    # Sorter efter SRID, koordinattidsspunkt og registreringfra. Sidstnævnte er relevant i særlige
+    # tilfælde hvor to identiske Koordinater findes i databasen, hvoraf den ene er fejlmeldt. Se
+    # fx 24-09-09091 i februar 2024. De to identiske koter skyldes at 2020-koten ved en fejl ikke var
+    # blevet indlæst i 2020 og derfor blev indsat på bagkant i 2024 med det resultat at den stod som
+    # gældende kote i stedet for den nye 2024-kote. Ved at fejlmelde den først indlæste 2024-kote var
+    # det muligt at indsætte samme kote fra 2024 igen og dermed lade den være den gældende.
     koordinater.sort(
-        key=lambda x: (x.srid.name, x.t.strftime("%Y-%m-%dT%H:%M")), reverse=True
+        key=lambda x: (x.srid.name, x.t.strftime("%Y-%m-%dT%H:%M"), x.registreringfra),
+        reverse=True,
     )
+
     ts = True if "ts" in options.split(",") else False
     alle = True if "alle" in options.split(",") else False
     for koord in koordinater:
