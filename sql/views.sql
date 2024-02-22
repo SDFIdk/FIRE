@@ -124,6 +124,27 @@ WITH
 	SELECT pi.punktid, pi.tekst FROM punktinfo pi
 	JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
 	WHERE pit.infotype='ATTR:beskrivelse' AND pi.registreringtil IS NULL
+  ),
+  afmaerkning AS (
+	SELECT pi.punktid, LISTAGG(pi.tekst, '; ') WITHIN GROUP(ORDER BY pi.tekst) tekst
+	FROM punktinfo pi
+	JOIN punktinfotype pit ON pit.infotypeid = pi.infotypeid
+	WHERE 
+			pit.infotype LIKE 'AFM:%' 
+		AND 
+			pit.anvendelse = 'TEKST' 
+		AND 
+			pi.registreringtil IS NULL
+	GROUP BY pi.punktid
+  ),
+  terraenhoejde AS (
+	SELECT pi.punktid, pi.tal h
+	FROM punktinfo pi
+	JOIN punktinfotype pit ON pit.infotypeid = pi.infotypeid
+	WHERE 
+		pit.infotype = 'AFM:højde_over_terræn'
+	AND
+		pi.registreringtil IS NULL
   )
 SELECT
   geometrier.geometri geometri,
@@ -134,13 +155,17 @@ SELECT
   koter.sz kotespredning,
   koter.t beregningstidspunkt,
   koter.transformeret transformeret,
-  beskrivelser.tekst beskrivelse
+  beskrivelser.tekst beskrivelse,
+  afmaerkning.tekst afmaerkning,
+  terraenhoejde.h terraenhoejde
 FROM punkt p
 JOIN landsnumre ON landsnumre.punktid = p.id
 JOIN geometrier ON geometrier.punktid = p.id
 -- ikke alle punkter har beskrivelse m.m.
 LEFT JOIN gi_ident ON gi_ident.punktid = p.id
 LEFT JOIN beskrivelser ON beskrivelser.punktid = p.id
+LEFT JOIN afmaerkning ON afmaerkning.punktid = p.id
+LEFT JOIN terraenhoejde ON terraenhoejde.punktid = p.id
 LEFT JOIN koter ON koter.punktid = p.id
 LEFT JOIN irrelevantepunkter ON irrelevantepunkter.punktid = p.id
 WHERE
