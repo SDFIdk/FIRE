@@ -441,6 +441,34 @@ class GNSSTidsserie(Tidsserie):
         """
         return self._obs_liste(ResidualKovarians, "zz")
 
+class HypoteseTest:
+    """Foretag statistisk hypotesetest."""
+
+    def __init__(
+        self, std_est: float, kritiskværdi: float, H0: float = 0, alpha: float = 0.05
+    ):
+        self.H0 = H0
+        self.alpha = alpha
+        self.std_est = std_est
+        self.kritiskværdi = kritiskværdi
+
+    @property
+    def score(self) -> float:
+        """Returner hypotesetestens score."""
+        return abs(self.H0 / self.std_est)
+
+    @property
+    def H0accepteret(self) -> bool:
+        """
+        Evaluer hypotesetestens resultat.
+
+        Hvis H0 accepteres, betyder det at der ikke kan påvises en signifikant forskel
+        mellem den testede parameter og referencen.
+        Omvendt, hvis H0 forkastes, betyder det at test-parameteren med signifikant
+        sandsynlighed adskiller sig fra referencen.
+        """
+        return bool(self.score < self.kritiskværdi)
+
 
 class HøjdeTidsserie(Tidsserie):
     __mapper_args__ = {
