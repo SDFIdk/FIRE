@@ -52,6 +52,16 @@ def til_decimalår(date):
     return date.year + fraction
 
 
+def beregn_fraktil_for_t_fordeling(q: float, dof: int = 0) -> float:
+    """Returner den q'te fraktil for t-fordelingen med dof frihedsgrader."""
+    return t.ppf(q, dof)
+
+
+def beregn_fraktil_for_normalfordeling(q: float) -> float:
+    """Returner den q'te fraktil for normalfordelingen."""
+    return norm.ppf(q)
+
+
 class TidsserietypeID:
     """
     ID for eksisterende tidsserietyper i FIRE-databasen.
