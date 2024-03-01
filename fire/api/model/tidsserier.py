@@ -441,6 +441,327 @@ class GNSSTidsserie(Tidsserie):
         """
         return self._obs_liste(ResidualKovarians, "zz")
 
+class PolynomieRegression1D:
+    """
+    Foretag lineær regression over en tidsserie.
+    """
+
+    @dataclass
+    class Statistik:
+        TidsserieID: str
+        GPSNR: str
+        N: int
+        N_binned: int
+        dof: int
+        ddof: int
+        grad: int
+        R2: float
+        var_0: float
+        std_0: float
+        reference_hældning: float
+        hældning: float
+        var_hældning: float
+        std_hældning: float
+        ki_hældning_nedre: float
+        ki_hældning_øvre: float
+        mex: float
+        mey: float
+        T_test_accepteret: bool
+
+        def __str__(self):
+            header = ", ".join([str(field.name) for field in fields(self)])
+            linje = ", ".join(
+                [str(getattr(self, field.name)) for field in fields(self)]
+            )
+            return f"{header}\n{linje}"
+
+
+    @dataclass
+    class StatistikSamlet:
+        var_samlet: float
+        std_samlet: float
+        var_hældning_samlet: float
+        std_hældning_samlet: float
+        ki_hældning_nedre_samlet: float
+        ki_hældning_øvre_samlet: float
+        Z_test_accepteret: bool
+
+        def __str__(self):
+            header = ", ".join([str(field.name) for field in fields(self)])
+            linje = ", ".join(
+                [str(getattr(self, field.name)) for field in fields(self)]
+            )
+            return f"{header}\n{linje}"
+
+
+    def __init__(self, tidsserie: Tidsserie, x: list, y: list, grad: int = 1, **kwargs):
+        self.tidsserie = tidsserie
+        self.x = np.array(x)
+        self.y = np.array(y)
+        self.grad = grad
+        self.hældning_reference = float("inf")
+
+        self._var0 = None
+        self.var_samlet = None
+
+    @functools.cached_property
+    def _A(self) -> np.ndarray:
+        """Returner designmatricen A"""
+        return P.polyvander(self.x, self.grad)
+
+    @functools.cached_property
+    def _invATA(self) -> np.ndarray:
+        """
+        Returner den inverse matrix af størrelsen (A^T * A)
+
+        A er designmatricen for regressionen.
+        """
+        return np.linalg.inv(self._A.T @ self._A)
+
+    def solve(self) -> None:
+        """Løs hvad løses skal"""
+
+        self.beta, [SSR, _, _, _] = P.polyfit(self.x, self.y, self.grad, full=True)
+
+        if self.dof <= 0:
+            raise ValueError(
+                "Antallet af punkter er mindre end eller lig antallet af parametre."
+            )
+
+        if SSR.size == 0:
+            raise ValueError(
+                "Ligningssystemet har for lav rang. Kan forsøges fikset ved at normalisere data "
+                "eller sætte polynomiegraden ned."
+            )
+
+        # Bruger item() istedet for SSR[0], så der smides fejl hvis SSR mod forventning
+        # har mere end 1 element.
+        self.SSR = SSR.item()
+
+        self._var0 = self.SSR / self.dof
+        self.var_samlet = self._var0
+
+    @property
+    def R2(self) -> float:
+        """
+        Returner bestemmelseskoefficienten R².
+
+        R² måler mængden af variation i data der forklares af modellen.
+        """
+        return 1 - (self.SSR / np.sum((self.y - self.y.mean()) ** 2))
+
+    @property
+    def ddof(self) -> int:
+        """Returner "Delta Degrees of Freedom"."""
+        return self.grad + 1
+
+    @property
+    def N(self) -> int:
+        """Returner længden af tidsserien."""
+        return len(self.x)
+
+    @property
+    def dof(self) -> int:
+        """Returner antallet af frihedsgrader."""
+        return self.N - self.ddof
+
+    @property
+    def var0(self) -> float:
+        """Returner estimeret varians af residualer."""
+        return self._var0
+
+    @property
+    def mex(self) -> float:
+        """Returner middelepokedatoen."""
+        return sum(self.x) / self.N
+
+    @property
+    def mey(self) -> float:
+        """Returner regressionens værdi ved middelepokedatoen."""
+        return P.polyval(self.mex, self.beta)
+
+    def KovariansMatrix(self, er_samlet: bool = False) -> np.ndarray:
+        """
+        Returner kovariansmatrix for estimerede parametre β₀, β₁ ...
+
+        Kovariansmatricen har følgende struktur:
+        COV =  [[Var(β₀)    , Cov(β₀,β₁)],
+                [Cov(β₁, β₀), Var(β₁)   ]]
+        """
+        if er_samlet is False:
+            var = self.var0
+        elif er_samlet is True:
+            var = self.var_samlet
+
+        return var * self._invATA
+
+    def VarBeta(self, er_samlet: bool = False) -> np.ndarray:
+        """Returner den estimerede varians af de estimerede parametre βᵢ"""
+        return np.diag(self.KovariansMatrix(er_samlet))
+
+    def normaliser_data(
+        self, a: float = -1, b: float = 1
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Normaliserer tidsseriens x og y data til intervallet [a , b]."""
+
+        def normaliser(data: np.ndarray, a: float, b: float):
+            return a + (b - a) * (data - data.min()) / (data.max() - data.min())
+
+        x_norm = normaliser(self.x, a, b)
+        y_norm = normaliser(self.y, a, b)
+
+        return x_norm, y_norm
+
+    def beregn_konfidensinterval(
+        self, alpha: float = 0.05, er_samlet: bool = False
+    ) -> np.ndarray:
+        """
+        Beregn Konfidensintervaller på estimerede parametre βᵢ givet signifikansniveau alpha
+
+        Konfidensintervaller beregnes ud fra formlen:
+            ki = βᵢ ± krit * Var(βᵢ)
+        hvor krit er en kritisk værdi bestemt ud fra "fordeling" med signifikansniveau alpha.
+
+        Output er af typen np.ndarray(2,N), hvor N er antallet af parametre.
+        """
+        if er_samlet:
+            fraktil = beregn_fraktil_for_normalfordeling(1 - alpha / 2)
+        else:
+            fraktil = beregn_fraktil_for_t_fordeling(1 - alpha / 2, self.dof)
+
+        delta_ki = fraktil * np.sqrt(self.VarBeta(er_samlet))
+
+        return self.beta + np.outer([-1, 1], delta_ki)
+
+    def beregn_prædiktioner(self, x_præd: List[float]) -> np.ndarray:
+        """Beregn regressionens værdi i punkterne x_præd."""
+        return P.polyval(x_præd, self.beta)
+
+    def beregn_konfidensbånd(
+        self,
+        x_præd: List[float],
+        y_præd: List[float] = None,
+        *,
+        alpha: float = 0.05,
+        er_samlet: bool = False,
+    ) -> np.ndarray:
+        """
+        Beregn Konfidensbånd for regressionslinjen.
+
+        Konfidensbåndet er givet ved:
+            pi = prædiktion ± delta_pi
+
+        Output er af typen np.ndarray(2,N), hvor N er antallet af punkter i x_præd.
+        """
+
+        if er_samlet:
+            var = self.var_samlet
+            fraktil = beregn_fraktil_for_normalfordeling(1 - alpha / 2)
+        else:
+            var = self.var0
+            fraktil = beregn_fraktil_for_t_fordeling(1 - alpha / 2, self.dof)
+
+        if y_præd is None:
+            y_præd = self.beregn_prædiktioner(x_præd)
+
+        A_præd = P.polyvander(x_præd, self.grad)
+        delta_pi = fraktil * np.sqrt(var * np.diag(A_præd @ self._invATA @ A_præd.T))
+
+        return y_præd + np.outer([-1, 1], delta_pi)
+
+    def beregn_hypotesetest(
+        self,
+        H0: float = 0,
+        alpha: float = 0.05,
+        er_samlet: bool = False,
+    ) -> "HypoteseTest":
+        """
+        Beregn hypotesetest for den estimerede hældning.
+
+        Returnerer objekt af typen HypoteseTest.
+        """
+        if er_samlet:
+            kritiskværdi = beregn_fraktil_for_normalfordeling(1 - alpha / 2)
+        else:
+            kritiskværdi = beregn_fraktil_for_t_fordeling(1 - alpha / 2, self.dof)
+
+        std_est = np.sqrt(self.VarBeta(er_samlet)[1])
+
+        return HypoteseTest(
+            H0=H0, alpha=alpha, std_est=std_est, kritiskværdi=kritiskværdi
+        )
+
+    def beregn_statistik(self, alpha: float, er_samlet: bool = False) -> None:
+        """
+        Metode til samlet beregning af statistik for tidsserien
+
+        Resultaterne gemmes i `dict`-instanserne `self.statistik` og
+        `self.statistik_samlet`.
+        """
+
+        H0 = self.hældning_reference - self.beta[1]
+
+        # Er ikke samlet
+        var_beta = self.VarBeta(er_samlet=False)[1]
+        std_beta = np.sqrt(var_beta)
+        konfidensinterval = self.beregn_konfidensinterval(alpha, er_samlet=False)
+        T_test = self.beregn_hypotesetest(H0, alpha, er_samlet=False)
+
+        self.statistik = self.Statistik(
+            TidsserieID=self.tidsserie.navn,
+            GPSNR=self.tidsserie.punkt.gnss_navn,
+            N=len(self.tidsserie.koordinater),
+            N_binned=self.N,
+            dof=self.dof,
+            ddof=self.ddof,
+            grad=self.grad,
+            R2=self.R2,
+            var_0=self.var0,
+            std_0=np.sqrt(self.var0),
+            reference_hældning=self.hældning_reference,
+            hældning=self.beta[1],
+            var_hældning=var_beta,
+            std_hældning=std_beta,
+            ki_hældning_nedre=konfidensinterval[0, 1],
+            ki_hældning_øvre=konfidensinterval[1, 1],
+            mex=self.mex,
+            mey=self.mey,
+            T_test_accepteret=T_test.H0accepteret,
+        )
+
+        # er_samlet
+        if not er_samlet:
+            return
+
+        var_beta_samlet = self.VarBeta(er_samlet=True)[1]
+        std_beta_samlet = np.sqrt(var_beta_samlet)
+        konfidensinterval_samlet = self.beregn_konfidensinterval(alpha, er_samlet=True)
+        Z_test = self.beregn_hypotesetest(H0, alpha, er_samlet=True)
+
+        self.statistik_samlet = self.StatistikSamlet(
+            var_samlet=self.var_samlet,
+            std_samlet=np.sqrt(self.var_samlet),
+            var_hældning_samlet=var_beta_samlet,
+            std_hældning_samlet=std_beta_samlet,
+            ki_hældning_nedre_samlet=konfidensinterval_samlet[0, 1],
+            ki_hældning_øvre_samlet=konfidensinterval_samlet[1, 1],
+            Z_test_accepteret=Z_test.H0accepteret,
+        )
+
+    def generer_statistik_streng(self, **kwargs) -> Tuple[str, str]:
+        """Genererer statistikstreng for tidsserien"""
+        self.beregn_statistik(**kwargs)
+
+        header = str(self.statistik).split("\n")[0]
+        linje = str(self.statistik).split("\n")[1]
+
+        if hasattr(self, "statistik_samlet"):
+            header += ", " + str(self.statistik_samlet).split("\n")[0]
+            linje += ", " + str(self.statistik_samlet).split("\n")[1]
+
+        return header, linje
+
+
 class HypoteseTest:
     """Foretag statistisk hypotesetest."""
 
