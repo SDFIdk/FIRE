@@ -3,7 +3,6 @@ from datetime import datetime
 
 import click
 import pandas as pd
-import matplotlib.pyplot as plt
 from rich.table import Table
 from rich.console import Console
 from rich import box
@@ -12,6 +11,14 @@ from sqlalchemy.exc import NoResultFound
 
 import fire.cli
 from fire.api.model import Tidsserie, HøjdeTidsserie, GNSSTidsserie, Punkt
+from fire.cli.ts._plot_gnss import (
+    plot_gnss_ts,
+    plot_gnss_analyse,
+    plot_data,
+    plot_fit,
+    plot_konfidensbånd,
+    GNSS_TS_PLOTTING_LABELS,
+)
 
 from . import ts
 
@@ -121,7 +128,7 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     Hvis "OBJEKT" er et punkt udskrives en oversigt over de tilgængelige
     tidsserier til dette punkt. Hvis 'OBJEKT' er en tidsserie udskrives
     tidsserien på skærmen. Hvilke parametre der udskrives kan specificeres
-    i en kommasepararet liste med ``--parameter``. Følgende parametre kan vælges::
+    i en kommasepareret liste med ``--parametre``. Følgende parametre kan vælges::
 
     \b
         t               Tidspunkt for koordinatobservation
@@ -170,7 +177,7 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
 
     Vis tidsserie med brugerdefinerede parametre::
 
-        fire ts gnss RDIO_5D_IGb08 --paramatre decimalår,n,e,u,sx,sy,sz
+        fire ts gnss RDIO_5D_IGb08 --parametre decimalår,n,e,u,sx,sy,sz
 
     Gem tidsserie med samtlige tilgængelige parametre::
 
@@ -200,7 +207,7 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     kolonner = []
     for p in parametre:
         if p not in GNSS_TS_PARAMETRE.keys():
-            raise SystemExit(f"Ukendt tidsserieparameter '{p}''")
+            raise SystemExit(f"Ukendt tidsserieparameter '{p}'")
 
         overskrifter.append(p)
         kolonner.append(tidsserie.__getattribute__(GNSS_TS_PARAMETRE[p]))
@@ -234,68 +241,120 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     df.to_excel(fil, index=False)
 
 
-def plot_gnss_ts(ts: GNSSTidsserie):
-    """ """
-
-    def _plot_ts(label: str, x: list, y: list):
-        plt.plot(x, y, "-", linewidth=0.25)
-        plt.plot(
-            x,
-            y,
-            ".",
-            markersize=4,
-            linewidth=0.25,
-            color="black",
-        )
-
-        plt.grid()
-        plt.ylabel(label)
-
-    plt.figure()
-    plt.suptitle(ts.navn)
-    plt.xlabel("Date")
-
-    plt.subplot(311)
-    _plot_ts("North [m]", ts.t, ts.n)
-
-    plt.subplot(312)
-    _plot_ts("East [m]", ts.t, ts.e)
-
-    plt.subplot(313)
-    _plot_ts("Up [m]", ts.t, ts.u)
-
-    plt.show()
-
-
 @ts.command()
 @click.argument("tidsserie", required=True, type=str)
+@click.option(
+    "--plottype",
+    "-t",
+    required=False,
+    type=click.Choice(["rå", "fit", "konf"]),
+    default="rå",
+    help="Hvilken type plot vil man se?",
+)
+@click.option(
+    "--parametre",
+    "-p",
+    required=False,
+    type=str,
+    default=None,
+    help="Hvilken parameter skal plottes? Vælges flere plottes max de tre første.",
+)
 @fire.cli.default_options()
-def plot_gnss(tidsserie: str, **kwargs) -> None:
+def plot_gnss(tidsserie: str, plottype: str, parametre: str, **kwargs) -> None:
     """
-    Plot en GNSS tidsserie
+    Plot en GNSS tidsserie.
 
-    Et simpelt plot der viser udviklingen i nord, øst og op retningerne over tid.
+    Et simpelt plot der som standard viser udviklingen i nord, øst og op retningerne over tid.
+    Vælges plottypen ``konf`` vises som standard kun Op-retningen.
+    Plottes kun én enkelt tidsserieparameter vises for plottyperne ``fit`` og ``konf`` også
+    værdien af fittets hældning.
 
     "TIDSSERIE" er et GNSS-tidsserie ID fra FIRE. Eksisterende GNSS-tidsserier kan
     fremsøges med kommandoen ``fire ts gnss <punktnummer>``.
+    Hvilke parametre der plottes kan specificeres i en kommasepareret liste med ``--parametre``.
+    Højst 3 parametre plottes. Følgende parametre kan vælges::
+
+    \b
+        t               Tidspunkt for koordinatobservation
+        x               Koordinatens x-komponent (geocentrisk)
+        y               Koordinatens y-komponent (geocentrisk)
+        z               Koordinatens z-komponent (geocentrisk)
+        X               Koordinatens x-komponent (geocentrisk, normaliseret)
+        Y               Koordinatens y-komponent (geocentrisk, normaliseret)
+        Z               Koordinatens z-komponent (geocentrisk, normaliseret)
+        n               Normaliseret nordlig komponent (topocentrisk)
+        e               Normaliseret østlig komponent (topocentrisk)
+        u               Normaliseret vertikal komponent (topocentrisk)
+        decimalår       Tidspunkt for koordinatobservation i decimalår
+
+    Typen af plot som vises kan vælges med ``--plottype``. Følgende plottyper kan vælges::
+
+    \b
+        rå              Plot rå data
+        fit             Plot lineær regression oven på de rå data
+        konf            Plot lineær regression med konfidensbånd
 
     \f
     **EKSEMPLER**
 
     Plot af 5D-tidsserie for BUDP::
 
-        fire ts plot-gnss BUDP_5D_IGB05
+        fire ts plot-gnss BUDP_5D_IGb08
 
     Resulterer i visning af nedenstående plot.
 
     .. image:: figures/fire_ts_plot_gnss_BUDP_5D_IGb08.png
         :width: 800
-        :alt: Eksempel på plot af 5D-tidsserie for BUDP. Genereret med FIRE v. 1.6.1.
+        :alt: Eksempel på plot af 5D-tidsserie for BUDP.
+
+    Plot af 5D-tidsserie for SMID::
+
+        fire ts plot-gnss SMID_5D_IGb08 -p X,Y -t fit
+
+    Resulterer i visning af nedenstående plot.
+
+    .. image:: figures/fire_ts_plot_gnss_SMID_5D_IGb08_XY_fit.png
+        :width: 800
+        :alt: Eksempel på plot af 5D-tidsserie for SMID.
+
+    Plot af 5D-tidsserie for TEJH::
+
+        fire ts plot-gnss TEJH_5D_IGb08 -t konf
+
+    Resulterer i visning af nedenstående plot.
+
+    .. image:: figures/fire_ts_plot_gnss_TEJH_5D_IGb08_konf.png
+        :width: 800
+        :alt: Eksempel på plot af 5D-tidsserie for TEJH.
 
     """
+    # Dynamisk default værdi baseret på plottype.
+    # Se https://stackoverflow.com/questions/51846634/click-dynamic-defaults-for-prompts-based-on-other-options for andre muligheder
+    if parametre is None:
+        if plottype == "konf":
+            parametre = "u"
+        else:
+            parametre = "n,e,u"
+
+    plot_funktioner = {
+        "rå": plot_data,
+        "fit": plot_fit,
+        "konf": plot_konfidensbånd,
+    }
+
     try:
         tidsserie = _find_tidsserie(GNSSTidsserie, tidsserie)
     except NoResultFound:
         raise SystemExit("Tidsserie ikke fundet")
 
-    plot_gnss_ts(tidsserie)
+    parametre = parametre.split(",")
+
+    for parm in parametre:
+        if parm not in GNSS_TS_ANALYSERBARE_PARAMETRE.keys():
+            raise SystemExit(f"Ukendt tidsserieparameter '{parm}'")
+
+    parametre = [GNSS_TS_ANALYSERBARE_PARAMETRE[parm] for parm in parametre]
+
+    plot_gnss_ts(tidsserie, plot_funktioner[plottype], parametre)
+
+
