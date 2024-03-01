@@ -23,6 +23,7 @@ dependencies:
   - pytest
   - python=3.11.*
   - rich
+  - scipy
   - sphinx-click
   - sphinx
   - sphinx_rtd_theme
