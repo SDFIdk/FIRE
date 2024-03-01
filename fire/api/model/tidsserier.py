@@ -1,14 +1,16 @@
+from dataclasses import dataclass, fields
 from datetime import datetime as dt
 import time
-from typing import List, Tuple
+from typing import List, Tuple, Type
 
 import functools
-
+import numpy as np
+from numpy.polynomial import polynomial as P
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from scipy.stats import t, norm
 
 from fire.matematik import xyz2neu
-
 from fire.api.model import (
     FikspunktregisterObjekt,
     Observation,
