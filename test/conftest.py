@@ -156,34 +156,57 @@ def koordinat(koordinatfabrik):
 
 
 @pytest.fixture()
-def højdetidsserie(firedb, sagsevent, punkt, punktsamling, koordinatfabrik, srid):
-    ts = HøjdeTidsserie(
-        sagsevent=sagsevent,
-        punkt=punkt,
-        punktsamling=punktsamling,
-        navn=f"{fire.uuid()}",
-        formål="Test",
-        referenceramme="FIRE",
-        srid=srid,
-        koordinater=[koordinatfabrik() for _ in range(5)],
-    )
-    firedb.session.add(ts)
-    return ts
+def gnsstidsseriefabrik(firedb, sagsevent, punkt, punktsamling, koordinatfabrik, srid):
+    """GNSSTidsseriefabrik til oprettelse af flere GNSSTidsserier i samme test case."""
+
+    def fabrik():
+        sagsevent.eventtype = EventType.TIDSSERIE_MODIFICERET
+        ts = GNSSTidsserie(
+            sagsevent=sagsevent,
+            punkt=punkt,
+            punktsamling=punktsamling,
+            navn=f"{fire.uuid()}_TEST_FIRE",
+            formål="Test",
+            referenceramme="FIRE",
+            srid=srid,
+            koordinater=[koordinatfabrik() for _ in range(5)],
+        )
+        firedb.session.add(ts)
+        return ts
+
+    return fabrik
 
 
-def gnsstidsserie(firedb, sagsevent, punkt, punktsamling, koordinatfabrik, srid):
-    ts = GNSSTidsserie(
-        sagsevent=sagsevent,
-        punkt=punkt,
-        punktsamling=punktsamling,
-        navn=f"{fire.uuid()}",
-        formål="Test",
-        referenceramme="FIRE",
-        srid=srid,
-        koordinater=[koordinatfabrik() for _ in range(5)],
-    )
-    firedb.session.add(ts)
-    return ts
+@pytest.fixture()
+def gnsstidsserie(gnsstidsseriefabrik):
+    return gnsstidsseriefabrik()
+
+
+@pytest.fixture()
+def højdetidsseriefabrik(firedb, sagsevent, punkt, punktsamling, koordinatfabrik, srid):
+    """HøjdeTidsseriefabrik til oprettelse af flere HøjdeTidsserier i samme test case."""
+
+    def fabrik():
+        sagsevent.eventtype = EventType.TIDSSERIE_MODIFICERET
+        ts = HøjdeTidsserie(
+            sagsevent=sagsevent,
+            punkt=punkt,
+            punktsamling=punktsamling,
+            navn=f"{fire.uuid()}_TEST_FIRE",
+            formål="Test",
+            referenceramme="FIRE",
+            srid=srid,
+            koordinater=[koordinatfabrik() for _ in range(5)],
+        )
+        firedb.session.add(ts)
+        return ts
+
+    return fabrik
+
+
+@pytest.fixture()
+def højdetidsserie(højdetidsseriefabrik):
+    return højdetidsseriefabrik()
 
 
 @pytest.fixture()
