@@ -122,6 +122,11 @@ class GNSSTidsserie(Tidsserie):
         "polymorphic_identity": TidsserietypeID.gnss,
     }
 
+    @property
+    def tidsseriegruppe(self):
+        (_, gruppenavn, _) = self.navn.split("_")
+        return gruppenavn
+
     @functools.cached_property
     def x(self) -> List[float]:
         """
