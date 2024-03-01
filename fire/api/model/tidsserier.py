@@ -441,6 +441,72 @@ class GNSSTidsserie(Tidsserie):
         """
         return self._obs_liste(ResidualKovarians, "zz")
 
+    @staticmethod
+    def binning(
+        x: List[float], y: List[float], binsize: int = 14, **kwargs
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Kombiner data fra dage tættere på hinanden end binsize (i dage).
+
+        x antages at være i decimalår og sorteret i stigende rækkefølge.
+        Binning bruges som præprocessering til analyse med klassen PolynomieRegression1D.
+        """
+
+        if len(x) != len(y):
+            raise ValueError("Inputdata skal have samme længde.")
+
+        binsize_i_år = binsize / (365.25)
+        x = np.array(x)
+        y = np.array(y)
+        vægt = np.ones(x.shape)
+        xdiff = np.diff(x)
+
+        while np.any(xdiff <= binsize_i_år):
+            x_ny = []
+            y_ny = []
+            vægt_ny = []
+            i = 0
+            while i < len(x):
+                bin_start = x[i]
+                bin_slut = bin_start + binsize_i_år
+
+                # Find alle datapunkter inden for [bin_start, bin_slut]
+                bin = np.where(np.logical_and(bin_start <= x, x <= bin_slut))
+
+                x_ny.append(sum(x[bin] * vægt[bin]) / sum(vægt[bin]))
+                y_ny.append(sum(y[bin] * vægt[bin]) / sum(vægt[bin]))
+                vægt_ny.append(sum(vægt[bin]))
+
+                i = np.max(bin) + 1
+
+            x, y, vægt = np.array(x_ny), np.array(y_ny), np.array(vægt_ny)
+            xdiff = np.diff(x)
+
+        return x, y
+
+    def forbered_lineær_regression(self, x: list, y: list, **kwargs) -> None:
+        """
+        Opret "linreg" attribut af typen PolynomieRegression1D på tidsserien.
+
+        Initialiserer en simpel PolynomieRegression i 1 dimension, dvs. med én
+        forklarende variabel x, og én afhængig variabel y.
+
+        Polynomiegraden sættes med kwarg'en "grad".
+        Data kan reduceres med kwarg'en "binsize", se "GNSSTidsserie.binning(...)".
+        """
+        x_binned, y_binned = self.binning(x, y, **kwargs)
+
+        self.linreg = PolynomieRegression1D(self, x_binned, y_binned, **kwargs)
+
+    def beregn_lineær_regression(self) -> None:
+        """
+        Løs tidsseriens lineære regression.
+
+        Forudsætter at denne er initialiseret med "forbered_lineær_regression(...)".
+        """
+        self.linreg.solve()
+
+
 class PolynomieRegression1D:
     """
     Foretag lineær regression over en tidsserie.
