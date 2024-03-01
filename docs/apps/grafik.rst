@@ -17,5 +17,5 @@ I det følgende bruges grafik som fællesbetegnelse for skitser og fotos.
   :nested: full
 
 .. click:: fire.cli.grafik:slet
-  :prog: fire grafik 
+  :prog: fire grafik slet
   :nested: full
