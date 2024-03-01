@@ -507,6 +507,93 @@ class GNSSTidsserie(Tidsserie):
         self.linreg.solve()
 
 
+class TidsserieEnsemble:
+    """
+    Gruppér tidsserier og beregn tværgående statistik.
+
+    Tidsserierne i ensemblet grupperes ud fra deres:
+        - tidsserieklasse
+        - tidsseriegruppe
+        - referenceramme
+    """
+
+    def __init__(
+        self,
+        tidsserieklasse: Type,
+        min_antal_punkter: int,
+        tidsseriegruppe: str,
+        referenceramme: str,
+    ):
+        self.tidsserieklasse = tidsserieklasse
+
+        self.tidsserier = {}
+        self.min_antal_punkter = min_antal_punkter
+        self.tidsseriegruppe = tidsseriegruppe
+        self.referenceramme = referenceramme
+
+    def _valider_tidsserie(self, tidsserie: Tidsserie) -> None:
+        """Valider en tidsserie inden indsættelse i ensemblet."""
+        if (
+            not isinstance(tidsserie, self.tidsserieklasse)
+            or (len(tidsserie.koordinater) < self.min_antal_punkter)
+            or (tidsserie.tidsseriegruppe != self.tidsseriegruppe)
+            or (tidsserie.referenceramme != self.referenceramme)
+        ):
+            raise ValueError(f"Tidsserie: {tidsserie.navn} kunne ikke valideres")
+
+    def tilføj_tidsserie(self, tidsserie: Tidsserie) -> None:
+        """Tilføj en tidsserie til ensemblet."""
+        try:
+            self._valider_tidsserie(tidsserie)
+            print(f"Tilføjer tidsserie {tidsserie.navn}")
+            self.tidsserier.update({tidsserie.navn: tidsserie})
+        except ValueError as e:
+            print(e)
+
+    def beregn_samlet_varians(self) -> None:
+        """
+        Beregn den estimerede samlede varians af tidsserieensemblet.
+
+        Den samlede varians beregnes som et vægtet gennemsnit af varianserne
+        af de enkelte tidsserier som indgår i ensemblet, og opdaterer variansen
+        i tidsserierne.
+
+        Kræver at hver tidsserie har en linær regression "linreg"-attribut af typen
+        PolynomieRegression1D, som er blevet løst, ved at få kørt sin "solve-metode."
+        """
+        if not self.tidsserier:
+            raise ValueError(
+                "Ingen tidsserier i ensemble. Kan ikke beregne samlet varians."
+            )
+
+        SSR_sum = 0
+        dof_sum = 0
+
+        for ts in self.tidsserier.values():
+            SSR_sum += ts.linreg.SSR
+            dof_sum += ts.linreg.dof
+
+        self.var_samlet = SSR_sum / dof_sum
+
+        # Opdater ensemblets tidsserier med den samlede varians.
+        for ts in self.tidsserier.values():
+            ts.linreg.var_samlet = self.var_samlet
+
+    def generer_statistik_streng_ensemble(self, alpha: float) -> str:
+        """Generér statistikstreng for ensemblets tidsseriers linreg-attribut."""
+
+        linjer = ""
+
+        for ts in self.tidsserier.values():
+            header, linje = ts.linreg.generer_statistik_streng(
+                alpha=alpha, er_samlet=True
+            )
+
+            linjer += f"{linje}\n"
+
+        return f"{header}\n{linjer}"
+
+
 class PolynomieRegression1D:
     """
     Foretag lineær regression over en tidsserie.
