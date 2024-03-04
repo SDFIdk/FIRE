@@ -15,3 +15,8 @@ til indlæsning af data fra forskellige kilder.
 .. click:: fire.cli.ts.gnss:plot_gnss
   :prog: fire ts plot-gnss
   :nested: full
+
+.. _fire_ts_analyse-gnss:
+.. click:: fire.cli.ts.gnss:analyse_gnss
+  :prog: fire ts analyse-gnss
+  :nested: full

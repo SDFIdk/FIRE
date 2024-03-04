@@ -14,5 +14,6 @@ dependencies:
   - pyproj=3.6.*
   - python=3.11.*
   - rich=13.*
+  - scipy=1.12.*
   - sqlalchemy=1.4.*
   - xmltodict=0.13.*
