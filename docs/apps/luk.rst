@@ -13,3 +13,7 @@ typer objekter i databasen.
 .. click:: fire.cli.luk:koordinat
   :prog: fire luk koordinat
   :show-nested:
+
+.. click:: fire.cli.luk:observation
+  :prog: fire luk observation
+  :show-nested:

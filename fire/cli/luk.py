@@ -7,7 +7,15 @@ from cx_Oracle import DatabaseError
 import fire
 import fire.cli
 from fire.cli import rød
-from fire.api.model import Sag, Sagsinfo, Sagsevent, SagseventInfo, EventType, Koordinat
+from fire.api.model import (
+    Sag,
+    Sagsinfo,
+    Sagsevent,
+    SagseventInfo,
+    EventType,
+    Koordinat,
+    Observation,
+)
 from fire.cli.niv import bekræft
 
 
@@ -109,7 +117,6 @@ def punkt(uuid: str, sagsbehandler, **kwargs) -> None:
             fire.cli.print(f"Punkt {punkt.ident} ({uuid} IKKE lukket!")
 
 
-
 @luk.command()
 @click.argument("objektid", type=str)
 @click.option(
@@ -136,7 +143,9 @@ def koordinat(objektid: str, sagsbehandler, **kwargs) -> None:
         WHERE p.tekst = '147-06-00001' AND s.srid = 'EPSG:5799';
     """
     db = fire.cli.firedb
-    sag = db.ny_sag(sagsbehandler, beskrivelse="Fejlmelding af koordinat med 'fire luk'")
+    sag = db.ny_sag(
+        sagsbehandler, beskrivelse="Fejlmelding af koordinat med 'fire luk'"
+    )
     db.session.add(sag)
     db.session.flush()
     sagsevent = Sagsevent(
@@ -171,7 +180,9 @@ def koordinat(objektid: str, sagsbehandler, **kwargs) -> None:
     except DatabaseError as e:
         # rul tilbage hvis databasen smider en exception
         db.session.rollback()
-        fire.cli.print(f"Der opstod en fejl - koordinat med objektid {objektid} IKKE lukket!")
+        fire.cli.print(
+            f"Der opstod en fejl - koordinat med objektid {objektid} IKKE lukket!"
+        )
         print(e)
     else:
         tekst = f"""
@@ -190,3 +201,81 @@ Er du sikker på at du vil lukke {punkt.ident}'s {srid.name}-koordinat med objek
         else:
             db.session.rollback()
             fire.cli.print(f"Koordinat ({objektid}) IKKE lukket!")
+
+
+@luk.command()
+@click.argument("objektid", type=str)
+@click.option(
+    "--sagsbehandler",
+    default=getpass.getuser(),
+    type=str,
+    help="Angiv andet brugernavn end den aktuelt indloggede",
+)
+@fire.cli.default_options()
+def observation(objektid: str, sagsbehandler, **kwargs) -> None:
+    """
+    Fejlmeld en observation i FIRE databasen.
+
+    Når en observation fejlmeldes afregistreres den i databasen og
+    det angives samtidigt at observationen ikke er fejlbehæftet.
+
+    Observationens objektid kan fx findes ved opslag med
+    ``fire info punkt -O niv <punkt>`` eller ved manuelt opslag i
+    databasen. Sidstnævnte kan fx gøres med et udtræk som følgende:
+
+    \b
+        SELECT * FROM observation o
+        JOIN punktinfo po ON po.punktid = o.opstillingspunktid
+        JOIN punktinfo ps ON ps.punktid = o.sigtepunktid
+        WHERE po.tekst = '41-06-09008' AND ps.tekst = '41-06-09023';
+    """
+    db = fire.cli.firedb
+    sag = db.ny_sag(
+        sagsbehandler, beskrivelse="Fejlmelding af observation med 'fire luk'"
+    )
+    db.session.add(sag)
+    db.session.flush()
+    sagsevent = Sagsevent(
+        sag=sag,
+        eventtype=EventType.OBSERVATION_NEDLAGT,
+        sagseventinfos=[
+            SagseventInfo(beskrivelse=f"'fire luk observation {objektid}"),
+        ],
+    )
+
+    try:
+        obs = (
+            db.session.query(Observation)
+            .filter(
+                Observation.objektid == objektid,
+            )
+            .one()
+        )
+    except NoResultFound:
+        fire.cli.print(f"Observation med objektid {objektid} ikke fundet!")
+        raise SystemExit
+
+    try:
+        # Indsæt alle objekter i denne session
+        db.fejlmeld_observation(obs, sagsevent, commit=False)
+        db.session.flush()
+        db.luk_sag(sag, commit=False)
+        db.session.flush()
+    except DatabaseError as e:
+        # rul tilbage hvis databasen smider en exception
+        db.session.rollback()
+        fire.cli.print(
+            f"Der opstod en fejl - observation med objektid {objektid} IKKE lukket!"
+        )
+        print(e)
+    else:
+        tekst = f"""Er du sikker på at du vil lukke observationen med {objektid}:
+
+        {repr(obs)}
+"""
+        if bekræft(tekst):
+            db.session.commit()
+            fire.cli.print(f"Observation {objektid} lukket!")
+        else:
+            db.session.rollback()
+            fire.cli.print(f"Observation {objektid} IKKE lukket!")
