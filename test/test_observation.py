@@ -221,3 +221,15 @@ def test_luk_observation(
 
     with pytest.raises(TypeError):
         firedb.luk_observation(9999)
+
+
+def test_fejlmeld_observation(
+    firedb: FireDb, observation: Observation, sagsevent: Sagsevent
+):
+    firedb.session.commit()  # sikr at observationen er registreret i databasen
+    assert observation.registreringtil is None
+    assert observation.fejlmeldt == False
+
+    firedb.fejlmeld_observation(observation, sagsevent)
+    assert observation.registreringtil is not None
+    assert observation.fejlmeldt == True

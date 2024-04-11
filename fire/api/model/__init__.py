@@ -1,5 +1,6 @@
 """SQLAlchemy models for the application
 """
+
 import enum
 
 import sqlalchemy.ext.declarative
@@ -124,6 +125,11 @@ class RegisteringTidObjekt(DeclarativeBase):
     @property
     def registreringtil(self):
         return self._registreringtil
+
+
+class Boolean(enum.Enum):
+    TRUE = "true"
+    FALSE = "false"
 
 
 # Expose these types

@@ -238,7 +238,11 @@ def observationsrapport(
     for obs in observationer:
         linje = observation_linje(obs)
         if linje != "" and linje is not None:
-            fire.cli.print("    " + observation_linje(obs))
+            if obs.fejlmeldt:
+                fire.cli.print(" X  " + observation_linje(obs), fg="red")
+            else:
+                fire.cli.print("    " + observation_linje(obs))
+
     fire.cli.print("  " + 110 * "-")
 
     if not opt_detaljeret:

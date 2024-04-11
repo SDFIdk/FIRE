@@ -12,6 +12,7 @@ from fire.api.firedb.luk import FireDbLuk
 from fire.api.model import (
     Punkt,
     Koordinat,
+    Observation,
     PunktInformation,
     PunktInformationType,
     GeometriObjekt,
@@ -245,6 +246,20 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         self.session.add(koordinat)
         if commit:
             self.session.commit()
+
+    def fejlmeld_observation(self, observation: Observation, sagsevent: Sagsevent, commit = True):
+        """
+        Fejlmeld en allerede eksisterende observation.
+        """
+        self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=False)
+
+        observation.fejlmeldt = True
+        observation._registreringtil = func.current_timestamp()
+
+        self.session.add(observation)
+        if commit:
+            self.session.commit()
+
 
     def _generer_tilladte_løbenumre(
         self, fikspunktstype: FikspunktsType

@@ -169,7 +169,8 @@ CREATE TABLE observation (
   gruppe INTEGER,
   observationstidspunkt TIMESTAMP WITH TIME ZONE NOT NULL,
   opstillingspunktid VARCHAR2(36) NOT NULL,
-  sigtepunktid VARCHAR2(36)
+  sigtepunktid VARCHAR2(36),
+  fejlmeldt VARCHAR2(5) NOT NULL
 );
 
 
@@ -385,6 +386,11 @@ ADD
   CONSTRAINT observation_sigtepunkt_chk CHECK (sigtepunkt IN ('true', 'false'));
 
 ALTER TABLE
+  observation
+ADD
+  CONSTRAINT observation_fejlmeldt CHECK (fejlmeldt IN ('true', 'false'));
+
+ALTER TABLE
   punktinfotype
 ADD
   CONSTRAINT punktinfotype_anvendelse_chk CHECK (anvendelse IN ('FLAG', 'TAL', 'TEKST'));
@@ -454,6 +460,18 @@ ADD
   );
 
 CREATE UNIQUE INDEX observation_id_idx ON observation (id);
+
+-- Index er skal sikre at en observation ikke dobbeltregistreres
+CREATE UNIQUE INDEX observation_uniq2_idx ON observation (
+  observationstypeid,
+  value1,
+  antal,
+  gruppe,
+  observationstidspunkt,
+  opstillingspunktid,
+  sigtepunktid,
+  fejlmeldt
+);
 
 ALTER TABLE
   observation
@@ -867,6 +885,7 @@ COMMENT ON COLUMN observation.value12 IS 'En værdi for en observation.';
 COMMENT ON COLUMN observation.value13 IS 'En værdi for en observation.';
 COMMENT ON COLUMN observation.value14 IS 'En værdi for en observation.';
 COMMENT ON COLUMN observation.value15 IS 'En værdi for en observation.';
+COMMENT ON COLUMN observation.fejlmeldt IS 'Markering af at en observation er udgået fordi den er fejlbehæftet';
 
 COMMENT ON TABLE observationstype IS 'Objekttype til beskrivelse af hvorledes en Observation skal læses, ud fra typen af observation.';
 COMMENT ON COLUMN observationstype.beskrivelse IS 'Overordnet beskrivelse af denne observationstype.';
@@ -1170,6 +1189,12 @@ BEGIN
   IF :new.sigtepunktid != :old.sigtepunktid THEN
     RAISE_APPLICATION_ERROR(-20000,'observation.sigtepunktid må ikke opdateres ');
   END IF;
+
+  IF :new.fejlmeldt != :old.fejlmeldt AND :new.registreringtil IS NULL THEN
+    RAISE_APPLICATION_ERROR(-20001, 'Registreringtil skal sættes når en observation fejlmeldes');
+  END IF;
+
+
 END;
 /
 
