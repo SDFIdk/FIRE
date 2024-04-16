@@ -2,7 +2,7 @@
 
 from uuid import uuid4
 
-__version__ = "1.6.1"
+__version__ = "1.7.0"
 __license__ = "MIT"
 __author__ = "SDFI, Septima"
 __author_email__ = "grf@sdfi.dk"
