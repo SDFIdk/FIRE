@@ -212,6 +212,9 @@ class Observation(FikspunktregisterObjekt):
     value13 = Column(Float)
     value14 = Column(Float)
     value15 = Column(Float)
+    _fejlmeldt = Column(
+        "fejlmeldt", StringEnum(Boolean), nullable=False, default=Boolean.FALSE
+    )
     sagseventfraid = Column(String, ForeignKey("sagsevent.id"), nullable=False)
     sagsevent = relationship(
         "Sagsevent", foreign_keys=[sagseventfraid], back_populates="observationer"
@@ -243,6 +246,17 @@ class Observation(FikspunktregisterObjekt):
         "polymorphic_identity": "observation",
         "polymorphic_on": observationstypeid,
     }
+
+    @property
+    def fejlmeldt(self):
+        return self._fejlmeldt == Boolean.TRUE
+
+    @fejlmeldt.setter
+    def fejlmeldt(self, value: Boolean):
+        if value:
+            self._fejlmeldt = Boolean.TRUE
+        else:
+            self._fejlmeldt = Boolean.FALSE
 
 
 class GeometriskKoteforskel(Observation):

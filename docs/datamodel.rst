@@ -152,6 +152,7 @@ i separate afsnit længere nede i teksten.
                     + value2 : Float\l
                     ...\l
                     + value15 : Float\l
+                    + fejlmeldt : Boolean\l
             }"
             fillcolor = lightskyblue
             style = filled

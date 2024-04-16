@@ -27,6 +27,7 @@ from fire.api.model import (
     RegisteringTidObjekt,
     DeclarativeBase,
     columntypes,
+    Boolean,
 )
 
 __all__ = [
@@ -55,11 +56,6 @@ class PunktInformationTypeAnvendelse(enum.Enum):
     FLAG = "FLAG"
     TAL = "TAL"
     TEKST = "TEKST"
-
-
-class Boolean(enum.Enum):
-    TRUE = "true"
-    FALSE = "false"
 
 
 class Artskode(enum.Enum):

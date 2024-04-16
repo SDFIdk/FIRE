@@ -52,13 +52,13 @@ def observation_linje(obs: Observation) -> str:
         eta_1 = obs.value4
         fejlfaktor = obs.value5
         centrering = obs.value6
-        return f"G {præs} {tid}    {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:3.1f} {centrering:4.2f} {eta_1:+07.2f} {grp:6} {oid:6}"
+        return f"G {præs} {tid}   {dH:+09.6f}   {L:6.1f} {N:2}   {fra:12} {til:12}    {fejlfaktor:3.1f} {centrering:4.2f} {eta_1:+07.2f} {grp:6} {oid:6}"
 
     # Trigonometrisk nivellement
     if obs.observationstypeid == 2:
         fejlfaktor = obs.value4
         centrering = obs.value5
-        return f"T 0 {tid}    {dH:+09.6f}  {L:05.1f} {N:2}    {fra:12} {til:12}    {fejlfaktor:3.1f} {centrering:4.2f}    0.00 {grp:6} {oid:6}"
+        return f"T 0 {tid}    {dH:+09.6f}  {L:6.1f} {N:2}   {fra:12} {til:12}    {fejlfaktor:3.1f} {centrering:4.2f}    0.00 {grp:6} {oid:6}"
 
 
 def koordinat_linje(koord: Koordinat) -> str:
@@ -238,7 +238,11 @@ def observationsrapport(
     for obs in observationer:
         linje = observation_linje(obs)
         if linje != "" and linje is not None:
-            fire.cli.print("    " + observation_linje(obs))
+            if obs.fejlmeldt:
+                fire.cli.print(" X  " + observation_linje(obs), fg="red")
+            else:
+                fire.cli.print("    " + observation_linje(obs))
+
     fire.cli.print("  " + 110 * "-")
 
     if not opt_detaljeret:
