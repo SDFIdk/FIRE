@@ -186,7 +186,7 @@ def test_indset_flere_observationer(firedb: FireDb, sag: Sag, punkt: Punkt):
         observationstype=obstype,
         observationstidspunkt=dt.datetime.utcnow(),
         opstillingspunkt=punkt,
-        value1=0,
+        value1=1,
         value2=0,
         value3=0,
         value4=0,
