@@ -233,11 +233,6 @@ def bernese(
     en COV-fil. Sidstnævnte er ikke altid tilgængelig, det gælder især ved ældre
     beregninger.
 
-    Som udgangspunkt indlæses koordinater i databasen uden at tilknytte dem til
-    tidsserier. Hvis en tidsserietype specificeres med ``--tidsserie`` tilføjes
-    koordinaterne også til de relevante tidsserier for de givne punkter. Disse kan
-    efterfølgende tilgås via tidsseriens navn, fx "RDIO_5D_IGb08".
-
     Som udgangspunkt tilknyttes de indlæste koordinater til en tidsserie. Der findes
     forskellige tidsserietyper til forskellige beregningsformål, fx NKG og 5D. De
     oprettede tidsserier kan efterfølgende tilgås via tidsseriens navn, RDIO_5D_IGb08.
