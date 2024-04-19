@@ -8,8 +8,8 @@ import pandas as pd
 import fire.cli
 from fire import uuid
 from fire.api.model import (
-    EventType,
     Koordinat,
+    Beregning,
 )
 from fire.io.regneark import arkdef
 from fire.io.formattering import forkort
@@ -93,6 +93,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     punktoversigt = find_faneblad(
         projektnavn, "Endelig beregning", arkdef.PUNKTOVERSIGT
     )
+    observationer = find_faneblad(projektnavn, "Observationer", arkdef.OBSERVATIONER)
     # Lav en kopi med de endelige resultater
     ny_punktoversigt = punktoversigt.copy()
 
@@ -122,6 +123,33 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         fire.cli.print("Ingen koter at registrere!", fg="yellow", bold=True)
         return
 
+    # Tilknyt koter til observationer i en beregning
+    observationer = observationer[
+        observationer["Sluk"] == ""
+    ]  # se bort fra slukkede observationer
+    observationer = observationer[
+        observationer["uuid"] != ""
+    ]  # udvælg alle observationer med et database-ID
+    observationer_i_beregning = fire.cli.firedb.hent_observationer(
+        list(observationer["uuid"])
+    )
+
+    # det giver kun mening at oprette en beregning hvis der er relaterede observationer
+    if not observationer_i_beregning:
+        fire.cli.print(
+            "FEJL: Beregning foretaget uden tilknytning til observationer i databasen!",
+            fg="white",
+            bg="red",
+            bold=True,
+        )
+        raise SystemExit()
+
+    n_obs = len(observationer_i_beregning)
+    beregning = Beregning(
+        observationer=observationer_i_beregning,
+        koordinater=til_registrering,
+    )
+
     # Vi vil ikke have alt for lange sagseventtekster (bl.a. fordi Oracle ikke
     # kan lide lange tekststrenge), så vi indsætter udeladelsesprikker hvis vi
     # opdaterer mere end 10 punkter ad gangen
@@ -136,6 +164,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         beskrivelse=sagseventtekst,
         htmler=[clob_html],
         koordinater=til_registrering,
+        beregninger=[beregning],
     )
     fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
 
@@ -157,8 +186,14 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     sagsgang = frame.append(sagsgang, sagsgangslinje)
 
     fire.cli.print(sagseventtekst, fg="yellow", bold=True)
-    fire.cli.print(f"Ialt {n} koter")
+    fire.cli.print(f"Ialt {n} koter bestemt ud fra {n_obs} observationer\n")
 
+    if n > n_obs:
+        fire.cli.print(
+            "ADVARSEL: Færre observationer end beregnede koter registreret i databasen!",
+            fg="white",
+            bg="yellow",
+        )
     try:
         fire.cli.firedb.session.flush()
     except Exception as ex:
