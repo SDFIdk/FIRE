@@ -144,7 +144,18 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
         )
         raise SystemExit()
 
+    n_koter = len(opdaterede_punkter)
     n_obs = len(observationer_i_beregning)
+    # det giver kun mening at oprette en beregning hvis der er relaterede observationer
+    if n_koter > n_obs:
+        fire.cli.print(
+            "FEJL: Færre observationer end beregnede koter registreret i databasen!",
+            fg="white",
+            bg="red",
+            bold=True,
+        )
+        raise SystemExit()
+
     beregning = Beregning(
         observationer=observationer_i_beregning,
         koordinater=til_registrering,
@@ -153,7 +164,6 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     # Vi vil ikke have alt for lange sagseventtekster (bl.a. fordi Oracle ikke
     # kan lide lange tekststrenge), så vi indsætter udeladelsesprikker hvis vi
     # opdaterer mere end 10 punkter ad gangen
-    n = len(opdaterede_punkter)
     punktnavne = [p.ident for p in opdaterede_punkter]
     punktnavne = forkort(punktnavne)
     sagseventtekst = f"Opdatering af DVR90 kote til {', '.join(punktnavne)}"
@@ -186,14 +196,8 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     sagsgang = frame.append(sagsgang, sagsgangslinje)
 
     fire.cli.print(sagseventtekst, fg="yellow", bold=True)
-    fire.cli.print(f"Ialt {n} koter bestemt ud fra {n_obs} observationer\n")
+    fire.cli.print(f"Ialt {n_koter} koter bestemt ud fra {n_obs} observationer\n")
 
-    if n > n_obs:
-        fire.cli.print(
-            "ADVARSEL: Færre observationer end beregnede koter registreret i databasen!",
-            fg="white",
-            bg="yellow",
-        )
     try:
         fire.cli.firedb.session.flush()
     except Exception as ex:
@@ -204,7 +208,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     else:
         spørgsmål = click.style("Du indsætter nu ", fg="white", bg="red")
         spørgsmål += click.style(
-            f"{len(til_registrering)} kote(r) ", fg="white", bg="red", bold=True
+            f"{n_koter} kote(r) ", fg="white", bg="red", bold=True
         )
         spørgsmål += click.style(f"i ", fg="white", bg="red")
         spørgsmål += click.style(
