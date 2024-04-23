@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List, Optional
 import re
 
-from sqlalchemy import or_, and_
+from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -332,7 +332,7 @@ class FireDbHent(FireDbBase):
             SRID ikke findes i databasen.
         """
         srid_filter = str(sridid).upper()
-        return self.session.query(Srid).filter(Srid.name == srid_filter).one()
+        return self.session.query(Srid).filter(func.upper(Srid.name) == srid_filter).one()
 
     def hent_srider(self, namespace: Optional[str] = None) -> List[Srid]:
         """
