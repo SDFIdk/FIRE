@@ -62,5 +62,6 @@ setup(
         luk=fire.cli.luk:luk
         indlæs=fire.cli.indlæs:indlæs
         ts=fire.cli.ts:ts
+        config=fire.cli.config:config
     """,
 )
