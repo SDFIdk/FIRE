@@ -201,9 +201,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             # Skriv resultater til resultatregneark
             resultater = {"Sagsgang": sagsgang, "Observationer": observationer}
             skriv_ark(projektnavn, resultater)
-            fire.cli.print(
-                f"Observationer registreret. Kopiér nu faneblade fra '{projektnavn}-resultat.xlsx' til '{projektnavn}.xlsx'"
-            )
         else:
             fire.cli.firedb.session.rollback()
             fire.cli.print(f"Observationer for '{projektnavn}' IKKE indlæst!")
