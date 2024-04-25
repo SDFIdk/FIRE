@@ -398,17 +398,34 @@ def punkt(
     genkendelige tilfælde (GNSS-id, GI/GM-numre, lands- og købstadsnumre).
 
     Anfører man ikke specifikke tilvalg vises kun basale dele: Attributter og
-    punktbeskrivelser + gældende koordinater.
+    punktbeskrivelser, tilknyttede skitser og billeder, samt gældende koordinater.
+    Herudover kan tilvælges yderligere information med argumenterne beskrevet herunder.
 
-    Tilvalg ``--detaljer/-D`` udvider med sjældnere brugte informationer
+    Tilvalg ``--detaljer/-D`` udvider med sjældnere brugte informationer.
 
     Tilvalg ``--koord/-K`` kan sættes til ts, alle, ingen - eller kombinationer:
     fx ``ts,alle``. ``alle`` tilvælger historiske koordinater, ``ts`` tilvælger
     tidsseriekoordinater, ``ingen`` fravælger alle koordinatoplysninger.
 
+    Koordinatlisten viser med grønt de gældende koordinater, og med rødt ældre,
+    ikke-aktuelle koordinater. Samme information angives med et tegn før datoen:
+    
+    \b
+        * gældende koordinat
+        . ikke-aktuel koordinat
+        X fejlmeldt koordinat
+
+    Koordinates koordinatsystem angives med en SRID (Spatial Reference ID), typisk
+    en EPSG-kode. Disse kan slås op med ``fire info srid``.
+    Tal i parentes efter en koordinat angiver spredningen, givet i milimeter, på koordinaten.
+    For fler-dimensionelle koordinater gives spredning på alle koordinatens komponenter.
+    
     Tilvalg ``--obs/-O`` kan sættes til ``alle`` eller ``niv``. Begge tilvælger visning
     af observationer til/fra det søgte punkt. P.t. understøttes kun visning af
     nivellementsobservationer.
+
+    Af observationslisten fremgår de væsentligste informationer om en given observation.
+    Vises linjen med rødt og et foranstillet X betyder det at observationen er fejlmeldt.
 
     Hvis der findes skitser eller billedmateriale for et punkt angives disse
     under sektionen "Grafik" og kan vises med ``fire grafik`` kommandoen.
