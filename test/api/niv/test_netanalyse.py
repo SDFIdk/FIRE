@@ -37,7 +37,7 @@ def test_netgraf():
     Test at netgraf returnerer det forventede antal punkter
 
     Der testes for antal forbundne punkter, antal singulære punkter, og antal
-    kolonner i Netgeometri-dataframen (svarende til højeste antal naboer + 1.)
+    kolonner i Netgeometri-dataframen (svarende til højeste antal naboer + 1).
     """
     N = 20
     alle_punkter = tuple(str(i) for i in range(N))
