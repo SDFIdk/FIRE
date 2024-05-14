@@ -265,35 +265,36 @@ class Punkt(FikspunktregisterObjekt):
                 return True
         return False
 
-    @property
-    def landsnummer(self) -> str:
-        landsnumre = []
+    def _hent_ident_af_type(self, identtype: str) -> str:
+        numre = []
         for punktinfo in self.punktinformationer:
             if (
-                punktinfo.infotype.name == "IDENT:landsnr"
+                punktinfo.infotype.name == identtype
                 and not punktinfo.registreringtil
             ):
-                landsnumre.append(punktinfo.tekst)
+                numre.append(punktinfo.tekst)
 
-        if landsnumre:
-            return sorted(landsnumre)[0]
+        if numre:
+            return sorted(numre)[0]
+
+        return None
+
+    @property
+    def landsnummer(self) -> str:
+        _landsnummer = self._hent_ident_af_type("IDENT:landsnr")
+
+        if _landsnummer:
+            return _landsnummer
 
         return self.ident
 
     @property
     def gnss_navn(self) -> str:
-        gnss_navne = []
-        for punktinfo in self.punktinformationer:
-            if (
-                punktinfo.infotype.name == "IDENT:GNSS"
-                and not punktinfo.registreringtil
-            ):
-                gnss_navne.append(punktinfo.tekst)
+        return self._hent_ident_af_type("IDENT:GNSS")
 
-        if gnss_navne:
-            return sorted(gnss_navne)[0]
-
-        return None
+    @property
+    def jessennummer(self) -> str:
+       return self._hent_ident_af_type("IDENT:jessen")
 
     def __lt__(self, other: Punkt) -> bool:
         return self.landsnummer < other.landsnummer
