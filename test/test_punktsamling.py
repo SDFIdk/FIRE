@@ -1,16 +1,20 @@
+from typing import Callable
+
 import pytest
 from sqlalchemy.exc import NoResultFound
 
 import fire
 from fire.api import FireDb
 from fire.api.model import (
+    Koordinat,
     Punkt,
     PunktSamling,
+    Sagsevent,
     EventType,
 )
 
 
-def test_hent_punktsamling(firedb):
+def test_hent_punktsamling(firedb: FireDb):
     """Test at vi kan læse punktsamling fra databasen"""
     punktsamling = firedb.hent_punktsamling("Aarhus Nivellementstest")
 
@@ -25,7 +29,12 @@ def test_hent_punktsamling(firedb):
         firedb.hent_punktsamling("findes ikke")
 
 
-def test_hent_fra_punkt(firedb):
+def test_hent_alle_punktsamlinger(firedb: FireDb):
+    p = firedb.hent_alle_punktsamlinger()
+    assert isinstance(p, list)
+
+
+def test_hent_fra_punkt(firedb: FireDb):
     """Test at en punktsamling kan findes via et punkt"""
     punkt = firedb.hent_punkt("RDIO")
     punktsamling = punkt.punktsamlinger[0]
@@ -35,13 +44,17 @@ def test_hent_fra_punkt(firedb):
     assert punktsamling.formål == "Kontrollere stabiliteten af RDIO"
 
 
-def test_opret_punktsamling(firedb, sagsevent, punktfabrik, koordinat):
+def test_opret_punktsamling(
+    firedb: FireDb, sagsevent: Sagsevent, punktfabrik: Callable, koordinat: Koordinat
+):
     """Test at en punktsamling kan oprettes"""
 
     navn = f"Test-{fire.uuid()[0:9]}"
     jessenpunkt = punktfabrik()
 
-    punkter = [jessenpunkt,] + [punktfabrik() for _ in range(3)]
+    punkter = [
+        jessenpunkt,
+    ] + [punktfabrik() for _ in range(3)]
 
     punktsamling = PunktSamling(
         navn=navn,
@@ -69,7 +82,9 @@ def test_opret_punktsamling(firedb, sagsevent, punktfabrik, koordinat):
     assert ps.formål == "Test"
 
 
-def test_udvid_punktsamling(firedb, sagseventfabrik, punktsamling, punkt):
+def test_udvid_punktsamling(
+    firedb: FireDb, sagseventfabrik: Callable, punktsamling: PunktSamling, punkt: Punkt
+):
     """Test at en punktsamling kan oprettes"""
 
     firedb.session.flush()
@@ -90,7 +105,9 @@ def test_udvid_punktsamling(firedb, sagseventfabrik, punktsamling, punkt):
     assert len(punktsamling.punkter) == 6
 
 
-def test_luk_punktsamling(firedb, sagsevent, punktsamling):
+def test_luk_punktsamling(
+    firedb: FireDb, sagsevent: Sagsevent, punktsamling: PunktSamling
+):
     firedb.session.flush()
 
     assert punktsamling.sagseventtilid is None

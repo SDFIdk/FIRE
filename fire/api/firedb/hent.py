@@ -167,6 +167,16 @@ class FireDbHent(FireDbBase):
             .one()
         )
 
+    def hent_alle_punktsamlinger(self) -> list[PunktSamling]:
+        """
+        Hent alle punktsamlinger fra databasen.
+        """
+        return (
+            self.session.query(PunktSamling)
+            .filter(PunktSamling._registreringtil == None)  # NOQA
+            .all()
+        )
+
     def hent_tidsserie(self, navn: str) -> Tidsserie:
         """
         Hent en tidsserie ud fra dens navn.
