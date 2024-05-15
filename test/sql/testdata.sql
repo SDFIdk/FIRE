@@ -1548,6 +1548,7 @@ INSERT INTO punktsamling (
     'Kontrollere stabiliteten af RDIO'
 );
 
+INSERT INTO punktsamling_punkt (punktsamlingsid, punktid) VALUES (1, '301b8578-8cc8-48a8-8446-541f31482f86');
 INSERT INTO punktsamling_punkt (punktsamlingsid, punktid) VALUES (1, 'b54a5515-d050-4049-bcb8-93a5e1039cc3');
 INSERT INTO punktsamling_punkt (punktsamlingsid, punktid) VALUES (1, 'bfe1d698-09fb-450a-81e7-4e2832b6bea7');
 INSERT INTO punktsamling_punkt (punktsamlingsid, punktid) VALUES (1, 'c3d38a21-329e-474a-a4d1-068e8219b622');

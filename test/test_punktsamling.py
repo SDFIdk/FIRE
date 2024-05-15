@@ -17,9 +17,9 @@ def test_hent_punktsamling(firedb):
     assert punktsamling.jessenpunkt.ident == "RDIO"
     assert punktsamling.navn == "Aarhus Nivellementstest"
 
-    assert len(punktsamling.punkter) == 3
+    assert len(punktsamling.punkter) == 4
     for p in punktsamling.punkter:
-        assert p.ident in ("K-63-19113", "K-63-09933", "K-63-09116")
+        assert p.ident in ("RDIO", "K-63-19113", "K-63-09933", "K-63-09116")
 
     with pytest.raises(NoResultFound):
         firedb.hent_punktsamling("findes ikke")
@@ -38,10 +38,10 @@ def test_hent_fra_punkt(firedb):
 def test_opret_punktsamling(firedb, sagsevent, punktfabrik, koordinat):
     """Test at en punktsamling kan oprettes"""
 
-    punkter = [punktfabrik() for _ in range(3)]
-
     navn = f"Test-{fire.uuid()[0:9]}"
     jessenpunkt = punktfabrik()
+
+    punkter = [jessenpunkt,] + [punktfabrik() for _ in range(3)]
 
     punktsamling = PunktSamling(
         navn=navn,

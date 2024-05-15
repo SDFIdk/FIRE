@@ -148,6 +148,7 @@ class Punkt(FikspunktregisterObjekt):
     )
     punktsamlinger = relationship(
         "PunktSamling",
+        secondary = punktsamling_punkt,
         order_by="PunktSamling.objektid",
         viewonly=True,
     )
