@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter, deque
 from typing import Dict, List, Set, Tuple
 
 import click
@@ -108,59 +108,38 @@ def netgraf(
         net[til].add(fra)
 
     # Undersøg om der er nettet består af flere ikke-sammenhængende subnet.
-    # Skriv advarsel hvis ikke der er mindste et fastholdt punkt i hvert
-    # subnet.
     subnet = analyser_subnet(net)
-    if len(subnet) > 1:
-        fastholdte_i_subnet = [None for _ in subnet]
-        for i, subnet_ in enumerate(subnet):
-            for subnetpunkt in subnet_:
-                if subnetpunkt in fastholdte_punkter:
-                    fastholdte_i_subnet[i] = subnetpunkt
-                    continue
-
-        if None in fastholdte_i_subnet:
-            fire.cli.print(
-                "ADVARSEL: Manglende fastholdt punkt i mindst et subnet! Forslag til fastholdte punkter i hvert subnet:",
-                bg="yellow",
-                fg="black",
-            )
-            for i, subnet_ in enumerate(subnet):
-                if fastholdte_i_subnet[i]:
-                    fire.cli.print(
-                        f"  Subnet {i}: {fastholdte_i_subnet[i]}", fg="green"
-                    )
-                else:
-                    fire.cli.print(f"  Subnet {i}: {subnet_[0]}", fg="red")
-
-    # Tilføj forbindelser fra alle fastholdte punkter til det første fastholdte punkt
-    udgangspunkt = fastholdte_punkter[0]
-    for punkt in fastholdte_punkter:
-        if punkt != udgangspunkt:
-            net[udgangspunkt].add(punkt)
-            net[punkt].add(udgangspunkt)
-
-    # Analysér netgraf
     forbundne_punkter = set()
     ensomme_punkter = set()
-    for punkt in alle_punkter:
-        if path_to_origin(net, udgangspunkt, punkt) is None:
-            ensomme_punkter.add(punkt)
+
+    fastholdte_i_subnet = [None for _ in subnet]
+    for i, subnet_ in enumerate(subnet):
+        for punkt in fastholdte_punkter:
+            if punkt in subnet_:
+                fastholdte_i_subnet[i] = punkt
+                forbundne_punkter.update(subnet_)
+                break
         else:
-            forbundne_punkter.add(punkt)
+            ensomme_punkter.update(subnet_)
 
-    # Vi vil ikke have de kunstige forbindelser mellem fastholdte punkter med
-    # i output, så nu genopbygger vi nettet uden dem
-    net = {}
-    for punkt in alle_punkter:
-        net[punkt] = set()
-    for fra, til in zip(observationer["Fra"], observationer["Til"]):
-        net[fra].add(til)
-        net[til].add(fra)
-
-    # De ensomme punkter skal heller ikke med i netgrafen
+    # De ensomme punkter skal ikke med i netgrafen
     for punkt in ensomme_punkter:
         net.pop(punkt, None)
+
+    # Skriv advarsel hvis ikke der er mindste et fastholdt punkt i hvert
+    # subnet.
+
+    if None in fastholdte_i_subnet:
+        fire.cli.print(
+            "ADVARSEL: Manglende fastholdt punkt i mindst et subnet! Forslag til fastholdte punkter i hvert subnet:",
+            bg="yellow",
+            fg="black",
+        )
+        for i, subnet_ in enumerate(subnet):
+            if fastholdte_i_subnet[i]:
+                fire.cli.print(f"  Subnet {i}: {fastholdte_i_subnet[i]}", fg="green")
+            else:
+                fire.cli.print(f"  Subnet {i}: {subnet_[0]}", fg="red")
 
     # Nu kommer der noget grimt...
     # Tving alle rækker til at være lige lange, så vi kan lave en dataframe af dem
@@ -181,72 +160,47 @@ def netgraf(
     return netf, ensomme
 
 
-# ------------------------------------------------------------------------------
-# path_to_origin - eksempel:
-#
-# graph = {
-#     'A': {'B', 'C'},
-#     'B': {'C', 'D'},
-#     'C': {'D'},
-#     'D': {'C'},
-#     'E': {'F'},
-#     'F': {'C'},
-#     'G': {}
-# }
-#
-# print (path_to_origin (graph, 'A', 'C'))
-# print (path_to_origin (graph, 'A', 'G'))
-# ------------------------------------------------------------------------------
-def path_to_origin(
-    graph: Dict[str, Set[str]], start: str, origin: str, path: List[str] = []
-):
-    """
-    Mikroskopisk backtracking netkonnektivitetstest. Baseret på et
-    essay af Pythonstifteren Guido van Rossum, publiceret 1998 på
-    https://www.python.org/doc/essays/graphs/. Koden er her
-    moderniseret fra Python 1.5 til 3.7 og modificeret til at
-    arbejde på dict-over-set (originalen brugte dict-over-list)
-    """
-    path = path + [start]
-    if start == origin:
-        return path
-    if start not in graph:
-        return None
-    for node in graph[start]:
-        if node not in path:
-            newpath = path_to_origin(graph, node, origin, path)
-            if newpath:
-                return newpath
-    return None
-
-
-def analyser_subnet(net):
+def analyser_subnet(net: dict[set]) -> list[list]:
     """
     Find selvstændige net i et større net
 
-    Med inspiration fra https://www.geeksforgeeks.org/connected-components-in-an-undirected-graph/
+    Bruger breadth first search (BFS).
+    Baseret på materiale fra: https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/
     """
 
-    def depth_first_search(net, visited, vertex, subnet):
-        visited[vertex] = True
-        subnet.append(vertex)
+    # Funktion til breadth first search
+    def bfs(net, besøgt, startpunkt, subnet=[]):
+        # Initialiser kø
+        kø = deque()
 
-        for adjacent_vertex in net[vertex]:
-            if not visited[adjacent_vertex]:
-                net, visited, vertex, subnet = depth_first_search(
-                    net, visited, adjacent_vertex, subnet
-                )
+        # Marker nuværende punkt som besøgt og føj til kø
+        besøgt[startpunkt] = True
+        kø.append(startpunkt)
 
-        return net, visited, vertex, subnet
+        # Opbyg subnet
+        subnet.append(startpunkt)
 
-    visited = {vertex: False for vertex in net.keys()}
-    connected_vertices = []
-    for vertex in net.keys():
-        if not visited[vertex]:
+        # Loop over køen
+        while kø:
+            # Fjern nuværende punkt fra køen
+            nuværende_punkt = kø.popleft()
+
+            # Find naboer til nuværende punkt
+            # Hvis en nabo ikke har været besøgt, marker den da som besøgt og føj til kø
+            for nabo in net[nuværende_punkt]:
+                if not besøgt[nabo]:
+                    besøgt[nabo] = True
+                    kø.append(nabo)
+
+                    # Opbyg subnet
+                    subnet.append(nabo)
+
+    besøgt = {punkt: False for punkt in net.keys()}
+    liste_af_subnet = []
+    for punkt in net.keys():
+        if not besøgt[punkt]:
             subnet = []
-            net, visited, vertex, subnet = depth_first_search(
-                net, visited, vertex, subnet
-            )
-            connected_vertices.append(subnet)
+            bfs(net, besøgt, punkt, subnet)
+            liste_af_subnet.append(subnet)
 
-    return connected_vertices
+    return liste_af_subnet
