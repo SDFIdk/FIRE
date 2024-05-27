@@ -29,41 +29,34 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Cache Oracle instantclient
-      uses: actions/cache@v3
-      id: oracle_cache
-      env:
-        # Increase this value to reset cache if environment-dev.yml has not changed
-        CACHE_NUMBER: 0
-      with:
-        path: ~/oracle
-        key:
-          ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('scripts/get_oracle_pkgs.sh') }}
-
-    - name: Download Oracle .rpm'er og oversæt til .deb
-      if: steps.oracle_cache.outputs.cache-hit != 'true'
-      run: |
-        sudo apt-get install alien libaio1
-
-        mkdir -p ~/oracle
-        cd ~/oracle
-
-        sh $GITHUB_WORKSPACE/scripts/get_oracle_pkgs.sh
-
-        cd $GITHUB_WORKSPACE
-
     - name: Installer Oracle instantclient et al
       run: |
-        sudo dpkg -i ~/oracle/oracle-instantclient19.13-basic_19.13.0.0.0-2_amd64.deb
-        sudo dpkg -i ~/oracle/oracle-instantclient19.13-sqlplus_19.13.0.0.0-2_amd64.deb
+        
+        mkdir -p /opt/oracle
+        cd /opt/oracle
 
-        sudo sh -c "echo /usr/lib/oracle/19.13/client64/lib > /etc/ld.so.conf.d/oracle-instantclient.conf"
+        # Download links findes her: https://www.oracle.com/database/technologies/instant-client/linux-x86-64-downloads.html
+        wget -nv https://download.oracle.com/otn_software/linux/instantclient/2340000/instantclient-basic-linux.x64-23.4.0.24.05.zip
+        wget -nv https://download.oracle.com/otn_software/linux/instantclient/2340000/instantclient-sqlplus-linux.x64-23.4.0.24.05.zip
+ 
+        unzip -o instantclient-basic-linux.x64-23.4.0.24.05.zip
+        unzip -o instantclient-sqlplus-linux.x64-23.4.0.24.05.zip
+
+        ls -la /opt/oracle/instantclient_23_4
+
+        sudo apt-get install libaio1
+        
+        sudo sh -c "echo /opt/oracle/instantclient_23_4 > /etc/ld.so.conf.d/oracle-instantclient.conf"
         sudo ldconfig
 
-    - name: Forbered conda environment
-      run: |
-        sed -i '/bzip2/d' environment-dev.yml
-        cat environment-dev.yml
+        export LD_LIBRARY_PATH=/opt/oracle/instantclient_23_4:$LD_LIBRARY_PATH
+        export PATH=/opt/oracle/instantclient_23_4:$PATH
+        
+        # Gem miljøvariable til brug i de følgende trin
+        echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+        echo "PATH=$PATH" >> "$GITHUB_ENV"
+        
+        which sqlplus
 
     - name: Cache conda
       uses: actions/cache@v3
@@ -95,15 +88,15 @@ jobs:
 
     - name: Populer database
       run: |
-        sqlplus64 -V
+        sqlplus -V
         # Opsæt database
-        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S system/oracle@//localhost:1521/XEPDB1 @test/ci/init.sql
+        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus -S system/oracle@//localhost:1521/XEPDB1 @test/ci/init.sql
         # Indlæs DDL
-        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/XEPDB1 @sql/ddl.sql
+        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus -S fire/fire@//localhost:1521/XEPDB1 @sql/ddl.sql
         # Indlæs Views
-        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/XEPDB1 @sql/views.sql
+        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus -S fire/fire@//localhost:1521/XEPDB1 @sql/views.sql
         # Indlæs testdata
-        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus64 -S fire/fire@//localhost:1521/XEPDB1 @test/sql/testdata.sql
+        NLS_LANG=.AL32UTF8 ORACLE_PATH="${GITHUB_WORKSPACE}/misc/oracle" sqlplus -S fire/fire@//localhost:1521/XEPDB1 @test/sql/testdata.sql
         # Indlæst opmålingsdistrikter
         python scripts/load_shapefile.py
 
