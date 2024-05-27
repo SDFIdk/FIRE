@@ -58,11 +58,6 @@ jobs:
         
         which sqlplus
 
-    - name: Forbered conda environment
-      run: |
-        sed -i '/bzip2/d' environment-dev.yml
-        cat environment-dev.yml
-
     - name: Cache conda
       uses: actions/cache@v3
       env:
