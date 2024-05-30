@@ -903,7 +903,7 @@ START WITH SYSDATE NEXT SYSDATE + 1 / 24
 AS
 WITH
 	punkter AS (
-		SELECT pi.punktid FROM punktinfo pi
+		SELECT pi.punktid, pi.registreringfra tabstidspunkt FROM punktinfo pi
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
 		WHERE pit.infotype='ATTR:tabtgået' AND pi.registreringtil IS NULL
 	),
@@ -924,7 +924,8 @@ WITH
 SELECT
 	geometrier.geometri,
 	landsnr.ident landsnr,
-	beskrivelser.tekst
+	beskrivelser.tekst,
+	punkter.tabstidspunkt
 FROM punkter
 JOIN landsnr ON punkter.punktid=landsnr.punktid
 JOIN beskrivelser ON punkter.punktid=beskrivelser.punktid
