@@ -82,6 +82,7 @@ def test_hent_punkt(firedb: FireDb, punkt: Punkt):
     s = p.sagsevent
     assert isinstance(s, Sagsevent)
 
+
 def test_hent_punkt(firedb: FireDb):
     """
     Test at `hent_punkt()` returnerer det eksakte match i tilfælde af der
@@ -195,6 +196,33 @@ def test_hent_punkt_liste(firedb: FireDb):
         ["SKEJ", "RDIO", "ukendt_ident"], ignorer_ukendte=True
     )
     assert len(punkter) == 2
+
+
+def test_hent_punkter_fra_uuid_liste(firedb: FireDb):
+
+    identer = ["RDIO", "RDO1", "G.I.1234"]
+
+    punkter = firedb.hent_punkter_fra_uuid_liste(
+        [
+            "301b8578-8cc8-48a8-8446-541f31482f86",  # RDIO
+            "4b4c5c17-32e8-495d-a598-cdf42e0892de",  # RDO1
+            "4871c57b-d325-45fa-a03a-fdcff49273c0",  # G.I.1234
+        ]
+    )
+
+    for punkt in punkter:
+        assert punkt.ident in identer
+
+    # Tjek håndtering af opslag på ikke-eksisterende punkter
+    punkter = firedb.hent_punkter_fra_uuid_liste(
+        [
+            "et-uuid-der-ikke-findes",
+            "et-andet-uuid-der-ikke-findes",
+        ]
+    )
+
+    # Vi forventer en tom liste her
+    assert not punkter
 
 
 def test_soeg_punkter(firedb: FireDb):
