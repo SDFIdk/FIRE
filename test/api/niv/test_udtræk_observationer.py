@@ -29,7 +29,6 @@ from fire.api.niv.udtræk_observationer import (
     søgefunktioner_med_valgte_metoder,
     brug_alle_på_alle,
     observationer_inden_for_spredning,
-    opstillingspunkter,
     timestamp,
     punkter_til_geojson,
 )
@@ -175,14 +174,6 @@ def test_observationer_inden_for_spredning():
 
     result = set(observationer_inden_for_spredning(tks, spredning))
     expected = tks_indenfor
-    assert result == expected, f"Forventede, at {result!r} var {expected!r}."
-
-
-def test_opstillingspunkter():
-    punkter = [Punkt() for _ in range(10)]
-    observationer = [GK(opstillingspunkt=punkt) for punkt in punkter]
-    result = set(opstillingspunkter(observationer))
-    expected = set(punkter)
     assert result == expected, f"Forventede, at {result!r} var {expected!r}."
 
 
