@@ -129,11 +129,11 @@ WITH
 	SELECT pi.punktid, LISTAGG(pi.tekst, '; ') WITHIN GROUP(ORDER BY pi.tekst) tekst
 	FROM punktinfo pi
 	JOIN punktinfotype pit ON pit.infotypeid = pi.infotypeid
-	WHERE 
-			pit.infotype LIKE 'AFM:%' 
-		AND 
-			pit.anvendelse = 'TEKST' 
-		AND 
+	WHERE
+			pit.infotype LIKE 'AFM:%'
+		AND
+			pit.anvendelse = 'TEKST'
+		AND
 			pi.registreringtil IS NULL
 	GROUP BY pi.punktid
   ),
@@ -141,7 +141,7 @@ WITH
 	SELECT pi.punktid, pi.tal h
 	FROM punktinfo pi
 	JOIN punktinfotype pit ON pit.infotypeid = pi.infotypeid
-	WHERE 
+	WHERE
 		pit.infotype = 'AFM:højde_over_terræn'
 	AND
 		pi.registreringtil IS NULL
@@ -577,6 +577,80 @@ VALUES
   );
 
 CREATE INDEX v_dmi_vandstandsmaalere_geometri_idx ON v_dmi_vandstandsmaalere (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
+
+-- KDI vandstandsmålere
+CREATE MATERIALIZED VIEW v_kdi_vandstandsmaalere
+REFRESH ON DEMAND
+START WITH SYSDATE NEXT SYSDATE + 1 / 24
+AS
+WITH
+	punkter AS (
+		SELECT pi.punktid FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='NET:KDI' AND pi.registreringtil IS NULL
+	),
+	gnss_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:GNSS' AND pi.registreringtil IS NULL
+	),
+	landsnr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	),
+	etrs89 AS (
+		SELECT k.punktid,k.t,k.x,k.y,k.z FROM koordinat k
+		JOIN sridtype st ON k.sridid=st.sridid
+		WHERE st.srid = 'EPSG:4937' AND k.registreringtil IS NULL
+	),
+	dvr90 AS (
+		SELECT k.punktid, k.t, k.z FROM koordinat k
+		JOIN sridtype st ON k.sridid=st.sridid
+		WHERE st.srid = 'EPSG:5799' AND k.registreringtil IS NULL
+	),
+	geometrier AS (
+		SELECT geometri, punktid FROM geometriobjekt go
+		WHERE go.registreringtil IS NULL
+	),
+	tabtgaaet AS (
+		SELECT pi.punktid, 'TRUE' AS tabtgaaet FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='ATTR:tabtgået' AND pi.registreringtil IS NULL
+	)
+SELECT
+	geometrier.geometri,
+	landsnr.ident LANDSNR,
+	gnss_ident.ident GNSS_NAVN,
+	etrs89.t  ETRS89_T,
+	etrs89.x  ETRS89_LON,
+	etrs89.y  ETRS89_LAT,
+	etrs89.z  ETRS89_ELLPSH,
+	dvr90.t   DVR90_T,
+	dvr90.z   DVR90_KOTE
+FROM punkter
+LEFT JOIN gnss_ident ON punkter.punktid=gnss_ident.punktid
+LEFT JOIN landsnr ON punkter.punktid=landsnr.punktid
+LEFT JOIN etrs89 ON punkter.punktid=etrs89.punktid
+LEFT JOIN dvr90 ON punkter.punktid=dvr90.punktid
+LEFT JOIN tabtgaaet ON punkter.punktid=tabtgaaet.punktid
+JOIN geometrier ON punkter.punktid=geometrier.punktid
+WHERE tabtgaaet.tabtgaaet IS NULL;
+
+INSERT INTO
+  user_sdo_geom_metadata (table_name, column_name, diminfo, srid)
+VALUES
+  (
+    'V_KDI_VANDSTANDSMAALERE',
+    'GEOMETRI',
+    MDSYS.SDO_DIM_ARRAY(
+      MDSYS.SDO_DIM_ELEMENT('Longitude', 7.0, 16.0, 0.005),
+      MDSYS.SDO_DIM_ELEMENT('Latitude', 54.0000, 59.0000, 0.005)
+    ),
+    4326
+  );
+
+CREATE INDEX v_kdi_vandstandsmaalere_geometri_idx ON v_kdi_vandstandsmaalere (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
 
 -- DVR90 definerende vandstandsmålere
 CREATE MATERIALIZED VIEW v_dvr90_vandstandsmaalere
