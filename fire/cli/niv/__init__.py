@@ -487,6 +487,7 @@ def obs_feature(
                 "Målinger": antal_målinger[tuple(sorted([fra, til]))],
                 "Afstand": observationer.at[i, "L"],
                 "ΔH": observationer.at[i, "ΔH"],
+                "Observationstidspunkt": str(observationer.at[i, "Hvornår"]),
                 # konvertering, da json.dump ikke uderstøtter int64
                 "Opstillinger": int(observationer.at[i, "Opst"]),
                 "Journal": observationer.at[i, "Journal"],

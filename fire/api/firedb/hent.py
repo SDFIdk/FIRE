@@ -123,6 +123,32 @@ class FireDbHent(FireDbBase):
 
         return result
 
+    def hent_punkter_fra_uuid_liste(self, uuids: List[str]):
+        """
+        Hent alle punkter med punkt ID'er matchende listen `uuids`.
+
+        Metoden tilbyder en hurtig måde at hente mange punkter ud af databasen på,
+        når punkternes UUID'er er kendte, fx fra en observationsliste.
+        """
+
+        def chunks(lst, n):
+            """Yield successive n-sized chunks from lst."""
+            for i in range(0, len(lst), n):
+                yield lst[i : i + n]
+
+        punkter = []
+        # Oracle er begrænset til IN-udtryk med 1000 elementer,
+        # derfor hentes 1000 punkter ad gangen
+        for subset in chunks(list(uuids), 1000):
+            punkter.extend(
+                self.session.query(Punkt)
+                .filter(
+                    Punkt.id.in_(subset),
+                ).all()
+            )
+
+        return punkter
+
     def hent_alle_punkter(self) -> List[Punkt]:
         return self.session.query(Punkt).all()
 
@@ -332,7 +358,9 @@ class FireDbHent(FireDbBase):
             SRID ikke findes i databasen.
         """
         srid_filter = str(sridid).upper()
-        return self.session.query(Srid).filter(func.upper(Srid.name) == srid_filter).one()
+        return (
+            self.session.query(Srid).filter(func.upper(Srid.name) == srid_filter).one()
+        )
 
     def hent_srider(self, namespace: Optional[str] = None) -> List[Srid]:
         """

@@ -39,16 +39,15 @@ from fire.api.niv.udtræk_observationer import (
     søgefunktioner_med_valgte_metoder,
     brug_alle_på_alle,
     observationer_inden_for_spredning,
-    opstillingspunkter,
-    sigtepunkter,
     timestamp,
-    punkter_til_geojson,
     ResultatSæt,
 )
 import fire.cli
 from fire.cli.niv import (
     niv as niv_command_group,
     er_projekt_okay,
+    skriv_observationer_geojson,
+    skriv_punkter_geojson,
 )
 from fire.typologi import (
     adskil_filnavne,
@@ -309,10 +308,13 @@ def udtræk_observationer(
     observationer = list(observationer_inden_for_spredning(resultatsæt, spredning))
 
     fire.cli.print("Indsaml opstillings- og sigtepunkter fra observationer")
-    opstillings_punkter = opstillingspunkter(observationer)
-    sigte_punkter = sigtepunkter(observationer)
+    opstillings_punkter = db.hent_punkter_fra_uuid_liste(
+        o.opstillingspunktid for o in observationer
+    )
+    sigte_punkter = db.hent_punkter_fra_uuid_liste(
+        o.sigtepunktid for o in observationer
+    )
     punkter = list(set(opstillings_punkter) | set(sigte_punkter))
-
     # Gem resultatet
     # --------------
 
@@ -334,14 +336,11 @@ def udtræk_observationer(
         skriv_data(output, faner)
 
     # GeoJSON primært til hurtig kontrolcheck af resultaternes placering
-    fire.cli.print(f"Gem punkter som .geojson-fil...")
-    kolonner = ["Punkt", "Type", "Nord", "Øst"]
-    flettet = ark_observationer.merge(
-        ark_punktoversigt[["Punkt", "Nord", "Øst"]],
-        left_on="Fra",
-        right_on="Punkt",
-    )[kolonner]
-    ofname = f"{projektnavn}-{timestamp()}.geojson"
-    fire.cli.print(f"Skriver punkter til {ofname} ...")
-    with open(ofname, "w+") as f:
-        json.dump(punkter_til_geojson(flettet), f, indent=2)
+    fire.cli.print(f"Gem punkter og observationer som .geojson-fil...")
+    skriv_punkter_geojson(projektnavn, ark_punktoversigt, infiks=f"-{timestamp()}")
+    skriv_observationer_geojson(
+        projektnavn,
+        ark_punktoversigt.set_index("Punkt"),
+        ark_observationer,
+        infiks=f"-{timestamp()}",
+    )
