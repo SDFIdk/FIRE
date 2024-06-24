@@ -14,7 +14,7 @@ LANDSNUMMERMØNSTER = re.compile("^[0-9]*-[0-9]*-[0-9]*$")
 KØBSTADSNUMMERMØNSTER = re.compile("^[Kk][ ]*-[0-9]*-[0-9]*$")
 "Generaliseret mønster for købstadsnumre"
 
-VANDSTANDSBRÆTMØNSTER = re.compile(r"^([Kk][ ]*|[0-9]*)-[0-9]*-V\.[0-9]*$")
+VANDSTANDSBRÆTMØNSTER = re.compile(r"^([Kk][ ]*|[0-9]*)-[0-9]*-[Vv]\.[0-9]*$")
 "Generaliseret mønster for vandstandsbræt ident"
 
 GNSSID = re.compile("^[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]$")
@@ -41,6 +41,7 @@ def kan_være_købstadsnummer(s: str) -> bool:
     """
     return KØBSTADSNUMMERMØNSTER.match(s.strip())
 
+
 def kan_være_vandstandsbræt(s: str) -> bool:
     """
     Returnerer sand, hvis `s` matcher vandstandsbrætsnummermønsteret.
@@ -48,6 +49,7 @@ def kan_være_vandstandsbræt(s: str) -> bool:
     Procedure minder om dén for landnumre.
     """
     return VANDSTANDSBRÆTMØNSTER.match(s.strip())
+
 
 def kan_være_gnssid(s: str) -> bool:
     """
@@ -96,6 +98,10 @@ def reformater_købstadsnummer(ident: str) -> str:
     return f"K-{stad:02}-{lbnr:05}"
 
 
+def reformater_vandstandsbræt(ident: str) -> str:
+    return str(ident).upper()
+
+
 def reformater_gnssid(ident: str) -> str:
     return str(ident).upper()
 
@@ -128,6 +134,9 @@ def klargør_ident_til_søgning(ident: str) -> str:
 
     if kan_være_købstadsnummer(ident):
         ident = reformater_købstadsnummer(ident)
+
+    if kan_være_vandstandsbræt(ident):
+        ident = reformater_vandstandsbræt(ident)
 
     if kan_være_gnssid(ident):
         ident = reformater_gnssid(ident)
