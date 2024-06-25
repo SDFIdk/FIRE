@@ -3,6 +3,7 @@ import itertools as it
 from fire.ident import (
     kan_være_landsnummer,
     kan_være_købstadsnummer,
+    kan_være_vandstandsbræt,
     kan_være_gnssid,
     kan_være_ident,
     kan_være_gi_nummer,
@@ -22,11 +23,27 @@ def test_kan_være_købstadsnummer():
         "K -01-06663",
         "K -01-06742",
         "K -01-09003",
+        "k-01-50387",
     )
     for købstadsnummer in eksisterende_købstadsnumre:
         assert kan_være_købstadsnummer(
             købstadsnummer
         ), f"Forventede, at `{købstadsnummer}` kan være et købstadsnummer."
+
+
+def test_kan_være_vandstandsbræt():
+    eksisterende_vandstandsbrædder = (
+        "140-03-V.1",
+        "52-03-V.11",
+        "K-67-V.9",
+        "K-75-V.12",
+        "K-01-V.13",
+        "k-41-v.7",
+    )
+    for vandstandsbræt in eksisterende_vandstandsbrædder:
+        assert kan_være_vandstandsbræt(
+            vandstandsbræt
+        ), f"Forventede, at `{vandstandsbræt}` kan være et vandstandsbræt."
 
 
 def test_kan_være_gnssid():
@@ -51,6 +68,7 @@ def test_kan_være_gnssid():
         ["SUL2", "SVND", "TEGL", "THB3", "TIRS"],
         ["TORE", "TRU1", "TYVH", "VAAB", "VBRG"],
         ["VENO", "VIRK", "VJLN", "VORD", "VVIG"],
+        ["wxyz", "xzpj", "yngs", "zzzz", "zyxw"],
     ]
 
     for gnssid in it.chain(*eksisterende_gnssider):
@@ -64,6 +82,7 @@ def test_kan_være_gi_nummer():
         ["G.M.144", "G.M.144.1", "G.M.143/144", "G.M.1456.1"],
         ["G.M.1499/1500", "G.M.15", "G.M.2", "G.M.35/36.1"],
         ["G.I.1601", "G.I.1602.1", "G.I.1856", "G.I.2403"],
+        ["gi1824.1", "GI1702.1", "gm902", "GM86/87"],
     ]
 
     for gi_nummer in it.chain(*eksisterende_gi_numre):
@@ -88,12 +107,14 @@ def test_kan_være_ident():
         "K -01-06663",
         "K -01-06742",
         "K -01-09003",
+        "k-01-50387",
         # Vandstandsbræt
         "140-03-V.1",
         "52-03-V.11",
         "K-67-V.9",
         "K-75-V.12",
         "K-01-V.13",
+        "k-41-v.7",
         # GNSS
         "SKA1",
         "SKAE",
@@ -105,11 +126,13 @@ def test_kan_være_ident():
         "SKAV",
         "SKGN",
         "SKI2",
+        "skej",
         # G.M./G.I.
         "G.M.15",
         "G.M.1499/1500",
         "G.I.1602.1",
         "G.I.2403",
+        "gm902",
     )
     for ident in eksisterende_identer:
         assert kan_være_ident(ident), f"Forventede, at `{ident}` kan være et ident."
