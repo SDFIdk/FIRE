@@ -766,6 +766,11 @@ WITH
 		SELECT geometri, punktid FROM geometriobjekt go
 		WHERE go.registreringtil IS NULL
 	),
+	dkcors AS (
+		SELECT pi.punktid, 'TRUE' AS dkcors FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='NET:CORS' AND pi.registreringtil IS NULL
+	),
 	tabtgaaet AS (
 		SELECT pi.punktid, 'TRUE' AS tabtgaaet FROM punktinfo pi
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
@@ -776,6 +781,7 @@ SELECT
 	gnss_ident.ident GNSS_NAVN,
 	landsnr.ident LANDSNR,
 	ekstern_ident.ident EKSTERN_IDENT,
+	dkcors.dkcors IN_DKCORS,
 	etrs89.t  ETRS89_T,
 	etrs89.x  ETRS89_LON,
 	etrs89.y  ETRS89_LAT,
@@ -789,6 +795,7 @@ LEFT JOIN ekstern_ident ON punkter.punktid=ekstern_ident.punktid
 LEFT JOIN etrs89 ON punkter.punktid=etrs89.punktid
 LEFT JOIN dvr90 ON punkter.punktid=dvr90.punktid
 LEFT JOIN tabtgaaet ON punkter.punktid=tabtgaaet.punktid
+LEFT JOIN dkcors ON punkter.punktid=dkcors.punktid
 JOIN geometrier ON punkter.punktid=geometrier.punktid
 WHERE tabtgaaet.tabtgaaet IS NULL;
 
@@ -848,6 +855,11 @@ WITH
 		SELECT geometri, punktid FROM geometriobjekt go
 		WHERE go.registreringtil IS NULL
 	),
+	dkcors AS (
+		SELECT pi.punktid, 'TRUE' AS dkcors FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='NET:CORS' AND pi.registreringtil IS NULL
+	),
 	tabtgaaet AS (
 		SELECT pi.punktid, 'TRUE' AS tabtgaaet FROM punktinfo pi
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
@@ -858,6 +870,7 @@ SELECT
 	gnss_ident.ident GNSS_NAVN,
 	landsnr.ident LANDSNR,
 	ekstern_ident.ident EKSTERN_IDENT,
+	dkcors.dkcors IN_DKCORS,
 	etrs89.t  ETRS89_T,
 	etrs89.x  ETRS89_LON,
 	etrs89.y  ETRS89_LAT,
@@ -871,6 +884,7 @@ LEFT JOIN ekstern_ident ON punkter.punktid=ekstern_ident.punktid
 LEFT JOIN etrs89 ON punkter.punktid=etrs89.punktid
 LEFT JOIN dvr90 ON punkter.punktid=dvr90.punktid
 LEFT JOIN tabtgaaet ON punkter.punktid=tabtgaaet.punktid
+LEFT JOIN dkcors ON punkter.punktid=dkcors.punktid
 JOIN geometrier ON punkter.punktid=geometrier.punktid
 WHERE tabtgaaet.tabtgaaet IS NULL;
 
@@ -929,6 +943,11 @@ WITH
 		SELECT geometri, punktid FROM geometriobjekt go
 		WHERE go.registreringtil IS NULL
 	),
+	dkcors AS (
+		SELECT pi.punktid, 'TRUE' AS dkcors FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='NET:CORS' AND pi.registreringtil IS NULL
+	),
 	tabtgaaet AS (
 		SELECT pi.punktid, 'TRUE' AS tabtgaaet FROM punktinfo pi
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
@@ -939,6 +958,7 @@ SELECT
 	gnss_ident.ident GNSS_NAVN,
 	landsnr.ident LANDSNR,
 	ekstern_ident.ident EKSTERN_IDENT,
+	dkcors.dkcors IN_DKCORS,
 	etrs89.t  ETRS89_T,
 	etrs89.x  ETRS89_LON,
 	etrs89.y  ETRS89_LAT,
@@ -952,6 +972,7 @@ LEFT JOIN ekstern_ident ON punkter.punktid=ekstern_ident.punktid
 LEFT JOIN etrs89 ON punkter.punktid=etrs89.punktid
 LEFT JOIN dvr90 ON punkter.punktid=dvr90.punktid
 LEFT JOIN tabtgaaet ON punkter.punktid=tabtgaaet.punktid
+LEFT JOIN dkcors ON punkter.punktid=dkcors.punktid
 JOIN geometrier ON punkter.punktid=geometrier.punktid
 WHERE tabtgaaet.tabtgaaet IS NULL;
 
