@@ -10,7 +10,10 @@ from sqlalchemy.orm.exc import NoResultFound
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
-from fire.io.regneark import arkdef
+from fire.io.regneark import (
+    nyt_ark,
+    arkdef,
+)
 import fire.io.dataframe as frame
 import fire.cli
 
@@ -203,7 +206,7 @@ def opbyg_punktoversigt(
     nyetablerede: pd.DataFrame,
     alle_punkter: Tuple[str, ...],
 ) -> pd.DataFrame:
-    punktoversigt = pd.DataFrame(columns=list(arkdef.PUNKTOVERSIGT))
+    punktoversigt = nyt_ark(arkdef.PUNKTOVERSIGT)
     fire.cli.print("Opbygger punktoversigt")
 
     # Forlæng punktoversigt, så der er plads til alle punkter
@@ -293,9 +296,7 @@ def læs_observationsstrenge(
 ) -> pd.DataFrame:
     """Pil observationsstrengene ud fra en række råfiler"""
 
-    observationer = pd.DataFrame(columns=list(arkdef.OBSERVATIONER)).astype(
-        arkdef.OBSERVATIONER
-    )
+    observationer = nyt_ark(arkdef.OBSERVATIONER)
     for fil in filinfo.itertuples(index=False):
         if fil.Type.upper() not in ["MGL", "MTL", "NUL"]:
             continue
