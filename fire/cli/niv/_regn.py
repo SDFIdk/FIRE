@@ -218,7 +218,8 @@ def regn(projektnavn: str, **kwargs) -> None:
     htmlrapportnavn = gama_udjævn(projektnavn, kontrol)
 
     # Indlæs nødvendige parametre til at skrive Gama output til xlsx
-    punkter, koter, varianser, t_gyldig = læs_gama_output(projektnavn)
+    punkter, koter, varianser = læs_gama_output(projektnavn)
+    t_gyldig = gyldighedstidspunkt(projektnavn)
 
     # Opdater arbejdssæt med GNU Gama output
     beregning = opdater_arbejdssæt(punkter, koter, varianser, arbejdssæt, t_gyldig)
@@ -468,13 +469,13 @@ def læs_gama_output(
     # html-rapportudgaven af beregningsresultatet.
     koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
     varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
-    # try:
+
     punkter = [punkt["id"] for punkt in koteliste]
     koter = [float(punkt["z"]) for punkt in koteliste]
     varianser = [float(var) for var in varliste]
     assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
-    tg = gyldighedstidspunkt(projektnavn)
-    return (punkter, koter, varianser, tg)
+
+    return (punkter, koter, varianser)
 
 
 # ------------------------------------------------------------------------------
