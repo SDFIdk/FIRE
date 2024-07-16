@@ -119,6 +119,10 @@ class Tidsserie(FikspunktregisterObjekt):
     def referenceramme(self):
         return self.srid.kortnavn
 
+    def __len__(self):
+        return len(self.koordinater)
+
+
 class GNSSTidsserie(Tidsserie):
     __mapper_args__ = {
         "polymorphic_identity": TidsserietypeID.gnss,
