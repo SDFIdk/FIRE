@@ -116,13 +116,15 @@ def punkt(punktfabrik):
 @pytest.fixture()
 def punktsamling(firedb, sagsevent, punktfabrik, koordinat):
     sagsevent.eventtype = EventType.PUNKTGRUPPE_MODIFICERET
+    jessenpunkt=punktfabrik()
+
     pg = PunktSamling(
         sagsevent=sagsevent,
         navn=f"test-{fire.uuid()[0:9]}",
         formål="Test",
-        jessenpunkt=punktfabrik(),
+        jessenpunkt=jessenpunkt,
         jessenkoordinat=koordinat,
-        punkter=[punktfabrik() for _ in range(5)],
+        punkter=[jessenpunkt,]+[punktfabrik() for _ in range(4)],
     )
     return pg
 
