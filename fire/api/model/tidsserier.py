@@ -119,6 +119,20 @@ class Tidsserie(FikspunktregisterObjekt):
     def __len__(self):
         return len(self.koordinater)
 
+    @property
+    def t(self) -> list[dt]:
+        """
+        Liste med t-komponenter fra tidsseriens koordinater givet som datetime objekt.
+        """
+        return [k.t for k in self.koordinater]
+
+    @functools.cached_property
+    def decimalår(self) -> list[float]:
+        """
+        Liste med t-komponenter fra tidsseriens koordinater givet i decimalår.
+        """
+        return [til_decimalår(k.t) for k in self.koordinater]
+
 
 class GNSSTidsserie(Tidsserie):
     __mapper_args__ = {
@@ -213,20 +227,6 @@ class GNSSTidsserie(Tidsserie):
         Spredning givet i milimeter.
         """
         return [k.sz for k in self.koordinater]
-
-    @property
-    def t(self) -> List[dt]:
-        """
-        Liste med t-komponenter fra tidsseriens koordinater givet som datetime objekt.
-        """
-        return [k.t for k in self.koordinater]
-
-    @functools.cached_property
-    def decimalår(self) -> List[float]:
-        """
-        Liste med t-komponenter fra tidsseriens koordinater givet i decimalår.
-        """
-        return [til_decimalår(k.t) for k in self.koordinater]
 
     @functools.cache
     def _neu(self):
@@ -969,17 +969,3 @@ class HøjdeTidsserie(Tidsserie):
         Spredning givet i milimeter.
         """
         return [k.sz for k in self.koordinater]
-
-    @property
-    def t(self) -> list[dt]:
-        """
-        Liste med t-komponenter fra tidsseriens koordinater givet som datetime objekt.
-        """
-        return [k.t for k in self.koordinater]
-
-    @functools.cached_property
-    def decimalår(self) -> list[float]:
-        """
-        Liste med t-komponenter fra tidsseriens koordinater givet i decimalår.
-        """
-        return [til_decimalår(k.t) for k in self.koordinater]
