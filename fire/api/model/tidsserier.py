@@ -951,3 +951,35 @@ class HøjdeTidsserie(Tidsserie):
     __mapper_args__ = {
         "polymorphic_identity": TidsserietypeID.højde,
     }
+
+    @functools.cached_property
+    def kote(self) -> list[float]:
+        """
+        Liste med z-komponenter fra tidsseriens koordinater.
+
+        Koordinatkomponenten er i geocentrisk repræsentation.
+        """
+        return [k.z for k in self.koordinater]
+
+    @functools.cached_property
+    def sz(self) -> list[float]:
+        """
+        Spredninger for tidsseriens z-komponenter.
+
+        Spredning givet i milimeter.
+        """
+        return [k.sz for k in self.koordinater]
+
+    @property
+    def t(self) -> list[dt]:
+        """
+        Liste med t-komponenter fra tidsseriens koordinater givet som datetime objekt.
+        """
+        return [k.t for k in self.koordinater]
+
+    @functools.cached_property
+    def decimalår(self) -> list[float]:
+        """
+        Liste med t-komponenter fra tidsseriens koordinater givet i decimalår.
+        """
+        return [til_decimalår(k.t) for k in self.koordinater]
