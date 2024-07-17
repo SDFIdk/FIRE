@@ -1200,6 +1200,40 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE TRIGGER tidsserie_koordinat_ai_trg
+AFTER INSERT ON tidsserie_koordinat
+FOR EACH ROW
+DECLARE
+  ts_punktid VARCHAR2(36) := '';
+  ts_sridid  NUMBER;
+  k_punktid  VARCHAR2(36) := '';
+  k_sridid   NUMBER;
+BEGIN
+  SELECT k.punktid, k.sridid
+  INTO k_punktid, k_sridid
+  FROM
+    koordinat k
+  WHERE
+    k.objektid = :new.koordinatobjektid;
+
+  SELECT ts.punktid, ts.sridid
+  INTO ts_punktid, ts_sridid
+  FROM
+    tidsserie ts
+  WHERE
+    ts.objektid = :new.tidsserieobjektid;
+
+  IF k_punktid != ts_punktid THEN
+    RAISE_APPLICATION_ERROR(-20101, 'tidsserie.punktid skal matche koordinat.punktid');
+  END IF;
+
+  IF k_sridid != ts_sridid THEN
+    RAISE_APPLICATION_ERROR(-20101, 'tidsserie.sridid skal matche koordinat.sridid');
+  END IF;
+
+END;
+/
+
 -- Trigger der sikrer at indeholdet i tabellen KOORDINAT matcher hvad der er
 -- specificeret omkring SRID i SRIDTYPE tabellen
 CREATE OR REPLACE TRIGGER koordinat_aiu_trg
