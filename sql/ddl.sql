@@ -135,7 +135,8 @@ CREATE TABLE tidsserie (
 
 CREATE TABLE tidsserie_koordinat (
   tidsserieobjektid INTEGER NOT NULL,
-  koordinatobjektid INTEGER NOT NULL
+  koordinatobjektid INTEGER NOT NULL,
+  PRIMARY KEY (tidsserieobjektid, koordinatobjektid)
 );
 
 
@@ -233,7 +234,8 @@ CREATE TABLE punktsamling (
 
 CREATE TABLE punktsamling_punkt (
   punktsamlingsid INTEGER,
-  punktid VARCHAR2(36)
+  punktid VARCHAR2(36),
+  PRIMARY KEY (punktsamlingsid, punktid)
 );
 
 CREATE TABLE punktinfo (
