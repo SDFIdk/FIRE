@@ -1258,6 +1258,48 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE TRIGGER punktsamling_punkt_ad_trg
+AFTER DELETE ON punktsamling_punkt
+FOR EACH ROW
+DECLARE
+  cnt NUMBER;
+BEGIN
+  SELECT count(*)
+  INTO cnt
+  FROM
+    tidsserie ts
+  WHERE
+    ts.punktid = :old.punktid and
+    ts.punktsamlingsid = :old.punktsamlingsid and
+    ts.registreringtil IS NULL;
+
+  IF cnt > 0 THEN
+    RAISE_APPLICATION_ERROR(-20102, 'punkt må ikke slettes fra punktsamling, hvor der ligger tidsserier.');
+  END IF;
+
+END;
+/
+
+CREATE OR REPLACE TRIGGER tidsserie_ai_trg
+AFTER INSERT ON tidsserie
+FOR EACH ROW
+DECLARE
+  cnt NUMBER;
+BEGIN
+  SELECT count(*)
+  INTO cnt
+  FROM
+    punktsamling_punkt psp
+  WHERE
+    psp.punktid = :new.punktid AND
+    psp.punktsamlingsid = :new.punktsamlingsid;
+
+  IF cnt != 1 AND :new.punktsamlingsid IS NOT NULL THEN
+    RAISE_APPLICATION_ERROR(-20102, 'tidsserie.punkt skal matche tidsserie.punktsamling.punkt');
+  END IF;
+END;
+/
+
 CREATE OR REPLACE TRIGGER tidsserie_koordinat_ai_trg
 AFTER INSERT ON tidsserie_koordinat
 FOR EACH ROW
