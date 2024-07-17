@@ -1200,6 +1200,60 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE TRIGGER punktsamling_au_trg
+AFTER UPDATE ON punktsamling
+FOR EACH ROW
+BEGIN
+  IF :new.objektid != :old.objektid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'punktsamling.objektid må ikke opdateres');
+  END IF;
+
+  IF :new.registreringfra != :old.registreringfra THEN
+    RAISE_APPLICATION_ERROR(-20000, 'punktsamling.registreringfra må ikke opdateres');
+  END IF;
+
+  IF :new.sagseventfraid != :old.sagseventfraid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'punktsamling.sagseventfraid må ikke opdateres');
+  END IF;
+
+END;
+/
+
+CREATE OR REPLACE TRIGGER tidsserie_au_trg
+AFTER UPDATE ON tidsserie
+FOR EACH ROW
+BEGIN
+  IF :new.objektid != :old.objektid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.objektid må ikke opdateres');
+  END IF;
+
+  IF :new.registreringfra != :old.registreringfra THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.registreringfra må ikke opdateres');
+  END IF;
+
+  IF :new.sagseventfraid != :old.sagseventfraid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.sagseventfraid må ikke opdateres');
+  END IF;
+
+  IF :new.punktid != :old.punktid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.punktid må ikke opdateres');
+  END IF;
+
+  IF :new.punktsamlingsid != :old.punktsamlingsid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.punktsamlingsid må ikke opdateres');
+  END IF;
+
+  IF :new.sridid != :old.sridid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.sridid må ikke opdateres');
+  END IF;
+
+  IF :new.tstype != :old.tstype THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.tstype må ikke opdateres');
+  END IF;
+
+END;
+/
+
 CREATE OR REPLACE TRIGGER tidsserie_koordinat_ai_trg
 AFTER INSERT ON tidsserie_koordinat
 FOR EACH ROW
