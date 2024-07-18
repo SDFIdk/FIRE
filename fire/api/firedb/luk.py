@@ -54,23 +54,21 @@ class FireDbLuk(FireDbBase):
         sagsevent.eventtype = EventType.PUNKT_NEDLAGT
         self._luk_fikspunkregisterobjekt(punkt, sagsevent, commit=False)
 
-        for geometriobjekt in punkt.geometriobjekter:
-            self._luk_fikspunkregisterobjekt(geometriobjekt, sagsevent, commit=False)
+        objekter_til_lukning = (
+            punkt.geometriobjekter
+            + punkt.koordinater
+            + punkt.punktinformationer
+            + punkt.observationer_fra
+            + punkt.observationer_til
+            + punkt.grafikker
+        )
 
-        for koordinat in punkt.koordinater:
-            self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
-
-        for punktinfo in punkt.punktinformationer:
-            self._luk_fikspunkregisterobjekt(punktinfo, sagsevent, commit=False)
-
-        for observation in punkt.observationer_fra:
-            self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=False)
-
-        for observation in punkt.observationer_til:
-            self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=False)
-
-        for grafik in punkt.grafikker:
-            self._luk_fikspunkregisterobjekt(grafik, sagsevent, commit=False)
+        for objekt in objekter_til_lukning:
+            # Vi lukker kun objekter som ikke er lukkede i forvejen. Ellers vil vi komme
+            # til at overskrive ændringshistorikken (registrering- og sagseventtil).
+            if objekt.registreringtil is not None:
+                continue
+            self._luk_fikspunkregisterobjekt(objekt, sagsevent, commit=False)
 
         if commit:
             self.session.commit()

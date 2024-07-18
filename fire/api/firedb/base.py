@@ -97,7 +97,7 @@ class FireDbBase:
         self, objekt: FikspunktregisterObjekt, sagsevent: Sagsevent, commit: bool = True
     ):
         objekt._registreringtil = func.current_timestamp()
-        objekt.sagseventtilid = sagsevent.id
+        objekt.slettet = sagsevent
 
         self.session.add(objekt)
         if commit:
