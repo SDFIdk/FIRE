@@ -93,7 +93,7 @@ class FireDbBase:
             execution_options=self._exe_opt,
         )
 
-    def _luk_fikspunkregisterobjekt(
+    def _luk_fikspunktregisterobjekt(
         self, objekt: FikspunktregisterObjekt, sagsevent: Sagsevent, commit: bool = True
     ):
         objekt._registreringtil = func.current_timestamp()
