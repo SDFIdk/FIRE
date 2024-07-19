@@ -435,6 +435,14 @@ ADD
     tstype IN (1,2)
   ) ENABLE VALIDATE;
 
+-- Constraint der sikrer at Højdetidsserier (tstype=2) altid har en Punktsamling tilknyttet.
+ALTER TABLE
+  tidsserie
+ADD
+  CONSTRAINT tidsserie_tstype_punktsamling_chk CHECK (
+    NOT (tstype = 2 AND punktsamlingsid IS NULL)
+  ) ENABLE VALIDATE;
+
 
 -- Index der skal sikre at der til samme punkt ikke tilføjes en koordinat
 -- med samme SRIDID, hvis denne ikke er afregistreret
