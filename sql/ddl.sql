@@ -1660,13 +1660,11 @@ END;
 
 
 -- Sikrer at infotype i PUNKTINFO eksisterer i PUNKTINFOTYPE, og at data i PUNKTINFO matcher definition i PUNKTINFOTYPE
--- og at tidligere version af punktinfo afregistreres korrekt ved indsættelse af ny
 CREATE OR REPLACE TRIGGER punktinfo_biu_trg
 BEFORE INSERT OR UPDATE ON punktinfo
 FOR EACH ROW
 DECLARE
   this_andv varchar2(10);
-  cnt NUMBER;
 BEGIN
   BEGIN
     SELECT
@@ -1698,34 +1696,31 @@ BEGIN
   IF this_andv = 'TAL' AND :new.tal IS NULL THEN
     RAISE_APPLICATION_ERROR(-20005, 'punktinfo.tal må ikke være NULL ved anvendelsestypen "TAL"');
   END IF;
+END;
+/
 
-  -- afregistrer forrige version af punktinfo når nyt indsættes
+CREATE OR REPLACE TRIGGER punktinfo_bi_trg
+BEFORE INSERT ON punktinfo
+FOR EACH ROW
+BEGIN
+  -- Afregistrer forudgående punktinfo
   IF :new.registreringtil IS NULL THEN
-    SELECT
-      count(*) INTO cnt
-    FROM
+    UPDATE
       punktinfo
+    SET
+      registreringtil = :new.registreringfra,
+      sagseventtilid = :new.sagseventfraid
     WHERE
-      punktid = :new.punktid AND infotypeid = :new.infotypeid AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
-      UPDATE
-        punktinfo
-      SET
-        registreringtil = :new.registreringfra,
-        sagseventtilid = :new.sagseventfraid
-      WHERE
-        objektid = (
-          SELECT
-            objektid
-          FROM
-            punktinfo
-          WHERE
-            punktid = :new.punktid
-            AND infotypeid = :new.infotypeid
-            AND registreringtil IS NULL
-        );
-    END IF;
+      objektid IN (
+        SELECT
+          objektid
+        FROM
+          punktinfo
+        WHERE
+          punktid = :new.punktid
+          AND infotypeid = :new.infotypeid
+          AND registreringtil IS NULL
+      );
   END IF;
 END;
 /
