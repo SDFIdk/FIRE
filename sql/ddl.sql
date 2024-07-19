@@ -1699,6 +1699,16 @@ BEGIN
 END;
 /
 
+-- De følgende BEFORE INSERT triggers sørger bl.a. for at afregistrere forudgående
+-- versioner af objekter, når en ny, aktiv række indsættes, dvs. hvis "registreringtil IS
+-- NULL".
+-- I den perfekte verden ligger der kun én forudgående version af hvert objekt, men der er
+-- i migreret data mange eksempler på fx punktinfo med samme type og punkt som alle er
+-- aktive. Derfor afregistrer vi ALLE forrige versioner af punktinfo og andre
+-- objekt-typer.
+-- På denne måde får vi langsomt ryddet op i "dobbelt-" eller "fler-aktive"
+-- punktinformationer og hvad der ellers skulle ligge.
+
 CREATE OR REPLACE TRIGGER punktinfo_bi_trg
 BEFORE INSERT ON punktinfo
 FOR EACH ROW
@@ -1749,7 +1759,7 @@ END;
 
 
 CREATE OR REPLACE TRIGGER geometriobjekt_bi_trg
-BEFORE INSERT OR UPDATE ON geometriobjekt
+BEFORE INSERT ON geometriobjekt
 FOR EACH ROW
 DECLARE
   cnt NUMBER;
@@ -1763,36 +1773,27 @@ BEGIN
       registreringtil = :new.registreringfra;
 
     IF cnt = 0 THEN
-      RAISE_APPLICATION_ERROR(-20008, 'Manglende forudgående geometriobjekt');
+      RAISE_APPLICATION_ERROR(-20006, 'Manglende forudgående geometriobjekt');
     END IF;
   END IF;
 
+  -- Afregistrer forudgående geometriobjekt
   IF :new.registreringtil IS NULL THEN
-    SELECT
-      count(*) INTO cnt
-    FROM
+    UPDATE
       geometriobjekt
+    SET
+      registreringtil = :new.registreringfra,
+      sagseventtilid = :new.sagseventfraid
     WHERE
-      punktid = :new.punktid
-      AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
-      UPDATE
-        geometriobjekt
-      SET
-        registreringtil = :new.registreringfra,
-        sagseventtilid = :new.sagseventfraid
-      WHERE
-        objektid = (
-          SELECT
-            objektid
-          FROM
-            geometriobjekt
-          WHERE
-            punktid = :new.punktid
-            AND registreringtil IS NULL
-        );
-    END IF;
+      objektid IN (
+        SELECT
+          objektid
+        FROM
+          geometriobjekt
+        WHERE
+          punktid = :new.punktid
+          AND registreringtil IS NULL
+      );
   END IF;
 END;
 /
@@ -1816,34 +1817,24 @@ BEGIN
     END IF;
   END IF;
 
+  -- Afregistrer forudgående koordinat
   IF :new.registreringtil IS NULL THEN
-    SELECT
-      count(*) INTO cnt
-    FROM
+    UPDATE
       koordinat
+    SET
+      registreringtil = :new.registreringfra,
+      sagseventtilid = :new.sagseventfraid
     WHERE
-      punktid = :new.punktid
-      AND sridid = :new.sridid
-      AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
-      UPDATE
-        koordinat
-      SET
-        registreringtil = :new.registreringfra,
-        sagseventtilid = :new.sagseventfraid
-      WHERE
-        objektid = (
-          SELECT
-            objektid
-          FROM
-            koordinat
-          WHERE
-            punktid = :new.punktid
-            AND sridid = :new.sridid
-            AND registreringtil IS NULL
-        );
-    END IF;
+      objektid IN (
+        SELECT
+          objektid
+        FROM
+          koordinat
+        WHERE
+          punktid = :new.punktid
+          AND sridid = :new.sridid
+          AND registreringtil IS NULL
+      );
   END IF;
 
   IF :new.fejlmeldt = 'true' THEN
@@ -1866,7 +1857,7 @@ BEGIN
     WHERE
       registreringtil = :new.registreringfra;
 
-    if cnt = 0 THEN
+    IF cnt = 0 THEN
       RAISE_APPLICATION_ERROR(-20006,'Manglende forudgående grafik');
     END IF;
   END IF;
@@ -1884,34 +1875,23 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20008, 'Filnavn allerede registreret!');
     END IF;
 
-
-    SELECT
-      count(*) INTO cnt
-    FROM
+    -- Afregistrer forudgående grafikker
+    UPDATE
       grafik
+    SET
+      registreringtil = :new.registreringfra,
+      sagseventtilid = :new.sagseventfraid
     WHERE
-      punktid = :new.punktid
-      AND filnavn = :new.filnavn
-      AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
-      UPDATE
-        grafik
-      SET
-        registreringtil = :new.registreringfra,
-        sagseventtilid = :new.sagseventfraid
-      WHERE
-        objektid = (
-          SELECT
-            objektid
-          FROM
-            grafik
-          WHERE
-            punktid = :new.punktid
-            AND filnavn = :new.filnavn
-            AND registreringtil IS NULL
-        );
-    END IF;
+      objektid IN (
+        SELECT
+          objektid
+        FROM
+          grafik
+        WHERE
+          punktid = :new.punktid
+          AND filnavn = :new.filnavn
+          AND registreringtil IS NULL
+      );
   END IF;
 
 END;
@@ -1923,25 +1903,15 @@ END;
 CREATE OR REPLACE TRIGGER sagsinfo_bi_trg
 BEFORE INSERT ON sagsinfo
 FOR EACH ROW
-DECLARE
-  cnt number;
 BEGIN
+  -- Afregistrer forudgående sagsinfo
   IF :new.registreringtil IS NULL THEN
-    SELECT
-      count(*) INTO cnt
-    FROM
-      sagsinfo
-    WHERE
-      sagsid = :new.sagsid
-      AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
     UPDATE
       sagsinfo
     SET
       registreringtil = :new.registreringfra
     WHERE
-      objektid = (
+      objektid IN (
         SELECT
           objektid
         FROM
@@ -1950,7 +1920,6 @@ BEGIN
           sagsid = :new.sagsid
           AND registreringtil IS NULL
       );
-    END IF;
   END IF;
 END;
 /
@@ -1959,25 +1928,15 @@ END;
 CREATE OR REPLACE TRIGGER sagseventinfo_bi_trg
 BEFORE INSERT ON sagseventinfo
 FOR EACH ROW
-DECLARE
-  cnt number;
 BEGIN
+  -- Afregistrer forudgående sagseventinfo
   IF :new.registreringtil IS NULL THEN
-    SELECT
-      count(*) INTO cnt
-    FROM
-      sagseventinfo
-    WHERE
-      sagseventid = :new.sagseventid
-      AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
     UPDATE
       sagseventinfo
     SET
       registreringtil = :new.registreringfra
     WHERE
-      objektid = (
+      objektid IN (
         SELECT
           objektid
         FROM
@@ -1986,7 +1945,6 @@ BEGIN
           sagseventid = :new.sagseventid
           AND registreringtil IS NULL
       );
-    END IF;
   END IF;
 END;
 /
