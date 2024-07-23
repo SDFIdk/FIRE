@@ -145,6 +145,15 @@ WITH
 		pit.infotype = 'AFM:højde_over_terræn'
 	AND
 		pi.registreringtil IS NULL
+  ),
+  restricted AS (
+	SELECT pi.punktid, 'TRUE' AS restricted
+	FROM punktinfo pi
+	JOIN punktinfotype pit ON pit.infotypeid = pi.infotypeid
+	WHERE
+		pit.infotype = 'ATTR:restricted'
+	AND
+		pi.registreringtil IS NULL
   )
 SELECT
   geometrier.geometri geometri,
@@ -157,7 +166,8 @@ SELECT
   koter.transformeret transformeret,
   beskrivelser.tekst beskrivelse,
   afmaerkning.tekst afmaerkning,
-  terraenhoejde.h terraenhoejde
+  terraenhoejde.h terraenhoejde,
+  restricted.restricted restricted
 FROM punkt p
 JOIN landsnumre ON landsnumre.punktid = p.id
 JOIN geometrier ON geometrier.punktid = p.id
@@ -166,6 +176,7 @@ LEFT JOIN gi_ident ON gi_ident.punktid = p.id
 LEFT JOIN beskrivelser ON beskrivelser.punktid = p.id
 LEFT JOIN afmaerkning ON afmaerkning.punktid = p.id
 LEFT JOIN terraenhoejde ON terraenhoejde.punktid = p.id
+LEFT JOIN restricted ON restricted.punktid = p.id
 LEFT JOIN koter ON koter.punktid = p.id
 LEFT JOIN irrelevantepunkter ON irrelevantepunkter.punktid = p.id
 WHERE
