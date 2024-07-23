@@ -195,16 +195,10 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     # sagsevent for punkter
     er = "er" if len(punkter) > 1 else ""
-    sagsevent_punkter = Sagsevent(
-        sag=sag,
-        eventtype=EventType.PUNKT_OPRETTET,
-        sagseventinfos=[
-            SagseventInfo(
-                beskrivelse=f"Oprettelse af punkt{er} ifm. {projektnavn}",
-            )
-        ],
-        punkter=list(punkter.values()),
-    )
+    sagsevent_punkter = sag.ny_sagsevent(
+        beskrivelse=f"Oprettelse af punkt{er} ifm. {projektnavn}",
+        punkter=list(punkter.values())
+        )
     fire.cli.firedb.indset_sagsevent(sagsevent_punkter, commit=False)
     fire.cli.firedb.session.flush()  # hvis noget ikke virker får vi fejl her!
 
@@ -351,15 +345,9 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     punktinfo.extend(landsnumre.values())
 
     # sagsevent for punktinfo
-    sagsevent_punktinfo = Sagsevent(
-        sag=sag,
-        eventtype=EventType.PUNKTINFO_TILFOEJET,
-        sagseventinfos=[
-            SagseventInfo(
-                beskrivelse=f"Oprettelse af punktinfo ifm. {projektnavn}",
-            )
-        ],
-        punktinformationer=punktinfo,
+    sagsevent_punktinfo = sag.ny_sagsevent(
+        beskrivelse=f"Oprettelse af punktinfo ifm. {projektnavn}",
+        punktinformationer=punktinfo
     )
     fire.cli.firedb.indset_sagsevent(sagsevent_punktinfo, commit=False)
     fire.cli.firedb.session.flush()  # hvis noget ikke virker får vi fejl her!

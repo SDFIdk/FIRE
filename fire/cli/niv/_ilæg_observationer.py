@@ -76,22 +76,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     alle_kilder = ", ".join(sorted(list(set(observationer.Kilde))))
     alle_uuider = observationer.uuid.astype(str)
 
-    # Generer sagsevent
-    sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.OBSERVATION_INDSAT)
-    sagseventtekst = f"Ilægning af observationer fra {alle_kilder}"
-    sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
-    sagsevent.sagseventinfos.append(sagseventinfo)
-
-    # Generer dokumentation til fanebladet "Sagsgang"
-    sagsgangslinje = {
-        "Dato": pd.Timestamp.now(),
-        "Hvem": sagsbehandler,
-        "Hændelse": "observationsilægning",
-        "Tekst": sagseventtekst,
-        "uuid": sagsevent.id,
-    }
-    sagsgang = frame.append(sagsgang, sagsgangslinje)
-
     for i, obs in enumerate(observationer.itertuples(index=False)):
         # Ignorer allerede registrerede observationer
         if str(obs.uuid) not in ["", "None", "nan"]:
@@ -135,7 +119,6 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
                 value4=obs.σ,
                 value5=obs.δ,
             )
-            observation.sagsevent = sagsevent
 
         elif obs.Type.upper() == "MGL":
             observation = Observation(
@@ -165,6 +148,7 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     # Gør klar til at persistere
     observationer["uuid"] = alle_uuider
 
+    sagseventtekst = f"Ilægning af observationer fra {alle_kilder}"
     fire.cli.print(sagseventtekst, fg="yellow", bold=True)
 
     obs_rapport = observationer[observationer["Sluk"] == ""]
@@ -172,8 +156,23 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     # Persister observationerne til databasen
     fire.cli.print(f"Skriver {len(til_registrering)} observationer")
-    sagsevent.observationer = til_registrering
+
+    # Generer sagsevent
+    sagsevent = sag.ny_sagsevent(
+        beskrivelse=sagseventtekst,
+        observationer = til_registrering
+    )
     fire.cli.firedb.indset_sagsevent(sagsevent, commit=False)
+
+    # Generer dokumentation til fanebladet "Sagsgang"
+    sagsgangslinje = {
+        "Dato": pd.Timestamp.now(),
+        "Hvem": sagsbehandler,
+        "Hændelse": "observationsilægning",
+        "Tekst": sagseventtekst,
+        "uuid": sagsevent.id,
+    }
+    sagsgang = frame.append(sagsgang, sagsgangslinje)
 
     try:
         fire.cli.firedb.session.flush()

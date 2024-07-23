@@ -67,16 +67,10 @@ def punkt(uuid: str, sagsbehandler, **kwargs) -> None:
     Se `punkt_hjælp` for yderligere information.
     """
     db = fire.cli.firedb
-    sag = Sag(
-        id=fire.uuid(),
-        sagsinfos=[
-            Sagsinfo(
-                behandler=sagsbehandler,
-                beskrivelse="Lukning af objekt med 'fire luk'",
-                aktiv="true",
-            )
-        ],
-    )
+
+    sag = db.ny_sag(
+        behandler=sagsbehandler, beskrivelse="Lukning af objekt med 'fire luk'"
+        )
     db.session.add(sag)
     db.session.flush()
     sagsevent = Sagsevent(
