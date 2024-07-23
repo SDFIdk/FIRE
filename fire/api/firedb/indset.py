@@ -118,7 +118,7 @@ class FireDbIndset(FireDbBase):
         if sagsevent.eventtype == EventType.GRAFIK_NEDLAGT:
             self._check_and_prepare_sagsevent(sagsevent, EventType.GRAFIK_NEDLAGT)
 
-            for grafik in sagsevent.grafikker:
+            for grafik in sagsevent.grafikker_slettede:
                 self._luk_fikspunktregisterobjekt(grafik, sagsevent, commit=commit)
 
         self.session.add(sagsevent)
