@@ -193,7 +193,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         ny_koordinat = None
 
         if len(punkt.koordinater) == 1:
-            self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=False)
+            self._luk_fikspunktregisterobjekt(koordinat, sagsevent, commit=False)
 
         # byg relevant tidsserie
         tidsserie = []
@@ -251,7 +251,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
         """
         Fejlmeld en allerede eksisterende observation.
         """
-        self._luk_fikspunkregisterobjekt(observation, sagsevent, commit=False)
+        self._luk_fikspunktregisterobjekt(observation, sagsevent, commit=False)
 
         observation.fejlmeldt = True
         observation._registreringtil = func.current_timestamp()
