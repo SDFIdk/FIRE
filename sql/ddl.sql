@@ -1709,7 +1709,35 @@ END;
 CREATE OR REPLACE TRIGGER punktinfo_bi_trg
 BEFORE INSERT ON punktinfo
 FOR EACH ROW
+DECLARE
+    infotype varchar2(4000);
+    cnt number;
 BEGIN
+  -- To punkter må ikke hedde det samme. Fungerer som en Unik constraint der grupperer på
+  -- infotyperne IDENT:GI, -landsnr og -jessen.
+  -- Tjekker kun de mest gængse IDENT-typer. Med undtagelse af IDENT:GNSS da det her er
+  -- muligt at have navnekollisioner (GNSS-navnekollisioner bør ryddes op i så det ikke
+  -- sker, men de bør ikke forhindres i at blive indsat i databasen.)
+  SELECT infotype
+    INTO infotype
+  FROM punktinfotype pit
+	WHERE pit.infotypeid = :new.infotypeid;
+
+  IF infotype IN ('IDENT:GI', 'IDENT:landsnr', 'IDENT:jessen') THEN
+    SELECT count(*)
+    INTO cnt
+    FROM punktinfo p
+    WHERE p.registreringtil IS NULL
+      AND p.infotypeid = :new.infotypeid
+      AND p.tekst = :new.tekst
+      -- Er der andre punkter end det indsatte punkt med samme navn?
+      AND p.punktid != :new.punktid;
+
+    IF cnt>0 THEN
+      RAISE_APPLICATION_ERROR(-20102, 'Identer af typerne GI, landsnr og jessen skal være unikke!');
+    END IF;
+  END IF;
+
   -- Afregistrer forudgående punktinfo
   IF :new.registreringtil IS NULL THEN
     UPDATE
