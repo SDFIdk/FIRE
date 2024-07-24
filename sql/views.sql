@@ -145,6 +145,15 @@ WITH
 		pit.infotype = 'AFM:højde_over_terræn'
 	AND
 		pi.registreringtil IS NULL
+  ),
+  restricted AS (
+	SELECT pi.punktid, 'TRUE' AS restricted
+	FROM punktinfo pi
+	JOIN punktinfotype pit ON pit.infotypeid = pi.infotypeid
+	WHERE
+		pit.infotype = 'ATTR:restricted'
+	AND
+		pi.registreringtil IS NULL
   )
 SELECT
   geometrier.geometri geometri,
@@ -157,7 +166,8 @@ SELECT
   koter.transformeret transformeret,
   beskrivelser.tekst beskrivelse,
   afmaerkning.tekst afmaerkning,
-  terraenhoejde.h terraenhoejde
+  terraenhoejde.h terraenhoejde,
+  restricted.restricted restricted
 FROM punkt p
 JOIN landsnumre ON landsnumre.punktid = p.id
 JOIN geometrier ON geometrier.punktid = p.id
@@ -166,6 +176,7 @@ LEFT JOIN gi_ident ON gi_ident.punktid = p.id
 LEFT JOIN beskrivelser ON beskrivelser.punktid = p.id
 LEFT JOIN afmaerkning ON afmaerkning.punktid = p.id
 LEFT JOIN terraenhoejde ON terraenhoejde.punktid = p.id
+LEFT JOIN restricted ON restricted.punktid = p.id
 LEFT JOIN koter ON koter.punktid = p.id
 LEFT JOIN irrelevantepunkter ON irrelevantepunkter.punktid = p.id
 WHERE
@@ -212,56 +223,63 @@ REFRESH ON DEMAND
 START WITH SYSDATE NEXT SYSDATE + 1 / 24
 AS
 WITH
-	punkter AS (
-		SELECT pi.punktid FROM punktinfo pi
-		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
-		WHERE pit.infotype='NET:CORS' AND pi.registreringtil IS NULL
-	),
-	gnss_ident AS (
-		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
-		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
-		WHERE pit.infotype='IDENT:GNSS' AND pi.registreringtil IS NULL
-	),
-	landsnr AS (
-		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
-		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
-		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
-	),
-	etrs89 AS (
-		SELECT k.punktid,k.t,k.x,k.y,k.z FROM koordinat k
-		JOIN sridtype st ON k.sridid=st.sridid
-		WHERE st.srid = 'EPSG:4937' AND k.registreringtil IS NULL
-	),
-	dvr90 AS (
-		SELECT k.punktid, k.t, k.z FROM koordinat k
-		JOIN sridtype st ON k.sridid=st.sridid
-		WHERE st.srid = 'EPSG:5799' AND k.registreringtil IS NULL
-	),
-	geometrier AS (
-		SELECT geometri, punktid FROM geometriobjekt go
-		WHERE go.registreringtil IS NULL
-	),
-	tabtgaaet AS (
-		SELECT pi.punktid, 'TRUE' AS tabtgaaet FROM punktinfo pi
-		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
-		WHERE pit.infotype='ATTR:tabtgået' AND pi.registreringtil IS NULL
-	)
+    punkter AS (
+        SELECT pi.punktid FROM punktinfo pi
+        JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+        WHERE pit.infotype='NET:CORS' AND pi.registreringtil IS NULL
+    ),
+    gnss_ident AS (
+        SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+        JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+        WHERE pit.infotype='IDENT:GNSS' AND pi.registreringtil IS NULL
+    ),
+    landsnr AS (
+        SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+        JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+        WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+    ),
+    etrs89 AS (
+        SELECT k.punktid,k.t,k.x,k.y,k.z FROM koordinat k
+        JOIN sridtype st ON k.sridid=st.sridid
+        WHERE st.srid = 'EPSG:4937' AND k.registreringtil IS NULL
+    ),
+    dvr90 AS (
+        SELECT k.punktid, k.t, k.z FROM koordinat k
+        JOIN sridtype st ON k.sridid=st.sridid
+        WHERE st.srid = 'EPSG:5799' AND k.registreringtil IS NULL
+    ),
+    geometrier AS (
+        SELECT geometri, punktid FROM geometriobjekt go
+        WHERE go.registreringtil IS NULL
+    ),
+    tabtgaaet AS (
+        SELECT pi.punktid, 'TRUE' AS tabtgaaet FROM punktinfo pi
+        JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+        WHERE pit.infotype='ATTR:tabtgået' AND pi.registreringtil IS NULL
+    ),
+    klasse_a AS (
+        SELECT pi.punktid, 'TRUE' AS klasse_a FROM punktinfo pi
+        JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+        WHERE pit.infotype='ATTR:CORSKlasseA' AND pi.registreringtil IS NULL
+    )
 SELECT
-	geometrier.geometri,
-	gnss_ident.ident GNSS_NAVN,
-	landsnr.ident LANDSNR,
-	etrs89.t  ETRS89_T,
-	etrs89.x  ETRS89_LON,
-	etrs89.y  ETRS89_LAT,
-	etrs89.z  ETRS89_ELLPSH,
-	dvr90.t   DVR90_T,
-	dvr90.z   DVR90_KOTE
+    geometrier.geometri,
+    gnss_ident.ident GNSS_NAVN,
+    landsnr.ident LANDSNR,
+    klasse_a.klasse_a KLASSE_A,
+    etrs89.t  ETRS89_T,
+    etrs89.x  ETRS89_LON,
+    etrs89.y  ETRS89_LAT,
+    etrs89.z  ETRS89_ELLPSH,
+    dvr90.t   DVR90_T,
+    dvr90.z   DVR90_KOTE
 FROM punkter
 LEFT JOIN gnss_ident ON punkter.punktid=gnss_ident.punktid
 LEFT JOIN landsnr ON punkter.punktid=landsnr.punktid
 LEFT JOIN etrs89 ON punkter.punktid=etrs89.punktid
 LEFT JOIN dvr90 ON punkter.punktid=dvr90.punktid
 LEFT JOIN tabtgaaet ON punkter.punktid=tabtgaaet.punktid
+LEFT JOIN klasse_a ON punkter.punktid=klasse_a.punktid
 JOIN geometrier ON punkter.punktid=geometrier.punktid
 WHERE tabtgaaet.tabtgaaet IS NULL;
 
