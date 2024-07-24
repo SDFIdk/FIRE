@@ -1660,8 +1660,8 @@ END;
 
 
 -- Sikrer at infotype i PUNKTINFO eksisterer i PUNKTINFOTYPE, og at data i PUNKTINFO matcher definition i PUNKTINFOTYPE
-CREATE OR REPLACE TRIGGER punktinfo_biu_trg
-BEFORE INSERT OR UPDATE ON punktinfo
+CREATE OR REPLACE TRIGGER punktinfo_aiu_trg
+AFTER INSERT OR UPDATE ON punktinfo
 FOR EACH ROW
 DECLARE
   this_andv varchar2(10);
