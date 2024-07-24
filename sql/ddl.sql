@@ -1024,7 +1024,11 @@ BEGIN
   END IF;
 
   IF :new.sagseventfraid != :old.sagseventfraid THEN
-    RAISE_APPLICATION_ERROR(-20000,'geometriobjket.sagseventfraid  må ikke opdateres ');
+    RAISE_APPLICATION_ERROR(-20000,'geometriobjekt.sagseventfraid må ikke opdateres ');
+  END IF;
+
+  IF SDO_GEOM.RELATE(:new.geometri, 'EQUAL', :old.geometri) != 'EQUAL' THEN
+    RAISE_APPLICATION_ERROR(-20000,'geometriobjekt.geometri må ikke opdateres ');
   END IF;
 
   IF :new.punktid != :old.punktid THEN
