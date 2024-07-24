@@ -1104,6 +1104,10 @@ BEGIN
     RAISE_APPLICATION_ERROR(-20000,'observation.objektid må ikke opdateres ');
   END IF;
 
+  IF :new.id != :old.id THEN
+    RAISE_APPLICATION_ERROR(-20000,'observation.id må ikke opdateres ');
+  END IF;
+
   IF :new.registreringfra != :old.registreringfra THEN
     RAISE_APPLICATION_ERROR(-20000,'observation.registreringfra må ikke opdateres ');
   END IF;
@@ -1118,6 +1122,10 @@ BEGIN
 
   IF :new.observationstypeid != :old.observationstypeid THEN
     RAISE_APPLICATION_ERROR(-20000,'observation.observationstypeid må ikke opdateres ');
+  END IF;
+
+  IF :new.observationstidspunkt != :old.observationstidspunkt THEN
+    RAISE_APPLICATION_ERROR(-20000,'observation.observationstidspunkt må ikke opdateres ');
   END IF;
 
   IF :new.value1 != :old.value1 THEN
