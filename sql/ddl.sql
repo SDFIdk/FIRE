@@ -1081,6 +1081,10 @@ BEGIN
     RAISE_APPLICATION_ERROR(-20000, 'koordinat.transformeret må ikke opdateres ');
   END IF;
 
+  IF :new.artskode != :old.artskode THEN
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.artskode må ikke opdateres ');
+  END IF;
+
   IF :new.x != :old.x THEN
     RAISE_APPLICATION_ERROR(-20000, 'koordinat.x må ikke opdateres ');
   END IF;
