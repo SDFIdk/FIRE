@@ -114,17 +114,24 @@ def punkt(punktfabrik):
 
 
 @pytest.fixture()
-def punktsamling(firedb, sagsevent, punktfabrik, koordinat):
+def punktsamling(firedb, sagsevent, punktfabrik, koordinatfabrik):
     sagsevent.eventtype = EventType.PUNKTGRUPPE_MODIFICERET
-    jessenpunkt=punktfabrik()
+
+    # Sørger eksplicit for korrekt kobling mellem jessenpunkt og -koordinat.
+    jessenpunkt = punktfabrik()
+    jessenkoordinat = koordinatfabrik()
+    jessenkoordinat.punkt = jessenpunkt
 
     pg = PunktSamling(
         sagsevent=sagsevent,
         navn=f"test-{fire.uuid()[0:9]}",
         formål="Test",
         jessenpunkt=jessenpunkt,
-        jessenkoordinat=koordinat,
-        punkter=[jessenpunkt,]+[punktfabrik() for _ in range(4)],
+        jessenkoordinat=jessenkoordinat,
+        punkter=[
+            jessenpunkt,
+        ]
+        + [punktfabrik() for _ in range(4)],
     )
     return pg
 
@@ -158,20 +165,23 @@ def koordinat(koordinatfabrik):
 
 
 @pytest.fixture()
-def gnsstidsseriefabrik(firedb, sagsevent, punkt, punktsamling, koordinatfabrik, srid):
+def gnsstidsseriefabrik(firedb, sagsevent, punktfabrik, koordinatfabrik, srid):
     """GNSSTidsseriefabrik til oprettelse af flere GNSSTidsserier i samme test case."""
 
     def fabrik():
         sagsevent.eventtype = EventType.TIDSSERIE_MODIFICERET
+        # Sørger eksplicit for at koordinater kobles til punktet
+        punkt = punktfabrik()
+        punkt.koordinater = [koordinatfabrik() for _ in range(5)]
+
         ts = GNSSTidsserie(
             sagsevent=sagsevent,
             punkt=punkt,
-            punktsamling=punktsamling,
             navn=f"{fire.uuid()}_TEST_FIRE",
             formål="Test",
             referenceramme="FIRE",
             srid=srid,
-            koordinater=[koordinatfabrik() for _ in range(5)],
+            koordinater=punkt.koordinater,
         )
         firedb.session.add(ts)
         return ts
@@ -185,11 +195,21 @@ def gnsstidsserie(gnsstidsseriefabrik):
 
 
 @pytest.fixture()
-def højdetidsseriefabrik(firedb, sagsevent, punkt, punktsamling, koordinatfabrik, srid):
+def højdetidsseriefabrik(
+    firedb, sagsevent, punktfabrik, punktsamling, koordinatfabrik, srid
+):
     """HøjdeTidsseriefabrik til oprettelse af flere HøjdeTidsserier i samme test case."""
 
     def fabrik():
         sagsevent.eventtype = EventType.TIDSSERIE_MODIFICERET
+
+        # Tilføj punkt til punktsamlingen
+        punkt = punktfabrik()
+        punktsamling.punkter.append(punkt)
+
+        # Opretter koordinater til punktet
+        punkt.koordinater = [koordinatfabrik() for _ in range(5)]
+
         ts = HøjdeTidsserie(
             sagsevent=sagsevent,
             punkt=punkt,
@@ -198,7 +218,7 @@ def højdetidsseriefabrik(firedb, sagsevent, punkt, punktsamling, koordinatfabri
             formål="Test",
             referenceramme="FIRE",
             srid=srid,
-            koordinater=[koordinatfabrik() for _ in range(5)],
+            koordinater=punkt.koordinater,
         )
         firedb.session.add(ts)
         return ts
