@@ -15,6 +15,9 @@ from fire.api.model.observationer import (
 def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinatfabrik):
     """Test oprettelse af en tidsserie."""
     # Tidsserie med punktsamling og jessenkoordinat
+    punktsamling.punkter.append(punkt)
+    punkt.koordinater = [koordinatfabrik() for _ in range(5)]
+
     ts1 = HøjdeTidsserie(
         sagsevent=sagsevent,
         punkt=punkt,
@@ -23,7 +26,7 @@ def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinat
         navn=f"TS-{fire.uuid()}",
         referenceramme="FIRE",
         srid=srid,
-        koordinater=[koordinatfabrik() for _ in range(5)],
+        koordinater=punkt.koordinater,
     )
 
     firedb.session.flush()
@@ -41,7 +44,7 @@ def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinat
         navn=f"TS-{fire.uuid()}",
         referenceramme="FIRE",
         srid=srid,
-        koordinater=[koordinatfabrik() for _ in range(5)],
+        koordinater=punkt.koordinater,
     )
 
     firedb.session.flush()
@@ -60,11 +63,13 @@ def test_luk_tidsserie(firedb, højdetidsserie, sagsevent):
     assert højdetidsserie.registreringtil is not None
 
 
-def test_udvid_tidsserie(firedb, højdetidsserie, koordinat):
+def test_udvid_tidsserie(firedb, højdetidsserie, koordinatfabrik):
     """Test at flere koordinater kan tilføjes en tidsserie."""
     firedb.session.flush()
     n = len(højdetidsserie.koordinater)
 
+    koordinat = koordinatfabrik()
+    koordinat.punkt = højdetidsserie.punkt
     højdetidsserie.koordinater.append(koordinat)
     firedb.session.flush()
 
