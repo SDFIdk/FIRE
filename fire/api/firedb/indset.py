@@ -22,7 +22,7 @@ class FireDbIndset(FireDbBase):
             raise Exception("Mindst et SagsInfo objekt skal tilføjes Sagen")
         if sag.sagsinfos[-1].aktiv != "true":
             raise Exception("Sidst SagsInfo på sagen skal have aktiv = 'true'")
-        
+
         if self._is_new_object(sag):
             self.session.add(sag)
 
@@ -75,7 +75,7 @@ class FireDbIndset(FireDbBase):
         if sagsevent.eventtype == EventType.KOORDINAT_NEDLAGT:
             self._check_and_prepare_sagsevent(sagsevent, EventType.KOORDINAT_NEDLAGT)
             for koordinat in sagsevent.koordinater_slettede:
-                self._luk_fikspunkregisterobjekt(koordinat, sagsevent, commit=commit)
+                self._luk_fikspunktregisterobjekt(koordinat, sagsevent, commit=commit)
 
         if sagsevent.eventtype == EventType.OBSERVATION_INDSAT:
             self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_INDSAT)
@@ -88,7 +88,7 @@ class FireDbIndset(FireDbBase):
             self._check_and_prepare_sagsevent(sagsevent, EventType.OBSERVATION_NEDLAGT)
 
             for obs in sagsevent.observationer_slettede:
-                self._luk_fikspunkregisterobjekt(obs, sagsevent, commit=commit)
+                self._luk_fikspunktregisterobjekt(obs, sagsevent, commit=commit)
 
         if sagsevent.eventtype == EventType.PUNKTINFO_TILFOEJET:
             self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKTINFO_TILFOEJET)
@@ -103,7 +103,7 @@ class FireDbIndset(FireDbBase):
             self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKTINFO_FJERNET)
 
             for punktinformation in sagsevent.punktinformationer_slettede:
-                self._luk_fikspunkregisterobjekt(
+                self._luk_fikspunktregisterobjekt(
                     punktinformation, sagsevent, commit=commit
                 )
 
@@ -118,8 +118,8 @@ class FireDbIndset(FireDbBase):
         if sagsevent.eventtype == EventType.GRAFIK_NEDLAGT:
             self._check_and_prepare_sagsevent(sagsevent, EventType.GRAFIK_NEDLAGT)
 
-            for grafik in sagsevent.grafikker:
-                self._luk_fikspunktsregisterobjekt(grafik, sagsevent, commit=commit)
+            for grafik in sagsevent.grafikker_slettede:
+                self._luk_fikspunktregisterobjekt(grafik, sagsevent, commit=commit)
 
         self.session.add(sagsevent)
         if commit:
