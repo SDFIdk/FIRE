@@ -1429,6 +1429,41 @@ END;
 /
 
 
+CREATE OR REPLACE TRIGGER punktinfo_au_trg
+AFTER UPDATE ON punktinfo
+FOR EACH ROW
+BEGIN
+  IF :new.objektid != :old.objektid THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.objektid må ikke opdateres ');
+  END IF;
+
+  IF :new.registreringfra != :old.registreringfra THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.registreringfra må ikke opdateres ');
+  END IF;
+
+  IF :new.sagseventfraid != :old.sagseventfraid THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.sagseventfraid må ikke opdateres ');
+  END IF;
+
+  IF :new.infotypeid != :old.infotypeid THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.infotypeid må ikke opdateres ');
+  END IF;
+
+  IF :new.tal != :old.tal THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.tal må ikke opdateres ');
+  END IF;
+
+  IF :new.tekst != :old.tekst THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.tekst må ikke opdateres ');
+  END IF;
+
+  IF :new.punktid != :old.punktid THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.punktid må ikke opdateres ');
+  END IF;
+END;
+/
+
+
 CREATE OR REPLACE TRIGGER sag_bu_trg
 BEFORE UPDATE ON sag
 FOR EACH ROW
