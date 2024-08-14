@@ -1464,8 +1464,8 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER sag_bu_trg
-BEFORE UPDATE ON sag
+CREATE OR REPLACE TRIGGER sag_au_trg
+AFTER UPDATE ON sag
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
@@ -1508,8 +1508,8 @@ end;
 
 
 
-CREATE OR REPLACE TRIGGER sagseventinfo_bu_trg
-BEFORE UPDATE ON sagseventinfo
+CREATE OR REPLACE TRIGGER sagseventinfo_au_trg
+AFTER UPDATE ON sagseventinfo
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
@@ -1531,8 +1531,8 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER sagsinfo_bu_trg
-BEFORE UPDATE ON sagsinfo
+CREATE OR REPLACE TRIGGER sagsinfo_au_trg
+AFTER UPDATE ON sagsinfo
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
