@@ -993,6 +993,55 @@ COMMENT ON COLUMN sridtype.z IS 'Beskrivelse af z-koordinatens indhold.';
 --                                      TRIGGERS
 -----------------------------------------------------------------------------------------
 
+/*
+------------------------------------------------------------------------------------------
+            Oversigt over brugerdefinerede fejlkoder som udløses af triggers:
+------------------------------------------------------------------------------------------
+Kode   | Trigger type           | Beskrivelse
+-------+------------------------+---------------------------------------------------------
+-20000 | AFTER UPDATE           | Feltet må ikke opdateres
+-------+------------------------+---------------------------------------------------------
+-20001 | AFTER UPDATE           | RegistreringTil feltet er ikke sat under fejlmelding af
+       |                        | FikspunktregisterObjekt
+-------+------------------------+---------------------------------------------------------
+-20002 | AFTER INSERT OR UPDATE | Felt må ikke være NULL
+-------+------------------------+---------------------------------------------------------
+-20003 | AFTER INSERT           | Sagsevent må ikke indsættes på en Sag som ikke er aktiv
+       |                        | eller som ikke findes
+-------+------------------------+---------------------------------------------------------
+-20004 | AFTER INSERT OR UPDATE | Ugyldig InfotypeID angivet ved indsættelse i Punktinfo
+-------+------------------------+---------------------------------------------------------
+-20005 | AFTER INSERT OR UPDATE | TAL / TEKST på Punktinfo skal eller må ikke være NULL
+-------+------------------------+---------------------------------------------------------
+-20006 | BEFORE INSERT          | Manglende forudgående FikspunktregisterObjekt
+-------+------------------------+---------------------------------------------------------
+-20007 | BEFORE INSERT          | Må ikke indsætte fejlmeldt FikspunktregisterObjekt
+-------+------------------------+---------------------------------------------------------
+-20008 | BEFORE INSERT          | Må ikke indsætte en grafik hvis filnavn allerede er
+       |                        | registreret under en anden grafik til et andet punkt
+-------+------------------------+---------------------------------------------------------
+-20101 | AFTER INSERT           | Hvis et Koordinat tilføjes en Tidsserie, skal oplysning-
+       |                        | er om Koordinatets SridID og PunktID matche de tilsvar-
+       |                        | ende oplysninger om Tidsserien.
+-------+------------------------+---------------------------------------------------------
+-20102 | AFTER INSERT eller     | Fungerer som Fremmednøgle imellem Punktsamling_Punkt
+       | AFTER DELETE           | (parent) og Tidsserie (child), på felterne PunktID +
+       |                        | PunktsamlingID. Man skal derfor først indsætte i Punkt-
+       |                        | samling_Punkt, dernæst i Tidsserie, og omvendt først
+       |                        | slette fra Tidsserie og så slette fra Punktsamling_Punkt.
+       |                        | Gøres dette forkert vil denne fejl blive smidt. Nøglen
+       |                        | gælder kun for Tidsserier hvor PunktsamlingID ikke er
+       |                        | NULL (hvilket i skrivende stund kun er Højdetidsserier.
+-------+------------------------+---------------------------------------------------------
+-20103 | BEFORE INSERT          | Fungerer som Unik constraint på Punktinfo, så informa-
+       |                        | tioner som forventes at være unikke på tværs af forskel-
+       |                        | lige punkter (fx GI-, Lands- og  Jessennummer) også er
+       |                        | det. Er primært tiltænkt IDENT-infotyperne.
+       |                        | GNSS-nummer er med vilje ikke medtaget, men kan dog
+       |                        | tilføjes hvis der findes behov for det.
+------------------------------------------------------------------------------------------
+*/
+
 -- Triggere der sikrer at kun registreringtil kan opdateres i en tabel
 CREATE OR REPLACE TRIGGER beregning_au_trg
 AFTER UPDATE ON beregning FOR EACH ROW
@@ -1785,7 +1834,7 @@ BEGIN
       AND p.punktid != :new.punktid;
 
     IF cnt>0 THEN
-      RAISE_APPLICATION_ERROR(-20102, 'Identer af typerne GI, landsnr og jessen skal være unikke!');
+      RAISE_APPLICATION_ERROR(-20103, 'Identer af typerne GI, landsnr og jessen skal være unikke!');
     END IF;
   END IF;
 
