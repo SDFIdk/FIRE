@@ -58,9 +58,10 @@ def vis(filnavn: str, **kwargs) -> None:
     except NoResultFound:
         raise SystemExit(f"Fandt ikke {filnavn}!")
 
-    ext = grafik.filnavn[-4:]
+    ext = Path(grafik.filnavn).suffix
     with tempfile.NamedTemporaryFile("wb", suffix=ext) as tmp:
         tmp.write(grafik.grafik)
+        tmp.flush()
         webbrowser.open_new_tab(f"file://{tmp.name}")
         # giv browseren tid til at starte inden filen fjernes igen
         time.sleep(5)
