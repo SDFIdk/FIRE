@@ -63,9 +63,9 @@ INSERT INTO punktinfotype (infotypeid, infotype, anvendelse, beskrivelse) VALUES
 Insert into PUNKTINFOTYPE (INFOTYPEID,INFOTYPE,ANVENDELSE,BESKRIVELSE) values (1,'ATTR:test','FLAG','Testattribut');
 
 -- SELECT x,y,z,sridid, srid, beskrivelse FROM SRIDTYPE WHERE srid='EPSG:5799';
-Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values (null,null,'Kote [m]',8,'EPSG:5799','Kotesystem: Dansk Vertikal Reference 1990');
-Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values ('X [m]','Y [m]','Z [m]',1,'EPSG:9015','Geocentrisk: IGb08');
-Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE) values ('X [m]','Y [m]','Z [m]',2,'EPSG:8227','Geocentrisk: IGS14');
+Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE,KORTNAVN) values (null,null,'Kote [m]',8,'EPSG:5799','Kotesystem: Dansk Vertikal Reference 1990', 'DVR90');
+Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE,KORTNAVN) values ('X [m]','Y [m]','Z [m]',1,'EPSG:9015','Geocentrisk: IGb08', 'IGb08');
+Insert into SRIDTYPE (X,Y,Z,SRIDID,SRID,BESKRIVELSE,KORTNAVN) values ('X [m]','Y [m]','Z [m]',2,'EPSG:8227','Geocentrisk: IGS14', 'IGS14');
 
 
 COMMIT;
@@ -1577,9 +1577,9 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0008-000000000002'
 );
 
-INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('b54a5515-d050-4049-bcb8-93a5e1039cc3', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-19113', 'Kontrolmåling af RDIO', 'Lokalt referenceniveau', 8, 2);
-INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('bfe1d698-09fb-450a-81e7-4e2832b6bea7', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-09933', 'Kontrolmåling af RDIO', 'Lokalt referenceniveau', 8, 2);
-INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('c3d38a21-329e-474a-a4d1-068e8219b622', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-09116', 'Kontrolmåling af RDIO', 'Lokalt referenceniveau', 8, 2);
+INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, sridid, tstype) VALUES ('b54a5515-d050-4049-bcb8-93a5e1039cc3', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-19113', 'Kontrolmåling af RDIO', 8, 2);
+INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, sridid, tstype) VALUES ('bfe1d698-09fb-450a-81e7-4e2832b6bea7', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-09933', 'Kontrolmåling af RDIO', 8, 2);
+INSERT INTO tidsserie (punktid, punktsamlingsid, registreringfra, sagseventfraid, navn, formaal, sridid, tstype) VALUES ('c3d38a21-329e-474a-a4d1-068e8219b622', 1, sysdate, 'sagevent-aaaa-bbbb-0008-000000000002', 'HTS_AARHUS_K-63-09116', 'Kontrolmåling af RDIO', 8, 2);
 
 -- populer tidsserie_koordinat med tidserier.
 -- Gøres på denne måde da vi ikke kan vide os sikre på objektid'er fra de to tabeller
@@ -1672,8 +1672,8 @@ INSERT INTO sagseventinfo (
     'sagevent-aaaa-bbbb-0008-000000000004'
 );
 
-INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('301b8578-8cc8-48a8-8446-541f31482f86', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', 'RDIO_5D_IGb08', '5D-tidsserie for RDIO', 'IGb08', 1, 1);
-INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, referenceramme, sridid, tstype) VALUES ('4b4c5c17-32e8-495d-a598-cdf42e0892de', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', 'RDO1_5D_IGb14', '5D-tidsserie for RDO1', 'IGb14', 2, 1);
+INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, sridid, tstype) VALUES ('301b8578-8cc8-48a8-8446-541f31482f86', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', 'RDIO_5D_IGb08', '5D-tidsserie for RDIO', 1, 1);
+INSERT INTO tidsserie (punktid, registreringfra, sagseventfraid, navn, formaal, sridid, tstype) VALUES ('4b4c5c17-32e8-495d-a598-cdf42e0892de', sysdate, 'sagevent-aaaa-bbbb-0008-000000000004', 'RDO1_5D_IGb14', '5D-tidsserie for RDO1', 2, 1);
 
 
 INSERT INTO tidsserie_koordinat
