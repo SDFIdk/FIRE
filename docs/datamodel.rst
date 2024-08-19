@@ -217,6 +217,7 @@ tre objekter er bygget op.
                         + objektid : Integer\l
                         + id : Integer\l
                         + SRID: String\l
+                        + kortnavn: String\l
                         + beskrivelse: String\l
                         + x : String\l
                         + y : String\l
@@ -503,7 +504,6 @@ Punktsamlingobjekterne.
                         + punktsamlingsid : Integer\l
                         + navn : String\l
                         + formaal : String\l
-                        + referenceramme : String\l
                         + sridid : Integer
                 }"
             ]
