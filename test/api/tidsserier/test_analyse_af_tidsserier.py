@@ -361,7 +361,7 @@ def test_tilføj_tidsserie_i_TidsserieEnsemble(firedb, gnsstidsseriefabrik):
 
 
 def test_tilføj_dårlig_tidsserie_i_TidsserieEnsemble(
-    gnsstidsseriefabrik, højdetidsserie
+    firedb, gnsstidsseriefabrik, højdetidsserie
 ):
     """Test at forsøg på at tilføje dårlige tidsserier afvises."""
     # Opret
@@ -393,7 +393,7 @@ def test_tilføj_dårlig_tidsserie_i_TidsserieEnsemble(
 
     # Tidsserie med forkert referenceramme
     ts3 = gnsstidsseriefabrik()
-    ts3.referenceramme = "FEM"
+    ts3.srid.kortnavn = "FEM"
 
     with pytest.raises(ValueError, match="kunne ikke valideres"):
         ts_ensemble._valider_tidsserie(ts3)
@@ -405,6 +405,7 @@ def test_tilføj_dårlig_tidsserie_i_TidsserieEnsemble(
     ts_ensemble.tilføj_tidsserie(ts3)
     assert len(ts_ensemble.tidsserier) == 0
 
+    firedb.session.rollback()
 
 def test_beregn_samlet_varians_i_TidsserieEnsemble(firedb):
     """Test beregninger af samlet varians for ensemblet."""

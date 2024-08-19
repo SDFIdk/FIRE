@@ -21,7 +21,6 @@ def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinat
         punktsamling=punktsamling,
         formål="Test",
         navn=f"TS-{fire.uuid()}",
-        referenceramme="FIRE",
         srid=srid,
         koordinater=[koordinatfabrik() for _ in range(5)],
     )
@@ -39,7 +38,6 @@ def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinat
         punkt=punkt,
         formål="Test",
         navn=f"TS-{fire.uuid()}",
-        referenceramme="FIRE",
         srid=srid,
         koordinater=[koordinatfabrik() for _ in range(5)],
     )
