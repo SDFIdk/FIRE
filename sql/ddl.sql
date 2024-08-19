@@ -361,6 +361,7 @@ CREATE TABLE sridtype (
   z VARCHAR2(4000),
   sridid INTEGER NOT NULL,
   srid VARCHAR2(36) NOT NULL,
+  kortnavn VARCHAR2(36) NULL,
   beskrivelse VARCHAR2(4000) NOT NULL
 );
 
@@ -981,6 +982,7 @@ COMMENT ON COLUMN sagsinfo.sagsid IS 'Den sag som sagsinfo holder information fo
 COMMENT ON TABLE sridtype IS 'Udfaldsrum for SRID-koordinatbeskrivelser.';
 COMMENT ON COLUMN sridtype.beskrivelse IS 'Generel beskrivelse af systemet.';
 COMMENT ON COLUMN sridtype.srid IS 'Den egentlige referencesystemindikator.';
+COMMENT ON COLUMN sridtype.kortnavn IS 'Kort og mundret form af sridtype.srid, som kan vises til FIRE-brugere';
 COMMENT ON COLUMN sridtype.sridid IS 'Unik ID i fikspunktsforvaltningssystemet for et et koordinatsystem.';
 COMMENT ON COLUMN sridtype.x IS 'Beskrivelse af x-koordinatens indhold';
 COMMENT ON COLUMN sridtype.y IS 'Beskrivelse af y-koordinatens indhold.';
