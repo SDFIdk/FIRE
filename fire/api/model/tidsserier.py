@@ -98,7 +98,6 @@ class Tidsserie(FikspunktregisterObjekt):
     navn = Column(String, nullable=False)
     formål = Column("formaal", String, nullable=False)
 
-    referenceramme = Column(String, nullable=False)
     sridid = Column(Integer, ForeignKey("sridtype.sridid"), nullable=False)
     srid = relationship("Srid", lazy="joined")
 
@@ -116,6 +115,9 @@ class Tidsserie(FikspunktregisterObjekt):
         "polymorphic_on": tstype,
     }
 
+    @property
+    def referenceramme(self):
+        return self.srid.kortnavn
 
 class GNSSTidsserie(Tidsserie):
     __mapper_args__ = {
