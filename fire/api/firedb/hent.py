@@ -368,9 +368,15 @@ class FireDbHent(FireDbBase):
             SRID ikke findes i databasen.
         """
         srid_filter = str(sridid).upper()
-        return (
-            self.session.query(Srid).filter(func.upper(Srid.name) == srid_filter).one()
-        )
+
+        try:
+        # Prøv først at søge på det egentlige srid-navn.
+            srid = self.session.query(Srid).filter(func.upper(Srid.name) == srid_filter).one()
+        except NoResultFound as e:
+        # Ellers søges på sridens korte navn
+            srid = self.session.query(Srid).filter(func.upper(Srid.kortnavn) == srid_filter).one()
+
+        return srid
 
     def hent_srider(self, namespace: Optional[str] = None) -> List[Srid]:
         """
