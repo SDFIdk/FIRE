@@ -169,7 +169,6 @@ def gnsstidsseriefabrik(firedb, sagsevent, punkt, punktsamling, koordinatfabrik,
             punktsamling=punktsamling,
             navn=f"{fire.uuid()}_TEST_FIRE",
             formål="Test",
-            referenceramme="FIRE",
             srid=srid,
             koordinater=[koordinatfabrik() for _ in range(5)],
         )
@@ -196,7 +195,6 @@ def højdetidsseriefabrik(firedb, sagsevent, punkt, punktsamling, koordinatfabri
             punktsamling=punktsamling,
             navn=f"{fire.uuid()}_TEST_FIRE",
             formål="Test",
-            referenceramme="FIRE",
             srid=srid,
             koordinater=[koordinatfabrik() for _ in range(5)],
         )
@@ -270,6 +268,7 @@ def srid(firedb):
             Srid(
                 name="DK:TEST",
                 beskrivelse="SRID til brug i test-suite",
+                kortnavn = "FIRE",
                 x="Easting",
                 y="Northing",
                 z="Højde",
