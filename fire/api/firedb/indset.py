@@ -112,7 +112,7 @@ class FireDbIndset(FireDbBase):
 
             for grafik in sagsevent.grafikker:
                 if not self._is_new_object(grafik):
-                    raise Exception(f"Grafik allerede tilføjet datbasen: {grafik}")
+                    raise Exception(f"Grafik allerede tilføjet databasen: {grafik}")
                 grafik.sagsevent = sagsevent
 
         if sagsevent.eventtype == EventType.GRAFIK_NEDLAGT:
@@ -120,6 +120,18 @@ class FireDbIndset(FireDbBase):
 
             for grafik in sagsevent.grafikker_slettede:
                 self._luk_fikspunktregisterobjekt(grafik, sagsevent, commit=commit)
+
+        if sagsevent.eventtype == EventType.PUNKTGRUPPE_NEDLAGT:
+            self._check_and_prepare_sagsevent(sagsevent, EventType.PUNKTGRUPPE_NEDLAGT)
+
+            for punktsamling in sagsevent.punktsamlinger_slettede:
+                self._luk_fikspunktregisterobjekt(punktsamling, sagsevent, commit=commit)
+
+        if sagsevent.eventtype == EventType.TIDSSERIE_NEDLAGT:
+            self._check_and_prepare_sagsevent(sagsevent, EventType.TIDSSERIE_NEDLAGT)
+
+            for tidsserie in sagsevent.tidsserier_slettede:
+                self._luk_fikspunktregisterobjekt(tidsserie, sagsevent, commit=commit)
 
         self.session.add(sagsevent)
         if commit:
