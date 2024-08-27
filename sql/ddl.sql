@@ -127,7 +127,6 @@ CREATE TABLE tidsserie (
 
   navn VARCHAR2(4000) NOT NULL UNIQUE,
   formaal VARCHAR2(4000) NOT NULL,
-  referenceramme VARCHAR2(50) NOT NULL,
   sridid INTEGER NOT NULL,
   tstype INTEGER NOT NULL
 );
@@ -363,6 +362,7 @@ CREATE TABLE sridtype (
   z VARCHAR2(4000),
   sridid INTEGER NOT NULL,
   srid VARCHAR2(36) NOT NULL,
+  kortnavn VARCHAR2(36) NULL,
   beskrivelse VARCHAR2(4000) NOT NULL
 );
 
@@ -857,7 +857,6 @@ COMMENT ON COLUMN tidsserie.sagseventfraid IS 'Angivelse af den hændelse der ha
 COMMENT ON COLUMN tidsserie.sagseventtilid IS 'Angivelse af den hændelse der har bevirket afregistrering af et fikspunktsobjekt';
 COMMENT ON COLUMN tidsserie.navn IS 'Tidsseriens navn';
 COMMENT ON COLUMN tidsserie.formaal IS 'Beskrivelse af formålet med tidsserien.';
-COMMENT ON COLUMN tidsserie.referenceramme IS 'Angivelse af tidsseriens referenceramme, eksempelvis IGS14_REPRO1';
 COMMENT ON COLUMN tidsserie.sridid IS 'Angivelse af transformerbart (så vidt muligt) koordinatsystem for tidsserien. Der findes ikke transformationer til/fra IGS14_REPRO1, det gør der der imod til ITFR2014 hvorfor dette angives som SRID. Transformationsmæssigt er IGS14 og ITRF2014 ækvivalente, så ved at angive ITRF2014 som SRID sikrer vi muligheden for at kunne transformere tidsserien til et andet system.';
 COMMENT ON COLUMN tidsserie.tstype IS 'Angivelse af tidsseriens type. Følgende værdier accepteres, 1: GNSS, 2: Nivellement';
 
@@ -983,6 +982,7 @@ COMMENT ON COLUMN sagsinfo.sagsid IS 'Den sag som sagsinfo holder information fo
 COMMENT ON TABLE sridtype IS 'Udfaldsrum for SRID-koordinatbeskrivelser.';
 COMMENT ON COLUMN sridtype.beskrivelse IS 'Generel beskrivelse af systemet.';
 COMMENT ON COLUMN sridtype.srid IS 'Den egentlige referencesystemindikator.';
+COMMENT ON COLUMN sridtype.kortnavn IS 'Kort og mundret form af sridtype.srid, som kan vises til FIRE-brugere';
 COMMENT ON COLUMN sridtype.sridid IS 'Unik ID i fikspunktsforvaltningssystemet for et et koordinatsystem.';
 COMMENT ON COLUMN sridtype.x IS 'Beskrivelse af x-koordinatens indhold';
 COMMENT ON COLUMN sridtype.y IS 'Beskrivelse af y-koordinatens indhold.';

@@ -735,10 +735,13 @@ def analyse_gnss(
         referenceramme=referenceramme,
     )
 
+    # Hent srid
+    srid = fire.cli.firedb.hent_srid(referenceramme)
+
     # Hent alle tidsserier i FIRE som passer til søgningen
     query = fire.cli.firedb.session.query(GNSSTidsserie).filter(
         GNSSTidsserie._registreringtil == None,
-        GNSSTidsserie.referenceramme == referenceramme,
+        GNSSTidsserie.srid == srid,
     )
 
     # Filtrér på de givne tidsserienavne

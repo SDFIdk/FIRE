@@ -1,11 +1,16 @@
 from fire.api.model import Srid
 
 
-def test_hent_srid(firedb):
+def test_hent_srid(firedb, srid):
     # DK:TEST is created by the srid fixture, should be present when this test is run
     key = "DK:TEST"
     srid = firedb.hent_srid(key)
     assert srid.name == key
+
+    kortnavn = "DVR90"
+    srid = firedb.hent_srid(kortnavn)
+    assert srid.name == "EPSG:5799"
+    assert srid.kortnavn == kortnavn
 
 
 def test_indset_srid(firedb):

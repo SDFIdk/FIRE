@@ -561,6 +561,7 @@ class Srid(DeclarativeBase):
     objektid = Column(Integer, primary_key=True)
     sridid = Column(Integer, unique=True, nullable=False)
     name = Column("srid", String(36), nullable=False, unique=True)
+    kortnavn = Column("kortnavn", String(36), nullable=True, unique=False)
     beskrivelse = Column(String(4000))
     x = Column(String(4000))
     y = Column(String(4000))

@@ -94,7 +94,6 @@ def opret_nye_tidsserier(
                 srid=srid,
                 navn=f"{punkt.gnss_navn}_{tidsserietype}_{solution.datum}",
                 formål=f"GNSS-tidsserie for {punkt.gnss_navn}",
-                referenceramme=f"{solution.datum}",
             )
             nye_tidsserier.append(tidsserie)
 
