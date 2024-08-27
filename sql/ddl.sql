@@ -135,7 +135,8 @@ CREATE TABLE tidsserie (
 
 CREATE TABLE tidsserie_koordinat (
   tidsserieobjektid INTEGER NOT NULL,
-  koordinatobjektid INTEGER NOT NULL
+  koordinatobjektid INTEGER NOT NULL,
+  PRIMARY KEY (tidsserieobjektid, koordinatobjektid)
 );
 
 
@@ -233,7 +234,8 @@ CREATE TABLE punktsamling (
 
 CREATE TABLE punktsamling_punkt (
   punktsamlingsid INTEGER,
-  punktid VARCHAR2(36)
+  punktid VARCHAR2(36),
+  PRIMARY KEY (punktsamlingsid, punktid)
 );
 
 CREATE TABLE punktinfo (
@@ -991,6 +993,55 @@ COMMENT ON COLUMN sridtype.z IS 'Beskrivelse af z-koordinatens indhold.';
 --                                      TRIGGERS
 -----------------------------------------------------------------------------------------
 
+/*
+------------------------------------------------------------------------------------------
+            Oversigt over brugerdefinerede fejlkoder som udløses af triggers:
+------------------------------------------------------------------------------------------
+Kode   | Trigger type           | Beskrivelse
+-------+------------------------+---------------------------------------------------------
+-20000 | AFTER UPDATE           | Feltet må ikke opdateres
+-------+------------------------+---------------------------------------------------------
+-20001 | AFTER UPDATE           | RegistreringTil feltet er ikke sat under fejlmelding af
+       |                        | FikspunktregisterObjekt
+-------+------------------------+---------------------------------------------------------
+-20002 | AFTER INSERT OR UPDATE | Felt må ikke være NULL
+-------+------------------------+---------------------------------------------------------
+-20003 | AFTER INSERT           | Sagsevent må ikke indsættes på en Sag som ikke er aktiv
+       |                        | eller som ikke findes
+-------+------------------------+---------------------------------------------------------
+-20004 | AFTER INSERT OR UPDATE | Ugyldig InfotypeID angivet ved indsættelse i Punktinfo
+-------+------------------------+---------------------------------------------------------
+-20005 | AFTER INSERT OR UPDATE | TAL / TEKST på Punktinfo skal eller må ikke være NULL
+-------+------------------------+---------------------------------------------------------
+-20006 | BEFORE INSERT          | Manglende forudgående FikspunktregisterObjekt
+-------+------------------------+---------------------------------------------------------
+-20007 | BEFORE INSERT          | Må ikke indsætte fejlmeldt FikspunktregisterObjekt
+-------+------------------------+---------------------------------------------------------
+-20008 | BEFORE INSERT          | Må ikke indsætte en grafik hvis filnavn allerede er
+       |                        | registreret under en anden grafik til et andet punkt
+-------+------------------------+---------------------------------------------------------
+-20101 | AFTER INSERT           | Hvis et Koordinat tilføjes en Tidsserie, skal oplysning-
+       |                        | er om Koordinatets SridID og PunktID matche de tilsvar-
+       |                        | ende oplysninger om Tidsserien.
+-------+------------------------+---------------------------------------------------------
+-20102 | AFTER INSERT eller     | Fungerer som Fremmednøgle imellem Punktsamling_Punkt
+       | AFTER DELETE           | (parent) og Tidsserie (child), på felterne PunktID +
+       |                        | PunktsamlingID. Man skal derfor først indsætte i Punkt-
+       |                        | samling_Punkt, dernæst i Tidsserie, og omvendt først
+       |                        | slette fra Tidsserie og så slette fra Punktsamling_Punkt.
+       |                        | Gøres dette forkert vil denne fejl blive smidt. Nøglen
+       |                        | gælder kun for Tidsserier hvor PunktsamlingID ikke er
+       |                        | NULL (hvilket i skrivende stund kun er Højdetidsserier.
+-------+------------------------+---------------------------------------------------------
+-20103 | BEFORE INSERT          | Fungerer som Unik constraint på Punktinfo, så informa-
+       |                        | tioner som forventes at være unikke på tværs af forskel-
+       |                        | lige punkter (fx GI-, Lands- og  Jessennummer) også er
+       |                        | det. Er primært tiltænkt IDENT-infotyperne.
+       |                        | GNSS-nummer er med vilje ikke medtaget, men kan dog
+       |                        | tilføjes hvis der findes behov for det.
+------------------------------------------------------------------------------------------
+*/
+
 -- Triggere der sikrer at kun registreringtil kan opdateres i en tabel
 CREATE OR REPLACE TRIGGER beregning_au_trg
 AFTER UPDATE ON beregning FOR EACH ROW
@@ -1022,7 +1073,11 @@ BEGIN
   END IF;
 
   IF :new.sagseventfraid != :old.sagseventfraid THEN
-    RAISE_APPLICATION_ERROR(-20000,'geometriobjket.sagseventfraid  må ikke opdateres ');
+    RAISE_APPLICATION_ERROR(-20000,'geometriobjekt.sagseventfraid må ikke opdateres ');
+  END IF;
+
+  IF SDO_GEOM.RELATE(:new.geometri, 'EQUAL', :old.geometri) != 'EQUAL' THEN
+    RAISE_APPLICATION_ERROR(-20000,'geometriobjekt.geometri må ikke opdateres ');
   END IF;
 
   IF :new.punktid != :old.punktid THEN
@@ -1067,6 +1122,10 @@ BEGIN
     RAISE_APPLICATION_ERROR(-20000, 'koordinat.transformeret må ikke opdateres ');
   END IF;
 
+  IF :new.artskode != :old.artskode THEN
+    RAISE_APPLICATION_ERROR(-20000, 'koordinat.artskode må ikke opdateres ');
+  END IF;
+
   IF :new.x != :old.x THEN
     RAISE_APPLICATION_ERROR(-20000, 'koordinat.x må ikke opdateres ');
   END IF;
@@ -1102,6 +1161,10 @@ BEGIN
     RAISE_APPLICATION_ERROR(-20000,'observation.objektid må ikke opdateres ');
   END IF;
 
+  IF :new.id != :old.id THEN
+    RAISE_APPLICATION_ERROR(-20000,'observation.id må ikke opdateres ');
+  END IF;
+
   IF :new.registreringfra != :old.registreringfra THEN
     RAISE_APPLICATION_ERROR(-20000,'observation.registreringfra må ikke opdateres ');
   END IF;
@@ -1116,6 +1179,10 @@ BEGIN
 
   IF :new.observationstypeid != :old.observationstypeid THEN
     RAISE_APPLICATION_ERROR(-20000,'observation.observationstypeid må ikke opdateres ');
+  END IF;
+
+  IF :new.observationstidspunkt != :old.observationstidspunkt THEN
+    RAISE_APPLICATION_ERROR(-20000,'observation.observationstidspunkt må ikke opdateres ');
   END IF;
 
   IF :new.value1 != :old.value1 THEN
@@ -1194,6 +1261,140 @@ BEGIN
     RAISE_APPLICATION_ERROR(-20001, 'Registreringtil skal sættes når en observation fejlmeldes');
   END IF;
 
+
+END;
+/
+
+CREATE OR REPLACE TRIGGER punktsamling_au_trg
+AFTER UPDATE ON punktsamling
+FOR EACH ROW
+BEGIN
+  IF :new.objektid != :old.objektid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'punktsamling.objektid må ikke opdateres');
+  END IF;
+
+  IF :new.registreringfra != :old.registreringfra THEN
+    RAISE_APPLICATION_ERROR(-20000, 'punktsamling.registreringfra må ikke opdateres');
+  END IF;
+
+  -- Man må med vilje godt opdatere Sagseventfra, da det er nødvendigt ved indsættelse
+  -- af nye Punkter til punktsamlingen i Punktsamling_punkt-tabellen.
+  -- IF :new.sagseventfraid != :old.sagseventfraid THEN
+  --   RAISE_APPLICATION_ERROR(-20000, 'punktsamling.sagseventfraid må ikke opdateres');
+  -- END IF;
+
+END;
+/
+
+CREATE OR REPLACE TRIGGER tidsserie_au_trg
+AFTER UPDATE ON tidsserie
+FOR EACH ROW
+BEGIN
+  IF :new.objektid != :old.objektid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.objektid må ikke opdateres');
+  END IF;
+
+  IF :new.registreringfra != :old.registreringfra THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.registreringfra må ikke opdateres');
+  END IF;
+
+  -- Man må med vilje godt opdatere Sagseventfra, da det er nødvendigt ved indsættelse
+  -- af nye Koordinater til tidsserien i Tidsserie_Koordinat-tabellen
+  -- IF :new.sagseventfraid != :old.sagseventfraid THEN
+  --   RAISE_APPLICATION_ERROR(-20000, 'tidsserie.sagseventfraid må ikke opdateres');
+  -- END IF;
+
+  IF :new.punktid != :old.punktid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.punktid må ikke opdateres');
+  END IF;
+
+  IF :new.punktsamlingsid != :old.punktsamlingsid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.punktsamlingsid må ikke opdateres');
+  END IF;
+
+  IF :new.sridid != :old.sridid THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.sridid må ikke opdateres');
+  END IF;
+
+  IF :new.tstype != :old.tstype THEN
+    RAISE_APPLICATION_ERROR(-20000, 'tidsserie.tstype må ikke opdateres');
+  END IF;
+
+END;
+/
+
+CREATE OR REPLACE TRIGGER punktsamling_punkt_ad_trg
+AFTER DELETE ON punktsamling_punkt
+FOR EACH ROW
+DECLARE
+  cnt NUMBER;
+BEGIN
+  SELECT count(*)
+  INTO cnt
+  FROM
+    tidsserie ts
+  WHERE
+    ts.punktid = :old.punktid and
+    ts.punktsamlingsid = :old.punktsamlingsid and
+    ts.registreringtil IS NULL;
+
+  IF cnt > 0 THEN
+    RAISE_APPLICATION_ERROR(-20102, 'punkt må ikke slettes fra punktsamling, hvor der ligger tidsserier.');
+  END IF;
+
+END;
+/
+
+CREATE OR REPLACE TRIGGER tidsserie_ai_trg
+AFTER INSERT ON tidsserie
+FOR EACH ROW
+DECLARE
+  cnt NUMBER;
+BEGIN
+  SELECT count(*)
+  INTO cnt
+  FROM
+    punktsamling_punkt psp
+  WHERE
+    psp.punktid = :new.punktid AND
+    psp.punktsamlingsid = :new.punktsamlingsid;
+
+  IF cnt != 1 AND :new.punktsamlingsid IS NOT NULL THEN
+    RAISE_APPLICATION_ERROR(-20102, 'tidsserie.punkt skal matche tidsserie.punktsamling.punkt');
+  END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER tidsserie_koordinat_ai_trg
+AFTER INSERT ON tidsserie_koordinat
+FOR EACH ROW
+DECLARE
+  ts_punktid VARCHAR2(36) := '';
+  ts_sridid  NUMBER;
+  k_punktid  VARCHAR2(36) := '';
+  k_sridid   NUMBER;
+BEGIN
+  SELECT k.punktid, k.sridid
+  INTO k_punktid, k_sridid
+  FROM
+    koordinat k
+  WHERE
+    k.objektid = :new.koordinatobjektid;
+
+  SELECT ts.punktid, ts.sridid
+  INTO ts_punktid, ts_sridid
+  FROM
+    tidsserie ts
+  WHERE
+    ts.objektid = :new.tidsserieobjektid;
+
+  IF k_punktid != ts_punktid THEN
+    RAISE_APPLICATION_ERROR(-20101, 'tidsserie.punktid skal matche koordinat.punktid');
+  END IF;
+
+  IF k_sridid != ts_sridid THEN
+    RAISE_APPLICATION_ERROR(-20101, 'tidsserie.sridid skal matche koordinat.sridid');
+  END IF;
 
 END;
 /
@@ -1293,8 +1494,43 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER sag_bu_trg
-BEFORE UPDATE ON sag
+CREATE OR REPLACE TRIGGER punktinfo_au_trg
+AFTER UPDATE ON punktinfo
+FOR EACH ROW
+BEGIN
+  IF :new.objektid != :old.objektid THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.objektid må ikke opdateres ');
+  END IF;
+
+  IF :new.registreringfra != :old.registreringfra THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.registreringfra må ikke opdateres ');
+  END IF;
+
+  IF :new.sagseventfraid != :old.sagseventfraid THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.sagseventfraid må ikke opdateres ');
+  END IF;
+
+  IF :new.infotypeid != :old.infotypeid THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.infotypeid må ikke opdateres ');
+  END IF;
+
+  IF :new.tal != :old.tal THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.tal må ikke opdateres ');
+  END IF;
+
+  IF :new.tekst != :old.tekst THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.tekst må ikke opdateres ');
+  END IF;
+
+  IF :new.punktid != :old.punktid THEN
+    RAISE_APPLICATION_ERROR(-20000,'punktinfo.punktid må ikke opdateres ');
+  END IF;
+END;
+/
+
+
+CREATE OR REPLACE TRIGGER sag_au_trg
+AFTER UPDATE ON sag
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
@@ -1337,8 +1573,8 @@ end;
 
 
 
-CREATE OR REPLACE TRIGGER sagseventinfo_bu_trg
-BEFORE UPDATE ON sagseventinfo
+CREATE OR REPLACE TRIGGER sagseventinfo_au_trg
+AFTER UPDATE ON sagseventinfo
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
@@ -1360,8 +1596,8 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER sagsinfo_bu_trg
-BEFORE UPDATE ON sagsinfo
+CREATE OR REPLACE TRIGGER sagsinfo_au_trg
+AFTER UPDATE ON sagsinfo
 FOR EACH ROW
 BEGIN
   IF :new.objektid != :old.objektid THEN
@@ -1521,13 +1757,11 @@ END;
 
 
 -- Sikrer at infotype i PUNKTINFO eksisterer i PUNKTINFOTYPE, og at data i PUNKTINFO matcher definition i PUNKTINFOTYPE
--- og at tidligere version af punktinfo afregistreres korrekt ved indsættelse af ny
-CREATE OR REPLACE TRIGGER punktinfo_biu_trg
-BEFORE INSERT OR UPDATE ON punktinfo
+CREATE OR REPLACE TRIGGER punktinfo_aiu_trg
+AFTER INSERT OR UPDATE ON punktinfo
 FOR EACH ROW
 DECLARE
   this_andv varchar2(10);
-  cnt NUMBER;
 BEGIN
   BEGIN
     SELECT
@@ -1559,34 +1793,69 @@ BEGIN
   IF this_andv = 'TAL' AND :new.tal IS NULL THEN
     RAISE_APPLICATION_ERROR(-20005, 'punktinfo.tal må ikke være NULL ved anvendelsestypen "TAL"');
   END IF;
+END;
+/
 
-  -- afregistrer forrige version af punktinfo når nyt indsættes
-  IF :new.registreringtil IS NULL THEN
-    SELECT
-      count(*) INTO cnt
-    FROM
-      punktinfo
-    WHERE
-      punktid = :new.punktid AND infotypeid = :new.infotypeid AND registreringtil IS NULL;
+-- De følgende BEFORE INSERT triggers sørger bl.a. for at afregistrere forudgående
+-- versioner af objekter, når en ny, aktiv række indsættes, dvs. hvis "registreringtil IS
+-- NULL".
+-- I den perfekte verden ligger der kun én forudgående version af hvert objekt, men der er
+-- i migreret data mange eksempler på fx punktinfo med samme type og punkt som alle er
+-- aktive. Derfor afregistrer vi ALLE forrige versioner af punktinfo og andre
+-- objekt-typer.
+-- På denne måde får vi langsomt ryddet op i "dobbelt-" eller "fler-aktive"
+-- punktinformationer og hvad der ellers skulle ligge.
 
-    IF cnt = 1 THEN
-      UPDATE
-        punktinfo
-      SET
-        registreringtil = :new.registreringfra,
-        sagseventtilid = :new.sagseventfraid
-      WHERE
-        objektid = (
-          SELECT
-            objektid
-          FROM
-            punktinfo
-          WHERE
-            punktid = :new.punktid
-            AND infotypeid = :new.infotypeid
-            AND registreringtil IS NULL
-        );
+CREATE OR REPLACE TRIGGER punktinfo_bi_trg
+BEFORE INSERT ON punktinfo
+FOR EACH ROW
+DECLARE
+    infotype varchar2(4000);
+    cnt number;
+BEGIN
+  -- To punkter må ikke hedde det samme. Fungerer som en Unik constraint der grupperer på
+  -- infotyperne IDENT:GI, -landsnr og -jessen.
+  -- Tjekker kun de mest gængse IDENT-typer. Med undtagelse af IDENT:GNSS da det her er
+  -- muligt at have navnekollisioner (GNSS-navnekollisioner bør ryddes op i så det ikke
+  -- sker, men de bør ikke forhindres i at blive indsat i databasen.)
+  SELECT infotype
+    INTO infotype
+  FROM punktinfotype pit
+	WHERE pit.infotypeid = :new.infotypeid;
+
+  IF infotype IN ('IDENT:GI', 'IDENT:landsnr', 'IDENT:jessen') THEN
+    SELECT count(*)
+    INTO cnt
+    FROM punktinfo p
+    WHERE p.registreringtil IS NULL
+      AND p.infotypeid = :new.infotypeid
+      AND p.tekst = :new.tekst
+      -- Er der andre punkter end det indsatte punkt med samme navn?
+      AND p.punktid != :new.punktid;
+
+    IF cnt>0 THEN
+      RAISE_APPLICATION_ERROR(-20103, 'Identer af typerne GI, landsnr og jessen skal være unikke!');
     END IF;
+  END IF;
+
+  -- Afregistrer forudgående punktinfo
+  IF :new.registreringtil IS NULL THEN
+    UPDATE
+      punktinfo
+    SET
+      registreringtil = :new.registreringfra,
+      sagseventtilid = :new.sagseventfraid
+    WHERE
+      objektid IN (
+        SELECT
+          objektid
+        FROM
+          punktinfo
+        WHERE
+          punktid = :new.punktid
+          AND infotypeid = :new.infotypeid
+          AND registreringtil IS NULL
+      );
   END IF;
 END;
 /
@@ -1615,7 +1884,7 @@ END;
 
 
 CREATE OR REPLACE TRIGGER geometriobjekt_bi_trg
-BEFORE INSERT OR UPDATE ON geometriobjekt
+BEFORE INSERT ON geometriobjekt
 FOR EACH ROW
 DECLARE
   cnt NUMBER;
@@ -1629,36 +1898,27 @@ BEGIN
       registreringtil = :new.registreringfra;
 
     IF cnt = 0 THEN
-      RAISE_APPLICATION_ERROR(-20008, 'Manglende forudgående geometriobjekt');
+      RAISE_APPLICATION_ERROR(-20006, 'Manglende forudgående geometriobjekt');
     END IF;
   END IF;
 
+  -- Afregistrer forudgående geometriobjekt
   IF :new.registreringtil IS NULL THEN
-    SELECT
-      count(*) INTO cnt
-    FROM
+    UPDATE
       geometriobjekt
+    SET
+      registreringtil = :new.registreringfra,
+      sagseventtilid = :new.sagseventfraid
     WHERE
-      punktid = :new.punktid
-      AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
-      UPDATE
-        geometriobjekt
-      SET
-        registreringtil = :new.registreringfra,
-        sagseventtilid = :new.sagseventfraid
-      WHERE
-        objektid = (
-          SELECT
-            objektid
-          FROM
-            geometriobjekt
-          WHERE
-            punktid = :new.punktid
-            AND registreringtil IS NULL
-        );
-    END IF;
+      objektid IN (
+        SELECT
+          objektid
+        FROM
+          geometriobjekt
+        WHERE
+          punktid = :new.punktid
+          AND registreringtil IS NULL
+      );
   END IF;
 END;
 /
@@ -1682,34 +1942,24 @@ BEGIN
     END IF;
   END IF;
 
+  -- Afregistrer forudgående koordinat
   IF :new.registreringtil IS NULL THEN
-    SELECT
-      count(*) INTO cnt
-    FROM
+    UPDATE
       koordinat
+    SET
+      registreringtil = :new.registreringfra,
+      sagseventtilid = :new.sagseventfraid
     WHERE
-      punktid = :new.punktid
-      AND sridid = :new.sridid
-      AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
-      UPDATE
-        koordinat
-      SET
-        registreringtil = :new.registreringfra,
-        sagseventtilid = :new.sagseventfraid
-      WHERE
-        objektid = (
-          SELECT
-            objektid
-          FROM
-            koordinat
-          WHERE
-            punktid = :new.punktid
-            AND sridid = :new.sridid
-            AND registreringtil IS NULL
-        );
-    END IF;
+      objektid IN (
+        SELECT
+          objektid
+        FROM
+          koordinat
+        WHERE
+          punktid = :new.punktid
+          AND sridid = :new.sridid
+          AND registreringtil IS NULL
+      );
   END IF;
 
   IF :new.fejlmeldt = 'true' THEN
@@ -1732,7 +1982,7 @@ BEGIN
     WHERE
       registreringtil = :new.registreringfra;
 
-    if cnt = 0 THEN
+    IF cnt = 0 THEN
       RAISE_APPLICATION_ERROR(-20006,'Manglende forudgående grafik');
     END IF;
   END IF;
@@ -1750,34 +2000,23 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20008, 'Filnavn allerede registreret!');
     END IF;
 
-
-    SELECT
-      count(*) INTO cnt
-    FROM
+    -- Afregistrer forudgående grafikker
+    UPDATE
       grafik
+    SET
+      registreringtil = :new.registreringfra,
+      sagseventtilid = :new.sagseventfraid
     WHERE
-      punktid = :new.punktid
-      AND filnavn = :new.filnavn
-      AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
-      UPDATE
-        grafik
-      SET
-        registreringtil = :new.registreringfra,
-        sagseventtilid = :new.sagseventfraid
-      WHERE
-        objektid = (
-          SELECT
-            objektid
-          FROM
-            grafik
-          WHERE
-            punktid = :new.punktid
-            AND filnavn = :new.filnavn
-            AND registreringtil IS NULL
-        );
-    END IF;
+      objektid IN (
+        SELECT
+          objektid
+        FROM
+          grafik
+        WHERE
+          punktid = :new.punktid
+          AND filnavn = :new.filnavn
+          AND registreringtil IS NULL
+      );
   END IF;
 
 END;
@@ -1789,25 +2028,15 @@ END;
 CREATE OR REPLACE TRIGGER sagsinfo_bi_trg
 BEFORE INSERT ON sagsinfo
 FOR EACH ROW
-DECLARE
-  cnt number;
 BEGIN
+  -- Afregistrer forudgående sagsinfo
   IF :new.registreringtil IS NULL THEN
-    SELECT
-      count(*) INTO cnt
-    FROM
-      sagsinfo
-    WHERE
-      sagsid = :new.sagsid
-      AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
     UPDATE
       sagsinfo
     SET
       registreringtil = :new.registreringfra
     WHERE
-      objektid = (
+      objektid IN (
         SELECT
           objektid
         FROM
@@ -1816,7 +2045,6 @@ BEGIN
           sagsid = :new.sagsid
           AND registreringtil IS NULL
       );
-    END IF;
   END IF;
 END;
 /
@@ -1825,25 +2053,15 @@ END;
 CREATE OR REPLACE TRIGGER sagseventinfo_bi_trg
 BEFORE INSERT ON sagseventinfo
 FOR EACH ROW
-DECLARE
-  cnt number;
 BEGIN
+  -- Afregistrer forudgående sagseventinfo
   IF :new.registreringtil IS NULL THEN
-    SELECT
-      count(*) INTO cnt
-    FROM
-      sagseventinfo
-    WHERE
-      sagseventid = :new.sagseventid
-      AND registreringtil IS NULL;
-
-    IF cnt = 1 THEN
     UPDATE
       sagseventinfo
     SET
       registreringtil = :new.registreringfra
     WHERE
-      objektid = (
+      objektid IN (
         SELECT
           objektid
         FROM
@@ -1852,7 +2070,6 @@ BEGIN
           sagseventid = :new.sagseventid
           AND registreringtil IS NULL
       );
-    END IF;
   END IF;
 END;
 /
