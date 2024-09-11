@@ -35,8 +35,9 @@ def test_info_srid():
     assert result.exit_code == 0
 
     forventet_output = """--- SRID ---
- Name:       :  DK:TEST
- Description :  SRID til brug i test-suite\n"""
+ Navn:       :  DK:TEST
+ Kort navn:  :  FIRE
+ Beskrivelse :  SRID til brug i test-suite\n"""
 
     assert result.output == forventet_output
 

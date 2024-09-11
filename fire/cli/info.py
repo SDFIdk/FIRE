@@ -70,7 +70,7 @@ def koordinat_linje(koord: Koordinat) -> str:
     if koord.transformeret == Boolean.FALSE:
         native_or_transformed = "n"
 
-    meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}  {koord.srid.name:<15.15} {native_or_transformed} "
+    meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}  {(koord.srid.kortnavn or koord.srid.name):<15.15} {native_or_transformed} "
 
     # Se i proj.db: Er koordinatsystemet lineært eller vinkelbaseret?
     try:
@@ -495,12 +495,13 @@ def srid(srid: str, ts: bool, **kwargs):
         try:
             srid = fire.cli.firedb.hent_srid(srid_name)
         except NoResultFound:
-            fire.cli.print(f"Error! {srid_name} not found!", fg="red", err=True)
+            fire.cli.print(f"Fejl! {srid_name} ikke fundet!", fg="red", err=True)
             raise SystemExit(1)
 
         fire.cli.print("--- SRID ---", bold=True)
-        fire.cli.print(f" Name:       :  {srid.name}")
-        fire.cli.print(f" Description :  {srid.beskrivelse}")
+        fire.cli.print(f" Navn:       :  {srid.name}")
+        fire.cli.print(f" Kort navn:  :  {srid.kortnavn or ''}")
+        fire.cli.print(f" Beskrivelse :  {srid.beskrivelse}")
 
 
 @info.command()
@@ -549,17 +550,17 @@ def infotype(infotype: str, søg: bool, **kwargs):
                 .all()
             )
 
-        if punktinfotyper is None:
+        if not punktinfotyper:
             raise NoResultFound
     except NoResultFound:
-        fire.cli.print(f"Error! {infotype} not found!", fg="red", err=True)
+        fire.cli.print(f"Fejl! {infotype} ikke fundet!", fg="red", err=True)
         raise SystemExit(1)
 
     if len(punktinfotyper) == 1:
         pit = punktinfotyper[0]
         fire.cli.print("--- PUNKTINFOTYPE ---", bold=True)
-        fire.cli.print(f"  Name        :  {pit.name}")
-        fire.cli.print(f"  Description :  {pit.beskrivelse}")
+        fire.cli.print(f"  Navn        :  {pit.name}")
+        fire.cli.print(f"  Beskrivelse :  {pit.beskrivelse}")
         fire.cli.print(f"  Type        :  {pit.anvendelse}")
         return
 
