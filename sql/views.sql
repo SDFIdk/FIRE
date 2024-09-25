@@ -1332,3 +1332,94 @@ VALUES
 
 CREATE INDEX v_jessenpunkter_geometri_idx ON v_jessenpunkter (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
 
+
+-- Tidsserier og Punkter i punktsamlinger
+CREATE MATERIALIZED VIEW v_hoejdetidsserier
+REFRESH ON DEMAND
+START WITH SYSDATE NEXT SYSDATE + 1 / 24
+AS
+WITH
+	punkter AS (
+		SELECT ps.objektid as punktsamlingsid, psp.punktid, ps.jessenpunktid, ps.jessenkoordinatid, ps.navn
+		FROM punktsamling_punkt psp
+		JOIN punktsamling ps ON psp.punktsamlingsid = ps.objektid
+	),
+	gi_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:GI' AND pi.registreringtil IS NULL
+	),
+	landsnr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	),
+	jessennr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:jessen' AND pi.registreringtil IS NULL
+	),
+	koordinater AS (
+		SELECT k.objektid AS koordinatid, k.punktid, k.t, k.z
+		FROM koordinat k
+	),
+	tidsserier AS (
+		SELECT t.punktid, t.punktsamlingsid, t.navn, t.formaal, tk.t, tk.kote
+		FROM tidsserie t
+		LEFT JOIN (
+			SELECT tk.tidsserieobjektid,
+				-- Tager den senete kote i tidsserien
+				max(k.t) as T,
+				max(k.z) keep (DENSE_RANK FIRST ORDER BY k.t DESC) AS kote
+			FROM tidsserie_koordinat tk
+			INNER JOIN koordinat k ON tk.koordinatobjektid = k.objektid
+			GROUP BY tk.tidsserieobjektid
+		) tk ON t.objektid = tk.tidsserieobjektid
+		WHERE t.tstype = 2 AND t.registreringtil IS NULL
+	),
+	geometrier AS (
+		SELECT geometri, punktid FROM geometriobjekt go
+		WHERE go.registreringtil IS NULL
+	),
+	tabtgaaet AS (
+		SELECT pi.punktid, 'TRUE' AS tabtgaaet FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='ATTR:tabtgået' AND pi.registreringtil IS NULL
+	)
+SELECT
+	geometrier.geometri,
+	gi_ident.ident GI_IDENT,
+	landsnr.ident LANDSNR,
+	p.NAVN PUNKTSAMLINGSNAVN,
+	t.navn TIDSSERIENAVN,
+	t.formaal,
+	t.kote AS TSKOTE, -- tidsseriens seneste kote
+	t.t AS TSKOTE_T,  -- og tilsvarende tidspunkt
+	jessennr.ident JESSENNR,
+	jessenkoord.z   JESSENKOTE,   -- jessenpunktets kote
+	jessenkoord.t   JESSENKOTE_T, -- og tilsvarende tidspunkt
+	COALESCE(tabtgaaet.tabtgaaet, 'FALSE') AS tabtgaaet
+FROM punkter p
+LEFT JOIN tidsserier t ON p.punktsamlingsid = t.punktsamlingsid AND p.punktid = t.punktid
+LEFT JOIN gi_ident ON p.punktid=gi_ident.punktid
+LEFT JOIN landsnr ON p.punktid=landsnr.punktid
+LEFT JOIN jessennr ON p.jessenpunktid=jessennr.punktid
+LEFT JOIN koordinater jessenkoord ON p.jessenkoordinatid = jessenkoord.koordinatid
+LEFT JOIN tabtgaaet ON p.punktid=tabtgaaet.punktid
+LEFT JOIN geometrier ON p.punktid=geometrier.punktid;
+
+INSERT INTO
+  user_sdo_geom_metadata (table_name, column_name, diminfo, srid)
+VALUES
+  (
+    'V_HOEJDETIDSSERIER',
+    'GEOMETRI',
+    MDSYS.SDO_DIM_ARRAY(
+      MDSYS.SDO_DIM_ELEMENT('Longitude', 7.0, 16.0, 0.005),
+      MDSYS.SDO_DIM_ELEMENT('Latitude', 54.0000, 59.0000, 0.005)
+    ),
+    4326
+  );
+
+CREATE INDEX v_hoejdetidsserier_geometri_idx ON v_hoejdetidsserier (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
+
