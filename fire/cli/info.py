@@ -265,6 +265,36 @@ def observationsrapport(
     fire.cli.print("  " + 110 * "-")
 
 
+def punktsamlingsrapport(punktsamlinger: list[PunktSamling], id: str = None):
+    """
+    Hjælpefunktion for funktionerne punkt_fuld_rapport og punktsamling.
+    """
+    kolonnebredder = (34, 11, 13, 16,)
+    kolonnenavne = ("Navn", "Jessenpunkt", "Antal punkter", "Antal tidsserier")
+    header = "  ".join([str(n).ljust(w) for n, w in zip(kolonnenavne, kolonnebredder)])
+    subheader = "  ".join(["-" * w for w in kolonnebredder])
+
+    fire.cli.print(header, bold=True)
+    fire.cli.print(subheader)
+
+    # Sortér Punktsamlinger efter Jessennummer, dernæst efter Punktsamlingsnavn
+    punktsamlinger.sort(key=lambda x: (x.jessenpunkt.jessennummer, x.navn))
+
+    for ps in punktsamlinger:
+        farve = "white"
+        if ps.jessenpunkt.id == id:
+            farve = "green"
+
+        kolonner = [ps.navn, ps.jessenpunkt.jessennummer, len(ps.punkter), len(ps.tidsserier)]
+
+        linje = "  ".join(
+            [textwrap.shorten(str(c), width=w, placeholder="...").ljust(w) for c, w in zip(kolonner, kolonnebredder)]
+        )
+        fire.cli.print(linje, fg=farve)
+
+
+
+
 def punkt_fuld_rapport(
     punkt: Punkt,
     ident: str,
