@@ -19,6 +19,7 @@ from fire.api.model import (
     Observation,
     Boolean,
     Srid,
+    Tidsserie,
 )
 
 
@@ -293,6 +294,37 @@ def punktsamlingsrapport(punktsamlinger: list[PunktSamling], id: str = None):
         fire.cli.print(linje, fg=farve)
 
 
+def tidsserierapport(tidsserier: list[Tidsserie]):
+    """
+    Hjælpefunktion for funktionerne punkt_fuld_rapport og punktsamling.
+    """
+
+    kolonnebredder = [40, 17, 6, 18]
+    kolonnenavne = ["Navn", "Antal datapunkter", "Type", "Referenceramme"]
+
+    header = "  ".join([str(n).ljust(w) for n, w in zip(kolonnenavne, kolonnebredder)])
+    subheader = "  ".join(["-" * w for w in kolonnebredder])
+
+    fire.cli.print(header, bold=True)
+    fire.cli.print(subheader)
+
+    def tidsserietype(tstype):
+        if tstype == 1:
+            return "GNSS"
+        elif tstype == 2:
+            return "Højde"
+
+    for ts in tidsserier:
+        navn_ombrudt = textwrap.wrap(str(ts.navn),kolonnebredder[0])
+        for navn_del in navn_ombrudt[:-1]:
+            fire.cli.print(navn_del)
+
+        kolonner = [navn_ombrudt[-1], len(ts), tidsserietype(ts.tstype), ts.referenceramme]
+
+        linje = "  ".join([str(c).ljust(w) for c, w in zip(kolonner, kolonnebredder)])
+        fire.cli.print(linje)
+
+    return
 
 
 def punkt_fuld_rapport(
