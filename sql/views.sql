@@ -1246,3 +1246,247 @@ VALUES
   );
 
 CREATE INDEX v_pres1_obs_geometri_idx ON v_pres1_obs (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=line');
+
+-- Jessenpunkter
+CREATE MATERIALIZED VIEW v_jessenpunkter
+REFRESH ON DEMAND
+START WITH SYSDATE NEXT SYSDATE + 1 / 24
+AS
+WITH
+	punkter AS (
+		SELECT DISTINCT pi.punktid FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE (pit.infotype IN ('NET:jessen', 'IDENT:jessen'))
+			AND pi.registreringtil IS NULL
+	),
+	jessenpunkter AS (
+		SELECT ps.navn, COALESCE(ps.jessenpunktid, p.punktid) AS punktid, ps.jessenkoordinatid
+		FROM punktsamling ps
+		-- Vi medtager alle punkter som har attributten "NET:jessen" eller "IDENT:jessen".
+		-- Hvis der er nogen af dem som ikke er tilknyttet en Punktsamling, så vil de
+		-- stadig blive vist.
+		FULL JOIN punkter p ON p.punktid = ps.jessenpunktid
+		WHERE ps.registreringtil IS NULL
+	),
+	gi_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:GI' AND pi.registreringtil IS NULL
+	),
+	landsnr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	),
+	jessennr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:jessen' AND pi.registreringtil IS NULL
+	),
+	dvr90 AS (
+		SELECT k.punktid, k.t, k.z FROM koordinat k
+		JOIN sridtype st ON k.sridid=st.sridid
+		WHERE st.srid = 'EPSG:5799' AND k.registreringtil IS NULL
+	),
+	geometrier AS (
+		SELECT geometri, punktid FROM geometriobjekt go
+		WHERE go.registreringtil IS NULL
+	),
+	tabtgaaet AS (
+		SELECT pi.punktid, 'TRUE' AS tabtgaaet FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='ATTR:tabtgået' AND pi.registreringtil IS NULL
+	)
+SELECT
+	geometrier.geometri,
+	gi_ident.ident GI_IDENT,
+	landsnr.ident LANDSNR,
+	jessennr.ident JESSENNR,
+	jessenpunkter.navn PUNKTSAMLINGSNAVN,
+	dvr90.t   DVR90_T,
+	dvr90.z   DVR90_KOTE,
+	jessenkote.t   JESSENKOTE_T,
+	jessenkote.z   JESSENKOTE,
+	COALESCE(tabtgaaet.tabtgaaet, 'FALSE') AS tabtgaaet
+FROM jessenpunkter
+LEFT JOIN gi_ident ON jessenpunkter.punktid=gi_ident.punktid
+LEFT JOIN landsnr ON jessenpunkter.punktid=landsnr.punktid
+LEFT JOIN jessennr ON jessenpunkter.punktid=jessennr.punktid
+LEFT JOIN dvr90 ON jessenpunkter.punktid=dvr90.punktid
+LEFT JOIN koordinat jessenkote ON jessenpunkter.jessenkoordinatid=jessenkote.objektid
+LEFT JOIN tabtgaaet ON jessenpunkter.punktid=tabtgaaet.punktid
+JOIN geometrier ON jessenpunkter.punktid=geometrier.punktid;
+
+INSERT INTO
+  user_sdo_geom_metadata (table_name, column_name, diminfo, srid)
+VALUES
+  (
+    'V_JESSENPUNKTER',
+    'GEOMETRI',
+    MDSYS.SDO_DIM_ARRAY(
+      MDSYS.SDO_DIM_ELEMENT('Longitude', 7.0, 16.0, 0.005),
+      MDSYS.SDO_DIM_ELEMENT('Latitude', 54.0000, 59.0000, 0.005)
+    ),
+    4326
+  );
+
+CREATE INDEX v_jessenpunkter_geometri_idx ON v_jessenpunkter (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
+
+
+-- Tidsserier og Punkter i punktsamlinger
+CREATE MATERIALIZED VIEW v_hoejdetidsserier
+REFRESH ON DEMAND
+START WITH SYSDATE NEXT SYSDATE + 1 / 24
+AS
+WITH
+	punkter AS (
+		SELECT ps.objektid as punktsamlingsid, psp.punktid, ps.jessenpunktid, ps.jessenkoordinatid, ps.navn
+		FROM punktsamling_punkt psp
+		JOIN punktsamling ps ON psp.punktsamlingsid = ps.objektid
+	),
+	gi_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:GI' AND pi.registreringtil IS NULL
+	),
+	landsnr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	),
+	jessennr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:jessen' AND pi.registreringtil IS NULL
+	),
+	koordinater AS (
+		SELECT k.objektid AS koordinatid, k.punktid, k.t, k.z
+		FROM koordinat k
+	),
+	tidsserier AS (
+		SELECT t.punktid, t.punktsamlingsid, t.navn, t.formaal, tk.t, tk.kote
+		FROM tidsserie t
+		LEFT JOIN (
+			SELECT tk.tidsserieobjektid,
+				-- Tager den senete kote i tidsserien
+				max(k.t) as T,
+				max(k.z) keep (DENSE_RANK FIRST ORDER BY k.t DESC) AS kote
+			FROM tidsserie_koordinat tk
+			INNER JOIN koordinat k ON tk.koordinatobjektid = k.objektid
+			GROUP BY tk.tidsserieobjektid
+		) tk ON t.objektid = tk.tidsserieobjektid
+		WHERE t.tstype = 2 AND t.registreringtil IS NULL
+	),
+	geometrier AS (
+		SELECT geometri, punktid FROM geometriobjekt go
+		WHERE go.registreringtil IS NULL
+	),
+	tabtgaaet AS (
+		SELECT pi.punktid, 'TRUE' AS tabtgaaet FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='ATTR:tabtgået' AND pi.registreringtil IS NULL
+	)
+SELECT
+	geometrier.geometri,
+	gi_ident.ident GI_IDENT,
+	landsnr.ident LANDSNR,
+	p.NAVN PUNKTSAMLINGSNAVN,
+	t.navn TIDSSERIENAVN,
+	t.formaal,
+	t.kote AS TSKOTE, -- tidsseriens seneste kote
+	t.t AS TSKOTE_T,  -- og tilsvarende tidspunkt
+	jessennr.ident JESSENNR,
+	jessenkoord.z   JESSENKOTE,   -- jessenpunktets kote
+	jessenkoord.t   JESSENKOTE_T, -- og tilsvarende tidspunkt
+	COALESCE(tabtgaaet.tabtgaaet, 'FALSE') AS tabtgaaet
+FROM punkter p
+LEFT JOIN tidsserier t ON p.punktsamlingsid = t.punktsamlingsid AND p.punktid = t.punktid
+LEFT JOIN gi_ident ON p.punktid=gi_ident.punktid
+LEFT JOIN landsnr ON p.punktid=landsnr.punktid
+LEFT JOIN jessennr ON p.jessenpunktid=jessennr.punktid
+LEFT JOIN koordinater jessenkoord ON p.jessenkoordinatid = jessenkoord.koordinatid
+LEFT JOIN tabtgaaet ON p.punktid=tabtgaaet.punktid
+LEFT JOIN geometrier ON p.punktid=geometrier.punktid;
+
+INSERT INTO
+  user_sdo_geom_metadata (table_name, column_name, diminfo, srid)
+VALUES
+  (
+    'V_HOEJDETIDSSERIER',
+    'GEOMETRI',
+    MDSYS.SDO_DIM_ARRAY(
+      MDSYS.SDO_DIM_ELEMENT('Longitude', 7.0, 16.0, 0.005),
+      MDSYS.SDO_DIM_ELEMENT('Latitude', 54.0000, 59.0000, 0.005)
+    ),
+    4326
+  );
+
+CREATE INDEX v_hoejdetidsserier_geometri_idx ON v_hoejdetidsserier (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=point');
+
+
+-- Punktsamlinger (indeholder de samme punkter som v_hoejdetidsserier
+-- men er her lavet som multigeometri)
+CREATE MATERIALIZED VIEW v_punktsamlinger
+REFRESH ON DEMAND
+START WITH SYSDATE NEXT SYSDATE + 1 / 24
+AS
+WITH
+	punkter AS (
+		SELECT punktid, jessenpunktid, jessenkoordinatid, ps.navn
+		FROM punktsamling_punkt psp
+		JOIN punktsamling ps ON psp.punktsamlingsid = ps.objektid
+	),
+	geometrier AS (
+		SELECT geometri, punktid FROM geometriobjekt go
+		WHERE go.registreringtil IS NULL
+	),
+-- Vi vil gerne se de tabtgåede punkter. Derfor nedenstående er udkommenteret.
+--	tabtgaaet AS (
+--		SELECT pi.punktid, 'TRUE' AS tabtgaaet FROM punktinfo pi
+--		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+--		WHERE pit.infotype='ATTR:tabtgået' AND pi.registreringtil IS NULL
+--	),
+	multigeometrier AS (
+		SELECT punkter.navn,
+			punkter.jessenpunktid,
+			punkter.jessenkoordinatid,
+			SDO_AGGR_UNION(SDOAGGRTYPE(geometrier.geometri, NULL)) AS multigeometri
+		FROM punkter
+		INNER JOIN geometrier ON punkter.punktid=geometrier.punktid
+--		LEFT JOIN tabtgaaet ON punkter.punktid=tabtgaaet.punktid
+--		WHERE tabtgaaet.tabtgaaet IS NULL
+		GROUP BY punkter.navn, punkter.jessenpunktid, punkter.jessenkoordinatid
+	),
+	jessennr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:jessen' AND pi.registreringtil IS NULL
+	),
+	koordinater AS (
+		SELECT k.objektid AS koordinatid, k.punktid, k.t, k.z
+		FROM koordinat k
+	)
+SELECT
+	multigeometrier.multigeometri,
+	multigeometrier.NAVN AS PUNKTSAMLINGSNAVN,
+	jessennr.ident JESSENNR,
+	koordinater.z   JESSENKOTE,
+	koordinater.t   JESSENKOTE_T
+FROM multigeometrier
+LEFT JOIN jessennr ON multigeometrier.jessenpunktid=jessennr.punktid
+LEFT JOIN koordinater ON multigeometrier.jessenkoordinatid = koordinater.koordinatid;
+
+INSERT INTO
+  user_sdo_geom_metadata (table_name, column_name, diminfo, srid)
+VALUES
+  (
+    'V_PUNKTSAMLINGER',
+    'MULTIGEOMETRI',
+    MDSYS.SDO_DIM_ARRAY(
+      MDSYS.SDO_DIM_ELEMENT('Longitude', 7.0, 16.0, 0.005),
+      MDSYS.SDO_DIM_ELEMENT('Latitude', 54.0000, 59.0000, 0.005)
+    ),
+    4326
+  );
+
+ CREATE INDEX v_punktsamlinger_multigeometri_idx ON v_punktsamlinger (multigeometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=multipoint');
