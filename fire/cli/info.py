@@ -402,6 +402,16 @@ def punkt_fuld_rapport(
         )
         fire.cli.print("")
 
+    if punkt.punktsamlinger:
+        fire.cli.print("")
+        fire.cli.print("--- PUNKTSAMLINGER ---", bold=True)
+        punktsamlingsrapport(punkt.punktsamlinger, punkt.id)
+
+    if punkt.tidsserier:
+        fire.cli.print("")
+        fire.cli.print("--- TIDSSERIER ---", bold=True)
+        tidsserierapport(punkt.tidsserier)
+
 
 @info.command()
 @click.option(
