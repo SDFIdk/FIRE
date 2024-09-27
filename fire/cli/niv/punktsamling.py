@@ -31,6 +31,183 @@ import fire.io.dataframe as frame
 from fire.io.regneark import arkdef
 
 
+@niv.command()
+@fire.cli.default_options()
+@click.argument(
+    "projektnavn",
+    nargs=1,
+    type=str,
+)
+@click.option(
+    "--jessenpunkt",
+    "jessenpunkt_ident",
+    type=str,
+    help="Angiv Jessenpunktet for punktsamlingen",
+)
+@click.option(
+    "--punktsamlingsnavn",
+    default="",
+    type=str,
+    help="Angiv punktsamlingens navn",
+)
+@click.option(
+    "--punkter",
+    default="",
+    type=str,
+    help="Angiv kommasepareret liste over punkter som skal indgå i punktsamlingen",
+)
+@click.option(
+    "--punktoversigt",
+    "anvend_punktoversigt",
+    default=False,
+    type=bool,
+    is_flag=True,
+    help="Angiver om punktoversigten skal anvendes til at indlæse punkter i punktsamlingen",
+)
+def opret_punktsamling(
+    jessenpunkt_ident: str,
+    projektnavn: str,
+    punktsamlingsnavn: str,
+    punkter: str,
+    anvend_punktoversigt: bool,
+    **kwargs,
+) -> None:
+    """
+    Opretter et Punktsamlings-ark på sagen, som efterfølgende kan redigeres.
+
+    Det primære formål med denne funktion er at oprette en ny punktsamling og tilhørende
+    tidsserier. Oplysningerne kan efterfølgen redigeres, og man kan tilføje punkter og
+    tidsserier til punktsamlingen. Bemærk, at "Formål"-kolonnerne ikke må være tomme.
+
+    Resultatet skrives til et eksisterende projekt-regneark i fanerne "Punktgruppe" og
+    "Højdetidsserier". Fanerne overskrives ikke, så man kan køre denne funktion flere
+    gange, for at oprette flere punktsamlinger samtidig i samme regneark.
+
+    Programmet skal vide hvilket Jessenpunkt det skal bruge. Dette angives lettest med
+    ``--jessenpunkt``, som skal være jessenpunktets IDENT. Fx::
+
+        fire niv opret-punktsamling SAG --jessenpunkt 81022
+
+    Alternativt kan man med flaget ``--punktoversigt`` bede programmet om at bruge
+    "Punktoversigt"-fanens fastholdte punkt til at udlede jessenpunktet. Hertil kræves
+    det, at "Punktoversigt"-fanen er til stede i sags-regnearket, samt at der kun er
+    netop ét fastholdt punkt. Eks::
+
+        fire niv opret-punktsamling SAG --punktoversigt
+
+    Det er nødvendigt at anvende enten ``--jessenpunkt`` eller ``--punktoversigt``. Angives
+    begge, bliver ``--jessenpunkt`` brugt.
+
+    Punktsamlingens navn angives med ``--punktsamlingsnavn``. Udelades denne, anvendes
+    default-navnet "PUNKTSAMLING_[JESSENNR]".
+
+    Nye punktsamlinger oprettes altid med Jessenkoten 0, og dette bliver således
+    også referencekoten for nye tidsserier som kobles til punktsamlingen.
+
+    Jessenpunktet indsættes altid i arket som medlem af punktsamlingen. Derudover kan man, for at
+    lette opgaven med at tilføje flere punkter og tidsserier til arket, angive en kommasepareret
+    liste af punkter med ``--punkter`` som programmet automatisk indsætter i arket.
+    Punkterne indsættes da med default tidsserienavne og formål. Eks::
+
+        fire niv opret-punktsamling SAG --jessenpunkt 81022 --punkter "SKEJ,RDIO,RDO1"
+
+    Alternativt kan man igen anvende ``--punktoversigt``, som fortæller programmet at det
+    skal udvide listen af punkter valgt med ``--punkter``, med punkterne i
+    "Punktoversigt"-fanen. Eks::
+
+        fire niv opret-punktsamling SAG --jessenpunkt 81022 --punkter "SKEJ,RDIO,RDO1" --punktoversigt
+
+    Efter endt redigering kan oplysningerne ilægges databasen med ``ilæg-punktsamling`` og
+    ``ilæg-tidsserie``.
+    """
+    er_projekt_okay(projektnavn)
+
+    # fjern whitespace og split streng op i liste
+    if punkter == "":
+        punkter = []
+    else:
+        punkter = "".join(punkter.split()).split(",")
+
+    punktsamling_ark = find_faneblad(
+        projektnavn, "Punktgruppe", arkdef.PUNKTGRUPPE, ignore_failure=True
+    )
+    højdetidsserie_ark = find_faneblad(
+        projektnavn, "Højdetidsserier", arkdef.HØJDETIDSSERIE, ignore_failure=True
+    )
+
+    resultater = {}
+
+    # Hent Punktoversigten, hvis den er tilvalgt
+    if anvend_punktoversigt:
+        punktoversigt = find_faneblad(
+            projektnavn, "Punktoversigt", arkdef.PUNKTOVERSIGT
+        )
+    else:
+        punktoversigt = None
+
+    # Find Jessenpunkt.
+    #   Gøres enten fra angivet ident, eller udledes fra Punktoversigten
+    if jessenpunkt_ident:
+        # Prioritér punkter som matcher på Jessennummer da dette er mest intuitivt.
+        jessenpunkt = fire.cli.firedb.hent_punkt(jessenpunkt_ident)
+    elif punktoversigt is not None:
+        # Find jessenpunktet ud fra oplysningerne i Punktoversigt-arket
+        jessenpunkt_kote, jessenpunkt = udled_jessenpunkt_fra_punktoversigt(
+            punktoversigt
+        )
+    else:
+        # Hverken Punktoversigt eller jessenpunktets ident er givet.
+        fire.cli.print(
+            f"FEJL: Intet Jessenpunkt angivet, og kan ikke udlede Jessenpunkt fra Punktoversigten, da den er fravalgt.",
+            fg="black",
+            bg="yellow",
+        )
+        raise SystemExit(1)
+
+    afbryd_hvis_ugyldigt_jessenpunkt(jessenpunkt)
+
+    # Find Punkter.
+    if punktoversigt is not None:
+        # Udvid brugerspecificeret liste af punkter med punkter fra Punktoversigten.
+        punkter.extend(list(punktoversigt["Punkt"]))
+
+    # Hent punkter fra FIRE
+    punkter = fire.cli.firedb.hent_punkt_liste(punkter, ignorer_ukendte=False)
+
+    # Opret en ny Punktsamling
+    ps = opret_ny_punktsamling(jessenpunkt, punkter, punktsamlingsnavn)
+    ps_data, hts_data = generer_arkdata(ps)
+
+    # Opret ark som skal gemmes.
+    punktsamling_ark = frame.append(
+        punktsamling_ark,
+        pd.DataFrame.from_records(data=ps_data, columns=arkdef.PUNKTGRUPPE),
+    )
+
+    højdetidsserie_ark = frame.append(
+        højdetidsserie_ark,
+        pd.DataFrame.from_records(data=hts_data, columns=arkdef.HØJDETIDSSERIE),
+    )
+    # Sorter højdetidsserie-arket
+    højdetidsserie_ark.sort_values(
+        by=["Punktgruppenavn", "Er Jessenpunkt", "Tidsserienavn", "Punkt"],
+        ascending=[True, False, False, True],
+        inplace=True,
+    )
+
+    resultater.update(
+        {"Punktgruppe": punktsamling_ark, "Højdetidsserier": højdetidsserie_ark}
+    )
+
+    if skriv_ark(projektnavn, resultater):
+        fire.cli.print(
+            f"Punktsamlinger oprettet. Rediger nu Navne og Formål og tilføj Punkter og Tidsserier"
+        )
+        fire.cli.åbn_fil(f"{projektnavn}.xlsx")
+
+    return
+
+
 def find_eller_opret_jessenkote(
     jessenpunkt: Punkt, jessenkote: float, kotesystem: Srid
 ) -> Koordinat:
