@@ -399,6 +399,349 @@ def udtræk_punktsamling(
     return
 
 
+@niv.command()
+@fire.cli.default_options()
+@click.argument(
+    "projektnavn",
+    nargs=1,
+    type=str,
+)
+@click.option(
+    "--sagsbehandler",
+    default=getpass.getuser(),
+    type=str,
+    help="Angiv andet brugernavn end den aktuelt indloggede",
+)
+def ilæg_punktsamling(
+    projektnavn: str,
+    sagsbehandler: str,
+    **kwargs,
+) -> None:
+    """
+    Registrer nye eller redigerede punktsamlinger i databasen.
+
+    Ændringer til sagsregnearkets Punktsamlinger, oprettet med ``fire niv
+    opret-punktsamling`` eller udtrukket med ``fire niv udtræk-punktsamling``, lægges i
+    databasen med dette program.
+
+    Under fanen "Punktgruppe" gennemgår programmet alle punktsamlingerne som
+    optræder i kolonnen "Punktgruppenavn" og gør følgende:
+
+        - Hvis der ikke findes en punktsamling med pågældende navn, oprettes en ny
+          punktsamling i databasen med alle de oplysninger som er givet i rækken
+
+        - Hvis punktsamlingen findes i forvejen, bliver databasen synkroniseret med
+          kolonnen "Formål"
+
+        - Finder alle rækker under fanen "Højdetidsserier", som matcher på kolonnen
+          "Punktgruppenavn"
+
+        - Tilføjer alle de tilsvarende punkter i kolonnen "Punkt", som ikke allerede er
+          medlem af punktsamlingen
+
+    For hver af de oprettede eller redigerede punktsamlinger ("A") tjekker programmet inden ilægning, om "A" vil
+    komme til at ligne en anden punktsamling ("B"). Brugeren advares om følgende:
+
+        1. Er A lig med B
+        2. Er A en delmængde af B (Er A et "subset" af B)
+        3. Er B en delmængde af A (Er A et "superset" af B)
+
+    Brugeren har derefter mulighed for at fortsætte eller afbryde ilægningen af den
+    enkelte punktsamling. Dette fungerer som et sanity-check, så man ikke utilsigtet får
+    oprettet en samling af punkter som allerede eksisterer i databasen under et andet
+    navn.
+
+    Bemærk at dette program ignorerer "Højdetidsserier"-fanens kolonner "Er Jessenpunkt",
+    "Tidsserienavn", "Formål" og "System". Indholdet af disse kolonner ilægges databasen
+    med ``fire niv ilæg-tidsserier``.
+
+    Bemærk desuden at dette program ikke kan fjerne punkter fra en punktsamling. Til dette
+    bruges ``fire niv fjern-punkt-fra-punktsamling``.
+    """
+    er_projekt_okay(projektnavn)
+    sag = find_sag(projektnavn)
+    sagsgang = find_sagsgang(projektnavn)
+
+    fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
+    fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
+
+    # Læs arkene
+    punktgruppe_ark = find_faneblad(projektnavn, "Punktgruppe", arkdef.PUNKTGRUPPE)
+    hts_ark = find_faneblad(projektnavn, "Højdetidsserier", arkdef.HØJDETIDSSERIE)
+
+    # hent kotesystem. Lige nu understøttes kun jessen-system.
+    # Mest pga. kolonnenavne i database (jessenkoordinat/kote).
+    # Kunne ellers godt have punktsamlinger i andre kotesystemer
+    kotesystem = fire.cli.firedb.hent_srid("TS:jessen")
+
+    # Initialisér variable som bruges til logning
+    koord_til_oprettelse = []
+    pktsamling_til_redigering = []
+    pktsamling_til_oprettelse = []
+    antal_punkter_i_pktsamling_til_oprettelse = 0
+    antal_punkter_i_pktsamling_til_redigering = 0
+
+    for index, punktgruppedata in punktgruppe_ark.iterrows():
+
+        # ================= 1. INDLEDENDE HENTNING AF DATA FRA ARK OG DATABASE =================
+
+        punktgruppenavn = punktgruppedata["Punktgruppenavn"]
+        angivet_jessenkote = punktgruppedata["Jessenkote"]
+        formål = punktgruppedata["Formål"].strip()
+
+        fire.cli.print(f"Behandler punktgruppe {punktgruppenavn}")
+
+        if pd.isna(formål) or formål == "":
+            fire.cli.print(
+                f"FEJL: Formål for punktsamling {punktgruppenavn} ikke angivet!",
+                fg="white",
+                bg="red",
+                bold=True,
+            )
+            raise SystemExit(1)
+
+        jessenpunkt = fire.cli.firedb.hent_punkt(punktgruppedata["Jessenpunkt"])
+        afbryd_hvis_ugyldigt_jessenpunkt(jessenpunkt)
+
+        # Opdater arkets Jessennummer, i tilfælde af at brugeren har ændret jessenpunktet
+        punktgruppe_ark.loc[index, "Jessennummer"] = jessenpunkt.jessennummer
+
+        punktliste = list(
+            hts_ark["Punkt"][hts_ark["Punktgruppenavn"] == punktgruppenavn]
+        )
+        punkter_i_punktgruppe = fire.cli.firedb.hent_punkt_liste(punktliste)
+
+        # ================= 2A. REDIGER EKSISTERENDE PUNKTGRUPPE =================
+
+        try:
+            eksisterende_punktsamling = find_punktsamling(jessenpunkt, punktgruppenavn)
+        except NoResultFound:
+            # Gør ikke noget. Gå videre til 2B for at oprette ny
+            pass
+        else:
+            # Læs punkter og opdater listen.
+            punkter_i_eksisterende_punktsamling = set(eksisterende_punktsamling.punkter)
+
+            punkter_til_tilføjelse = (
+                set(punkter_i_punktgruppe) - punkter_i_eksisterende_punktsamling
+            )
+
+            # Opdaterer eksisterende punktsamling med nyt formål og nye punkter
+            if (
+                eksisterende_punktsamling.formål != formål
+                or len(punkter_til_tilføjelse) > 0
+            ):
+                pktsamling_til_redigering.append(eksisterende_punktsamling)
+
+            eksisterende_punktsamling.formål = formål
+            antal_punkter_i_pktsamling_til_redigering += len(punkter_til_tilføjelse)
+            eksisterende_punktsamling.tilføj_punkter(punkter_til_tilføjelse)
+
+            continue
+
+        # ================= 2B. OPRET NY PUNKTGRUPPE =================
+        ny_punktsamling = PunktSamling(
+            navn=punktgruppenavn,
+            jessenpunkt=jessenpunkt,
+            # jessenkoordinat = [], # Nyoprettede punktsamlinger har ikke nogen jessekote, hvilket skal tolkes som 0!
+            # tidsserier = [], # Tidsserier oprettes med ilæg-tidsserier
+            formål=formål,
+            punkter=punkter_i_punktgruppe,
+        )
+
+        # Opret ny jessenkote
+        # TODO: Der er mulighed for at oprette ny jessenkote automatisk, men for nu er det udkommenteret.
+        # TODO: Dvs. at alle punktsamlinger oprettes med "0" som jessenkote.
+        # ny_punktsamling.jessenkoordinat = find_eller_opret_jessenkote(jessenpunkt, angivet_jessenkote, kotesystem)
+        # if fire.cli.firedb._is_new_object(ny_punktsamling.jessenkoordinat):
+        # hvis jessenkoordinaten er nyoprettet gemmer vi den så vi kan give brugeren besked senere
+        # koord_til_oprettelse.append(ny_punktsamling.jessenkoordinat)
+
+        pktsamling_til_oprettelse.append(ny_punktsamling)
+        antal_punkter_i_pktsamling_til_oprettelse += len(punkter_i_punktgruppe)
+
+    # Tjek om punktsamlingerne er unikke:
+    pktsamlinger_til_ilæggelse = pktsamling_til_oprettelse + pktsamling_til_redigering
+    for pktsamling in pktsamlinger_til_ilæggelse:
+
+        # Sammenlign med de andre punktsamlinger som er på vej til at blive lagt i db
+        ligmed, subset, superset = er_punktsamling_unik(pktsamling, pktsamlinger_til_ilæggelse)
+
+        # Sammenlign med alle andre punktsamlinger
+        ligmed_alle, subset_alle, superset_alle = er_punktsamling_unik(pktsamling)
+
+        ligmed.update(ligmed_alle)
+        subset.update(subset_alle)
+        superset.update(superset_alle)
+
+        if ligmed:
+            ligmed = ", ".join(ligmed)
+            advarsel_ligmed = (
+                f"Advarsel! {pktsamling.navn} indeholder de samme punkter som: {ligmed}"
+            )
+
+        if superset:
+            superset = ", ".join(superset)
+            advarsel_superset = (
+                f"Advarsel! Punkterne i {pktsamling.navn} er et superset af: {superset}"
+            )
+
+        if subset:
+            subset = ", ".join(subset)
+            advarsel_subset = (
+                f"Advarsel! Punkterne i {pktsamling.navn} er en delmængde af: {subset}"
+            )
+
+        fire.cli.print(advarsel_ligmed, fg="black", bg="yellow")
+        fire.cli.print(advarsel_superset, fg="black", bg="yellow")
+        fire.cli.print(advarsel_subset, fg="black", bg="yellow")
+
+        spørgsmål = click.style(
+            f"Er du sikker på at du vil ilægge {pktsamling.navn}?", fg="white", bg="red"
+        )
+
+        if not bekræft(spørgsmål, gentag=False):
+            # Hvis brugeren siger Nej, så fjerner vi punktsamlingen fra de tidligere oprettede lister
+            for liste in (
+                pktsamling_til_oprettelse,
+                pktsamling_til_redigering,
+                pktsamlinger_til_ilæggelse,
+            ):
+                try:
+                    liste.remove(pktsamling)
+                except ValueError:
+                    pass
+
+    if not (
+        koord_til_oprettelse or pktsamling_til_redigering or pktsamling_til_oprettelse
+    ):
+        fire.cli.print(
+            f"Ingen punktsamlinger at oprette eller redigere. Afbryder!",
+            fg="yellow",
+            bold=True,
+        )
+        return
+
+    # ================= 3A. SAGSEVENT REDIGER PUNKTSAMLING =================
+
+    if pktsamling_til_redigering:
+        psnavne = "'" + "', '".join([ps.navn for ps in pktsamling_til_redigering]) + "'"
+        sagsevent_rediger_punktsamlinger = sag.ny_sagsevent(
+            id=uuid(),
+            beskrivelse=f"Redigering af punktsamlingerne {psnavne}",
+            punktsamlinger=pktsamling_til_redigering,
+        )
+        fire.cli.firedb.indset_sagsevent(sagsevent_rediger_punktsamlinger, commit=False)
+        try:
+            fire.cli.firedb.session.flush()
+        except Exception as ex:
+            # rul tilbage hvis databasen smider en exception
+            fire.cli.firedb.session.rollback()
+            raise ex
+
+        # Generer dokumentation til fanebladet "Sagsgang"
+        sagsgangslinje = {
+            "Dato": sagsevent_rediger_punktsamlinger.registreringfra,
+            "Hvem": sagsbehandler,
+            "Hændelse": "Punktsamling modificeret",
+            "Tekst": sagsevent_rediger_punktsamlinger.sagseventinfos[0].beskrivelse,
+            "uuid": sagsevent_rediger_punktsamlinger.id,
+        }
+        sagsgang = frame.append(sagsgang, sagsgangslinje)
+
+    # ================= 3B. SAGSEVENT OPRET PUNKTSAMLING =================
+    # === DEL 3B.1: Opret Jessenkoordinat som ikke findes i forvejen ===
+    if koord_til_oprettelse:
+
+        jessenpunkter = (
+            "'" + "', '".join([k.punkt.ident for k in koord_til_oprettelse]) + "'"
+        )
+        sagsevent_nye_jessenkoter = sag.ny_sagsevent(
+            id=uuid(),
+            beskrivelse=f"Indsættelse af ny {kotesystem.kortnavn or kotesystem.name}-kote for punkterne {jessenpunkter}",
+            koordinater=koord_til_oprettelse,
+        )
+        fire.cli.firedb.indset_sagsevent(sagsevent_nye_jessenkoter, commit=False)
+        try:
+            fire.cli.firedb.session.flush()
+        except Exception as ex:
+            # rul tilbage hvis databasen smider en exception
+            fire.cli.firedb.session.rollback()
+            raise ex
+
+        # Generer dokumentation til fanebladet "Sagsgang"
+        sagsgangslinje = {
+            "Dato": sagsevent_nye_jessenkoter.registreringfra,
+            "Hvem": sagsbehandler,
+            "Hændelse": "Jessenkote(r) indsat",
+            "Tekst": sagsevent_nye_jessenkoter.sagseventinfos[0].beskrivelse,
+            "uuid": sagsevent_nye_jessenkoter.id,
+        }
+        sagsgang = frame.append(sagsgang, sagsgangslinje)
+
+    if pktsamling_til_oprettelse:
+        # === DEL 3B.2: Opret Punktsamlingen ===
+        psnavne = "'" + "', '".join([ps.navn for ps in pktsamling_til_oprettelse]) + "'"
+        sagsevent_opret_punktsamlinger = sag.ny_sagsevent(
+            id=uuid(),
+            beskrivelse=f"Oprettelse af punktsamlingerne {psnavne}",
+            punktsamlinger=pktsamling_til_oprettelse,
+        )
+        fire.cli.firedb.indset_sagsevent(sagsevent_opret_punktsamlinger, commit=False)
+        try:
+            fire.cli.firedb.session.flush()
+        except Exception as ex:
+            # rul tilbage hvis databasen smider en exception
+            fire.cli.firedb.session.rollback()
+            raise ex
+
+        # Generer dokumentation til fanebladet "Sagsgang"
+        sagsgangslinje = {
+            "Dato": sagsevent_opret_punktsamlinger.registreringfra,
+            "Hvem": sagsbehandler,
+            "Hændelse": "Punktsamling(er) oprettet",
+            "Tekst": sagsevent_opret_punktsamlinger.sagseventinfos[0].beskrivelse,
+            "uuid": sagsevent_opret_punktsamlinger.id,
+        }
+        sagsgang = frame.append(sagsgang, sagsgangslinje)
+
+    indsæt_kote_tekst = (
+        f"- indsætte {len(koord_til_oprettelse)} {kotesystem.name}-kote(r)"
+    )
+    opret_tekst = f"- oprette {len(pktsamling_til_oprettelse)} nye punktsamlinger med i alt {antal_punkter_i_pktsamling_til_oprettelse} punkter"
+    tilføj_tekst = f"- tilføje {antal_punkter_i_pktsamling_til_redigering} punkter fordelt på {len(pktsamling_til_redigering)} eksisterende punktsamlinger"
+    # ret_tekst = f"- rette {len(nye_lokationer)} formålsbeskrivelse"
+
+    fire.cli.print("")
+    fire.cli.print("-" * 50)
+    fire.cli.print("Punktsamlinger færdigbehandlet, klar til at")
+    fire.cli.print(indsæt_kote_tekst)
+    fire.cli.print(opret_tekst)
+    fire.cli.print(tilføj_tekst)
+
+    spørgsmål = click.style(
+        f"Er du sikker på du vil indsætte ovenstående i ", fg="white", bg="red"
+    )
+    spørgsmål += click.style(f"{fire.cli.firedb.db}", fg="white", bg="red", bold=True)
+    spørgsmål += click.style("-databasen?", fg="white", bg="red")
+
+    if bekræft(spørgsmål):
+        # Bordet fanger!
+        fire.cli.firedb.session.commit()
+
+        # Skriver opdateret sagsgang til excel-ark
+        resultater = {
+            "Sagsgang": sagsgang,
+            "Punktgruppe": punktgruppe_ark,
+        }
+        if skriv_ark(projektnavn, resultater):
+            fire.cli.print(f"Punktsamlinger registreret.")
+    else:
+        fire.cli.firedb.session.rollback()
+
+    return
+
+
 def find_eller_opret_jessenkote(
     jessenpunkt: Punkt, jessenkote: float, kotesystem: Srid
 ) -> Koordinat:
