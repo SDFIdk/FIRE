@@ -742,6 +742,197 @@ def ilæg_punktsamling(
     return
 
 
+@niv.command()
+@fire.cli.default_options()
+@click.argument(
+    "projektnavn",
+    nargs=1,
+    type=str,
+)
+@click.option(
+    "--sagsbehandler",
+    default=getpass.getuser(),
+    type=str,
+    help="Angiv andet brugernavn end den aktuelt indloggede",
+)
+def ilæg_tidsserie(
+    projektnavn: str,
+    sagsbehandler: str,
+    **kwargs,
+) -> None:
+    """
+    Registrer nye eller redigerede højdetidsserier i databasen.
+
+    Ændringer til sagsregnearkets Højdetidsserier, oprettet med ``fire niv
+    opret-punktsamling`` eller udtrukket med ``fire niv udtræk-punktsamling``, lægges i
+    databasen med dette program.
+
+    **Bemærk at denne funktion IKKE bruges til at tilføje tidsserie-koter til tidsserierne.**
+    Se nedenfor for info om hvordan koter knyttes til en tidsserie.
+
+    Under fanen "Højdetidsserier" gennemgår programmet alle tidsserier og gør følgende:
+
+        - Hvis der ikke findes en tidsserie med pågældende navn, oprettes en ny
+          Højdetidsserie i databasen med alle de oplysninger som er givet i rækken
+
+        - Ellers, hvis tidsserien findes i forvejen, bliver databasen synkroniseret med
+          kolonnen "Formål"
+
+    **Bemærk at højdetidsserierne bliver oprettet uden tilknyttede koter.**
+
+    For at føje nyberegnede koter, som ikke er ilagt databasen, til en tidsserie, kan
+    ``fire niv ilæg-nye-koter`` bruges til både at ilægge de nye koter og knytte dem til
+    tidsserien.
+    """
+
+    er_projekt_okay(projektnavn)
+    sag = find_sag(projektnavn)
+    sagsgang = find_sagsgang(projektnavn)
+
+    fire.cli.print(f"Sags/projekt-navn: {projektnavn}  ({sag.id})")
+    fire.cli.print(f"Sagsbehandler:     {sagsbehandler}")
+
+    # Læs arkene
+    # punktgruppe_ark = find_faneblad(projektnavn, "Punktgruppe", arkdef.PUNKTGRUPPE)
+    hts_ark = find_faneblad(projektnavn, "Højdetidsserier", arkdef.HØJDETIDSSERIE)
+
+    # hent kotesystem. Lige nu understøttes kun jessen-system.
+    # Mest pga. kolonnenavne i database (jessenkoordinat/kote).
+    # Kunne ellers godt have punktsamlinger i andre kotesystemer
+    kotesystem = fire.cli.firedb.hent_srid("TS:jessen")
+
+    ts_til_redigering = []
+    ts_til_oprettelse = []
+    for index, row in hts_ark.iterrows():
+        tidsserienavn = row["Tidsserienavn"]
+        formål = row["Formål"].strip()
+
+        if pd.isna(formål) or formål == "":
+            fire.cli.print(
+                f"FEJL: Formål for tidsserie {tidsserienavn} ikke angivet!",
+                fg="white",
+                bg="red",
+                bold=True,
+            )
+            raise SystemExit(1)
+
+        try:
+            ts = fire.cli.firedb.hent_tidsserie(tidsserienavn)
+        except NoResultFound:
+            fire.cli.print(
+                f"Kunne ikke finde tidsserie: {tidsserienavn}. Opretter ny tidsserie."
+            )
+
+            # Her smides fejl hvis punkt eller punktgruppe ikke kan findes!
+            punkt = fire.cli.firedb.hent_punkt(row["Punkt"])
+            ps = fire.cli.firedb.hent_punktsamling(row["Punktgruppenavn"])
+
+            ts = HøjdeTidsserie(
+                navn=tidsserienavn,
+                punkt=punkt,
+                punktsamling=ps,
+                formål=formål,
+                srid=kotesystem,
+            )
+
+            # Hvis punktet er jessenpunkt, så oprettes tidsserien med punktsamlingens
+            # jessenkote. Ellers er tidsserien bare tom
+            # Dog oprettes nye punktsamlinger uden jessenkote, så jessenpunktets
+            # tidsserie vil også være tom..
+            if ps.jessenpunkt == punkt and ps.jessenkoordinat is not None:
+                ts.koordinater = [ps.jessenkoordinat]
+
+            ts_til_oprettelse.append(ts)
+
+        else:
+            # Hvis vi fandt en tidsserie så redigerer vi formålet
+            if ts.formål == formål:
+                continue
+            ts.formål = formål
+            ts_til_redigering.append(ts)
+
+    # ================= 3A. SAGSEVENT REDIGER TIDSSERIE =================
+    if ts_til_redigering:
+        tsnavne = "'" + "', '".join([ts.navn for ts in ts_til_redigering]) + "'"
+        sagsevent_rediger_tidsserier = sag.ny_sagsevent(
+            id=uuid(),
+            beskrivelse=f"Redigering af tidsserierne {tsnavne}",
+            tidsserier=ts_til_redigering,
+        )
+        fire.cli.firedb.indset_sagsevent(sagsevent_rediger_tidsserier, commit=False)
+        try:
+            fire.cli.firedb.session.flush()
+        except Exception as ex:
+            # rul tilbage hvis databasen smider en exception
+            fire.cli.firedb.session.rollback()
+            raise ex
+
+        # Generer dokumentation til fanebladet "Sagsgang"
+        sagsgangslinje = {
+            "Dato": sagsevent_rediger_tidsserier.registreringfra,
+            "Hvem": sagsbehandler,
+            "Hændelse": "Tidsserie modificeret",
+            "Tekst": sagsevent_rediger_tidsserier.sagseventinfos[0].beskrivelse,
+            "uuid": sagsevent_rediger_tidsserier.id,
+        }
+        sagsgang = frame.append(sagsgang, sagsgangslinje)
+
+    # ================= 3B. SAGSEVENT OPRET TIDSSERIE =================
+    if ts_til_oprettelse:
+        tsnavne = "'" + "', '".join([ts.navn for ts in ts_til_oprettelse]) + "'"
+        sagsevent_opret_tidsserier = sag.ny_sagsevent(
+            id=uuid(),
+            beskrivelse=f"Oprettelse af tidsserierne {tsnavne}",
+            tidsserier=ts_til_oprettelse,
+        )
+        fire.cli.firedb.indset_sagsevent(sagsevent_opret_tidsserier, commit=False)
+        try:
+            fire.cli.firedb.session.flush()
+        except Exception as ex:
+            # rul tilbage hvis databasen smider en exception
+            fire.cli.firedb.session.rollback()
+            raise ex
+
+        # Generer dokumentation til fanebladet "Sagsgang"
+        sagsgangslinje = {
+            "Dato": sagsevent_opret_tidsserier.registreringfra,
+            "Hvem": sagsbehandler,
+            "Hændelse": "Tidsserie oprettet",
+            "Tekst": sagsevent_opret_tidsserier.sagseventinfos[0].beskrivelse,
+            "uuid": sagsevent_opret_tidsserier.id,
+        }
+        sagsgang = frame.append(sagsgang, sagsgangslinje)
+
+    # indsæt_kote_tekst = f"- indsætte {len(koord_til_oprettelse)} {kotesystem.name}-kote(r)"
+    opret_tekst = f"- oprette {len(ts_til_oprettelse)} nye højdetidsserier"
+    ret_tekst = f"- rette formål på {len(ts_til_redigering)} højdetidsserier"
+
+    fire.cli.print("")
+    fire.cli.print("-" * 50)
+    fire.cli.print("Tidsserier færdigbehandlet, klar til at")
+    fire.cli.print(opret_tekst)
+    fire.cli.print(ret_tekst)
+
+    spørgsmål = click.style(
+        f"Er du sikker på du vil indsætte ovenstående i ", fg="white", bg="red"
+    )
+    spørgsmål += click.style(f"{fire.cli.firedb.db}", fg="white", bg="red", bold=True)
+    spørgsmål += click.style("-databasen?", fg="white", bg="red")
+
+    if bekræft(spørgsmål):
+        # Bordet fanger!
+        fire.cli.firedb.session.commit()
+
+        # Skriver opdateret sagsgang til excel-ark
+        resultater = {"Sagsgang": sagsgang}
+        if skriv_ark(projektnavn, resultater):
+            fire.cli.print(f"Tidsserier registreret.")
+    else:
+        fire.cli.firedb.session.rollback()
+
+    return
+
+
 def find_eller_opret_jessenkote(
     jessenpunkt: Punkt, jessenkote: float, kotesystem: Srid
 ) -> Koordinat:
