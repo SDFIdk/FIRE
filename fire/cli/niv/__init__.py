@@ -727,3 +727,10 @@ from ._opret_sag import opret_sag
 from ._regn import regn
 from ._udtræk_observationer import udtræk_observationer
 from ._udtræk_revision import udtræk_revision
+from .punktsamling import (
+    opret_punktsamling,
+    udtræk_punktsamling,
+    ilæg_punktsamling,
+    ilæg_tidsserie,
+    fjern_punkt_fra_punktsamling,
+)
