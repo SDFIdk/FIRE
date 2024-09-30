@@ -15,10 +15,12 @@ from fire.api.model import (
     Punkt,
     PunktInformation,
     PunktInformationType,
+    PunktSamling,
     Koordinat,
     Observation,
     Boolean,
     Srid,
+    Tidsserie,
 )
 
 
@@ -70,7 +72,7 @@ def koordinat_linje(koord: Koordinat) -> str:
     if koord.transformeret == Boolean.FALSE:
         native_or_transformed = "n"
 
-    meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}  {koord.srid.name:<15.15} {native_or_transformed} "
+    meta = f"{koord.t.strftime('%Y-%m-%d %H:%M')}  {(koord.srid.kortnavn or koord.srid.name):<15.15} {native_or_transformed} "
 
     # Se i proj.db: Er koordinatsystemet lineært eller vinkelbaseret?
     try:
@@ -265,6 +267,67 @@ def observationsrapport(
     fire.cli.print("  " + 110 * "-")
 
 
+def punktsamlingsrapport(punktsamlinger: list[PunktSamling], id: str = None):
+    """
+    Hjælpefunktion for funktionerne punkt_fuld_rapport og punktsamling.
+    """
+    kolonnebredder = (34, 11, 13, 16,)
+    kolonnenavne = ("Navn", "Jessenpunkt", "Antal punkter", "Antal tidsserier")
+    header = "  ".join([str(n).ljust(w) for n, w in zip(kolonnenavne, kolonnebredder)])
+    subheader = "  ".join(["-" * w for w in kolonnebredder])
+
+    fire.cli.print(header, bold=True)
+    fire.cli.print(subheader)
+
+    # Sortér Punktsamlinger efter Jessennummer, dernæst efter Punktsamlingsnavn
+    punktsamlinger.sort(key=lambda x: (x.jessenpunkt.jessennummer, x.navn))
+
+    for ps in punktsamlinger:
+        farve = "white"
+        if ps.jessenpunkt.id == id:
+            farve = "green"
+
+        kolonner = [ps.navn, ps.jessenpunkt.jessennummer, len(ps.punkter), len(ps.tidsserier)]
+
+        linje = "  ".join(
+            [textwrap.shorten(str(c), width=w, placeholder="...").ljust(w) for c, w in zip(kolonner, kolonnebredder)]
+        )
+        fire.cli.print(linje, fg=farve)
+
+
+def tidsserierapport(tidsserier: list[Tidsserie]):
+    """
+    Hjælpefunktion for funktionerne punkt_fuld_rapport og punktsamling.
+    """
+
+    kolonnebredder = [40, 17, 6, 18]
+    kolonnenavne = ["Navn", "Antal datapunkter", "Type", "Referenceramme"]
+
+    header = "  ".join([str(n).ljust(w) for n, w in zip(kolonnenavne, kolonnebredder)])
+    subheader = "  ".join(["-" * w for w in kolonnebredder])
+
+    fire.cli.print(header, bold=True)
+    fire.cli.print(subheader)
+
+    def tidsserietype(tstype):
+        if tstype == 1:
+            return "GNSS"
+        elif tstype == 2:
+            return "Højde"
+
+    for ts in tidsserier:
+        navn_ombrudt = textwrap.wrap(str(ts.navn),kolonnebredder[0])
+        for navn_del in navn_ombrudt[:-1]:
+            fire.cli.print(navn_del)
+
+        kolonner = [navn_ombrudt[-1], len(ts), tidsserietype(ts.tstype), ts.referenceramme]
+
+        linje = "  ".join([str(c).ljust(w) for c, w in zip(kolonner, kolonnebredder)])
+        fire.cli.print(linje)
+
+    return
+
+
 def punkt_fuld_rapport(
     punkt: Punkt,
     ident: str,
@@ -340,6 +403,16 @@ def punkt_fuld_rapport(
         )
         fire.cli.print("")
 
+    if punkt.punktsamlinger:
+        fire.cli.print("")
+        fire.cli.print("--- PUNKTSAMLINGER ---", bold=True)
+        punktsamlingsrapport(punkt.punktsamlinger, punkt.id)
+
+    if punkt.tidsserier:
+        fire.cli.print("")
+        fire.cli.print("--- TIDSSERIER ---", bold=True)
+        tidsserierapport(punkt.tidsserier)
+
 
 @info.command()
 @click.option(
@@ -409,7 +482,7 @@ def punkt(
 
     Koordinatlisten viser med grønt de gældende koordinater, og med rødt ældre,
     ikke-aktuelle koordinater. Samme information angives med et tegn før datoen:
-    
+
     \b
         * gældende koordinat
         . ikke-aktuel koordinat
@@ -419,7 +492,7 @@ def punkt(
     en EPSG-kode. Disse kan slås op med ``fire info srid``.
     Tal i parentes efter en koordinat angiver spredningen, givet i milimeter, på koordinaten.
     For fler-dimensionelle koordinater gives spredning på alle koordinatens komponenter.
-    
+
     Tilvalg ``--obs/-O`` kan sættes til ``alle`` eller ``niv``. Begge tilvælger visning
     af observationer til/fra det søgte punkt. P.t. understøttes kun visning af
     nivellementsobservationer.
@@ -495,12 +568,13 @@ def srid(srid: str, ts: bool, **kwargs):
         try:
             srid = fire.cli.firedb.hent_srid(srid_name)
         except NoResultFound:
-            fire.cli.print(f"Error! {srid_name} not found!", fg="red", err=True)
+            fire.cli.print(f"Fejl! {srid_name} ikke fundet!", fg="red", err=True)
             raise SystemExit(1)
 
         fire.cli.print("--- SRID ---", bold=True)
-        fire.cli.print(f" Name:       :  {srid.name}")
-        fire.cli.print(f" Description :  {srid.beskrivelse}")
+        fire.cli.print(f" Navn:       :  {srid.name}")
+        fire.cli.print(f" Kort navn:  :  {srid.kortnavn or ''}")
+        fire.cli.print(f" Beskrivelse :  {srid.beskrivelse}")
 
 
 @info.command()
@@ -549,17 +623,17 @@ def infotype(infotype: str, søg: bool, **kwargs):
                 .all()
             )
 
-        if punktinfotyper is None:
+        if not punktinfotyper:
             raise NoResultFound
     except NoResultFound:
-        fire.cli.print(f"Error! {infotype} not found!", fg="red", err=True)
+        fire.cli.print(f"Fejl! {infotype} ikke fundet!", fg="red", err=True)
         raise SystemExit(1)
 
     if len(punktinfotyper) == 1:
         pit = punktinfotyper[0]
         fire.cli.print("--- PUNKTINFOTYPE ---", bold=True)
-        fire.cli.print(f"  Name        :  {pit.name}")
-        fire.cli.print(f"  Description :  {pit.beskrivelse}")
+        fire.cli.print(f"  Navn        :  {pit.name}")
+        fire.cli.print(f"  Beskrivelse :  {pit.beskrivelse}")
         fire.cli.print(f"  Type        :  {pit.anvendelse}")
         return
 
@@ -631,7 +705,11 @@ def sag(sagsid: str, **kwargs):
     Anføres **SAG** ikke sagsid listes alle aktive sager.
     """
     if sagsid:
-        sag = fire.cli.firedb.hent_sag(sagsid)
+        try:
+            sag = fire.cli.firedb.hent_sag(sagsid)
+        except NoResultFound:
+            fire.cli.print(f"Fejl! {sagsid} ikke fundet!", fg="red", err=True)
+            raise SystemExit(1)
 
         fire.cli.print(
             "------------------------- SAG -------------------------", bold=True
@@ -671,3 +749,58 @@ def sag(sagsid: str, **kwargs):
     for sag in sager:
         beskrivelse = sag.beskrivelse[0:70].strip().replace("\n", " ").replace("\r", "")
         fire.cli.print(f"{sag.id[0:8]}:  {sag.behandler:20}{beskrivelse}...")
+
+
+@info.command()
+@fire.cli.default_options()
+@click.argument("punktsamling", required=False)
+def punktsamling(punktsamling: str, **kwargs):
+    """
+    Information om en punktsamling.
+
+    Anføres **PUNKTSAMLING** ikke listes alle aktive punktsamlinger.
+    I listen over punkter i punktsamlingen er Jessenpunktet highlightet.
+    """
+    if not punktsamling:
+        punktsamlinger = fire.cli.firedb.hent_alle_punktsamlinger()
+        if not punktsamlinger:
+            raise SystemExit("Der findes ingen punktsamlinger i databasen.")
+
+        punktsamlingsrapport(punktsamlinger)
+
+        return
+
+    try:
+        punktsamling = fire.cli.firedb.hent_punktsamling(punktsamling)
+    except NoResultFound:
+        fire.cli.print(f"Fejl! {punktsamling} ikke fundet!", fg="red", err=True)
+        raise SystemExit(1)
+
+    fire.cli.print(
+        "------------------------- PUNKTSAMLING -------------------------", bold=True
+    )
+    fire.cli.print(f"  Navn          : {punktsamling.navn}")
+    fire.cli.print(f"  Formål        : {punktsamling.formål}")
+    fire.cli.print(f"  Jessenpunkt   : {punktsamling.jessenpunkt.ident}")
+    fire.cli.print(f"  Jessennummer  : {punktsamling.jessenpunkt.jessennummer}")
+    fire.cli.print(f"  Jessenkote    : {punktsamling.jessenkote} m")
+    fire.cli.print(f"  Antal punkter : {len(punktsamling.punkter)}")
+
+    fire.cli.print(f"--- Punkter ---")
+
+    if not punktsamling.punkter:
+        fire.cli.print(f"  Der er ingen Punkter i Punktsamlingen !!!")
+    for punkt in punktsamling.punkter:
+        farve = "white"
+        if punkt.id == punktsamling.jessenpunkt.id:
+            farve = "green"
+        fire.cli.print(f"  {punkt.ident}", fg=farve)
+
+    fire.cli.print(f"--- Tidsserier ---")
+    if not punktsamling.tidsserier:
+        fire.cli.print(f"  Punktsamlingen har ingen tilknyttede tidsserier.")
+        return
+
+    tidsserierapport(punktsamling.tidsserier)
+
+    return
