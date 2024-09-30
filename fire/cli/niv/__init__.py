@@ -18,6 +18,8 @@ from fire.api.model import (
     Punkt,
     PunktInformation,
     Sag,
+    Tidsserie,
+    HøjdeTidsserie,
 )
 from fire.io.regneark import arkdef
 from fire.ident import kan_være_gi_nummer
@@ -706,6 +708,64 @@ def afbryd_hvis_ugyldigt_jessenpunkt(jessenpunkt: Punkt) -> None:
             bg="yellow",
         )
         raise SystemExit(1)
+
+
+def hent_relevante_tidsserier(
+    hts_ark: pd.DataFrame, punkt: Punkt, fastholdt_punkt: Punkt, fastholdt_kote: float
+) -> list[Tidsserie]:
+    """
+    Henter de relevante tidsserier fra Højdetidsserier-arket
+
+    Med "relevante" skal forstås tidsserier der har ``punkt`` som punkt, og som hører
+    under en punktsamling der har ``fastholdt_punkt`` og ``fastholdt_kote`` som fastholdt
+    punkt hhv. kote.
+
+    Derudover kontrolleres oplysningerne i Højdetidsserier-fanen. Hvis de er forkerte
+    udsendes fejlmeddelelser.
+    """
+    # Gå igennem alle punktets tidsserier i arket
+    tidsserier = []
+    for index, htsdata in hts_ark[hts_ark["Punkt"] == punkt.ident].iterrows():
+
+        # Den her fejler hvis man opgiver en tidsserie i HTS-fanen som ikke findes!
+        tidsserie = fire.cli.firedb.hent_tidsserie(htsdata["Tidsserienavn"])
+
+        # Den her fejler hvis den fundne tidsserie ikke har punkt som punkt
+        # Vil kun ske hvis man manuelt har tastet noget mærkeligt ind i arket.
+        if tidsserie.punkt != punkt:
+            fire.cli.print(
+                f"FEJL: Mismatch mellem punkt {punkt.ident} og tidsserie {tidsserie.navn}!",
+                fg="white",
+                bg="red",
+                bold=True,
+            )
+            raise SystemExit(1)
+
+        # Samme som ovenstående, men for Punktgruppenavn
+        if tidsserie.punktsamling.navn != htsdata["Punktgruppenavn"]:
+            fire.cli.print(
+                f"FEJL: Mismatch mellem punktgruppe {htsdata['Punktgruppenavn']} og tidsserie {tidsserie.navn}!",
+                fg="white",
+                bg="red",
+                bold=True,
+            )
+            raise SystemExit(1)
+
+        if (
+            tidsserie.punktsamling.jessenpunkt != fastholdt_punkt
+            or tidsserie.punktsamling.jessenkote != fastholdt_kote
+        ):
+            # Spring tidsserier over som ikke matcher det fastholdte punkt/kote
+            # Brugeren bliver nødt til at angive hvilke tidsserier der skal have opdateret
+            # koten.
+            continue
+
+        tidsserier.append(tidsserie)
+
+    if not tidsserier:
+        fire.cli.print(f"Fandt ingen relevante tidsserier for {punkt.ident}")
+
+    return tidsserier
 
 
 """
