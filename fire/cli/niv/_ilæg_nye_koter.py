@@ -24,6 +24,7 @@ from . import (
     niv,
     skriv_ark,
     er_projekt_okay,
+    KOTESYSTEMER,
 )
 
 
@@ -98,9 +99,20 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     ny_punktoversigt = punktoversigt.copy()
 
     # Forbered data til kote-oprettelse
-    DVR90 = fire.cli.firedb.hent_srid("EPSG:5799")
+    if len(punktoversigt["System"].unique()) > 1:
+        fire.cli.print(
+            "FEJL: Flere forskellige højdereferencesystemer er angivet!",
+            fg="white",
+            bg="red",
+            bold=True,
+        )
+        raise SystemExit()
+
+    kotesystem = punktoversigt["System"][0]
+
+    anvendt_srid = fire.cli.firedb.hent_srid(KOTESYSTEMER[kotesystem])
     tid = gyldighedstidspunkt(projektnavn)
-    ny_kote = partial(Koordinat, srid=DVR90, t=tid)
+    ny_kote = partial(Koordinat, srid=anvendt_srid, t=tid)
 
     event_id = uuid()
     til_registrering = []
@@ -166,7 +178,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     # opdaterer mere end 10 punkter ad gangen
     punktnavne = [p.ident for p in opdaterede_punkter]
     punktnavne = forkort(punktnavne)
-    sagseventtekst = f"Opdatering af DVR90 kote til {', '.join(punktnavne)}"
+    sagseventtekst = f"Opdatering af {kotesystem}-kote til {', '.join(punktnavne)}"
     clob_html = filnavn_gama_output.read_text()
 
     sagsevent = sag.ny_sagsevent(

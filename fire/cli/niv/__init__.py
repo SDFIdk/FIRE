@@ -25,6 +25,13 @@ import fire.cli
 from fire.cli import firedb, grøn
 
 
+# Kotesystemer som understøttes i niv-modulet
+KOTESYSTEMER = {
+    "DVR90": "EPSG:5799",
+    "Jessen": "TS:jessen",
+    "LRL": "TS:LRL",
+}
+
 # ------------------------------------------------------------------------------
 niv_help = f"""Nivellement: Arbejdsflow, beregning og analyse
 
