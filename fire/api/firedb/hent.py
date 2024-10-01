@@ -106,7 +106,10 @@ class FireDbHent(FireDbBase):
                 .join(PunktInformation)
                 .join(PunktInformationType)
                 .filter(
-                    PunktInformationType.name.startswith("IDENT:"),
+                    and_(
+                        PunktInformationType.name.startswith("IDENT:"),
+                        PunktInformationType.name != "IDENT:refgeo_id",
+                    ),
                     PunktInformation._registreringtil == None,  # NOQA
                     or_(
                         PunktInformation.tekst == ident,
@@ -144,7 +147,8 @@ class FireDbHent(FireDbBase):
                 self.session.query(Punkt)
                 .filter(
                     Punkt.id.in_(subset),
-                ).all()
+                )
+                .all()
             )
 
         return punkter
@@ -370,11 +374,19 @@ class FireDbHent(FireDbBase):
         srid_filter = str(sridid).upper()
 
         try:
-        # Prøv først at søge på det egentlige srid-navn.
-            srid = self.session.query(Srid).filter(func.upper(Srid.name) == srid_filter).one()
+            # Prøv først at søge på det egentlige srid-navn.
+            srid = (
+                self.session.query(Srid)
+                .filter(func.upper(Srid.name) == srid_filter)
+                .one()
+            )
         except NoResultFound as e:
-        # Ellers søges på sridens korte navn
-            srid = self.session.query(Srid).filter(func.upper(Srid.kortnavn) == srid_filter).one()
+            # Ellers søges på sridens korte navn
+            srid = (
+                self.session.query(Srid)
+                .filter(func.upper(Srid.kortnavn) == srid_filter)
+                .one()
+            )
 
         return srid
 
