@@ -31,31 +31,31 @@ jobs:
 
     - name: Installer Oracle instantclient et al
       run: |
-        
+
         mkdir -p /opt/oracle
         cd /opt/oracle
 
         # Download links findes her: https://www.oracle.com/database/technologies/instant-client/linux-x86-64-downloads.html
         wget -nv https://download.oracle.com/otn_software/linux/instantclient/2340000/instantclient-basic-linux.x64-23.4.0.24.05.zip
         wget -nv https://download.oracle.com/otn_software/linux/instantclient/2340000/instantclient-sqlplus-linux.x64-23.4.0.24.05.zip
- 
+
         unzip -o instantclient-basic-linux.x64-23.4.0.24.05.zip
         unzip -o instantclient-sqlplus-linux.x64-23.4.0.24.05.zip
 
         ls -la /opt/oracle/instantclient_23_4
 
         sudo apt-get install libaio1
-        
+
         sudo sh -c "echo /opt/oracle/instantclient_23_4 > /etc/ld.so.conf.d/oracle-instantclient.conf"
         sudo ldconfig
 
         export LD_LIBRARY_PATH=/opt/oracle/instantclient_23_4:$LD_LIBRARY_PATH
         export PATH=/opt/oracle/instantclient_23_4:$PATH
-        
+
         # Gem miljøvariable til brug i de følgende trin
         echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
         echo "PATH=$PATH" >> "$GITHUB_ENV"
-        
+
         which sqlplus
 
     - name: Cache conda
@@ -68,9 +68,8 @@ jobs:
         key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment-dev.yml') }}
 
     - name: Setup conda
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v3
       with:
-          miniforge-variant: Mambaforge
           miniforge-version: latest
           use-mamba: true
           environment-file: environment-dev.yml
