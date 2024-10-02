@@ -541,7 +541,7 @@ class TidsserieEnsemble:
         """Valider en tidsserie inden indsættelse i ensemblet."""
         if (
             not isinstance(tidsserie, self.tidsserieklasse)
-            or (len(tidsserie.koordinater) < self.min_antal_punkter)
+            or (len(tidsserie) < self.min_antal_punkter)
             or (tidsserie.tidsseriegruppe != self.tidsseriegruppe)
             or (tidsserie.referenceramme != self.referenceramme)
         ):
