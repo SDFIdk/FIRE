@@ -97,3 +97,102 @@ def hts(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     _udtræk_tidsserie(objekt, HøjdeTidsserie, HTS_PARAMETRE, parametre, fil)
 
     return
+
+@ts.command()
+@click.argument("tidsserie", required=True, type=str)
+@click.option(
+    "--plottype",
+    "-t",
+    required=False,
+    type=click.Choice(["rå", "fit", "konf"]),
+    default="rå",
+    help="Hvilken type plot vil man se?",
+)
+@click.option(
+    "--parametre",
+    "-p",
+    required=False,
+    type=str,
+    default="kote",
+    help="Hvilken parameter skal plottes?",
+)
+@fire.cli.default_options()
+def plot_hts(tidsserie: str, plottype: str, parametre: str, **kwargs) -> None:
+    """
+    Plot en Højdetidsserie.
+
+    Et simpelt plot der som standard viser kotens udvikling over tid.
+
+    "TIDSSERIE" er et Højdetidsserienavn fra FIRE. Eksisterende Højdetidsserier kan
+    fremsøges med kommandoen ``fire ts hts <punktnummer>``.
+    Hvilke parametre der plottes kan specificeres i en kommasepareret liste med
+    ``--parametre``. Højst 3 parametre plottes. Følgende parametre kan vælges::
+
+    \b
+        t               Tidspunkt for koordinatobservation
+        kote            Koordinatens z-komponent
+        sz              z-komponentens (kotens) spredning (i mm)
+        decimalår       Tidspunkt for koordinatobservation i decimalår
+
+    Typen af plot som vises kan vælges med ``--plottype``. Følgende plottyper kan vælges::
+
+    \b
+        rå              Plot rå data
+        fit             Plot lineær regression oven på de rå data
+        konf            Plot lineær regression med konfidensbånd
+
+    \f
+    **EKSEMPLER:**
+
+    Plot af højdetidsserie for GED3::
+
+        fire ts plot-hts 52-03-00846_HTS_81005
+
+    Resulterer i visning af nedenstående plot.
+
+    .. image:: figures/fire_ts_plot_hts_GED3_HTS_81005.png
+        :width: 800
+        :alt: Eksempel på plot af højde-tidsserie for GED3.
+
+    Plot af højdetidsserie for GED2::
+
+        fire ts plot-hts 52-03-00845_HTS_81050 -t fit
+
+    Resulterer i visning af nedenstående plot.
+
+    .. image:: figures/fire_ts_plot_hts_GED2_HTS_81050_fit.png
+        :width: 800
+        :alt: Eksempel på plot af højde-tidsserie for GED2.
+
+    Plot af højdetidsserie for GED5::
+
+        fire ts plot-hts 52-03-09089_HTS_81068 -t konf
+
+    Resulterer i visning af nedenstående plot.
+
+    .. image:: figures/fire_ts_plot_hts_GED5_HTS_81068_konf.png
+        :width: 800
+        :alt: Eksempel på plot af højde-tidsserie for GED5.
+
+    """
+    plot_funktioner = {
+        "rå": plot_data,
+        "fit": plot_fit,
+        "konf": plot_konfidensbånd,
+    }
+
+    try:
+        tidsserie = _find_tidsserie(HøjdeTidsserie, tidsserie)
+    except NoResultFound:
+        raise SystemExit("Højdetidsserie ikke fundet")
+
+    parametre = parametre.split(",")
+
+    for parm in parametre:
+        if parm not in HTS_PARAMETRE.keys():
+            raise SystemExit(f"Ukendt tidsserieparameter '{parm}'")
+
+    parametre = [HTS_PARAMETRE[parm] for parm in parametre]
+
+    plot_tidsserie(tidsserie, plot_funktioner[plottype], parametre, y_enhed="mm")
+
