@@ -925,7 +925,11 @@ class HypoteseTest:
     """Foretag statistisk hypotesetest."""
 
     def __init__(
-        self, std_est: float, kritiskværdi: float, H0: float = 0, alpha: float = 0.05
+        self,
+        std_est: float,
+        kritiskværdi: float,
+        H0: float = 0,
+        alpha: float = 0.05,
     ):
         self.H0 = H0
         self.alpha = alpha
@@ -948,6 +952,30 @@ class HypoteseTest:
         sandsynlighed adskiller sig fra referencen.
         """
         return bool(self.score < self.kritiskværdi)
+
+
+class Ztest(HypoteseTest):
+    """Foretag statistisk Z-test"""
+
+    def __init__(self, std_est: float, H0: float = 0, alpha: float = 0.05):
+
+        kritiskværdi = beregn_fraktil_for_normalfordeling(1 - alpha / 2)
+        super().__init__(std_est, kritiskværdi, H0, alpha)
+
+
+class Ttest(HypoteseTest):
+    """Foretag statistisk T-test"""
+
+    def __init__(
+        self,
+        std_est: float,
+        dof: int,
+        H0: float = 0,
+        alpha: float = 0.05,
+    ):
+        self.dof = dof
+        kritiskværdi = beregn_fraktil_for_t_fordeling(1 - alpha / 2, dof)
+        super().__init__(std_est, kritiskværdi, H0, alpha)
 
 
 class HøjdeTidsserie(Tidsserie):
