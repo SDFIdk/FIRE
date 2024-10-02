@@ -1,6 +1,7 @@
 from typing import Callable
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 
@@ -288,3 +289,63 @@ def plot_konfidensbånd(x: list, y: list, y_enhed: str = "mm"):
     )
     plot_data(lr.x, lr.y)
 
+
+def plot_tidsserier(
+    titel: str, tidsserier: list[HøjdeTidsserie], fremhæv_nyeste_punkt: bool = False, y_enhed: str = "mm"
+) -> None:
+    """
+    Et simpelt plot af en liste af Højdetidsserier
+
+    Tidsseriernes y-værdi normaliseres til det første punkt i serien.
+    Sættes ``fremhæv_nyeste_punkt=True``, så fremhæves det sidste punkt i tidsserien.
+    """
+    skalafaktor = ENHEDER_SKALAFAKTOR[y_enhed]
+
+    # Brug forskellige markør-typer. Og vi gider ikke have markørtypen "."/point med!
+    markers = [m for m in Line2D.filled_markers if m != "."]
+
+    fig = plt.figure()
+    plt.suptitle(titel)
+    for i, ts in enumerate(tidsserier):
+        x = np.array(ts.decimalår)
+        idx_sorted = np.argsort(x)
+        x = x[idx_sorted]
+
+        y = np.array(ts.kote) * skalafaktor
+        y = y[idx_sorted]
+        y = y - y[0]
+
+        p = plt.plot(
+            x,
+            y,
+            marker=markers[i % len(markers)],
+            markersize=6,
+            label=f"{ts.navn}",
+        )
+
+        # Plot det sidste "nye" punkt og fremhæv det
+        if fremhæv_nyeste_punkt:
+            # udregn koteændringen
+            delta = y[-1] - y[-2]
+
+            plt.plot(
+                x[-1],
+                y[-1],
+                marker="o",
+                mfc="none",
+                color=p[0].get_color(),
+                markersize=p[0].get_markersize() * 2,
+            )
+
+            plt.text(
+                x[-1] + 2e-1,
+                y[-1],
+                f"$\\Delta$-kote {delta:.2f}",
+                color=p[0].get_color(),
+            )
+
+    plt.xlabel("År")
+    plt.ylabel(f"Normaliseret kote [{y_enhed}]")
+    plt.legend()
+    plt.grid()
+    plt.show()
