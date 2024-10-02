@@ -148,7 +148,7 @@ class Punkt(FikspunktregisterObjekt):
     )
     punktsamlinger = relationship(
         "PunktSamling",
-        secondary = punktsamling_punkt,
+        secondary=punktsamling_punkt,
         order_by="PunktSamling.objektid",
         viewonly=True,
     )
@@ -268,10 +268,7 @@ class Punkt(FikspunktregisterObjekt):
     def _hent_ident_af_type(self, identtype: str) -> str:
         numre = []
         for punktinfo in self.punktinformationer:
-            if (
-                punktinfo.infotype.name == identtype
-                and not punktinfo.registreringtil
-            ):
+            if punktinfo.infotype.name == identtype and not punktinfo.registreringtil:
                 numre.append(punktinfo.tekst)
 
         if numre:
@@ -294,7 +291,7 @@ class Punkt(FikspunktregisterObjekt):
 
     @property
     def jessennummer(self) -> str:
-       return self._hent_ident_af_type("IDENT:jessen")
+        return self._hent_ident_af_type("IDENT:jessen")
 
     def __lt__(self, other: Punkt) -> bool:
         return self.landsnummer < other.landsnummer
@@ -342,7 +339,35 @@ class PunktSamling(FikspunktregisterObjekt):
         jessenpunktet.
         Punktsamlinger som ikke har et jessenkoordinat, antages at have jessenkoten 0.
         """
-        return (self.jessenkoordinat.z if self.jessenkoordinat is not None else 0)
+        return self.jessenkoordinat.z if self.jessenkoordinat is not None else 0
+
+    def tilføj_punkter(self, punkter: list[Punkt]) -> None:
+        """
+        Føj punkter til punktsamlingen.
+
+        Ændrer punktsamlingens liste af punkter in-place. Hvis et eller flere punkter
+        findes i punktsamlingen i forvejen udsendes en ValueError.
+        """
+        fællesmængde = set(punkter) & set(self.punkter)
+
+        if len(fællesmængde) != 0:
+            raise ValueError(
+                f"Kan ikke tilføje et eller flere af de angivne punkter til Punktsamling '{self.navn}' da de allerede er indeholdt!"
+            )
+        self.punkter.extend(punkter)
+
+    def fjern_punkter(self, punkter: list[Punkt]) -> None:
+        """
+        Fjern punkter fra punktsamlingen.
+
+        Ændrer punktsamlingens liste af punkter in-place. Hvis et eller flere punkter ikke
+        findes i punktsamlingen i forvejen udsendes en ValueError.
+        """
+        if self.jessenpunkt in punkter:
+            raise ValueError(f"Kan ikke fjerne en punktsamlings jessenpunkt!")
+
+        for p in punkter:
+            self.punkter.remove(p)
 
 
 class PunktInformation(FikspunktregisterObjekt):

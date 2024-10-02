@@ -619,6 +619,88 @@ def er_projekt_okay(projektnavn: str) -> None:
         return
 
 
+def udled_jessenpunkt_fra_punktoversigt(
+    punktoversigt: pd.DataFrame,
+) -> tuple[float, Punkt]:
+    """
+    Udleder Jessenpunktet ud fra oplysningerne i Punktoversigten.
+
+    Returnerer oplysninger om det validerede jessenpunkt.
+    """
+
+    # Tjek om der er anvendt Jessen-system
+    # Denne er et sanity-tjek -- Man skal ville det hvis man vil oprette punktsamlinger!
+    if len(set(punktoversigt["System"])) > 1:
+        fire.cli.print(
+            "FEJL: Flere forskellige højdereferencesystemer er angivet i Punktoversigt!",
+            fg="white",
+            bg="red",
+            bold=True,
+        )
+        raise SystemExit(1)
+
+    kotesystem = punktoversigt["System"].iloc[0]
+    if kotesystem != "Jessen":
+        fire.cli.print(
+            "FEJL: Kotesystem skal være 'Jessen'",
+            fg="white",
+            bg="red",
+            bold=True,
+        )
+        raise SystemExit(1)
+
+    # Tjek om der kun er ét fastholdt punkt, og gør brugeren opmærksom på hvis punktet
+    # ikke har et Jessennummer.
+    fastholdte_punkter = punktoversigt["Punkt"][punktoversigt["Fasthold"] == "x"]
+    fastholdte_koter = punktoversigt["Kote"][punktoversigt["Fasthold"] == "x"]
+
+    if len(fastholdte_punkter) != 1:
+        fire.cli.print(
+            "FEJL: Punktsamlinger kræver netop ét fastholdt Jessenpunkt.",
+            fg="white",
+            bg="red",
+            bold=True,
+        )
+        raise SystemExit(1)
+
+    if pd.isna(fastholdte_koter).any():
+        fire.cli.print(
+            "FEJL: Fastholdt punkt har ikke nogen fastholdt kote!",
+            fg="white",
+            bg="red",
+            bold=True,
+        )
+        raise SystemExit(1)
+
+    jessenpunkt_ident = fastholdte_punkter.iloc[0]
+    jessenpunkt_kote = fastholdte_koter.iloc[0]
+
+    try:
+        jessenpunkt = firedb.hent_punkt(jessenpunkt_ident)
+    except NoResultFound:
+        fire.cli.print(
+            f"FEJL: Kunne ikke finde Jessenpunktet {jessenpunkt_ident} i databasen!",
+            fg="white",
+            bg="red",
+            bold=True,
+        )
+        raise SystemExit(1)
+
+    return jessenpunkt_kote, jessenpunkt
+
+
+def afbryd_hvis_ugyldigt_jessenpunkt(jessenpunkt: Punkt) -> None:
+    """Smid fejl hvis valgt jessenpunkt ikke er et registreret jessenpunkt"""
+    if not jessenpunkt.jessennummer:
+        fire.cli.print(
+            f"FEJL: Jessenpunktet {jessenpunkt.ident} har intet Jessennummer. "
+            "Jessennummer kan oprettes igennem Punktrevision ved indsættelse af IDENT:jessen og NET:jessen.",
+            fg="black",
+            bg="yellow",
+        )
+        raise SystemExit(1)
+
+
 """
 Modulnavne starter med `_` for at undgå konflikter,
 der i visse tilfælde kan opstå.
@@ -645,3 +727,10 @@ from ._opret_sag import opret_sag
 from ._regn import regn
 from ._udtræk_observationer import udtræk_observationer
 from ._udtræk_revision import udtræk_revision
+from .punktsamling import (
+    opret_punktsamling,
+    udtræk_punktsamling,
+    ilæg_punktsamling,
+    ilæg_tidsserie,
+    fjern_punkt_fra_punktsamling,
+)

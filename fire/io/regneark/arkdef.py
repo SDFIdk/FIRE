@@ -113,3 +113,32 @@ PARAM: ArkDefinitionType = {
     "Navn": str,
     "Værdi": str,
 }
+
+PUNKTGRUPPE: ArkDefinitionType = {
+    # Punktsamlingens navn. Udadtil kalder vi det punktgruppe
+    "Punktgruppenavn": str,
+    # Jessenpunktets ident
+    "Jessenpunkt": str,
+    # Jessenpunktets jessennummer
+    "Jessennummer": str,
+    # Jessenkoten som skal fastholdes.
+    "Jessenkote": float,
+    # Punktsamlingens formål / beskrivelse, fx nær-/fjernkontrol
+    "Formål": str,
+}
+
+HØJDETIDSSERIE: ArkDefinitionType = {
+    # Punktsamlingens navn
+    "Punktgruppenavn": str,
+    # Punktets ident
+    "Punkt": str,
+    # Er punktet jessenpunkt for punktsamlingen?
+    "Er Jessenpunkt": str,
+    "Tidsserienavn": str,
+    # Tidsseriens formål
+    "Formål": str,
+    # Tidsseriens referencesystem. I databasen kaldes denne Referenceramme
+    "System": str,
+    # SRIDID udledes af System
+    # TSTYPE er altid 2
+}
