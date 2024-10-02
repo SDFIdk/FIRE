@@ -15,6 +15,8 @@ from fire.api.model import (
     EventType,
     Koordinat,
     Observation,
+    PunktSamling,
+    Tidsserie,
 )
 from fire.cli.niv import bekræft
 
@@ -67,15 +69,9 @@ def punkt(uuid: str, sagsbehandler, **kwargs) -> None:
     Se `punkt_hjælp` for yderligere information.
     """
     db = fire.cli.firedb
-    sag = Sag(
-        id=fire.uuid(),
-        sagsinfos=[
-            Sagsinfo(
-                behandler=sagsbehandler,
-                beskrivelse="Lukning af objekt med 'fire luk'",
-                aktiv="true",
-            )
-        ],
+
+    sag = db.ny_sag(
+        behandler=sagsbehandler, beskrivelse="Lukning af objekt med 'fire luk'"
     )
     db.session.add(sag)
     db.session.flush()
@@ -217,7 +213,7 @@ def observation(objektid: str, sagsbehandler, **kwargs) -> None:
     Fejlmeld en observation i FIRE databasen.
 
     Når en observation fejlmeldes afregistreres den i databasen og
-    det angives samtidigt at observationen ikke er fejlbehæftet.
+    det angives samtidigt at observationen er fejlbehæftet.
 
     Observationens objektid kan fx findes ved opslag med
     ``fire info punkt -O niv <punkt>`` eller ved manuelt opslag i
@@ -279,3 +275,135 @@ def observation(objektid: str, sagsbehandler, **kwargs) -> None:
         else:
             db.session.rollback()
             fire.cli.print(f"Observation {objektid} IKKE lukket!")
+
+
+@luk.command()
+@click.argument("objektid", type=str)
+@click.option(
+    "--sagsbehandler",
+    default=getpass.getuser(),
+    type=str,
+    help="Angiv andet brugernavn end den aktuelt indloggede",
+)
+@fire.cli.default_options()
+def punktsamling(objektid: str, sagsbehandler, **kwargs) -> None:
+    """
+    Luk en punktsamling i FIRE databasen.
+
+    Punktsamlingens objektid skal findes ved manuelt opslag i databasen.
+    Det kan fx gøres med et udtræk som følgende:
+
+    \b
+        SELECT * FROM punktsamling ps
+        WHERE ps.navn = 'PUNKTSAMLING_81001'
+    """
+    db = fire.cli.firedb
+    sag = db.ny_sag(sagsbehandler, beskrivelse="Lukning af punktsamling med 'fire luk'")
+    db.session.add(sag)
+    db.session.flush()
+
+    try:
+        ps = (
+            db.session.query(PunktSamling)
+            .filter(
+                PunktSamling.objektid == objektid,
+            )
+            .one()
+        )
+    except NoResultFound:
+        fire.cli.print(f"Punktsamling med objektid {objektid} ikke fundet!")
+        raise SystemExit
+
+    sagsevent = sag.ny_sagsevent(beskrivelse=f"'fire luk punktsamling {objektid}")
+
+    try:
+        # Indsæt alle objekter i denne session
+        db.luk_punktsamling(ps, sagsevent, commit=False)
+        db.session.flush()
+        db.luk_sag(sag, commit=False)
+        db.session.flush()
+    except DatabaseError as e:
+        # rul tilbage hvis databasen smider en exception
+        db.session.rollback()
+        fire.cli.print(
+            f"Der opstod en fejl - punktsamling med objektid {objektid} IKKE lukket!"
+        )
+        print(e)
+    else:
+        tekst = f"""Er du sikker på at du vil lukke punktsamlingen med {objektid}:
+
+        {repr(ps)}
+"""
+        if bekræft(tekst):
+            db.session.commit()
+            fire.cli.print(f"Punktsamling {objektid} lukket!")
+        else:
+            db.session.rollback()
+            fire.cli.print(f"Punktsamling {objektid} IKKE lukket!")
+
+    return
+
+
+@luk.command()
+@click.argument("objektid", type=str)
+@click.option(
+    "--sagsbehandler",
+    default=getpass.getuser(),
+    type=str,
+    help="Angiv andet brugernavn end den aktuelt indloggede",
+)
+@fire.cli.default_options()
+def tidsserie(objektid: str, sagsbehandler, **kwargs) -> None:
+    """
+    Luk en tidsserie i FIRE databasen.
+
+    Tidsseriens objektid skal findes ved manuelt opslag i databasen.
+    Det kan fx gøres med et udtræk som følgende:
+
+    \b
+        SELECT * FROM tidsserie ts
+        WHERE ts.navn = 'RDIO_5D_IGb08'
+    """
+    db = fire.cli.firedb
+    sag = db.ny_sag(sagsbehandler, beskrivelse="Lukning af tidsserie med 'fire luk'")
+    db.session.add(sag)
+    db.session.flush()
+
+    try:
+        ts = (
+            db.session.query(Tidsserie)
+            .filter(
+                Tidsserie.objektid == objektid,
+            )
+            .one()
+        )
+    except NoResultFound:
+        fire.cli.print(f"Tidsserie med objektid {objektid} ikke fundet!")
+        raise SystemExit
+
+    sagsevent = sag.ny_sagsevent(beskrivelse=f"'fire luk tidsserie {objektid}")
+
+    try:
+        # Indsæt alle objekter i denne session
+        db.luk_tidsserie(ts, sagsevent, commit=False)
+        db.session.flush()
+        db.luk_sag(sag, commit=False)
+        db.session.flush()
+    except DatabaseError as e:
+        # rul tilbage hvis databasen smider en exception
+        db.session.rollback()
+        fire.cli.print(
+            f"Der opstod en fejl - tidsserie med objektid {objektid} IKKE lukket!"
+        )
+        print(e)
+    else:
+        tekst = f"""Er du sikker på at du vil lukke tidsserien med {objektid}:
+
+        {repr(ts)}
+"""
+        if bekræft(tekst):
+            db.session.commit()
+            fire.cli.print(f"Tidsserie {objektid} lukket!")
+        else:
+            db.session.rollback()
+            fire.cli.print(f"Tidsserie {objektid} IKKE lukket!")

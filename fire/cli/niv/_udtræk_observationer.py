@@ -48,6 +48,7 @@ from fire.cli.niv import (
     er_projekt_okay,
     skriv_observationer_geojson,
     skriv_punkter_geojson,
+    KOTESYSTEMER,
 )
 from fire.typologi import (
     adskil_filnavne,
@@ -155,6 +156,12 @@ Er metode ikke angivet, søger programmet blandt begge observationstyper.
     required=False,
     is_flag=True,
 )
+@click.option(
+    "--kotesystem",
+    default="DVR90",
+    type=click.Choice(KOTESYSTEMER.keys()),
+    help="Angiv andet kotesystem end DVR90",
+)
 @fire.cli.default_options()
 def udtræk_observationer(
     projektnavn: str,
@@ -165,6 +172,7 @@ def udtræk_observationer(
     fra: dt.datetime,
     til: dt.datetime,
     alle_obs: bool,
+    kotesystem: str,
     # These `kwargs` can be ignored for now, since they refer to default
     # CLI options that are already in effect by use of call-back functions.
     **kwargs,
@@ -322,6 +330,7 @@ def udtræk_observationer(
     fire.cli.print("Gem observationer og punkter i projekt-regnearket")
     ark_observationer = til_nyt_ark_observationer(observationer)
     ark_punktoversigt = til_nyt_ark_punktoversigt(punkter)
+    ark_punktoversigt["System"] = kotesystem
 
     # Forbered ark-skrivning
     faner = {

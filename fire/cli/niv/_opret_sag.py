@@ -6,7 +6,10 @@ import click
 import pandas as pd
 
 from fire import uuid
-from fire.io.regneark import arkdef
+from fire.io.regneark import (
+    nyt_ark,
+    arkdef,
+)
 import fire.cli
 
 from fire.cli.niv import (
@@ -154,11 +157,9 @@ def opret_sag(projektnavn: str, beskrivelse: str, sagsbehandler: str, **kwargs) 
 
     # Dummyopsætninger til sagsregnearkets sider
     forside = pd.DataFrame()
-    nyetablerede = pd.DataFrame(columns=tuple(arkdef.NYETABLEREDE_PUNKTER)).astype(
-        arkdef.NYETABLEREDE_PUNKTER
-    )
+    nyetablerede = nyt_ark(arkdef.NYETABLEREDE_PUNKTER)
     notater = pd.DataFrame([{"Dato": pd.Timestamp.now(), "Hvem": "", "Tekst": ""}])
-    filoversigt = pd.DataFrame(columns=tuple(arkdef.FILOVERSIGT))
+    filoversigt = nyt_ark(arkdef.FILOVERSIGT)
     param = pd.DataFrame(
         columns=["Navn", "Værdi"],
         data=[("Version", fire.__version__), ("Database", fire.cli.firedb.db)],

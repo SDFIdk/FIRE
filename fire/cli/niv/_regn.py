@@ -218,7 +218,8 @@ def regn(projektnavn: str, **kwargs) -> None:
     htmlrapportnavn = gama_udjævn(projektnavn, kontrol)
 
     # Indlæs nødvendige parametre til at skrive Gama output til xlsx
-    punkter, koter, varianser, t_gyldig = læs_gama_output(projektnavn)
+    punkter, koter, varianser = læs_gama_output(projektnavn)
+    t_gyldig = gyldighedstidspunkt(projektnavn)
 
     # Opdater arbejdssæt med GNU Gama output
     beregning = opdater_arbejdssæt(punkter, koter, varianser, arbejdssæt, t_gyldig)
@@ -468,13 +469,13 @@ def læs_gama_output(
     # html-rapportudgaven af beregningsresultatet.
     koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
     varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
-    # try:
+
     punkter = [punkt["id"] for punkt in koteliste]
     koter = [float(punkt["z"]) for punkt in koteliste]
     varianser = [float(var) for var in varliste]
     assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
-    tg = gyldighedstidspunkt(projektnavn)
-    return (punkter, koter, varianser, tg)
+
+    return (punkter, koter, varianser)
 
 
 # ------------------------------------------------------------------------------
@@ -485,18 +486,24 @@ def opdater_arbejdssæt(
     arbejdssæt: Arbejdssæt,
     tg: Timestamp,
 ) -> Arbejdssæt:
-    for j, (punkt, ny_kote, var) in enumerate(zip(punkter, koter, varianser)):
+
+    if len(set(arbejdssæt.system)) > 1:
+        fire.cli.print(
+            "FEJL: Flere forskellige højdereferencesystemer er angivet!",
+            fg="white",
+            bg="red",
+            bold=True,
+        )
+        raise SystemExit()
+
+    kotesystem = arbejdssæt.system[0]
+
+    for (punkt, ny_kote, var) in zip(punkter, koter, varianser):
         if punkt in arbejdssæt.punkt:
             # Hvis punkt findes, sæt indeks til hvor det findes
             i = arbejdssæt.punkt.index(punkt)
-            if i > j:
-                # Gem info i det punkt hvis allerede skrevet
-                arbejdssæt.punkt.append(arbejdssæt.punkt[i])
-                arbejdssæt.ny_sigma.append(arbejdssæt.ny_sigma[i])
-                arbejdssæt.hvornår.append(arbejdssæt.hvornår[i])
-                arbejdssæt.system.append("DVR90")
+
             # Overskriv info i punkt der findes
-            arbejdssæt.punkt[i] = punkt
             arbejdssæt.ny_kote[i] = ny_kote
             arbejdssæt.ny_sigma[i] = sqrt(var)
 
@@ -513,14 +520,13 @@ def opdater_arbejdssæt(
                 continue
             arbejdssæt.opløft[i] = Delta / dt
             arbejdssæt.hvornår[i] = tg
-            arbejdssæt.system[i] = "DVR90"
         else:
             # Tilføj nye punkter
             arbejdssæt.punkt.append(punkt)
             arbejdssæt.ny_sigma.append(sqrt(var))
             arbejdssæt.hvornår.append(tg)
             arbejdssæt.ny_kote.append(ny_kote)
-            arbejdssæt.system.append("DVR90")
+            arbejdssæt.system.append(kotesystem)
 
             # Fyld
             arbejdssæt.fasthold.append("")

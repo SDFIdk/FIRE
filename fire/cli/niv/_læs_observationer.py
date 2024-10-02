@@ -10,7 +10,10 @@ from sqlalchemy.orm.exc import NoResultFound
 from fire.api.model.geometry import (
     normaliser_lokationskoordinat,
 )
-from fire.io.regneark import arkdef
+from fire.io.regneark import (
+    nyt_ark,
+    arkdef,
+)
 import fire.io.dataframe as frame
 import fire.cli
 
@@ -21,6 +24,7 @@ from . import (
     skriv_observationer_geojson,
     skriv_ark,
     er_projekt_okay,
+    KOTESYSTEMER,
 )
 
 
@@ -31,7 +35,13 @@ from . import (
     nargs=1,
     type=str,
 )
-def læs_observationer(projektnavn: str, **kwargs) -> None:
+@click.option(
+    "--kotesystem",
+    default="DVR90",
+    type=click.Choice(KOTESYSTEMER.keys()),
+    help="Angiv andet kotesystem end DVR90",
+)
+def læs_observationer(projektnavn: str, kotesystem: str, **kwargs) -> None:
     """Importer data fra observationsfiler og opbyg punktoversigt.
 
     Observationsfiler fra målebilernes instrumenter tilknyttes projektet ved at
@@ -101,7 +111,7 @@ def læs_observationer(projektnavn: str, **kwargs) -> None:
     alle_punkter = nye_punkter + tuple(sorted(gamle_punkter))
 
     # Opbyg oversigt over alle punkter m. kote og lokation
-    punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter)
+    punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter, kotesystem)
     resultater["Punktoversigt"] = punktoversigt
     skriv_ark(projektnavn, resultater)
     fire.cli.print(
@@ -202,8 +212,9 @@ def opbyg_punktoversigt(
     navn: str,
     nyetablerede: pd.DataFrame,
     alle_punkter: Tuple[str, ...],
+    kotesystem: str = "DVR90",
 ) -> pd.DataFrame:
-    punktoversigt = pd.DataFrame(columns=list(arkdef.PUNKTOVERSIGT))
+    punktoversigt = nyt_ark(arkdef.PUNKTOVERSIGT)
     fire.cli.print("Opbygger punktoversigt")
 
     # Forlæng punktoversigt, så der er plads til alle punkter
@@ -215,10 +226,10 @@ def opbyg_punktoversigt(
     nye_punkter = tuple(sorted(set(nyetablerede.index)))
 
     try:
-        DVR90 = fire.cli.firedb.hent_srid("EPSG:5799")
-    except KeyError:
+        srid = fire.cli.firedb.hent_srid(KOTESYSTEMER[kotesystem])
+    except NoResultFound:
         fire.cli.print(
-            "DVR90 (EPSG:5799) ikke fundet i srid-tabel", bg="red", fg="white", err=True
+            f"{kotesystem} ({KOTESYSTEMER[kotesystem]}) ikke fundet i srid-tabel", bg="red", fg="white", err=True
         )
         raise SystemExit(1)
 
@@ -234,20 +245,20 @@ def opbyg_punktoversigt(
         # Grav aktuel kote frem
         kote = None
         for koord in pkt.koordinater:
-            if koord.srid != DVR90:
+            if koord.srid != srid:
                 continue
             if koord.registreringtil is None:
                 kote = koord
                 break
 
         punktoversigt.at[punkt, "Fasthold"] = ""
-        punktoversigt.at[punkt, "System"] = "DVR90"
+        punktoversigt.at[punkt, "System"] = kotesystem
         punktoversigt.at[punkt, "uuid"] = ""
         punktoversigt.at[punkt, "Udelad publikation"] = ""
 
         if kote is None:
             fire.cli.print(
-                f"Ingen aktuel DVR90-kote fundet for {punkt}",
+                f"Ingen aktuel {kotesystem}-kote fundet for {punkt}",
                 bg="red",
                 fg="white",
                 err=True,
@@ -270,6 +281,8 @@ def opbyg_punktoversigt(
     for punkt in nye_punkter:
         if pd.isna(punktoversigt.at[punkt, "Kote"]):
             punktoversigt.at[punkt, "Kote"] = None
+        if pd.isna(punktoversigt.at[punkt, "System"]):
+            punktoversigt.at[punkt, "System"] = kotesystem
         if pd.isna(punktoversigt.at[punkt, "Nord"]):
             punktoversigt.at[punkt, "Nord"] = nyetablerede.at[punkt, "Nord"]
         if pd.isna(punktoversigt.at[punkt, "Øst"]):
@@ -293,9 +306,7 @@ def læs_observationsstrenge(
 ) -> pd.DataFrame:
     """Pil observationsstrengene ud fra en række råfiler"""
 
-    observationer = pd.DataFrame(columns=list(arkdef.OBSERVATIONER)).astype(
-        arkdef.OBSERVATIONER
-    )
+    observationer = nyt_ark(arkdef.OBSERVATIONER)
     for fil in filinfo.itertuples(index=False):
         if fil.Type.upper() not in ["MGL", "MTL", "NUL"]:
             continue
