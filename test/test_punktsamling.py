@@ -45,9 +45,13 @@ def test_hent_fra_punkt(firedb: FireDb):
 
 
 def test_opret_punktsamling(
-    firedb: FireDb, sagsevent: Sagsevent, punktfabrik: Callable, koordinat: Koordinat
+    firedb: FireDb,
+    sagseventfabrik: Callable,
+    punktfabrik: Callable,
+    koordinat: Koordinat,
 ):
     """Test at en punktsamling kan oprettes"""
+    firedb.session.flush()
 
     navn = f"Test-{fire.uuid()[0:9]}"
     jessenpunkt = punktfabrik()
@@ -64,9 +68,11 @@ def test_opret_punktsamling(
         jessenkoordinat=koordinat,
     )
 
+    sagsevent = sagseventfabrik()
     sagsevent.eventtype = EventType.PUNKTGRUPPE_MODIFICERET
     sagsevent.punktsamlinger = [punktsamling]
-    firedb.indset_sagsevent(sagsevent)
+    firedb.indset_sagsevent(sagsevent, commit=False)
+    firedb.session.flush()
 
     del punktsamling
 
@@ -81,11 +87,13 @@ def test_opret_punktsamling(
     assert ps.navn == navn
     assert ps.formål == "Test"
 
+    firedb.session.rollback()
+
 
 def test_udvid_punktsamling(
     firedb: FireDb, sagseventfabrik: Callable, punktsamling: PunktSamling, punkt: Punkt
 ):
-    """Test at en punktsamling kan oprettes"""
+    """Test at en punktsamling kan udvides"""
 
     firedb.session.flush()
     punktsamlingnavn = punktsamling.navn
@@ -94,26 +102,74 @@ def test_udvid_punktsamling(
     del punktsamling
 
     punktsamling = firedb.hent_punktsamling(punktsamlingnavn)
-    punktsamling.punkter.append(punkt)
+    punktsamling.tilføj_punkter([punkt])
 
     sagsevent = sagseventfabrik()
     sagsevent.punktsamlinger = [punktsamling]
     sagsevent.eventtype = EventType.PUNKTGRUPPE_MODIFICERET
 
-    firedb.indset_sagsevent(sagsevent)
+    firedb.indset_sagsevent(sagsevent, commit=False)
+    firedb.session.flush()
 
     assert len(punktsamling.punkter) == 6
+
+    firedb.session.rollback()
+
+
+def test_fjern_punkter_fra_punktsamling(
+    firedb: FireDb,
+    sagseventfabrik: Callable,
+    punktsamling: PunktSamling,
+    punktfabrik: Callable,
+):
+    """Test at man kan fjerne punkter fra en punktsamling"""
+    firedb.session.flush()
+
+    jessenpunkt = punktsamling.jessenpunkt
+    punkter = [p for p in punktsamling.punkter if p != jessenpunkt]
+    punkt = punktfabrik()
+
+    # Test at man ikke kan fjerne et punkt som ikke findes i punktsamlingen
+    with pytest.raises(ValueError, match="not in list"):
+        punktsamling.fjern_punkter([punkt])
+
+    # Test at man ikke kan fjerne jessenpunktet
+    with pytest.raises(ValueError, match="jessenpunkt"):
+        punktsamling.fjern_punkter([jessenpunkt])
+
+    # Fjern alle andre punkter
+    punktsamling.fjern_punkter(punkter)
+    sagsevent = sagseventfabrik()
+    sagsevent.punktsamlinger = [punktsamling]
+    sagsevent.eventtype = EventType.PUNKTGRUPPE_MODIFICERET
+
+    firedb.indset_sagsevent(sagsevent, commit=False)
+    firedb.session.flush()
+
+    # Glem punktsamlingen og hent den fra databasen igen
+    punktsamlingsnavn = punktsamling.navn
+    del punktsamling
+    punktsamling = firedb.hent_punktsamling(punktsamlingsnavn)
+
+    # Tjek at der nu kun er ét punkt tilbage, nemlig jessenpunktet.
+    assert len(punktsamling.punkter) == 1
+
+    firedb.session.rollback()
 
 
 def test_luk_punktsamling(
     firedb: FireDb, sagsevent: Sagsevent, punktsamling: PunktSamling
 ):
+    """Test at en punktsamling kan lukkes"""
     firedb.session.flush()
 
     assert punktsamling.sagseventtilid is None
     assert punktsamling.registreringtil is None
 
-    firedb.luk_punktsamling(punktsamling, sagsevent)
+    firedb.luk_punktsamling(punktsamling, sagsevent, commit=False)
+    firedb.session.flush()
 
     assert punktsamling.sagseventtilid is not None
     assert punktsamling.registreringtil is not None
+
+    firedb.session.rollback()
