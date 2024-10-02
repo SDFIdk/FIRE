@@ -502,7 +502,7 @@ class GNSSTidsserie(Tidsserie):
         """
         x_binned, y_binned = self.binning(x, y, **kwargs)
 
-        self.linreg = PolynomieRegression1D(self, x_binned, y_binned, **kwargs)
+        self.linreg = PolynomieRegression1D(x_binned, y_binned, **kwargs)
 
     def beregn_lineær_regression(self) -> None:
         """
@@ -585,74 +585,11 @@ class TidsserieEnsemble:
         for ts in self.tidsserier.values():
             ts.linreg.var_samlet = self.var_samlet
 
-    def generer_statistik_streng_ensemble(self, alpha: float) -> str:
-        """Generér statistikstreng for ensemblets tidsseriers linreg-attribut."""
-
-        linjer = ""
-
-        for ts in self.tidsserier.values():
-            header, linje = ts.linreg.generer_statistik_streng(
-                alpha=alpha, er_samlet=True
-            )
-
-            linjer += f"{linje}\n"
-
-        return f"{header}\n{linjer}"
-
 
 class PolynomieRegression1D:
     """
     Foretag lineær regression over en tidsserie.
     """
-
-    @dataclass
-    class Statistik:
-        TidsserieID: str
-        GPSNR: str
-        N: int
-        N_binned: int
-        dof: int
-        ddof: int
-        grad: int
-        R2: float
-        var_0: float
-        std_0: float
-        reference_hældning: float
-        hældning: float
-        var_hældning: float
-        std_hældning: float
-        ki_hældning_nedre: float
-        ki_hældning_øvre: float
-        mex: float
-        mey: float
-        T_test_accepteret: bool
-
-        def __str__(self):
-            header = ", ".join([str(field.name) for field in fields(self)])
-            linje = ", ".join(
-                [str(getattr(self, field.name)) for field in fields(self)]
-            )
-            return f"{header}\n{linje}"
-
-
-    @dataclass
-    class StatistikSamlet:
-        var_samlet: float
-        std_samlet: float
-        var_hældning_samlet: float
-        std_hældning_samlet: float
-        ki_hældning_nedre_samlet: float
-        ki_hældning_øvre_samlet: float
-        Z_test_accepteret: bool
-
-        def __str__(self):
-            header = ", ".join([str(field.name) for field in fields(self)])
-            linje = ", ".join(
-                [str(getattr(self, field.name)) for field in fields(self)]
-            )
-            return f"{header}\n{linje}"
-
-
     def __init__(
         self,
         x: list[float],
@@ -868,76 +805,6 @@ class PolynomieRegression1D:
             return Ztest(std_est=std_est, H0=H0, alpha=alpha)
 
         return Ttest(std_est=std_est, dof=self.dof, H0=H0, alpha=alpha)
-
-    def beregn_statistik(self, alpha: float, er_samlet: bool = False) -> None:
-        """
-        Metode til samlet beregning af statistik for tidsserien
-
-        Resultaterne gemmes i `dict`-instanserne `self.statistik` og
-        `self.statistik_samlet`.
-        """
-
-        H0 = self.hældning_reference - self.beta[1]
-
-        # Er ikke samlet
-        var_beta = self.VarBeta(er_samlet=False)[1]
-        std_beta = np.sqrt(var_beta)
-        konfidensinterval = self.beregn_konfidensinterval(alpha, er_samlet=False)
-        T_test = self.beregn_hypotesetest(H0, alpha, er_samlet=False)
-
-        self.statistik = self.Statistik(
-            TidsserieID=self.tidsserie.navn,
-            GPSNR=self.tidsserie.punkt.gnss_navn,
-            N=len(self.tidsserie.koordinater),
-            N_binned=self.N,
-            dof=self.dof,
-            ddof=self.ddof,
-            grad=self.grad,
-            R2=self.R2,
-            var_0=self.var0,
-            std_0=np.sqrt(self.var0),
-            reference_hældning=self.hældning_reference,
-            hældning=self.beta[1],
-            var_hældning=var_beta,
-            std_hældning=std_beta,
-            ki_hældning_nedre=konfidensinterval[0, 1],
-            ki_hældning_øvre=konfidensinterval[1, 1],
-            mex=self.mex,
-            mey=self.mey,
-            T_test_accepteret=T_test.H0accepteret,
-        )
-
-        # er_samlet
-        if not er_samlet:
-            return
-
-        var_beta_samlet = self.VarBeta(er_samlet=True)[1]
-        std_beta_samlet = np.sqrt(var_beta_samlet)
-        konfidensinterval_samlet = self.beregn_konfidensinterval(alpha, er_samlet=True)
-        Z_test = self.beregn_hypotesetest(H0, alpha, er_samlet=True)
-
-        self.statistik_samlet = self.StatistikSamlet(
-            var_samlet=self.var_samlet,
-            std_samlet=np.sqrt(self.var_samlet),
-            var_hældning_samlet=var_beta_samlet,
-            std_hældning_samlet=std_beta_samlet,
-            ki_hældning_nedre_samlet=konfidensinterval_samlet[0, 1],
-            ki_hældning_øvre_samlet=konfidensinterval_samlet[1, 1],
-            Z_test_accepteret=Z_test.H0accepteret,
-        )
-
-    def generer_statistik_streng(self, **kwargs) -> Tuple[str, str]:
-        """Genererer statistikstreng for tidsserien"""
-        self.beregn_statistik(**kwargs)
-
-        header = str(self.statistik).split("\n")[0]
-        linje = str(self.statistik).split("\n")[1]
-
-        if hasattr(self, "statistik_samlet"):
-            header += ", " + str(self.statistik_samlet).split("\n")[0]
-            linje += ", " + str(self.statistik_samlet).split("\n")[1]
-
-        return header, linje
 
 
 class HypoteseTest:
