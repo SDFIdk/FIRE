@@ -22,6 +22,8 @@ from fire.cli.ts.plot_ts import (
     plot_data,
     plot_fit,
     plot_konfidensbånd,
+    plot_hts_analyse,
+    plot_tidsserier,
 )
 
 from . import ts
@@ -196,3 +198,199 @@ def plot_hts(tidsserie: str, plottype: str, parametre: str, **kwargs) -> None:
 
     plot_tidsserie(tidsserie, plot_funktioner[plottype], parametre, y_enhed="mm")
 
+
+@ts.command()
+@click.argument(
+    "objekt",
+    required=True,
+    nargs=-1,
+    type=str,
+)
+@click.option(
+    "--fil",
+    "-f",
+    required=False,
+    type=click.Path(writable=True),
+    help="Skriv beregnet tidsseriestatistik til csv-fil.",
+)
+@click.option(
+    "--nmin",
+    required=False,
+    type=int,
+    default=3,
+    help="Minimum antal punkter i tidsserien.",
+)
+@click.option(
+    "--plot/--no-plot",
+    is_flag=True,
+    default=True,
+    help="Vælg om plots skal vises eller ej.",
+)
+@fire.cli.default_options()
+def analyse_hts(
+    objekt: tuple[str],
+    fil: click.Path,
+    nmin: int,
+    plot: bool,
+    **kwargs,
+):
+    """
+    Analysér en eller flere Højdetidsserier.
+
+    Der beregnes for hver af de valgte højdetidsserier et vægtet, lineært fit til
+    tidsserien. Som vægte anvendes de inverse koteusikkerheder.
+
+    Der vises et plot af alle tidsseriernes normaliserede koter. Dernæst vises et
+    detaljeret plot af hver tidsserie med konfidensbånd og diverse andre
+    kvalitetsparametre for fittet. De detaljerede plots kan til/fravælges med
+    ``--plot/--no-plot``.
+    Analyseresultaterne gemmes i csv-format hvis en sti angives med ``--fil``. Se
+    nedenfor, for detaljer om analysen.
+
+    ``OBJEKT`` kan enten være en Punktsamling eller en liste indeholdende én eller flere
+    HøjdeTidsserier.
+
+    Hvis ``OBJEKT`` angiver flere Højdetidsserier, skal alle tidsserierne være givet over
+    det samme jessenpunkt. Hvis ``OBJEKT`` angiver en Punktsamling analyseres alle
+    Højdetidsserierne i punktsamlingen.
+
+    Tidsserier med meget få datapunkter filtreres fra i søgningen. Antallet kan vælges med
+    ``--nmin``. Default-værdien er 3 datapunkter.
+
+    **Statistisk analyse:**
+
+    Programmet beregner som nævnt et lineært fit ved brug af vægtet mindste kvadraters
+    metode (WLS). Som vægte anvendes koternes usikkerheder. I mange tilfælde er
+    usikkerhederne i databasen angivet til 0 mm (pga. nedrunding). I disse tilfælde
+    anvendes en værdi for usikkerheden på 0.5 mm.
+    Følgende er en beskrivelse af de nogle af statistiske parametre som programmet
+    beregner og som fortjener forklaring::
+
+    \b
+        std_0               Standardafvigelse af residualer
+    \b
+        var_0               Varians af residualer
+    \b
+        std_hældning        Estimeret varians af estimeret hældning
+    \b
+        var_hældning        Estimeret varians af estimeret hældning
+    \b
+        ki_hældning         Nedre/øvre grænse for konfidensinterval for estimeret
+                            hældning. Konfidensintervallet er bestemt ved
+                            signifikansniveau på 5%
+    \b
+        mex                 Middelepoke for tidsserien (Gennemsnit af x-værdier)
+    \b
+        mey                 Tidsseriens fittede værdi ved middelepoken
+    \b
+        er_bevægelse_signifikant    Resultat af hypotesetest (T-test) for om
+                                    bevægelsen er signifikant forskellig fra 0
+    \b
+        alpha_bevægelse_signifikant Signifikansniveau anvendt i T-test (default 1%)
+
+    I de detaljerede plots vises som nævnt konfidensbånd for fittet. Hertil anvendes
+    signifikansniveau på 5%.
+    """
+    # skaler data så der regnes og plottes i [mm] i stedet for [m]
+    skalafaktor = 1e3
+
+    # Minimum spredning
+    apriori_spredning = 0.5 # [mm]
+
+    # Hent tidsserier som skal analyseres baseret på bruger input.
+    try:
+        # Antag først at der er givet en punktsamling
+        punktsamling = fire.cli.firedb.hent_punktsamling(objekt[0])
+    except NoResultFound:
+        # Ellers må det være tidsserier
+        tidsserier = (
+            fire.cli.firedb.session.query(HøjdeTidsserie)
+            .filter(
+                HøjdeTidsserie._registreringtil == None,
+                HøjdeTidsserie.navn.in_(objekt),
+            )
+            .all()
+        )  # NOQA
+
+        if not tidsserier:
+            raise SystemExit("Fandt ingen tidsserier")
+
+        punktsamling = tidsserier[0].punktsamling
+        punktsamling.navn
+        # Tjek at tidsserierne alle har samme jessenpunkt og jessenkote
+        ugyldige_tidsserier = [
+            ts
+            for ts in tidsserier
+            if not (ts.punktsamling.jessenkote == punktsamling.jessenkote
+            and ts.punktsamling.jessenpunkt == punktsamling.jessenpunkt)
+        ]
+
+        if ugyldige_tidsserier:
+            raise SystemExit("Fandt tidsserier i forskellige lokale højdesystemer. Afbryder!")
+
+    else:
+        tidsserier: list[HøjdeTidsserie] = punktsamling.tidsserier
+
+    # Filtrér desuden på minimum antal punkter, da de ikke kan filtreres via SQL
+    tidsserier = [
+        ts
+        for ts in tidsserier
+        if (len(ts) >= nmin )
+    ]
+
+    if not tidsserier:
+        raise SystemExit("Fandt ingen tidsserier")
+
+    for ts in tidsserier:
+        print(f"Fandt {ts.navn}")
+
+    # Beregn lineær regression for alle tidsserier samt statistik til rapportering.
+    ts_statistik = {}
+    ts_fejlende = []
+    for ts in tidsserier:
+        y = [skalafaktor * yy for yy in ts.kote]
+
+        # Divider med 1000, for at få spredninger fra mm til m. Anvend derefter skalafaktor
+        # Hvis spredninger fra databasen er nul (ofte pga. nedrunding i det gamle system),
+        # så anvendes en apriori spredning på 0.5 mm.
+        y_vægte = [1/(skalafaktor * (sy if sy!=0 else apriori_spredning)/1e3)**2  for sy in ts.sz]
+
+        ts.forbered_lineær_regression(ts.decimalår, y, y_vægte = y_vægte)
+
+        try:
+            ts.beregn_lineær_regression()
+        except ValueError as e:
+            print(f"Fejl ved løsning af tidsserien {ts.navn}:\n{e}")
+            # Fjern tidsserien, så man stadig kan se plots af de tidsserier som ikke gav fejl
+            ts_fejlende.append(ts)
+            continue
+
+        ts_statistik[ts.navn] = beregn_statistik_til_hts_rapport(ts)
+
+    tidsserier = list(set(tidsserier)-set(ts_fejlende))
+
+    # Gem statistik
+    if fil:
+        linjer = ""
+        for _, statistik in ts_statistik.items():
+            header = str(statistik).split("\n")[0]
+            linje = str(statistik).split("\n")[1]
+
+            linjer += f"{linje}\n"
+
+        outstr = f"{header}\n{linjer}"
+
+        with open(fil, "w") as f:
+            f.write(outstr)
+
+    if not plot:
+        return
+
+    # Plot punktsamlingens tidsserier
+    plot_tidsserier(punktsamling.navn, tidsserier)
+
+    # Detaljerede plots af analyseresultater for de enkelte tidsrækker.
+    for ts in tidsserier:
+        plot_hts_analyse("Kote [mm]", ts.linreg, ts_statistik[ts.navn])
+
+    return
