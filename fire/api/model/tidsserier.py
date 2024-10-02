@@ -849,27 +849,25 @@ class PolynomieRegression1D:
 
         return y_præd + np.outer([-1, 1], delta_pi)
 
-    def beregn_hypotesetest(
+    def beregn_hypotesetest_hældning(
         self,
-        H0: float = 0,
+        reference_hældning: float = 0,
         alpha: float = 0.05,
         er_samlet: bool = False,
     ) -> "HypoteseTest":
         """
-        Beregn hypotesetest for den estimerede hældning.
+        Test om den estimerede hældning er signifikant forskellig fra en referenceværdi
 
         Returnerer objekt af typen HypoteseTest.
         """
-        if er_samlet:
-            kritiskværdi = beregn_fraktil_for_normalfordeling(1 - alpha / 2)
-        else:
-            kritiskværdi = beregn_fraktil_for_t_fordeling(1 - alpha / 2, self.dof)
-
         std_est = np.sqrt(self.VarBeta(er_samlet)[1])
 
-        return HypoteseTest(
-            H0=H0, alpha=alpha, std_est=std_est, kritiskværdi=kritiskværdi
-        )
+        H0 = reference_hældning - self.beta[1]
+
+        if er_samlet:
+            return Ztest(std_est=std_est, H0=H0, alpha=alpha)
+
+        return Ttest(std_est=std_est, dof=self.dof, H0=H0, alpha=alpha)
 
     def beregn_statistik(self, alpha: float, er_samlet: bool = False) -> None:
         """
