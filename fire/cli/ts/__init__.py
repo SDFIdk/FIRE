@@ -152,3 +152,4 @@ def _udtræk_tidsserie(
 
 
 from .gnss import gnss
+from .hts import hts
