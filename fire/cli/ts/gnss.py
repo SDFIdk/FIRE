@@ -11,13 +11,16 @@ from fire.api.model import (
 from fire.api.model.tidsserier import (
     TidsserieEnsemble,
 )
-from fire.cli.ts._plot_gnss import (
-    plot_gnss_ts,
+from fire.cli.ts.plot_ts import (
+    plot_tidsserie,
     plot_gnss_analyse,
     plot_data,
     plot_fit,
     plot_konfidensbånd,
-    GNSS_TS_PLOTTING_LABELS,
+    TS_PLOTTING_LABELS,
+)
+from fire.cli.ts.statistik_ts import (
+    beregn_statistik_til_gnss_rapport,
 )
 
 from fire.cli.ts import (
@@ -275,7 +278,7 @@ def plot_gnss(tidsserie: str, plottype: str, parametre: str, **kwargs) -> None:
 
     parametre = [GNSS_TS_ANALYSERBARE_PARAMETRE[parm] for parm in parametre]
 
-    plot_gnss_ts(tidsserie, plot_funktioner[plottype], parametre)
+    plot_tidsserie(tidsserie, plot_funktioner[plottype], parametre, y_enhed="mm")
 
 
 @ts.command()
@@ -737,5 +740,5 @@ def analyse_gnss(
     # Plot analyseresultater
     for _, ts in tsensemble.tidsserier.items():
         plot_gnss_analyse(
-            GNSS_TS_PLOTTING_LABELS[parameter], ts.linreg, alpha, er_samlet=True
+            TS_PLOTTING_LABELS[parameter], ts.linreg, alpha, er_samlet=True
         )
