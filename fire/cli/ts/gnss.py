@@ -302,8 +302,8 @@ filen skal være adskilt af linjeskift. (\\\\n)",
     help="Vælg hvilken tidsserieparameter der skal undersøges, fx u for ellipsoidehøjde.",
 )
 @click.option(
-    "--ofil",
-    "-o",
+    "--fil",
+    "-f",
     required=False,
     type=click.Path(writable=True),
     help="Skriv beregnet tidsseriestatistik til csv-fil.",
@@ -381,7 +381,7 @@ def analyse_gnss(
     referenceramme: str,
     uplift_station: click.Path,
     uplift_grid: click.Path,
-    ofil: click.Path,
+    fil: click.Path,
     min_antal_punkter: int,
     alpha: float,
     binsize: int,
@@ -396,7 +396,7 @@ def analyse_gnss(
     Der beregnes som udgangspunkt et lineært fit til tidsserierne, der sammenlignes med en
     uplift-model og derefter vises i et detaljeret plot med konfidensbånd og diverse andre
     kvalitetsparametre for fittet. Resultaterne gemmes i csv-format hvis en sti angives
-    med ``--ofil``.
+    med ``--fil``.
 
     Alle tidsserieparametre som er indeholdt i FIRE kan analyseres. Af størst relevans er
     Op-retningen (``u``), men der kan også vælges de andre geografiske dimensioner nord og
@@ -615,6 +615,9 @@ def analyse_gnss(
     t-fordeling med fraktilen :math:`T_{1-\\alpha/2}`.
 
     """
+    if not plot and not fil:
+        raise SystemExit("Både plotting og skrivning af statistik til disk er fravalgt. Der er intet at foretage.")
+
     # denne funktion regner altid på 5D punkter. Kan evt. udvides.
     tidsseriegruppe = "5D"
 
@@ -663,21 +666,80 @@ def analyse_gnss(
 
         query = query.filter(GNSSTidsserie.navn.in_(tidsserienavne))
 
-    tidsserier = query.all()
+    tidsserier: list[GNSSTidsserie] = query.all()
 
     # Filtrér desuden på tidsseriegruppe og min_antal_punkter, da de ikke kan filtreres via SQL
     tidsserier = [
         ts
         for ts in tidsserier
-        if (
-            ts.tidsseriegruppe == tidsseriegruppe
-            and len(ts.koordinater) >= min_antal_punkter
-        )
+        if (ts.tidsseriegruppe == tidsseriegruppe and len(ts) >= min_antal_punkter)
     ]
 
     if not tidsserier:
         raise SystemExit("Fandt ingen tidsserier")
 
+    # Indlæs uplift værdier
+    if parameter == "u":
+        uplift_reference = læs_uplift_for_tidsserier(tidsserier, uplift_station, uplift_grid)
+
+    # Beregn lineær regression for alle tidsserier
+    for ts in tidsserier:
+        y = [skalafaktor * yy for yy in getattr(ts, parameter)]
+        ts.forbered_lineær_regression(ts.decimalår, y, grad=grad, binsize=binsize)
+
+        reference_hældning = 0
+        if parameter == "u":
+            reference_hældning = uplift_reference[ts.navn]
+
+        try:
+            ts.beregn_lineær_regression()
+        except ValueError as e:
+            print(f"Fejl ved løsning af tidsserien {ts.navn}:\n{e}")
+            continue
+
+        tsensemble.tilføj_tidsserie(ts)
+
+    # Beregner samlet varians og opdaterer alle tidsserier med samlet varians
+    try:
+        tsensemble.beregn_samlet_varians()
+    except ValueError as e:
+        raise SystemExit(e)
+
+    # Beregner statistik for alle tidsserier i ensemble
+    ts_statistik = {}
+    for _, ts in tsensemble.tidsserier.items():
+        reference_hældning = 0
+        if parameter == "u":
+            reference_hældning = uplift_reference[ts.navn]
+
+        ts_statistik[ts.navn] = beregn_statistik_til_gnss_rapport(ts, alpha=alpha, reference_hældning=reference_hældning, er_samlet=True)
+
+
+    # Gem statistik
+    if fil:
+        linjer = ""
+        for _, statistik in ts_statistik.items():
+            header = str(statistik).split("\n")[0]
+            linje = str(statistik).split("\n")[1]
+
+            linjer += f"{linje}\n"
+
+        outstr = f"{header}\n{linjer}"
+
+        with open(fil, "w") as f:
+            f.write(outstr)
+
+    if not plot:
+        return
+
+    # Plot analyseresultater
+    for _, ts in tsensemble.tidsserier.items():
+        plot_gnss_analyse(
+            TS_PLOTTING_LABELS[parameter], ts.linreg, ts_statistik[ts.navn], alpha, er_samlet=True
+        )
+
+def læs_uplift_for_tidsserier(tidsserier: list[Tidsserie], uplift_station: Path, uplift_grid: Path):
+    """Hjælpefunktion for analyse-gnss til indlæsning af uplift værdier"""
     # Læs uplift-værdier som brugeren eksplicit har givet pr. station.
     uplift_rate_station = {}
     if uplift_station:
@@ -707,38 +769,4 @@ def analyse_gnss(
 
         uplift_reference[ts.navn] = uplift_rate_interpoleret
 
-    ts: GNSSTidsserie
-    for ts in tidsserier:
-        y = [skalafaktor * yy for yy in getattr(ts, parameter)]
-        ts.forbered_lineær_regression(ts.decimalår, y, grad=grad, binsize=binsize)
-
-        if parameter == "u":
-            ts.linreg.hældning_reference = uplift_reference[ts.navn]
-
-        try:
-            ts.beregn_lineær_regression()
-        except ValueError as e:
-            print(f"Fejl ved løsning af tidsserien {ts.navn}:\n{e}")
-            continue
-
-        tsensemble.tilføj_tidsserie(ts)
-
-    try:
-        tsensemble.beregn_samlet_varians()
-    except ValueError as e:
-        raise SystemExit(e)
-
-    # Gem statistik
-    if ofil:
-        outstr = tsensemble.generer_statistik_streng_ensemble(alpha=alpha)
-        with open(ofil, "w") as f:
-            f.write(outstr)
-
-    if not plot:
-        return
-
-    # Plot analyseresultater
-    for _, ts in tsensemble.tidsserier.items():
-        plot_gnss_analyse(
-            TS_PLOTTING_LABELS[parameter], ts.linreg, alpha, er_samlet=True
-        )
+    return uplift_reference
