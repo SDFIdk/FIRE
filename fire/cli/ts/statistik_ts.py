@@ -60,6 +60,14 @@ class StatistikGnssSamlet(StatistikGnss):
     Z_test_kritiskværdi: float
 
 
+@dataclass
+class StatistikHts(Statistik):
+    Start: datetime
+    Slut: datetime
+    er_bevægelse_signifikant: bool
+    alpha_bevægelse_signifikant: float
+
+
 def beregn_statistik_til_gnss_rapport(
     tidsserie: GNSSTidsserie,
     alpha: float,
@@ -133,3 +141,48 @@ def beregn_statistik_til_gnss_rapport(
     return statistik_samlet
 
 
+def beregn_statistik_til_hts_rapport(tidsserie: HøjdeTidsserie) -> StatistikHts:
+    """
+    Metode til samlet beregning af statistik for en HøjdeTidsserie
+
+    Kalder den lineære regressions beregningsmetoder og returnerer de nødvendige
+    statistik-parametre til brug i rapportering.
+
+    NB! Konfidensintervaller, Trend-test og stabilitetstest foretages med default
+    værdier for signifikansniveau, men der skal muligvis gives mulighed for at kunne
+    indstille på dem.
+
+    """
+    linreg = tidsserie.linreg
+
+    trend_test = tidsserie.signifikant_trend_test()
+
+    # Er ikke samlet
+    var_beta = linreg.VarBeta(er_samlet=False)[1]
+    std_beta = np.sqrt(var_beta)
+    konfidensinterval = linreg.beregn_konfidensinterval(er_samlet=False)
+
+    statistik = StatistikHts(
+        TidsserieID=tidsserie.navn,
+        Ident=tidsserie.punkt.ident,
+        N=len(tidsserie),
+        dof=linreg.dof,
+        ddof=linreg.ddof,
+        grad=linreg.grad,
+        R2=linreg.R2,
+        var_0=linreg.var0,
+        std_0=np.sqrt(linreg.var0),
+        hældning=linreg.beta[1],
+        var_hældning=var_beta,
+        std_hældning=std_beta,
+        ki_hældning_nedre=konfidensinterval[0, 1],
+        ki_hældning_øvre=konfidensinterval[1, 1],
+        mex=linreg.mex,
+        mey=linreg.mey,
+        Start=tidsserie.t[0],
+        Slut=tidsserie.t[-1],
+        er_bevægelse_signifikant=not trend_test.H0accepteret,
+        alpha_bevægelse_signifikant=trend_test.alpha,
+    )
+
+    return statistik
