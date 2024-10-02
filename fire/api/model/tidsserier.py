@@ -1022,3 +1022,20 @@ class HøjdeTidsserie(Tidsserie):
         Spredning givet i milimeter.
         """
         return [k.sz for k in self.koordinater]
+
+    def forbered_lineær_regression(self, x: list[float], y: list[float], **kwargs) -> None:
+        """
+        Opret "linreg" attribut af typen PolynomieRegression1D på tidsserien.
+
+        Initialiserer en simpel PolynomieRegression i 1 dimension, dvs. med én
+        forklarende variabel x, og én afhængig variabel y.
+        """
+        self.linreg = PolynomieRegression1D(x, y, **kwargs)
+
+    def beregn_lineær_regression(self) -> None:
+        """
+        Løs tidsseriens lineære regression.
+
+        Forudsætter at denne er initialiseret med "forbered_lineær_regression(...)".
+        """
+        self.linreg.solve()
