@@ -1039,3 +1039,16 @@ class HøjdeTidsserie(Tidsserie):
         Forudsætter at denne er initialiseret med "forbered_lineær_regression(...)".
         """
         self.linreg.solve()
+
+    def signifikant_trend_test(self, alpha: float = 0.01) -> "HypoteseTest":
+        """
+        Test om punktets trend er signifikant forskellig fra 0.
+
+        NB! Dette er en implementering af en gammel test. Førhen anvendtes den kritiske
+        værdi TREND_SD_MULTIPLIER = 2.5 Nu anvendes T-test med signifikansniveau på 1 %,
+        hvilket svarer til en kritisk værdi på 2.58 (for dof>>1).
+        """
+
+        return self.linreg.beregn_hypotesetest_hældning(
+            reference_hældning=0, alpha=alpha
+        )
