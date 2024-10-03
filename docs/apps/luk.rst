@@ -17,3 +17,11 @@ typer objekter i databasen.
 .. click:: fire.cli.luk:observation
   :prog: fire luk observation
   :show-nested:
+
+.. click:: fire.cli.luk:tidsserie
+  :prog: fire luk tidsserie
+  :show-nested:
+
+.. click:: fire.cli.luk:punktsamling
+  :prog: fire luk punktsamling
+  :show-nested:
