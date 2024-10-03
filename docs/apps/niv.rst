@@ -92,19 +92,25 @@ kommunal vedligeholdsopgave.
   ændre eller tilføje en attribut til et punkt. Se :ref:`tabsmelding` for et
   detaljeret eksempel.
 
+.. note::
+  Se :ref:`punktsamlinger` for hvordan du arbejde med tidsserier og punktsamlinger. For nærmere info om hvordan punktsamlinger og tidsserier hænger
+  sammen på databaseniveau, se :ref:`tidsserier_og_punktsamlinger`.
+
 .. click:: fire.cli.niv:opret_sag
   :prog: fire niv opret-sag
   :nested: full
 
-
+.. _udtræk_revision:
 .. click:: fire.cli.niv:udtræk_revision
   :prog: fire niv udtræk-revision
   :nested: full
 
+.. _ilæg_revision:
 .. click:: fire.cli.niv:ilæg_revision
   :prog: fire niv ilæg-revision
   :nested: full
 
+.. _ilæg_nye_punkter:
 .. click:: fire.cli.niv:ilæg_nye_punkter
   :prog: fire niv ilæg-nye-punkter
   :nested: full

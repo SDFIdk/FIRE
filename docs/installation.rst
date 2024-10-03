@@ -107,7 +107,7 @@ få adgang til dem på sin Windows-maskine.
 
     Dette afsnit er valgfri. Hvis du klarer dig fint med kommandoudvalget under
     Windows er dette ikke nødvendigt og du kan spring til selve installationen af
-    FIRE i :ref:`næste afsnit <fire-install>`. 
+    FIRE i :ref:`næste afsnit <fire-install>`.
 
 Linuxkommandoerne følger med Git der blev installeret i et af de tidligere skridt.
 Desværre er de ikke som udgangspunkt tilgængelige i vores terminal.
@@ -310,6 +310,7 @@ Bekræft at installation er gennemført korrekt
     Du kan med andre ord starte i dén mappe, du arbejder i og køre
     aktiverings-kommandoen herfra.
 
+.. _opdatering:
 
 Opdatering
 ++++++++++
@@ -353,7 +354,7 @@ praksis ved at fjerne miljøet ``fire``:
 
 .. note::
 
-    Hvis ``fire``-miljøet er aktiveret, skal det først deaktivers før det er 
+    Hvis ``fire``-miljøet er aktiveret, skal det først deaktivers før det er
     muligt at slette det. Gøres med kommandoen::
 
         (fire) C:\>mamba deactivate

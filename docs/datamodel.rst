@@ -471,6 +471,7 @@ præcist hvilke observationer der ligger til grund for en bestemt Koordinat.
 
         }
 
+.. _tidsserier_og_punktsamlinger:
 
 Tidsserier og PunktSamlinger
 ------------------------------
