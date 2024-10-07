@@ -745,22 +745,24 @@ def ilæg_punktsamling(
             advarsel_ligmed = (
                 f"Advarsel! {pktsamling.navn} indeholder de samme punkter som: {ligmed}"
             )
+            fire.cli.print(advarsel_ligmed, fg="black", bg="yellow")
 
         if superset:
             superset = ", ".join(superset)
             advarsel_superset = (
                 f"Advarsel! Punkterne i {pktsamling.navn} er et superset af: {superset}"
             )
+            fire.cli.print(advarsel_superset, fg="black", bg="yellow")
 
         if subset:
             subset = ", ".join(subset)
             advarsel_subset = (
                 f"Advarsel! Punkterne i {pktsamling.navn} er en delmængde af: {subset}"
             )
+            fire.cli.print(advarsel_subset, fg="black", bg="yellow")
 
-        fire.cli.print(advarsel_ligmed, fg="black", bg="yellow")
-        fire.cli.print(advarsel_superset, fg="black", bg="yellow")
-        fire.cli.print(advarsel_subset, fg="black", bg="yellow")
+        if not (ligmed or superset or subset):
+            continue
 
         spørgsmål = click.style(
             f"Er du sikker på at du vil ilægge {pktsamling.navn}?", fg="white", bg="red"
