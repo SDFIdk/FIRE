@@ -477,7 +477,7 @@ def udtræk_punktsamling(
     if punktsamlingsnavn:
         # Find den valgte punktsamling. Hvis brugeren har valgt et jessenpunkt, ignoreres det
         try:
-            punktsamlinger = list(fire.cli.firedb.hent_punktsamling(punktsamlingsnavn))
+            punktsamlinger = [fire.cli.firedb.hent_punktsamling(punktsamlingsnavn)]
         except NoResultFound:
             fire.cli.print(
                 f"FEJL! Punktsamling {punktsamlingsnavn} ikke fundet!",
