@@ -502,7 +502,7 @@ class GNSSTidsserie(Tidsserie):
         """
         x_binned, y_binned = self.binning(x, y, **kwargs)
 
-        self.linreg = PolynomieRegression1D(self, x_binned, y_binned, **kwargs)
+        self.linreg = PolynomieRegression1D(x_binned, y_binned, **kwargs)
 
     def beregn_lineær_regression(self) -> None:
         """
@@ -541,7 +541,7 @@ class TidsserieEnsemble:
         """Valider en tidsserie inden indsættelse i ensemblet."""
         if (
             not isinstance(tidsserie, self.tidsserieklasse)
-            or (len(tidsserie.koordinater) < self.min_antal_punkter)
+            or (len(tidsserie) < self.min_antal_punkter)
             or (tidsserie.tidsseriegruppe != self.tidsseriegruppe)
             or (tidsserie.referenceramme != self.referenceramme)
         ):
@@ -585,81 +585,24 @@ class TidsserieEnsemble:
         for ts in self.tidsserier.values():
             ts.linreg.var_samlet = self.var_samlet
 
-    def generer_statistik_streng_ensemble(self, alpha: float) -> str:
-        """Generér statistikstreng for ensemblets tidsseriers linreg-attribut."""
-
-        linjer = ""
-
-        for ts in self.tidsserier.values():
-            header, linje = ts.linreg.generer_statistik_streng(
-                alpha=alpha, er_samlet=True
-            )
-
-            linjer += f"{linje}\n"
-
-        return f"{header}\n{linjer}"
-
 
 class PolynomieRegression1D:
     """
     Foretag lineær regression over en tidsserie.
     """
-
-    @dataclass
-    class Statistik:
-        TidsserieID: str
-        GPSNR: str
-        N: int
-        N_binned: int
-        dof: int
-        ddof: int
-        grad: int
-        R2: float
-        var_0: float
-        std_0: float
-        reference_hældning: float
-        hældning: float
-        var_hældning: float
-        std_hældning: float
-        ki_hældning_nedre: float
-        ki_hældning_øvre: float
-        mex: float
-        mey: float
-        T_test_accepteret: bool
-
-        def __str__(self):
-            header = ", ".join([str(field.name) for field in fields(self)])
-            linje = ", ".join(
-                [str(getattr(self, field.name)) for field in fields(self)]
-            )
-            return f"{header}\n{linje}"
-
-
-    @dataclass
-    class StatistikSamlet:
-        var_samlet: float
-        std_samlet: float
-        var_hældning_samlet: float
-        std_hældning_samlet: float
-        ki_hældning_nedre_samlet: float
-        ki_hældning_øvre_samlet: float
-        Z_test_accepteret: bool
-
-        def __str__(self):
-            header = ", ".join([str(field.name) for field in fields(self)])
-            linje = ", ".join(
-                [str(getattr(self, field.name)) for field in fields(self)]
-            )
-            return f"{header}\n{linje}"
-
-
-    def __init__(self, tidsserie: Tidsserie, x: list, y: list, grad: int = 1, **kwargs):
-        self.tidsserie = tidsserie
+    def __init__(
+        self,
+        x: list[float],
+        y: list[float],
+        y_vægte: float | list[float] = 1,
+        grad: int = 1,
+        **kwargs,
+    ):
         self.x = np.array(x)
         self.y = np.array(y)
         self.grad = grad
-        self.hældning_reference = float("inf")
 
+        self._y_vægte = np.array(y_vægte)
         self._var0 = None
         self.var_samlet = None
 
@@ -669,23 +612,35 @@ class PolynomieRegression1D:
         return P.polyvander(self.x, self.grad)
 
     @functools.cached_property
+    def _W(self) -> np.ndarray:
+        """
+        Returner diagonalen af vægtmatricen W
+
+        Hvis vægtene er udefineret returneres enhedsmatricen. Pt. understøttes kun
+        ukorrelerede observationer, dvs. at vægtmatricen er en diagonalmatrix.
+        """
+        return np.ones(self.N) * self._y_vægte
+
+    @functools.cached_property
     def _invATA(self) -> np.ndarray:
         """
-        Returner den inverse matrix af størrelsen (A^T * A)
+        Returner den inverse matrix af størrelsen (A^T * W * A)
 
-        A er designmatricen for regressionen.
+        A er designmatricen for regressionen. W er vægtmatricen for observationerne.
         """
-        return np.linalg.inv(self._A.T @ self._A)
+        return np.linalg.inv(self._A.T @ np.diag(self._W) @ self._A)
 
     def solve(self) -> None:
         """Løs hvad løses skal"""
-
-        self.beta, [SSR, _, _, _] = P.polyfit(self.x, self.y, self.grad, full=True)
 
         if self.dof <= 0:
             raise ValueError(
                 "Antallet af punkter er mindre end eller lig antallet af parametre."
             )
+
+        self.beta, [SSR, _, _, _] = P.polyfit(
+            self.x, self.y, self.grad, full=True, w=self._W
+        )
 
         if SSR.size == 0:
             raise ValueError(
@@ -693,9 +648,8 @@ class PolynomieRegression1D:
                 "eller sætte polynomiegraden ned."
             )
 
-        # Bruger item() istedet for SSR[0], så der smides fejl hvis SSR mod forventning
-        # har mere end 1 element.
-        self.SSR = SSR.item()
+        self.residualer = self.y - self.beregn_prædiktioner(self.x)
+        self.SSR = np.dot(self._W, self.residualer**2)
 
         self._var0 = self.SSR / self.dof
         self.var_samlet = self._var0
@@ -746,6 +700,10 @@ class PolynomieRegression1D:
         Kovariansmatricen har følgende struktur:
         COV =  [[Var(β₀)    , Cov(β₀,β₁)],
                 [Cov(β₁, β₀), Var(β₁)   ]]
+
+        Kovariansmatricen beregnes som:
+            COV = Var * (A^T * W * A)^(-1), hvor Var=SSR/dof
+        Se fx. https://en.wikipedia.org/wiki/Weighted_least_squares#Parameter_errors_and_correlation
         """
         if er_samlet is False:
             var = self.var0
@@ -828,104 +786,36 @@ class PolynomieRegression1D:
 
         return y_præd + np.outer([-1, 1], delta_pi)
 
-    def beregn_hypotesetest(
+    def beregn_hypotesetest_hældning(
         self,
-        H0: float = 0,
+        reference_hældning: float = 0,
         alpha: float = 0.05,
         er_samlet: bool = False,
     ) -> "HypoteseTest":
         """
-        Beregn hypotesetest for den estimerede hældning.
+        Test om den estimerede hældning er signifikant forskellig fra en referenceværdi
 
         Returnerer objekt af typen HypoteseTest.
         """
-        if er_samlet:
-            kritiskværdi = beregn_fraktil_for_normalfordeling(1 - alpha / 2)
-        else:
-            kritiskværdi = beregn_fraktil_for_t_fordeling(1 - alpha / 2, self.dof)
-
         std_est = np.sqrt(self.VarBeta(er_samlet)[1])
 
-        return HypoteseTest(
-            H0=H0, alpha=alpha, std_est=std_est, kritiskværdi=kritiskværdi
-        )
+        H0 = reference_hældning - self.beta[1]
 
-    def beregn_statistik(self, alpha: float, er_samlet: bool = False) -> None:
-        """
-        Metode til samlet beregning af statistik for tidsserien
+        if er_samlet:
+            return Ztest(std_est=std_est, H0=H0, alpha=alpha)
 
-        Resultaterne gemmes i `dict`-instanserne `self.statistik` og
-        `self.statistik_samlet`.
-        """
-
-        H0 = self.hældning_reference - self.beta[1]
-
-        # Er ikke samlet
-        var_beta = self.VarBeta(er_samlet=False)[1]
-        std_beta = np.sqrt(var_beta)
-        konfidensinterval = self.beregn_konfidensinterval(alpha, er_samlet=False)
-        T_test = self.beregn_hypotesetest(H0, alpha, er_samlet=False)
-
-        self.statistik = self.Statistik(
-            TidsserieID=self.tidsserie.navn,
-            GPSNR=self.tidsserie.punkt.gnss_navn,
-            N=len(self.tidsserie.koordinater),
-            N_binned=self.N,
-            dof=self.dof,
-            ddof=self.ddof,
-            grad=self.grad,
-            R2=self.R2,
-            var_0=self.var0,
-            std_0=np.sqrt(self.var0),
-            reference_hældning=self.hældning_reference,
-            hældning=self.beta[1],
-            var_hældning=var_beta,
-            std_hældning=std_beta,
-            ki_hældning_nedre=konfidensinterval[0, 1],
-            ki_hældning_øvre=konfidensinterval[1, 1],
-            mex=self.mex,
-            mey=self.mey,
-            T_test_accepteret=T_test.H0accepteret,
-        )
-
-        # er_samlet
-        if not er_samlet:
-            return
-
-        var_beta_samlet = self.VarBeta(er_samlet=True)[1]
-        std_beta_samlet = np.sqrt(var_beta_samlet)
-        konfidensinterval_samlet = self.beregn_konfidensinterval(alpha, er_samlet=True)
-        Z_test = self.beregn_hypotesetest(H0, alpha, er_samlet=True)
-
-        self.statistik_samlet = self.StatistikSamlet(
-            var_samlet=self.var_samlet,
-            std_samlet=np.sqrt(self.var_samlet),
-            var_hældning_samlet=var_beta_samlet,
-            std_hældning_samlet=std_beta_samlet,
-            ki_hældning_nedre_samlet=konfidensinterval_samlet[0, 1],
-            ki_hældning_øvre_samlet=konfidensinterval_samlet[1, 1],
-            Z_test_accepteret=Z_test.H0accepteret,
-        )
-
-    def generer_statistik_streng(self, **kwargs) -> Tuple[str, str]:
-        """Genererer statistikstreng for tidsserien"""
-        self.beregn_statistik(**kwargs)
-
-        header = str(self.statistik).split("\n")[0]
-        linje = str(self.statistik).split("\n")[1]
-
-        if hasattr(self, "statistik_samlet"):
-            header += ", " + str(self.statistik_samlet).split("\n")[0]
-            linje += ", " + str(self.statistik_samlet).split("\n")[1]
-
-        return header, linje
+        return Ttest(std_est=std_est, dof=self.dof, H0=H0, alpha=alpha)
 
 
 class HypoteseTest:
     """Foretag statistisk hypotesetest."""
 
     def __init__(
-        self, std_est: float, kritiskværdi: float, H0: float = 0, alpha: float = 0.05
+        self,
+        std_est: float,
+        kritiskværdi: float,
+        H0: float = 0,
+        alpha: float = 0.05,
     ):
         self.H0 = H0
         self.alpha = alpha
@@ -948,6 +838,30 @@ class HypoteseTest:
         sandsynlighed adskiller sig fra referencen.
         """
         return bool(self.score < self.kritiskværdi)
+
+
+class Ztest(HypoteseTest):
+    """Foretag statistisk Z-test"""
+
+    def __init__(self, std_est: float, H0: float = 0, alpha: float = 0.05):
+
+        kritiskværdi = beregn_fraktil_for_normalfordeling(1 - alpha / 2)
+        super().__init__(std_est, kritiskværdi, H0, alpha)
+
+
+class Ttest(HypoteseTest):
+    """Foretag statistisk T-test"""
+
+    def __init__(
+        self,
+        std_est: float,
+        dof: int,
+        H0: float = 0,
+        alpha: float = 0.05,
+    ):
+        self.dof = dof
+        kritiskværdi = beregn_fraktil_for_t_fordeling(1 - alpha / 2, dof)
+        super().__init__(std_est, kritiskværdi, H0, alpha)
 
 
 class HøjdeTidsserie(Tidsserie):
@@ -975,3 +889,33 @@ class HøjdeTidsserie(Tidsserie):
         Spredning givet i milimeter.
         """
         return [k.sz for k in self.koordinater]
+
+    def forbered_lineær_regression(self, x: list[float], y: list[float], **kwargs) -> None:
+        """
+        Opret "linreg" attribut af typen PolynomieRegression1D på tidsserien.
+
+        Initialiserer en simpel PolynomieRegression i 1 dimension, dvs. med én
+        forklarende variabel x, og én afhængig variabel y.
+        """
+        self.linreg = PolynomieRegression1D(x, y, **kwargs)
+
+    def beregn_lineær_regression(self) -> None:
+        """
+        Løs tidsseriens lineære regression.
+
+        Forudsætter at denne er initialiseret med "forbered_lineær_regression(...)".
+        """
+        self.linreg.solve()
+
+    def signifikant_trend_test(self, alpha: float = 0.01) -> "HypoteseTest":
+        """
+        Test om punktets trend er signifikant forskellig fra 0.
+
+        NB! Dette er en implementering af en gammel test. Førhen anvendtes den kritiske
+        værdi TREND_SD_MULTIPLIER = 2.5 Nu anvendes T-test med signifikansniveau på 1 %,
+        hvilket svarer til en kritisk værdi på 2.58 (for dof>>1).
+        """
+
+        return self.linreg.beregn_hypotesetest_hældning(
+            reference_hældning=0, alpha=alpha
+        )

@@ -58,10 +58,9 @@ def test_binning(x, x_binned_forventet):
 
 def test_normaliser_data():
     """Test at intet data ligger uden for a eller b intervalgrænserne."""
-    tidsserie = Tidsserie()
     x = np.linspace(2000, 2020, 1000)
     y = np.logspace(-3, 3, 1000)
-    lr = PolynomieRegression1D(tidsserie, x, y, grad=1)
+    lr = PolynomieRegression1D(x, y, grad=1)
 
     a, b = -10, 10
     x_norm, y_norm = lr.normaliser_data(a, b)
@@ -78,12 +77,11 @@ def test_initialiser_HypoteseTest():
     kritiskværdi = beregn_fraktil_for_normalfordeling(1 - alpha / 2)
     std_est = 4.321
     H0 = 1.234
-    hypotesetest = HypoteseTest(std_est, kritiskværdi, H0, alpha)
+    hypotesetest = HypoteseTest(std_est, kritiskværdi, H0)
 
     assert hypotesetest.std_est == std_est
     assert hypotesetest.kritiskværdi == kritiskværdi
     assert hypotesetest.H0 == H0
-    assert hypotesetest.alpha == alpha
 
     assert hasattr(hypotesetest, "score")
     assert isinstance(hypotesetest.score, float)
@@ -93,16 +91,13 @@ def test_initialiser_HypoteseTest():
 
 def test_initialiser_PolynomieRegression1D():
     """Test funktionalitet ved brug af klassen PolynomieRegression1D"""
-    tidsserie = Tidsserie()
     x = [1, 2, 4, 5, 7]
     y = [1, 2, 3, 4, 5]
     grad = 1
 
-    lr = PolynomieRegression1D(tidsserie, x, y, grad)
+    lr = PolynomieRegression1D(x, y, grad=grad)
 
     assert isinstance(lr, PolynomieRegression1D)
-    assert lr.tidsserie is not None
-    assert lr.hældning_reference == float("inf")
 
 
 def test_initialiser_TidsserieEnsemble():
@@ -165,7 +160,6 @@ def test_fit_af_kendt_model(grad):
     inverse problem.
     """
 
-    tidsserie = Tidsserie()
     x = np.linspace(-1, 1, 1000)
 
     # Generer tilfældige polynomiekoefficienter i intervallerne [-10, -1] og [1, 10] (Må
@@ -175,7 +169,7 @@ def test_fit_af_kendt_model(grad):
 
     y = P.polyval(x, koeffs)
 
-    lr = PolynomieRegression1D(tidsserie, x, y, grad=grad)
+    lr = PolynomieRegression1D(x, y, grad=grad)
 
     lr.solve()
 
@@ -203,15 +197,13 @@ def test_fit_af_kendt_model(grad):
             "Antallet af punkter er mindre end eller lig antallet af parametre",
         ),
         (1, [1, 1, 1], [1, 1, 1], "for lav rang"),
-        (1, None, np.array([[1, 2, 4], [1, 2, 4]]).T, ""),
     ],
 )
-def test_fit_model_fejlhåndtering(grad, y, match, x):
-    tidsserie = Tidsserie()
+def test_fit_model_fejlhåndtering(grad, x, y, match):
     if x is None:
         x = [1, 2, 4]
 
-    lr = PolynomieRegression1D(tidsserie, x, y, grad)
+    lr = PolynomieRegression1D(x, y, grad=grad)
 
     with pytest.raises(ValueError, match=match):
         lr.solve()
@@ -219,11 +211,10 @@ def test_fit_model_fejlhåndtering(grad, y, match, x):
 
 def test_beregning_af_R2():
     """Test af bestemmelseskoefficienten R²"""
-    tidsserie = Tidsserie()
     x = np.linspace(0, 200, 1000)
 
     # y er konstant
-    lr = PolynomieRegression1D(tidsserie, x, x**0, grad=1)
+    lr = PolynomieRegression1D(x, x**0, grad=1)
     lr.solve()
 
     # Test at der smides en Runtimewarning med en besked hvor der står noget om
@@ -232,7 +223,7 @@ def test_beregning_af_R2():
         lr.R2
 
     # y er stigende
-    lr = PolynomieRegression1D(tidsserie, x, x, grad=1)
+    lr = PolynomieRegression1D(x, x, grad=1)
     lr.solve()
 
     # Modificerer hældningen og genberegner residualerne.
@@ -256,7 +247,7 @@ def test_matrix_algebra_i_PolynomieRegression1D(firedb, grad):
 
     x_præd = np.linspace(x[0], x[-1], 100)
 
-    lr = PolynomieRegression1D(ts, x, y, grad=grad)
+    lr = PolynomieRegression1D(x, y, grad=grad)
 
     # Normaliser data så polynomier af høj grad ikke giver numeriske problemer
     lr.x, lr.y = lr.normaliser_data()
@@ -298,47 +289,13 @@ def test_matrix_algebra_i_PolynomieRegression1D(firedb, grad):
 
 
 def test_beregn_hypotesetest_i_PolynomieRegression1D():
-    tidsserie = Tidsserie()
     x = np.linspace(-1, 1, 1000)
-    lr = PolynomieRegression1D(tidsserie, x, x, grad=1)
+    lr = PolynomieRegression1D(x, x, grad=1)
     lr.solve()
 
-    hyptest = lr.beregn_hypotesetest()
+    hyptest = lr.beregn_hypotesetest_hældning()
 
     assert isinstance(hyptest, HypoteseTest)
-
-
-def test_beregn_statistik_i_PolynomieRegression1D(gnsstidsserie):
-
-    x = np.linspace(-1, 1, 1000)
-    lr = PolynomieRegression1D(gnsstidsserie, x, x, grad=1)
-    lr.solve()
-    lr.beregn_statistik(alpha=0.05)
-
-    assert hasattr(lr, "statistik")
-    assert isinstance(lr.statistik, PolynomieRegression1D.Statistik)
-
-    # Test at den først opretter statistik_samlet når man beder om det.
-    with pytest.raises(AttributeError):
-        lr.statistik_samlet
-
-    lr.beregn_statistik(alpha=0.05, er_samlet=True)
-
-    assert hasattr(lr, "statistik_samlet")
-    assert isinstance(lr.statistik_samlet, PolynomieRegression1D.StatistikSamlet)
-
-
-def test_generer_statistik_streng_i_PolynomieRegression1D(gnsstidsserie):
-    x = np.linspace(-1, 1, 1000)
-    lr = PolynomieRegression1D(gnsstidsserie, x, x, grad=1)
-    lr.solve()
-
-    hoved, krop = lr.generer_statistik_streng(alpha=0.05, er_samlet=True)
-
-    assert isinstance(hoved, str)
-    assert isinstance(krop, str)
-    assert len(hoved) != 0
-    assert len(krop) != 0
 
 
 # TidsserieEnsemble
@@ -407,6 +364,7 @@ def test_tilføj_dårlig_tidsserie_i_TidsserieEnsemble(
 
     firedb.session.rollback()
 
+
 def test_beregn_samlet_varians_i_TidsserieEnsemble(firedb):
     """Test beregninger af samlet varians for ensemblet."""
 
@@ -440,26 +398,3 @@ def test_beregn_samlet_varians_i_TidsserieEnsemble(firedb):
 
     assert ts_ensemble.var_samlet is not None
     assert ts.linreg.var_samlet is not None
-
-
-def test_generer_statistik_streng_TidsserieEnsemble(firedb):
-    """Test at der kan genereres en streng med statistik i."""
-    ts_ensemble = TidsserieEnsemble(
-        GNSSTidsserie,
-        min_antal_punkter=3,
-        tidsseriegruppe="5D",
-        referenceramme="IGb08",
-    )
-
-    ts = firedb.hent_tidsserie("RDIO_5D_IGb08")
-    ts.forbered_lineær_regression(ts.decimalår, ts.u)
-    ts.linreg.solve()
-
-    ts_ensemble.tilføj_tidsserie(ts)
-
-    ts_ensemble.beregn_samlet_varians()
-    statistik_streng = ts_ensemble.generer_statistik_streng_ensemble(alpha=0.05)
-
-    assert statistik_streng is not None
-    assert isinstance(statistik_streng, str)
-    assert len(statistik_streng) != 0
