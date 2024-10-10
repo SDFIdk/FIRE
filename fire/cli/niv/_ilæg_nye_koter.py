@@ -80,8 +80,11 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     registreres ikke direkte i databasen. Denne information er dog tilgængelig i
     sagsregnearket, der lagres i databasen når sagen lukkes.
 
-    Hvis fanen "Højdetidsserier" er til stede, anvendes denne til at bestemme hvilke
-    tidsserier som koterne skal knyttes til.
+    Hvis koternes System er sat til "Jessen", så har programmet brug for at kende navnene
+    på de Højdetidsserier som koterne skal tilknyttes. Dette angives i fanen
+    "Højdetidsserier". Programmet tjekker samtidig, at oplysningerne om Højdetidsserierne
+    i fanen er korrekte. Herunder, om den endelige beregnings fastholdte punkt og kote
+    stemmer overens med Højdetidsseriernes jessenpunkt og referencekote.
     """
     er_projekt_okay(projektnavn)
     sag = find_sag(projektnavn)
