@@ -137,7 +137,7 @@ HØJDETIDSSERIE: ArkDefinitionType = {
     "Tidsserienavn": str,
     # Tidsseriens formål
     "Formål": str,
-    # Tidsseriens referencesystem. I databasen kaldes denne Referenceramme
+    # Tidsseriens referencesystem.
     "System": str,
     # SRIDID udledes af System
     # TSTYPE er altid 2
