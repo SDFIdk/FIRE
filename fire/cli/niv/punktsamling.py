@@ -1332,8 +1332,8 @@ def generer_arkdata(punktsamling: PunktSamling) -> tuple[list, list]:
             punktsamling.navn,
             punkt.ident,
             ("x" if punkt == punktsamling.jessenpunkt else ""),
-            "Ingen tidsserie fundet",
-            "Ingen tidsserie fundet",
+            "",
+            "",
             "Jessen",
         )
         for punkt in punktsamling.punkter
