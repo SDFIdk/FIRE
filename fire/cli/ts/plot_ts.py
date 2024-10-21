@@ -35,15 +35,18 @@ TS_PLOTTING_LABELS = {
 }
 
 ENHEDER_SKALAFAKTOR = {
-    "m":1,
-    "mm":1e3,
-    "μm":1e6,
-    "micron":1e6,
+    "m": 1,
+    "mm": 1e3,
+    "μm": 1e6,
+    "micron": 1e6,
 }
 
 
 def plot_tidsserie(
-    ts: Tidsserie, plot_funktion: Callable, parametre: list = ["n", "e", "u"], y_enhed: str = "m"
+    ts: Tidsserie,
+    plot_funktion: Callable,
+    parametre: list = ["n", "e", "u"],
+    y_enhed: str = "m",
 ):
     """
     Plotter en Tidsserie.
@@ -147,7 +150,12 @@ def plot_gnss_analyse(
 
     # Konfidensbånd
     ax.plot(x_præd, konfidensbånd[0, :], color="green")
-    ax.plot(x_præd, konfidensbånd[1, :], color="green", label=f"{100*(1-alpha):g}% Konfidensbånd")
+    ax.plot(
+        x_præd,
+        konfidensbånd[1, :],
+        color="green",
+        label=f"{100*(1-alpha):g}% Konfidensbånd",
+    )
 
     # Konfidensbånd (samlet)
     if er_samlet:
@@ -193,9 +201,13 @@ def plot_gnss_analyse(
     t_tekst = f"|t| = {statistik.T_test_score:.2f}\nt$\\mathregular{{_{{crit}}}}$ = {statistik.T_test_kritiskværdi:.2f}\n"
 
     if statistik.T_test_H0accepteret:
-        t_tekst += f"H$_{{0}}$ accepteret ved {statistik.T_test_alpha*100}% signifikansniveau"
+        t_tekst += (
+            f"H$_{{0}}$ accepteret ved {statistik.T_test_alpha*100}% signifikansniveau"
+        )
     else:
-        t_tekst += f"H$_{{0}}$ forkastet ved {statistik.T_test_alpha*100}% signifikansniveau"
+        t_tekst += (
+            f"H$_{{0}}$ forkastet ved {statistik.T_test_alpha*100}% signifikansniveau"
+        )
 
     # Z-test resultater til visning
     z_tekst = f"|z| = {statistik.Z_test_score:.2f}\nz$\\mathregular{{_{{crit}}}}$ = {statistik.Z_test_kritiskværdi:.2f}\n"
@@ -386,7 +398,10 @@ def plot_konfidensbånd(x: list, y: list, y_enhed: str = "mm"):
 
 
 def plot_tidsserier(
-    titel: str, tidsserier: list[HøjdeTidsserie], fremhæv_nyeste_punkt: bool = False, y_enhed: str = "mm"
+    titel: str,
+    tidsserier: list[HøjdeTidsserie],
+    fremhæv_nyeste_punkt: bool = False,
+    y_enhed: str = "mm",
 ) -> None:
     """
     Et simpelt plot af en liste af Højdetidsserier
