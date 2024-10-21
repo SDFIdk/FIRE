@@ -9,8 +9,16 @@ import click
 import xmltodict
 from pandas import DataFrame, Timestamp, isna
 
+from fire.api.model import (
+    HøjdeTidsserie,
+    Koordinat,
+)
 from fire.io.regneark import arkdef
 import fire.cli
+
+from fire.cli.ts.plot_ts import (
+    plot_tidsserier,
+)
 
 from . import (
     find_faneblad,
@@ -20,6 +28,8 @@ from . import (
     skriv_observationer_geojson,
     skriv_ark,
     er_projekt_okay,
+    hent_relevante_tidsserier,
+    udled_jessenpunkt_fra_punktoversigt
 )
 
 from ._netoversigt import netanalyse
@@ -69,7 +79,15 @@ class Arbejdssæt:
 @niv.command()
 @fire.cli.default_options()
 @click.argument("projektnavn", nargs=1, type=str)
-def regn(projektnavn: str, **kwargs) -> None:
+@click.option(
+    "-P",
+    "--plot",
+    type=bool,
+    is_flag=True,
+    default=False,
+    help="Angiv om beregnede koter skal plottes som forlængelse af en tidsserie",
+)
+def regn(projektnavn: str, plot: bool, **kwargs) -> None:
     """Beregn nye koter.
 
     Forudsat nivellementsobservationer allerede er indlæst i sagsregnearket
@@ -201,6 +219,12 @@ def regn(projektnavn: str, **kwargs) -> None:
         fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
         raise SystemExit(1)
 
+    if any([v for v in fastholdte.values() if isna(v)]):
+        fire.cli.print(
+            "Der skal angives koter for alle fastholdte punkter i en beregning"
+        )
+        raise SystemExit(1)
+
     # Ny netanalyse: Tag højde for slukkede observationer og fastholdte punkter.
     resultater = netanalyse(projektnavn)
 
@@ -228,6 +252,72 @@ def regn(projektnavn: str, **kwargs) -> None:
         værdier.append(værdi)
     beregning = DataFrame(list(zip(*værdier)), columns=arb_søjler)
     resultater[næste_faneblad] = beregning
+
+    # Plot tidsserier forlænget med de nyberegnede koter.
+    if plot == True:
+        kotesystem = fire.cli.firedb.hent_srid(beregning["System"][0])
+
+        # Hvis kotesystemet er Jessen, så skal Højdetidsserierne være angivet i Højdetidsserie-fanen.
+        # Samme logik som i ilæg_nye_koter
+        if kotesystem.name == "TS:jessen":
+            fastholdt_kote, fastholdt_punkt = udled_jessenpunkt_fra_punktoversigt(
+                beregning
+            )
+            hts_ark = find_faneblad(
+                projektnavn,
+                "Højdetidsserier",
+                arkdef.HØJDETIDSSERIE,
+                ignore_failure=False,
+            )
+            plot_titel = f"Højdetidsserier for jessenpunkt {fastholdt_punkt.jessennummer or fastholdt_punkt.ident}"
+        else:
+            plot_titel = f"Ad hoc {kotesystem.kortnavn or kotesystem.name}-tidsserier"
+
+        tidsserier = []
+        # Gennemgå alle punkter i beregningen, find eller konstruér tidsserier til plotting, og tilføj nyberegnede koter til dem
+        for index, punktdata in beregning.iterrows():
+            # Spring fastholdt punkt(er) over
+            if punktdata["Fasthold"] != "":
+                continue
+
+            punkt = fire.cli.firedb.hent_punkt(punktdata["Punkt"])
+
+            ny_kote = Koordinat(
+                punkt=punkt,
+                srid=kotesystem,
+                z=punktdata["Ny kote"],
+                sz=punktdata["Ny σ"],
+                t=punktdata["Hvornår"],
+            )
+
+            # Find relevante tidsserier til plotting
+            if kotesystem.name == "TS:jessen":
+                relevante_tidsserier = hent_relevante_tidsserier(
+                    hts_ark, punkt, fastholdt_punkt, fastholdt_kote
+                )
+                for ts in relevante_tidsserier:
+                    ts.koordinater.append(ny_kote)
+
+                tidsserier.extend(relevante_tidsserier)
+            else:
+                # Hvis kotesystemet ikke er Jessen, så laver vi en ad hoc tidsserie bestående af alle
+                # koordinater tilhørende kotesystemet.
+                koords = [
+                    k
+                    for k in punkt.koordinater
+                    if k.srid == kotesystem and k.fejlmeldt == False
+                ]
+                tidsserie = HøjdeTidsserie(
+                    punkt=punkt,
+                    navn=f"{punkt.ident}_ADHOC_HTS_{kotesystem.kortnavn or kotesystem.name}",
+                    formål=f"",
+                    koordinater=koords,
+                )
+
+                tidsserier.append(tidsserie)
+                tidsserie.koordinater.append(ny_kote)
+
+        plot_tidsserier(plot_titel, tidsserier, fremhæv_nyeste_punkt=True)
 
     # ...og beret om resultaterne
     skriv_punkter_geojson(projektnavn, resultater[næste_faneblad], infiks=infiks)
@@ -498,7 +588,7 @@ def opdater_arbejdssæt(
 
     kotesystem = arbejdssæt.system[0]
 
-    for (punkt, ny_kote, var) in zip(punkter, koter, varianser):
+    for punkt, ny_kote, var in zip(punkter, koter, varianser):
         if punkt in arbejdssæt.punkt:
             # Hvis punkt findes, sæt indeks til hvor det findes
             i = arbejdssæt.punkt.index(punkt)

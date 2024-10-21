@@ -7,3 +7,4 @@ Workshop
     intro
     kald
     workshop
+    htscase

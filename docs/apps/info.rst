@@ -1,8 +1,10 @@
+.. _kommandolinjeprogrammer_info:
+
 fire info
 ##############
 
 Kommandogruppen :program:`fire info` giver adgang til information om forskellige
-typer indhold i FIRE databasen. 
+typer indhold i FIRE databasen.
 
 .. program-output:: fire info --help
 
@@ -24,4 +26,9 @@ typer indhold i FIRE databasen.
 
 .. click:: fire.cli.info:obstype
   :prog: fire info obstype
+  :nested: full
+
+.. _info_punktsamling:
+.. click:: fire.cli.info:punktsamling
+  :prog: fire info punktsamling
   :nested: full

@@ -1,0 +1,20 @@
+Dette er en template MGL-fil som først kan indlæses af FIRE
+efter man har erstattet punktnavnene med eksisterende identer.
+
+# Jessenpunkt Punkt-A 01.01.2010 10.00 30.00 0.003 999001.1 5.0 1
+# Punkt-A Jessenpunkt 01.01.2010 10.00 30.00 -0.003 999001.2 5.0 1
+
+# Punkt-A Punkt-B 01.01.2010 10.00 30.00 -0.001 999002.1 5.0 1
+# Punkt-B Punkt-A 01.01.2010 10.00 30.00 0.001 999002.2 5.0 1
+
+# Punkt-B Jessenpunkt 01.01.2010 10.00 30.00 -0.002 999003.1 5.0 1
+# Jessenpunkt Punkt-B 01.01.2010 10.00 30.00 0.002 999003.2 5.0 1
+
+# Jessenpunkt Punkt-C 01.01.2010 10.00 30.00 0.002 999004.1 5.0 1
+# Punkt-C Jessenpunkt 01.01.2010 10.00 30.00 -0.002 999004.2 5.0 1
+
+# Punkt-C Punkt-D 01.01.2010 10.00 30.00 -0.002 999005.1 5.0 1
+# Punkt-D Punkt-C 01.01.2010 10.00 30.00 0.002 999005.2 5.0 1
+
+# Punkt-D Jessenpunkt 01.01.2010 10.00 30.00 0.000 999006.1 5.0 1
+# Jessenpunkt Punkt-D 01.01.2010 10.00 30.00 0.000 999006.2 5.0 1

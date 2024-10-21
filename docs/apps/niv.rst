@@ -6,7 +6,7 @@ fire niv
 Arbejdsflow, beregning og analyse i forbindelse med nivellement.
 
 Et almindeligt opmålingsprojekt er i :program:`fire niv` kommandogruppen
-overordnet set brudt ned i følgende arbejdsskridt, givet ved 
+overordnet set brudt ned i følgende arbejdsskridt, givet ved
 underkommandoerne::
 
     opret-sag
@@ -28,7 +28,7 @@ til brug for punktrevision (herunder registrering af tabtgåede punkter).
 :program:`fire niv ilæg-revision` lægger opdaterede og nye punktattributter i databasen
 efter revision.
 
-:program:`fire niv ilæg-nye-punkter` lægger oplysninger om nyoprettede punkter i databasen, 
+:program:`fire niv ilæg-nye-punkter` lægger oplysninger om nyoprettede punkter i databasen,
 og tildeler bl.a. landsnumre til punkterne.
 
 :program:`fire niv læs-observationer` læser råfilerne og skriver observationerne til regnearket
@@ -49,7 +49,7 @@ visualiseringsmateriale.
 Alle programmerne under :program:`fire niv` er bygget op om en "sag". En sag udgøres
 i al sin enkelhed af et Excel-regneark. Dette regneark, som har samme navn som sagen,
 registrerer al relevant information om en opmålingsopgave. Regnearket inddeles i
-faneblade for at skabe et nemt overblik over de registrerede data, fx placeres 
+faneblade for at skabe et nemt overblik over de registrerede data, fx placeres
 nivellementsobservationer i faneblandet "Observationer". I takt med at de forskellige
 kommandoer afvikles udvides regnearket med flere faneblade med plads til information
 om det enkelte trin i arbejdsgangen. Fanebladene beskrives i flere detaljer i
@@ -69,7 +69,7 @@ beskrivelse af :program:`fire niv`-kommandoerne herunder.
 **Eksempel**
 
 Her ses et eksempel på de kommandoer der typisk køres for en komplet
-kommunal vedligeholdsopgave. 
+kommunal vedligeholdsopgave.
 
 .. code-block:: console
 
@@ -85,26 +85,32 @@ kommunal vedligeholdsopgave.
     > fire niv luk-sag andeby_2020
 
 
-.. note:: 
+.. note::
 
   Det er ikke nødvendigt at køre alle kommandoerne i forbindelse med en sag. Man kan
   for eksempel nøjes med at bruge revisionskommandoerne hvis der kun er behov for at
   ændre eller tilføje en attribut til et punkt. Se :ref:`tabsmelding` for et
   detaljeret eksempel.
 
+.. note::
+  Se :ref:`punktsamlinger` for hvordan du arbejde med tidsserier og punktsamlinger. For nærmere info om hvordan punktsamlinger og tidsserier hænger
+  sammen på databaseniveau, se :ref:`tidsserier_og_punktsamlinger`.
+
 .. click:: fire.cli.niv:opret_sag
   :prog: fire niv opret-sag
   :nested: full
 
-
+.. _udtræk_revision:
 .. click:: fire.cli.niv:udtræk_revision
   :prog: fire niv udtræk-revision
   :nested: full
 
+.. _ilæg_revision:
 .. click:: fire.cli.niv:ilæg_revision
   :prog: fire niv ilæg-revision
   :nested: full
 
+.. _ilæg_nye_punkter:
 .. click:: fire.cli.niv:ilæg_nye_punkter
   :prog: fire niv ilæg-nye-punkter
   :nested: full
@@ -133,5 +139,22 @@ kommunal vedligeholdsopgave.
   :prog: fire niv luk-sag
   :nested: full
 
+.. click:: fire.cli.niv:opret_punktsamling
+  :prog: fire niv opret-punktsamling
+  :nested: full
 
+.. click:: fire.cli.niv:udtræk_punktsamling
+  :prog: fire niv udtræk-punktsamling
+  :nested: full
 
+.. click:: fire.cli.niv:ilæg_punktsamling
+  :prog: fire niv ilæg-punktsamling
+  :nested: full
+
+.. click:: fire.cli.niv:ilæg_tidsserie
+  :prog: fire niv ilæg-tidsserie
+  :nested: full
+
+.. click:: fire.cli.niv:fjern_punkt_fra_punktsamling
+  :prog: fire niv fjern-punkt-fra-punktsamling
+  :nested: full

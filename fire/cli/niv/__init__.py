@@ -660,8 +660,8 @@ def udled_jessenpunkt_fra_punktoversigt(
 
     # Tjek om der kun er ét fastholdt punkt, og gør brugeren opmærksom på hvis punktet
     # ikke har et Jessennummer.
-    fastholdte_punkter = punktoversigt["Punkt"][punktoversigt["Fasthold"] == "x"]
-    fastholdte_koter = punktoversigt["Kote"][punktoversigt["Fasthold"] == "x"]
+    fastholdte_punkter = punktoversigt["Punkt"][punktoversigt["Fasthold"] != ""]
+    fastholdte_koter = punktoversigt["Kote"][punktoversigt["Fasthold"] != ""]
 
     if len(fastholdte_punkter) != 1:
         fire.cli.print(

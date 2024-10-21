@@ -477,7 +477,7 @@ def udtræk_punktsamling(
     if punktsamlingsnavn:
         # Find den valgte punktsamling. Hvis brugeren har valgt et jessenpunkt, ignoreres det
         try:
-            punktsamlinger = list(fire.cli.firedb.hent_punktsamling(punktsamlingsnavn))
+            punktsamlinger = [fire.cli.firedb.hent_punktsamling(punktsamlingsnavn)]
         except NoResultFound:
             fire.cli.print(
                 f"FEJL! Punktsamling {punktsamlingsnavn} ikke fundet!",
@@ -745,22 +745,24 @@ def ilæg_punktsamling(
             advarsel_ligmed = (
                 f"Advarsel! {pktsamling.navn} indeholder de samme punkter som: {ligmed}"
             )
+            fire.cli.print(advarsel_ligmed, fg="black", bg="yellow")
 
         if superset:
             superset = ", ".join(superset)
             advarsel_superset = (
                 f"Advarsel! Punkterne i {pktsamling.navn} er et superset af: {superset}"
             )
+            fire.cli.print(advarsel_superset, fg="black", bg="yellow")
 
         if subset:
             subset = ", ".join(subset)
             advarsel_subset = (
                 f"Advarsel! Punkterne i {pktsamling.navn} er en delmængde af: {subset}"
             )
+            fire.cli.print(advarsel_subset, fg="black", bg="yellow")
 
-        fire.cli.print(advarsel_ligmed, fg="black", bg="yellow")
-        fire.cli.print(advarsel_superset, fg="black", bg="yellow")
-        fire.cli.print(advarsel_subset, fg="black", bg="yellow")
+        if not (ligmed or superset or subset):
+            continue
 
         spørgsmål = click.style(
             f"Er du sikker på at du vil ilægge {pktsamling.navn}?", fg="white", bg="red"
@@ -1330,8 +1332,8 @@ def generer_arkdata(punktsamling: PunktSamling) -> tuple[list, list]:
             punktsamling.navn,
             punkt.ident,
             ("x" if punkt == punktsamling.jessenpunkt else ""),
-            "Ingen tidsserie fundet",
-            "Ingen tidsserie fundet",
+            "",
+            "",
             "Jessen",
         )
         for punkt in punktsamling.punkter
