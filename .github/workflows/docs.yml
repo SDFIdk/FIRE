@@ -45,7 +45,7 @@ jobs:
         #
     - name: Deploy docs
       uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/1.7'
+      if: github.ref == 'refs/heads/1.8'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs/_build
