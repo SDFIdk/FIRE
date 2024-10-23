@@ -469,7 +469,7 @@ springer vi oprettelsen af nye sager for hver opmåling over.
    beregnet. De fremhævede koter med ring om er de nyberegnede koter som endnu ikke er
    lagt i databasen. De andre punkter er dem, som allerede ligger i databasen.
 
-   .. image:: figures/regn_plot.PNG
+   .. image:: figures/regn_plot.png
 
 Når du er færdig, lukker du sagen::
 
