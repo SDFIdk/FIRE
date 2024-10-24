@@ -84,17 +84,17 @@ def hts(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
 
         fire ts hts RDIO
 
-    Vis tidsserien "K-63-00909_HTS_81066" med standardparametre::
+    Vis tidsserien G.I.2133_HTS_81066 med standardparametre::
 
-        fire ts hts K-63-00909_HTS_81066
+        fire ts hts G.I.2133_HTS_81066
 
     Vis tidsserie med brugerdefinerede parametre::
 
-        fire ts hts K-63-00909_HTS_81066 --parametre decimalår,kote,sz
+        fire ts hts G.I.2133_HTS_81066 --parametre decimalår,kote,sz
 
     Gem tidsserie med samtlige tilgængelige parametre::
 
-        fire ts hts K-63-00909_HTS_81066 -p alle -f RDIO_HTS_81066.xlsx
+        fire ts hts G.I.2133_HTS_81066 -p alle -f G.I.2133_HTS_81066.xlsx
     """
     _udtræk_tidsserie(objekt, HøjdeTidsserie, HTS_PARAMETRE, parametre, fil)
 
@@ -148,7 +148,7 @@ def plot_hts(tidsserie: str, plottype: str, parametre: str, **kwargs) -> None:
 
     Plot af højdetidsserie for GED3::
 
-        fire ts plot-hts 52-03-00846_HTS_81005
+        fire ts plot-hts GED3_HTS_81005
 
     Resulterer i visning af nedenstående plot.
 
@@ -158,7 +158,7 @@ def plot_hts(tidsserie: str, plottype: str, parametre: str, **kwargs) -> None:
 
     Plot af højdetidsserie for GED2::
 
-        fire ts plot-hts 52-03-00845_HTS_81050 -t fit
+        fire ts plot-hts GED2_HTS_81050 -t fit
 
     Resulterer i visning af nedenstående plot.
 
@@ -168,7 +168,7 @@ def plot_hts(tidsserie: str, plottype: str, parametre: str, **kwargs) -> None:
 
     Plot af højdetidsserie for GED5::
 
-        fire ts plot-hts 52-03-09089_HTS_81068 -t konf
+        fire ts plot-hts GED5_HTS_81068 -t konf
 
     Resulterer i visning af nedenstående plot.
 
@@ -248,7 +248,7 @@ def analyse_hts(
     nedenfor, for detaljer om analysen.
 
     ``OBJEKT`` kan enten være en Punktsamling eller en liste indeholdende én eller flere
-    HøjdeTidsserier.
+    Højdetidsserier.
 
     Hvis ``OBJEKT`` angiver flere Højdetidsserier, skal alle tidsserierne være givet over
     det samme jessenpunkt. Hvis ``OBJEKT`` angiver en Punktsamling analyseres alle

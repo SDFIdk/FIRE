@@ -224,11 +224,11 @@ og med nedslag de steder hvor der er undtagelser.
 ::
 
     fire niv opret-sag MIN_SAG
-    fire niv læs-observationer MIN_SAG --kotesystem jessen
+    fire niv læs-observationer MIN_SAG --kotesystem Jessen
 
 Normalt opbygges Punktoversigten med ``læs-observationer`` ved anvendelse af hvert
 observeret Punkts seneste *DVR90-kote*. Ved anvendelse af det nye flag ``--kotesystem
-jessen`` fortæller man nu programmet, at Punktoversigten skal opbygges ved hjælp af hvert
+Jessen`` fortæller man nu programmet, at Punktoversigten skal opbygges ved hjælp af hvert
 Punkts seneste *jessenkote* i stedet. Denne kote bliver brugt til at vise koteændringer og
 opløft, når man har lavet en beregning.
 
@@ -245,7 +245,7 @@ opløft, når man har lavet en beregning.
   altså med kote og spredning u-udfyldt.
 
 Herefter skal man vælge et fastholdt punkt og dertil en fastholdt kote. *Dette skal være
-et registeret jessenpunkt og referencekote*. Dette gøres ved først at udtrække
+et registreret jessenpunkt og referencekote*. Dette gøres ved først at udtrække
 punktsamlingen, som er blevet opmålt::
 
     fire niv udtræk-punktsamling MIN_SAG --punktsamlingsnavn "PUNKTSAMLING_81xxx"

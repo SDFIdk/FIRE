@@ -62,7 +62,7 @@ I databasen er hændelserne navngivet "Sagsevents" (og ikke "Sagshændelser", da
 databasen). Ved hver hændelse indsættes der et Sagsevent i databasen.
 Disse kan identificeres ved ID'er. Det er disse ID'er Fikspunktsregisterobjekter
 benytter i attributterne ``sagseventidfra`` og ``sagseventidtil``. Det vil sige
-at hver gang et objekt registeres eller ændres i databasen, er der tilknyttet
+at hver gang et objekt registreres eller ændres i databasen, er der tilknyttet
 metadata til hændelsen. Håndtering af Sager og Sagsevents beskrives yderligere i
 afsnittet :ref:`sager_og_historik`.
 
@@ -318,14 +318,14 @@ kan der kun være en gældende koordinat per punkt. Når en ny Koordinat tilføj
 Punkt afregistreres dens forgænger automatisk.
 
 Ligesom Punktinformationstyperne er SRID'er opdelt efter kategori. Som udgangspunkt
-benyttes EPSG-koder for de systemer der er registeret i EPSG-databasen. De resterende
+benyttes EPSG-koder for de systemer der er registreret i EPSG-databasen. De resterende
 er navngivet efter region eller særligt formål. Se en oversigt over kategorierne i
 tabellen herunder.
 
 ============  =============================================
 **Kategori**  **Beskrivelse**
 ------------  ---------------------------------------------
-EPSG          Koordinatsystemer registeret i EPSG-databasen
+EPSG          Koordinatsystemer registreret i EPSG-databasen
 DK            Danske koordinatsystemer
 GL            Grønlandske koordinatsystemer
 TS            Lokale tidsseriekoordinatsystemer, fx på
