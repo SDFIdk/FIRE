@@ -563,7 +563,7 @@ class KoordinatKovarians(Observation):
     samlet koordinatløsning (= tidsseriekoordinaterne).
 
     Kovariansmatricen repræsenterer et estimat for varianser/kovarianser af
-    den samlede koordinatløsning, dvs. af tidsseriekoordinaterne registeret
+    den samlede koordinatløsning, dvs. af tidsseriekoordinaterne registreret
     i FIRE.
 
     Kovarianserne er baseret på geocentriske koordinater.

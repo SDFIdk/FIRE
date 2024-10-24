@@ -76,8 +76,8 @@ def ilæg_nye_punkter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
     - En angivelse af fikspunktets type
 
     .. image:: ../workshop/figures/firenivilægpunkter.PNG
-    :width: 800
-    :alt: Opret nye punkter, excel-visning
+        :width: 800
+        :alt: Opret nye punkter, excel-visning
 
     De resterende kolonner kan også udfyldes, men den videre proces er ikke
     afhængig af dem. Det man ikke kan udfylde, er "Landsnummer" og "uuid", da det først
