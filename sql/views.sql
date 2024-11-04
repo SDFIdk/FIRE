@@ -1040,8 +1040,8 @@ SELECT
 	beskrivelser.tekst,
 	punkter.tabstidspunkt
 FROM punkter
-JOIN landsnr ON punkter.punktid=landsnr.punktid
-JOIN beskrivelser ON punkter.punktid=beskrivelser.punktid
+LEFT JOIN landsnr ON punkter.punktid=landsnr.punktid
+LEFT JOIN beskrivelser ON punkter.punktid=beskrivelser.punktid
 JOIN geometrier ON punkter.punktid=geometrier.punktid;
 
 INSERT INTO
@@ -1121,9 +1121,22 @@ CREATE INDEX v_gnet_geometri_idx ON v_gnet (geometri) INDEXTYPE IS MDSYS.SPATIAL
 
 -- 3. præs observationer
 CREATE MATERIALIZED VIEW v_pres3_obs AS
+WITH
+	gi_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:GI' AND pi.registreringtil IS NULL
+	),
+	landsnr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	)
 SELECT
 	-- go1.geometri geometri_opstillingspunkt,
 	-- go2.geometri geometri_sigtepunkt,
+	COALESCE(og.ident, ol.ident) as opstillingspunkt_ident,
+	COALESCE(sg.ident, sl.ident) as sigtepunkt_ident,
 	sdo_geometry(
 		2002,
 		4326,
@@ -1140,6 +1153,10 @@ FROM observation o
 JOIN observationstype ot ON ot.observationstypeid=o.observationstypeid
 JOIN geometriobjekt go1 ON go1.PUNKTID=o.opstillingspunktid
 JOIN geometriobjekt go2 ON go2.PUNKTID=o.sigtepunktid
+LEFT JOIN landsnr ol ON ol.punktid = o.opstillingspunktid
+LEFT JOIN landsnr sl ON sl.punktid = o.sigtepunktid
+LEFT JOIN gi_ident og ON og.punktid = o.opstillingspunktid
+LEFT JOIN gi_ident sg ON sg.punktid = o.sigtepunktid
 WHERE
 	ot.observationstype='geometrisk_koteforskel'
 	AND
@@ -1164,9 +1181,22 @@ CREATE INDEX v_pres3_obs_geometri_idx ON v_pres3_obs (geometri) INDEXTYPE IS MDS
 -- 2. præs observationer
 
 CREATE MATERIALIZED VIEW v_pres2_obs AS
+WITH
+	gi_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:GI' AND pi.registreringtil IS NULL
+	),
+	landsnr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	)
 SELECT
 	-- go1.geometri geometri_opstillingspunkt,
 	-- go2.geometri geometri_sigtepunkt,
+	COALESCE(og.ident, ol.ident) as opstillingspunkt_ident,
+	COALESCE(sg.ident, sl.ident) as sigtepunkt_ident,
 	sdo_geometry(
 		2002,
 		4326,
@@ -1183,6 +1213,10 @@ FROM observation o
 JOIN observationstype ot ON ot.observationstypeid=o.observationstypeid
 JOIN geometriobjekt go1 ON go1.PUNKTID=o.opstillingspunktid
 JOIN geometriobjekt go2 ON go2.PUNKTID=o.sigtepunktid
+LEFT JOIN landsnr ol ON ol.punktid = o.opstillingspunktid
+LEFT JOIN landsnr sl ON sl.punktid = o.sigtepunktid
+LEFT JOIN gi_ident og ON og.punktid = o.opstillingspunktid
+LEFT JOIN gi_ident sg ON sg.punktid = o.sigtepunktid
 WHERE
 	ot.observationstype='geometrisk_koteforskel'
 	AND
@@ -1207,9 +1241,22 @@ CREATE INDEX v_pres2_obs_geometri_idx ON v_pres2_obs (geometri) INDEXTYPE IS MDS
 
 -- 1. præs observationer
 CREATE MATERIALIZED VIEW v_pres1_obs AS
+WITH
+	gi_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:GI' AND pi.registreringtil IS NULL
+	),
+	landsnr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	)
 SELECT
 	-- go1.geometri geometri_opstillingspunkt,
 	-- go2.geometri geometri_sigtepunkt,
+	COALESCE(og.ident, ol.ident) as opstillingspunkt_ident,
+	COALESCE(sg.ident, sl.ident) as sigtepunkt_ident,
 	sdo_geometry(
 		2002,
 		4326,
@@ -1226,6 +1273,10 @@ FROM observation o
 JOIN observationstype ot ON ot.observationstypeid=o.observationstypeid
 JOIN geometriobjekt go1 ON go1.PUNKTID=o.opstillingspunktid
 JOIN geometriobjekt go2 ON go2.PUNKTID=o.sigtepunktid
+LEFT JOIN landsnr ol ON ol.punktid = o.opstillingspunktid
+LEFT JOIN landsnr sl ON sl.punktid = o.sigtepunktid
+LEFT JOIN gi_ident og ON og.punktid = o.opstillingspunktid
+LEFT JOIN gi_ident sg ON sg.punktid = o.sigtepunktid
 WHERE
 	ot.observationstype='geometrisk_koteforskel'
 	AND
