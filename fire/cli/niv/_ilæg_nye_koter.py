@@ -125,6 +125,7 @@ def ilæg_nye_koter(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
 
     # Hvis vi er ved at ilægge nye tidsserie-koter, så skal alle punkter have en
     # Højdetidsserie hvis jessenpunkt er det samme som det fastholdte punkt
+    hts_ark = None
     if anvendt_srid.name == "TS:jessen":
         # Højdetidsserie-fanebladet skal være til stede
         hts_ark = find_faneblad(
