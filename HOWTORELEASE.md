@@ -24,13 +24,15 @@ Følg disse skridt i forbindelse med en ny release:
 
   - I samme branch i din fork, opdatér versionsnummeret i `fire/__init__.py` efter ovennævnte regler i [Semantisk Versionering][]
 
-  - Commit ændring af versionsnummer: `git commit -a -m "Opdatér version til x.y"`
+  - Commit ændring af versionsnummer: `git commit -a -m "Opdatér version til x.y.z"`
 
 * I GitHub, opret et pull request til `master` på `origin` og lav en merge fra din branch på din fork.
 
 * I din lokale version fra terminalen:
 
-  - Check `master`ud
+  - Check `master` ud (hvis det er en patch-release, så check branch `x.y` ud)
+
+  - Synkronisér din version af `master` (eller `x.y`) med den tilsvarende branch på `origin`
 
   - Tilføj et tag med versionsnummer
 
@@ -38,10 +40,10 @@ Følg disse skridt i forbindelse med en ny release:
     git tag fire-x.y.z
     ```
 
-  - Send direkte til `master` på `origin`:
+  - Send tagget direkte til `origin`:
 
     ```sh
-    git push --tags origin master
+    git push origin tag fire-x.y.z
     ```
 
 * På GitHub luk milestone og opret ny til næste nummer i rækken.
