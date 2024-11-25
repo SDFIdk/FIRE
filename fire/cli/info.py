@@ -4,7 +4,7 @@ import textwrap
 from typing import List
 
 import click
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy import not_, or_
 from pyproj import CRS
 from pyproj.exceptions import CRSError
@@ -22,6 +22,10 @@ from fire.api.model import (
     Srid,
     Tidsserie,
 )
+from fire.cli.click_types import Datetime
+
+DATE_FORMAT = "%d-%m-%Y"
+"Dato-format til kommandolinie-argument."
 
 
 @click.group()
@@ -698,19 +702,43 @@ def obstype(obstype: str, **kwargs):
 @info.command()
 @fire.cli.default_options()
 @click.argument("sagsid", required=False)
-def sag(sagsid: str, **kwargs):
+@click.option(
+    "-df",
+    "--fra",
+    help=f"Hent sager fra og med denne dato. Angives på formen {DATE_FORMAT}.",
+    required=False,
+    type=Datetime(format=DATE_FORMAT),
+)
+@click.option(
+    "-dt",
+    "--til",
+    help=f"Hent sager til, men ikke med, denne dato. Angives på formen {DATE_FORMAT}.",
+    required=False,
+    type=Datetime(format=DATE_FORMAT),
+)
+def sag(
+    sagsid: str,
+    fra: datetime.datetime,
+    til: datetime.datetime,
+    **kwargs):
     """
     Information om en sag.
 
     Anføres **SAG** ikke sagsid listes alle aktive sager.
     """
-    if sagsid:
-        try:
-            sag = fire.cli.firedb.hent_sag(sagsid)
-        except NoResultFound:
-            fire.cli.print(f"Fejl! {sagsid} ikke fundet!", fg="red", err=True)
-            raise SystemExit(1)
+    sager = []
+    sag = None
+    try:
+        sag = fire.cli.firedb.hent_sag(sagsid)
+    except (NoResultFound, MultipleResultsFound):
 
+        if sagsid or fra or til:
+            sager = fire.cli.firedb.hent_sager(søgetekst=sagsid, tid_fra=fra, tid_til=til)
+
+        if len(sager)==1:
+            sag = sager[0]
+
+    if sag:
         fire.cli.print(
             "------------------------- SAG -------------------------", bold=True
         )
@@ -743,10 +771,16 @@ def sag(sagsid: str, **kwargs):
 
         return
 
-    sager = fire.cli.firedb.hent_alle_sager()
+    if not sager:
+        sager = fire.cli.firedb.hent_alle_sager()
+
     fire.cli.print("Sagsid     Behandler           Beskrivelse", bold=True)
     fire.cli.print("---------  ------------------  -----------")
     for sag in sager:
+        if not sag.aktiv:
+            # Spring inaktive sager over
+            continue
+
         beskrivelse = sag.beskrivelse[0:70].strip().replace("\n", " ").replace("\r", "")
         fire.cli.print(f"{sag.id[0:8]}:  {sag.behandler:20}{beskrivelse}...")
 
