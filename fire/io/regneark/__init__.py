@@ -127,7 +127,6 @@ def punkt_data(punkt: Punkt) -> dict:
         "Punkt": punkt.ident,
         "Nord": φ,
         "Øst": λ,
-        "uuid": punkt.id,
     }
 
 
