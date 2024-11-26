@@ -93,13 +93,25 @@ def læs_observationer(projektnavn: str, kotesystem: str, **kwargs) -> None:
     nyetablerede = find_faneblad(
         projektnavn, "Nyetablerede punkter", arkdef.NYETABLEREDE_PUNKTER
     )
-    try:
-        nyetablerede = nyetablerede.set_index("Landsnummer", verify_integrity=True)
-    except ValueError:
+
+    if any(nyetablerede["Landsnummer"] == ""):
         fire.cli.print("Der mangler landsnumre til nyetablerede punkter.")
         fire.cli.print("Har du husket at lægge dem i databasen?")
         fire.cli.print("Fortsætter beregningen med brug af de foreløbige navne")
-        nyetablerede = nyetablerede.set_index("Foreløbigt navn")
+
+    # Initialiser ny kolonne i dataframe til kanoniske identer
+    nyetablerede["Kanonisk ident"] = None
+    for idx, row in nyetablerede.iterrows():
+        try:
+            punkt = fire.cli.firedb.hent_punkt(row["Landsnummer"])
+        except NoResultFound:
+            # Hvis vi ikke kan finde landsnummeret, så bruger vi det foreløbige navn
+            nyetablerede.at[idx, "Kanonisk ident"] = row["Foreløbigt navn"]
+        else:
+            # Ellers så bruger vi den kanoniske ident (hvilket nok er landsnummeret, men ikke altid!)
+            nyetablerede.at[idx, "Kanonisk ident"] = punkt.ident
+
+    nyetablerede = nyetablerede.set_index("Kanonisk ident")
     nye_punkter = set(nyetablerede.index)
 
     # Opbyg oversigt over alle observationer
@@ -114,7 +126,9 @@ def læs_observationer(projektnavn: str, kotesystem: str, **kwargs) -> None:
     alle_punkter = nye_punkter + tuple(sorted(gamle_punkter))
 
     # Opbyg oversigt over alle punkter m. kote og lokation
-    punktoversigt = opbyg_punktoversigt(projektnavn, nyetablerede, alle_punkter, kotesystem)
+    punktoversigt = opbyg_punktoversigt(
+        projektnavn, nyetablerede, alle_punkter, kotesystem
+    )
     resultater["Punktoversigt"] = punktoversigt
     skriv_ark(projektnavn, resultater)
     fire.cli.print(
@@ -232,7 +246,10 @@ def opbyg_punktoversigt(
         srid = fire.cli.firedb.hent_srid(KOTESYSTEMER[kotesystem])
     except NoResultFound:
         fire.cli.print(
-            f"{kotesystem} ({KOTESYSTEMER[kotesystem]}) ikke fundet i srid-tabel", bg="red", fg="white", err=True
+            f"{kotesystem} ({KOTESYSTEMER[kotesystem]}) ikke fundet i srid-tabel",
+            bg="red",
+            fg="white",
+            err=True,
         )
         raise SystemExit(1)
 
