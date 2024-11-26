@@ -278,15 +278,6 @@ Indlæs nu observationerne fra den første mgl-fil. Under fanen **Filoversigt** 
 
 .. image:: figures/filoversigt_2000.PNG
 
-.. warning::
-
-    Pga. en mindre, ikke-fatal fejl/uhensigtsmæssighed, som netop er opdaget i FIRE, så
-    skal du inden du fortsætter slette indholdet af fanen **Nyetablerede punkter**
-    med undtagelse af overskrifterne.
-
-    Fejlen gør så Punktoversigten bliver oprettet med dubletter af de nyoprettede punkter,
-    hvis kanoniske ident er forskellig fra landsnummeret, dvs. vores nye GI-punkt.
-
 Luk arket og indlæs observationerne med::
 
     fire niv læs-observationer HTS_DEMO --kotesystem Jessen
