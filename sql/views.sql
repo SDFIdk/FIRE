@@ -1131,6 +1131,10 @@ WITH
 		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
 		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	),
+	geometrier AS (
+		SELECT geometri, punktid FROM geometriobjekt go
+		WHERE go.registreringtil IS NULL
 	)
 SELECT
 	-- go1.geometri geometri_opstillingspunkt,
@@ -1143,6 +1147,7 @@ SELECT
 		NULL,
 		sdo_elem_info_array (1,2,1),
 		sdo_ordinate_array (go1.geometri.sdo_point.x, go1.geometri.sdo_point.y, go2.geometri.sdo_point.x, go2.geometri.sdo_point.y)) geometri,
+	o.observationstidspunkt,
 	o.value1 koteforskel,
 	o.value2 nivlaengde,
 	o.value3 antal_opstillinger,
@@ -1151,8 +1156,8 @@ SELECT
 	o.value6 centreringsfejl
 FROM observation o
 JOIN observationstype ot ON ot.observationstypeid=o.observationstypeid
-JOIN geometriobjekt go1 ON go1.PUNKTID=o.opstillingspunktid
-JOIN geometriobjekt go2 ON go2.PUNKTID=o.sigtepunktid
+JOIN geometrier go1 ON go1.PUNKTID=o.opstillingspunktid
+JOIN geometrier go2 ON go2.PUNKTID=o.sigtepunktid
 LEFT JOIN landsnr ol ON ol.punktid = o.opstillingspunktid
 LEFT JOIN landsnr sl ON sl.punktid = o.sigtepunktid
 LEFT JOIN gi_ident og ON og.punktid = o.opstillingspunktid
@@ -1179,7 +1184,6 @@ VALUES
 CREATE INDEX v_pres3_obs_geometri_idx ON v_pres3_obs (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=line');
 
 -- 2. præs observationer
-
 CREATE MATERIALIZED VIEW v_pres2_obs AS
 WITH
 	gi_ident AS (
@@ -1191,6 +1195,10 @@ WITH
 		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
 		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	),
+	geometrier AS (
+		SELECT geometri, punktid FROM geometriobjekt go
+		WHERE go.registreringtil IS NULL
 	)
 SELECT
 	-- go1.geometri geometri_opstillingspunkt,
@@ -1203,6 +1211,7 @@ SELECT
 		NULL,
 		sdo_elem_info_array (1,2,1),
 		sdo_ordinate_array (go1.geometri.sdo_point.x, go1.geometri.sdo_point.y, go2.geometri.sdo_point.x, go2.geometri.sdo_point.y)) geometri,
+	o.observationstidspunkt,
 	o.value1 koteforskel,
 	o.value2 nivlaengde,
 	o.value3 antal_opstillinger,
@@ -1211,8 +1220,8 @@ SELECT
 	o.value6 centreringsfejl
 FROM observation o
 JOIN observationstype ot ON ot.observationstypeid=o.observationstypeid
-JOIN geometriobjekt go1 ON go1.PUNKTID=o.opstillingspunktid
-JOIN geometriobjekt go2 ON go2.PUNKTID=o.sigtepunktid
+JOIN geometrier go1 ON go1.PUNKTID=o.opstillingspunktid
+JOIN geometrier go2 ON go2.PUNKTID=o.sigtepunktid
 LEFT JOIN landsnr ol ON ol.punktid = o.opstillingspunktid
 LEFT JOIN landsnr sl ON sl.punktid = o.sigtepunktid
 LEFT JOIN gi_ident og ON og.punktid = o.opstillingspunktid
@@ -1251,6 +1260,10 @@ WITH
 		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
 		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	),
+	geometrier AS (
+		SELECT geometri, punktid FROM geometriobjekt go
+		WHERE go.registreringtil IS NULL
 	)
 SELECT
 	-- go1.geometri geometri_opstillingspunkt,
@@ -1263,6 +1276,7 @@ SELECT
 		NULL,
 		sdo_elem_info_array (1,2,1),
 		sdo_ordinate_array (go1.geometri.sdo_point.x, go1.geometri.sdo_point.y, go2.geometri.sdo_point.x, go2.geometri.sdo_point.y)) geometri,
+	o.observationstidspunkt,
 	o.value1 koteforskel,
 	o.value2 nivlaengde,
 	o.value3 antal_opstillinger,
@@ -1271,8 +1285,8 @@ SELECT
 	o.value6 centreringsfejl
 FROM observation o
 JOIN observationstype ot ON ot.observationstypeid=o.observationstypeid
-JOIN geometriobjekt go1 ON go1.PUNKTID=o.opstillingspunktid
-JOIN geometriobjekt go2 ON go2.PUNKTID=o.sigtepunktid
+JOIN geometrier go1 ON go1.PUNKTID=o.opstillingspunktid
+JOIN geometrier go2 ON go2.PUNKTID=o.sigtepunktid
 LEFT JOIN landsnr ol ON ol.punktid = o.opstillingspunktid
 LEFT JOIN landsnr sl ON sl.punktid = o.sigtepunktid
 LEFT JOIN gi_ident og ON og.punktid = o.opstillingspunktid
