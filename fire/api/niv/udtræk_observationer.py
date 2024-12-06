@@ -174,3 +174,15 @@ def observationer_inden_for_spredning(
         for observation in list(resultatsæt)
         if observation.spredning_afstand <= spredninger[observation.observationstypeid]
     )
+
+
+def filtrer_præcisionsnivellement(
+    observationer: list[Observation], præcisionsnivellement: int
+) -> list[GeometriskKoteforskel]:
+    """Filtrer observationer på præcisionsnivellement hvis de er af typen GeometriskKoteforskel"""
+    return [
+        o
+        for o in observationer
+        if isinstance(o, GeometriskKoteforskel) and
+            o.præcisionsnivellement == præcisionsnivellement
+    ]

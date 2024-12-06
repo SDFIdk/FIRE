@@ -39,6 +39,7 @@ from fire.api.niv.udtræk_observationer import (
     søgefunktioner_med_valgte_metoder,
     brug_alle_på_alle,
     observationer_inden_for_spredning,
+    filtrer_præcisionsnivellement,
     timestamp,
     ResultatSæt,
 )
@@ -158,9 +159,20 @@ Er metode ikke angivet, søger programmet blandt begge observationstyper.
 )
 @click.option(
     "--kotesystem",
-    default="DVR90",
-    type=click.Choice(KOTESYSTEMER.keys()),
     help="Angiv andet kotesystem end DVR90",
+    required=False,
+    type=click.Choice(KOTESYSTEMER.keys()),
+    default="DVR90",
+)
+@click.option(
+    "--præc",
+    "-P",
+    help="""Hent observationer fra valgt præcisionsnivellement.
+
+Vælges `0` udtrækkes kun observationer som ikke indgik i nogen af de 3 præcisionsnivellementer.
+""",
+    required=False,
+    type=click.IntRange(0, 3),
 )
 @fire.cli.default_options()
 def udtræk_observationer(
@@ -173,6 +185,7 @@ def udtræk_observationer(
     til: dt.datetime,
     alle_obs: bool,
     kotesystem: str,
+    præc: int,
     # These `kwargs` can be ignored for now, since they refer to default
     # CLI options that are already in effect by use of call-back functions.
     **kwargs,
@@ -194,8 +207,10 @@ def udtræk_observationer(
     afstand til identer/geometri.
 
     Det er kombinationen af valgt nøjagtighed og metode, der afgør valget af kriterium,
-    hvormed fundne observationer skal filtreres fra. Resultatet af søgningen er samtlige,
-    aktive observationer i databasen, der opfylder ovenstående.
+    hvormed fundne observationer skal filtreres fra. Derudover kan man vælge om
+    observationerne skal have indgået i et af de 3 landsdækkende præcisionsnivellementer.
+    Resultatet af søgningen er samtlige, aktive observationer i databasen, der opfylder
+    ovenstående.
 
     Resultatet skrives til det eksisterende projekt-regneark i fanerne
     "Observationer" og "Punktoversigt".
@@ -314,6 +329,9 @@ def udtræk_observationer(
 
     fire.cli.print("Filtrér observationer")
     observationer = list(observationer_inden_for_spredning(resultatsæt, spredning))
+
+    if præc:
+        observationer = filtrer_præcisionsnivellement(observationer, præc)
 
     fire.cli.print("Indsaml opstillings- og sigtepunkter fra observationer")
     opstillings_punkter = db.hent_punkter_fra_uuid_liste(
