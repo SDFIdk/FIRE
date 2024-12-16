@@ -516,16 +516,6 @@ def ilæg_revision(
         )
         raise SystemExit
 
-    # Udfyld udeladte identer
-    punkter = list(revision["Punkt"])
-    udfyldningsværdi = ""
-    for i in range(len(punkter)):
-        if punkter[i].strip() != "":
-            udfyldningsværdi = punkter[i].strip()
-            continue
-        punkter[i] = udfyldningsværdi
-    revision["Punkt"] = punkter
-
     # Find alle punkter, der skal nyoprettes
     nye_punkter = []
     oprettelse = revision.query("Attribut == 'OPRET'")
