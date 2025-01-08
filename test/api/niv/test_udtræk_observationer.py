@@ -29,6 +29,7 @@ from fire.api.niv.udtræk_observationer import (
     søgefunktioner_med_valgte_metoder,
     brug_alle_på_alle,
     observationer_inden_for_spredning,
+    filtrer_præcisionsnivellement,
     timestamp,
     punkter_til_geojson,
 )
@@ -175,6 +176,35 @@ def test_observationer_inden_for_spredning():
     result = set(observationer_inden_for_spredning(tks, spredning))
     expected = tks_indenfor
     assert result == expected, f"Forventede, at {result!r} var {expected!r}."
+
+
+@pytest.mark.parametrize("præc, forventet_antal", [(0, 1), (1, 2), (2, 3), (3, 4)])
+def test_filtrer_præcisionsnivellement(præc, forventet_antal):
+
+    tks = [TK() for _ in range(3)]
+
+    gks = [
+        GK(præcisionsnivellement=0),
+        GK(præcisionsnivellement=1),
+        GK(præcisionsnivellement=1),
+        GK(præcisionsnivellement=2),
+        GK(præcisionsnivellement=2),
+        GK(præcisionsnivellement=2),
+        GK(præcisionsnivellement=3),
+        GK(præcisionsnivellement=3),
+        GK(præcisionsnivellement=3),
+        GK(præcisionsnivellement=3),
+    ]
+
+    alle = tks + gks
+
+    filtrerede = filtrer_præcisionsnivellement(tks, præc)
+
+    assert len(filtrerede) == 0
+
+    filtrerede = filtrer_præcisionsnivellement(alle, præc)
+
+    assert len(filtrerede) == forventet_antal
 
 
 @pytest.mark.freeze_time("2021-11-01T21:21:00")

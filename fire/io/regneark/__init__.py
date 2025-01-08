@@ -29,9 +29,6 @@ from fire.api.niv.enums import NivMetode
 from fire.srid import SRID
 from fire.io.regneark import arkdef
 import fire.io.dataframe as frame
-from fire.api.model.geometry import (
-    normaliser_lokationskoordinat,
-)
 
 
 # Annoteringstyper
@@ -121,8 +118,7 @@ PUNKTOVERSIGT_KONSTANTE_FELTER = {
 
 
 def punkt_data(punkt: Punkt) -> dict:
-    WGS84_lonlat = punkt.geometri.koordinater
-    λ, φ = normaliser_lokationskoordinat(*WGS84_lonlat)
+    λ, φ = punkt.geometri.koordinater
     return {
         "Punkt": punkt.ident,
         "Nord": φ,
