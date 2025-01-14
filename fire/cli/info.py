@@ -743,7 +743,9 @@ def sag(sagsid: str, **kwargs):
             eventtype = (
                 str(sagsevent.eventtype).replace("EventType.", "").replace("OE", "Ø")
             )
-            fire.cli.print(f"[{sagsevent.registreringfra}] {eventtype}: {beskrivelse}")
+            tid = sagsevent.registreringfra.strftime("%Y-%m-%d")
+            sagseventid = sagsevent.id[0:8]
+            fire.cli.print(f"[{tid}|{sagseventid}] {eventtype}: {beskrivelse}")
 
         return
 
