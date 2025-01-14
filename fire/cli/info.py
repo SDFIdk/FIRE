@@ -734,6 +734,10 @@ def sag(sagsid: str, **kwargs):
         for sagsevent in sag.sagsevents:
             try:
                 beskrivelse = sagsevent.beskrivelse
+                max_beskrivelseslængde = 40
+                if len(beskrivelse) > max_beskrivelseslængde:
+                    beskrivelse = beskrivelse[0:max_beskrivelseslængde] + "..."
+
             except IndexError:
                 beskrivelse = ""
             eventtype = (
