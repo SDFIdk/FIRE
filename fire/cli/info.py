@@ -1,10 +1,13 @@
 import datetime
+import io
 import itertools
+import re
 import textwrap
 from typing import List
+import zipfile
 
 import click
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy import not_, or_
 from pyproj import CRS
 from pyproj.exceptions import CRSError
@@ -12,6 +15,7 @@ from pyproj.exceptions import CRSError
 import fire.cli
 from fire.ident import klargør_ident_til_søgning
 from fire.api.model import (
+    EventType,
     Punkt,
     PunktInformation,
     PunktInformationType,
@@ -21,6 +25,7 @@ from fire.api.model import (
     Boolean,
     Srid,
     Tidsserie,
+    Grafik,
 )
 
 
@@ -271,7 +276,12 @@ def punktsamlingsrapport(punktsamlinger: list[PunktSamling], id: str = None):
     """
     Hjælpefunktion for funktionerne punkt_fuld_rapport og punktsamling.
     """
-    kolonnebredder = (34, 11, 13, 16,)
+    kolonnebredder = (
+        34,
+        11,
+        13,
+        16,
+    )
     kolonnenavne = ("Navn", "Jessenpunkt", "Antal punkter", "Antal tidsserier")
     header = "  ".join([str(n).ljust(w) for n, w in zip(kolonnenavne, kolonnebredder)])
     subheader = "  ".join(["-" * w for w in kolonnebredder])
@@ -287,10 +297,18 @@ def punktsamlingsrapport(punktsamlinger: list[PunktSamling], id: str = None):
         if ps.jessenpunkt.id == id:
             farve = "green"
 
-        kolonner = [ps.navn, ps.jessenpunkt.jessennummer, len(ps.punkter), len(ps.tidsserier)]
+        kolonner = [
+            ps.navn,
+            ps.jessenpunkt.jessennummer,
+            len(ps.punkter),
+            len(ps.tidsserier),
+        ]
 
         linje = "  ".join(
-            [textwrap.shorten(str(c), width=w, placeholder="...").ljust(w) for c, w in zip(kolonner, kolonnebredder)]
+            [
+                textwrap.shorten(str(c), width=w, placeholder="...").ljust(w)
+                for c, w in zip(kolonner, kolonnebredder)
+            ]
         )
         fire.cli.print(linje, fg=farve)
 
@@ -316,11 +334,16 @@ def tidsserierapport(tidsserier: list[Tidsserie]):
             return "Højde"
 
     for ts in tidsserier:
-        navn_ombrudt = textwrap.wrap(str(ts.navn),kolonnebredder[0])
+        navn_ombrudt = textwrap.wrap(str(ts.navn), kolonnebredder[0])
         for navn_del in navn_ombrudt[:-1]:
             fire.cli.print(navn_del)
 
-        kolonner = [navn_ombrudt[-1], len(ts), tidsserietype(ts.tstype), ts.referenceramme]
+        kolonner = [
+            navn_ombrudt[-1],
+            len(ts),
+            tidsserietype(ts.tstype),
+            ts.referenceramme,
+        ]
 
         linje = "  ".join([str(c).ljust(w) for c, w in zip(kolonner, kolonnebredder)])
         fire.cli.print(linje)
@@ -755,6 +778,176 @@ def sag(sagsid: str, **kwargs):
     for sag in sager:
         beskrivelse = sag.beskrivelse[0:70].strip().replace("\n", " ").replace("\r", "")
         fire.cli.print(f"{sag.id[0:8]}:  {sag.behandler:20}{beskrivelse}...")
+
+
+@info.command()
+@fire.cli.default_options()
+@click.argument("sagseventid", required=True)
+def sagsevent(sagseventid: str, **kwargs) -> None:
+    """
+    Information om et sagsevent.
+    """
+
+    # Hver type FikspunktsregisterObjekt kan tilknyttes to slags Sagsevents,
+    # oprettelse og nedlukning. De skal præsenteres på omtrent samme måde.
+    # Nedenstående interne funktioner benyttes til dette.
+    def _koordinatoversigt(koordinater: list[Koordinat]) -> None:
+        for koordinat in koordinater:
+            fire.cli.print(f"{koordinat.punkt.ident:14} {koordinat_linje(koordinat)}")
+        fire.cli.print("\n")
+
+    def _observationsoversigt(observationer: list[Observation]) -> None:
+        niv_obstyper = (1, 2)
+        observationstyper = [o.observationstypeid for o in observationer]
+        ikke_niv_observationer = all(
+            obstype not in niv_obstyper for obstype in observationstyper
+        )
+        if ikke_niv_observationer:
+            fire.cli.print(
+                "Sagseventen indeholder observationer, der ikke er målt med nivellement."
+            )
+            fire.cli.print("Disse observationer kan på nuværende tidspunkt ikke vises.")
+        else:
+            observationsrapport(
+                observationer_til=observationer,
+                observationer_fra=[],
+                options="niv",
+                opt_detaljeret=False,
+            )
+
+    def _punktoversigt(punkter: list[Punkt]) -> None:
+        for punkt in punkter:
+            fire.cli.print(f" PUNKT {punkt.ident} ({punkt.id})", bold=True)
+            fire.cli.print(f"  Lokation  {punkt.geometriobjekter[-1].geometri}")
+        fire.cli.print("\n")
+
+    def _punktinfooversigt(
+        punktinformationer: list[PunktInformation], historik: bool
+    ) -> None:
+        # PunktInformationer grupperes efter Punkt
+        punkter = set(punktinfo.punkt for punktinfo in punktinformationer)
+        punktinfo_oversigt = {punkt: [] for punkt in punkter}
+
+        for punktinfo in punktinformationer:
+            punktinfo_oversigt[punktinfo.punkt].append(punktinfo)
+
+        for punkt, punktinformationer in punktinfo_oversigt.items():
+            fire.cli.print(punkt.ident)
+            punktinforapport(punktinformationer, historik)
+            fire.cli.print("\n")
+
+    def _grafikoversigt(grafikker: list[Grafik]) -> None:
+        fire.cli.print(f"{'Filnavn':30} Type")
+        fire.cli.print(f"{'-'*29:30} --------------")
+
+        for grafik in grafikker:
+            fire.cli.print(f"{grafik.filnavn:30} {grafik.type}")
+
+    def _header(tekst: str, bold=False) -> None:
+        max_bredde = 80
+        spacer_bredde = (max_bredde - len(tekst) - 2) // 2 + 1
+        fire.cli.print(
+            f"{'-'*spacer_bredde} {tekst} {'-'*spacer_bredde}"[0:80], bold=bold
+        )
+
+    try:
+        event = fire.cli.firedb.hent_sagsevent(sagseventid)
+    except NoResultFound:
+        fire.cli.print(f'Fejl! "{sagseventid}" ikke fundet!', fg="red", err=True)
+        raise SystemExit(1) # pylint: disable=raise-missing-from
+    except MultipleResultsFound:
+        fire.cli.print(
+            f'Fejl! Partielt UUID "{sagseventid}" ikke unikt!', fg="red", err=True
+        )
+        raise SystemExit(1) # pylint: disable=raise-missing-from
+
+    fire.cli.print("\n")
+    _header("SAGSEVENT", bold=True)
+    fire.cli.print(f"  Sagseventid   : {event.id}")
+    fire.cli.print(f"  Sagseventtype : {event.eventtype.name}")
+    fire.cli.print(f"  Oprettet      : {event.registreringfra}")
+    fire.cli.print(f"  Sagsid        : {event.sag.id}")
+    if len(event.beskrivelse) > 45:
+        fire.cli.print("  Beskrivelse   :\n")
+        fire.cli.print(event.beskrivelse)
+    else:
+        fire.cli.print(f"  Beskrivelse   : {event.beskrivelse}")
+    fire.cli.print("\n")
+
+    if event.eventtype == EventType.KOMMENTAR:
+        materialer = [m.materiale for si in event.sagseventinfos for m in si.materialer]
+        htmler = [h.html for si in event.sagseventinfos for h in si.htmler]
+
+        if materialer:
+            _header("Tilknyttet sagsmateriale")
+            for materiale in materialer:
+                blob = io.BytesIO(materiale)
+                with zipfile.ZipFile(blob, "r") as zipped_files:
+                    zipped_files.printdir()
+                fire.cli.print("\n")
+
+        if htmler:
+            _header("Tilknyttede HTML-filer")
+            for html in htmler:
+                match = re.search('<title>(.*?)</title>', html)
+                title = match.group(1) if match else 'Ingen HTML titel'
+                fire.cli.print(title)
+
+    if event.koordinater:
+        _header("Tilføjede koordinater")
+        _koordinatoversigt(event.koordinater)
+
+    if event.koordinater_slettede:
+        _header("Afregistrerede koordinater")
+        _koordinatoversigt(event.koordinater_slettede)
+
+    if event.observationer:
+        _header("Tilføjede observationer")
+        _observationsoversigt(event.observationer)
+
+    if event.observationer_slettede:
+        _header("Afregistrerede observationer")
+        _observationsoversigt(event.observationer_slettede)
+
+    if event.punktinformationer:
+        _header("Tilføjede punktinformationer")
+        _punktinfooversigt(event.punktinformationer, historik=False)
+
+    if event.punktinformationer_slettede:
+        _header("Afregistrerede punktinformationer")
+        _punktinfooversigt(event.punktinformationer_slettede, historik=True)
+
+    if event.punkter:
+        _header("Tilføjet punkt")
+        _punktoversigt(event.punkter)
+
+    if event.punkter_slettede:
+        _header("Afregistreret punkt")
+        _punktoversigt(event.punkter_slettede)
+
+    if event.grafikker:
+        _header("Tilføjet grafik")
+        _grafikoversigt(event.grafikker)
+
+    if event.grafikker_slettede:
+        _header("Afregistreret grafik")
+        _grafikoversigt(event.grafikker_slettede)
+
+    if event.punktsamlinger:
+        _header("Tilføjede punktsamlinger")
+        punktsamlingsrapport(event.punktsamlinger)
+
+    if event.punktsamlinger_slettede:
+        _header("Afregistrerede punktsamlinger")
+        punktsamlingsrapport(event.punktsamlinger_slettede)
+
+    if event.tidsserier:
+        _header("Tilføjede tidsserier")
+        tidsserierapport(event.tidsserier)
+
+    if event.tidsserier_slettede:
+        _header("Afregistrerede tidsserier")
+        tidsserierapport(event.tidsserier_slettede)
 
 
 @info.command()
