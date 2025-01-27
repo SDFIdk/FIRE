@@ -16,6 +16,10 @@ typer indhold i FIRE databasen.
   :prog: fire info sag
   :nested: full
 
+.. click:: fire.cli.info:sagsevent
+  :prog: fire info sagsevent
+  :nested: full
+
 .. click:: fire.cli.info:srid
   :prog: fire info srid
   :nested: full

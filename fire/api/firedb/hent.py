@@ -13,6 +13,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from fire.api.firedb.base import FireDbBase
 from fire.api.model import (
     Sag,
+    Sagsevent,
     Punkt,
     PunktSamling,
     PunktInformation,
@@ -212,6 +213,18 @@ class FireDbHent(FireDbBase):
         matches udsendes en sqlalchemy.orm.exc.MultipleResultsFound exception.
         """
         return self.session.query(Sag).filter(Sag.id.ilike(f"{sagsid}%")).one()
+
+    def hent_sagsevent(self, sagseventid: str) -> Sagsevent:
+        """
+        Hent et sagsevent ud fra dens sagseventid.
+
+        Sagseventid'er behøver ikke være fuldstændige, funktionen forsøger at matche
+        partielle sagseventid'er i samme stil som git håndterer commit hashes. I
+        tilfælde af at søgningen med et partielt sagseventid resulterer i flere
+        matches udsendes en sqlalchemy.orm.exc.MultipleResultsFound exception.
+        """
+        return self.session.query(Sagsevent).filter(Sagsevent.id.ilike(f"{sagseventid}%")).one()
+
 
     def hent_alle_sager(self, aktive=True) -> List[Sag]:
         """
