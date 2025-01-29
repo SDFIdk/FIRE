@@ -5,6 +5,7 @@ from math import trunc, isnan
 
 import click
 import pandas as pd
+import shapely
 from pyproj import Proj, Geod
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import DatabaseError
@@ -161,6 +162,53 @@ def udfyld_udeladte_identer(ark: pd.DataFrame) -> pd.DataFrame:
     ark["Punkt"] = punkter
 
     return ark
+
+def geometri_indenfor_danmark(geometriobjekt: GeometriObjekt) -> bool:
+    """
+    Afgør om et Punkt er placeret i Danmark.
+
+    Hjælpefunktion ifm tilknytning af landsnumre. Formålet er at afgøre om et
+    fikspunkt skal tildeles et landsnummer eller ej.
+
+    De to polygoner, der defineres her, omkranser tilsammen det danske landområde
+    og en væsentligt del af området til havs. Polygonerne er så simple som muligt,
+    og har til formål at gøre det muligt at frasortere punkter, der klart ikke
+    hører til i Danmark og derfor ikke kan få et landsnummer.
+
+    En alternativ løsning er, at bruge polygonerne i tabellen HERREDSOGN, men da
+    et større antal af geometrierne i denne tabel er fejlbehæftede (se #GRF-453)
+    er det ikke en optimal løsning, da geometrioperationer på de fejlbehæftede
+    polygoner kan fejle. Når fejlene i HERREDSOGN er rettet vil det være en god
+    ide at bruge polygonerne derfra i stedet for indeværende løsning.
+    """
+    dk = shapely.Polygon(
+        (
+            (8.658810, 54.896682),
+            (7.945291, 55.533987),
+            (8.152245, 57.044097),
+            (10.743566, 57.858115),
+            (12.676018, 56.011468),
+            (12.879528, 55.586588),
+            (12.595922, 54.888536),
+            (11.975737, 54.392955),
+            (10.382309, 54.740077),
+            (9.229106, 54.798215),
+            (8.658810, 54.896682),
+        )
+    )
+    bornholm = shapely.Polygon(
+        (
+            (14.749134, 55.324408),
+            (15.245643, 55.348433),
+            (15.149544, 54.980056),
+            (15.033425, 54.948023),
+            (14.637019, 55.068146),
+            (14.665048, 55.232314),
+            (14.749134, 55.324408),
+        )
+    )
+    punkt = shapely.from_wkt(geometriobjekt.geometri.wkt)
+    return shapely.within(punkt, dk) or shapely.within(punkt, bornholm)
 
 
 # ------------------------------------------------------------------------------
@@ -830,9 +878,12 @@ def ilæg_revision(
             punkter_med_rettelse.add(punkt.ident)
             continue
 
-    fikspunktstyper = [FikspunktsType.GI for _ in nye_punkter]
-    landsnumre = fire.cli.firedb.tilknyt_landsnumre(nye_punkter, fikspunktstyper)
+    # Tilknyt landsnumre for punkter i Danmark
+    punkter_i_dk = [p for p in nye_punkter if geometri_indenfor_danmark(p.geometri)]
+    fikspunktstyper = [FikspunktsType.GI for _ in punkter_i_dk]
+    landsnumre = fire.cli.firedb.tilknyt_landsnumre(punkter_i_dk, fikspunktstyper)
     til_opret.extend(landsnumre)
+
     for p in nye_punkter:
         punkter_med_oprettelse.add(p.ident)
 

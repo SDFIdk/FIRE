@@ -15,5 +15,6 @@ dependencies:
   - python=3.11.*
   - rich=13.*
   - scipy=1.14.*
+  - shapely=1.8.*
   - sqlalchemy=1.4.*
   - xmltodict=0.14.*
