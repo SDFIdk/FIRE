@@ -76,7 +76,7 @@ class FireDbBase:
         self.engine = self._create_engine()
 
         self.sessionmaker = sessionmaker(bind=self.engine)
-        self.session = self.sessionmaker(autoflush=False, future=True)
+        self.session = self.sessionmaker(autoflush=False)
 
         @event.listens_for(self.sessionmaker, "before_flush")
         def listener(thissession, flush_context, instances):
@@ -91,7 +91,16 @@ class FireDbBase:
             connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
             echo=self.debug,
             execution_options=self._exe_opt,
-            future=True,
+            # Nedenstående tvinger SQLAlchemy til at lave enkelte inserts frem for bulk inserts.
+            # Bulk inserts er klart at foretrække, men triggers på databasen kan i skrivende
+            # stund ikke håndtere bulk inserts. Når flere rækker opdateres på samme tid smider
+            # databasen en "<TABLE> is mutating" fejl. Det undgås ved at indsætte en række ad
+            # gangen. Ulempen er, at indsættelse af data tager længere tid.
+            use_insertmanyvalues=True,
+            # SQLAlchemy bruger som default oracledb i thin mode, der kun understøtter en
+            # delmængde af funktionaliteten i en Oracle database. FIRE kommer blandt andet
+            # i problemer med datetimes der bruger tidszoner vis thin mode bruges.
+            thick_mode=True,
         )
 
     def _luk_fikspunktregisterobjekt(

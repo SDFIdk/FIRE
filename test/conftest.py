@@ -48,6 +48,20 @@ persistent_firedb = FireDb(db="ci", debug=False)
 persistent_firedb.config.set("general", "niv_open_files", "false")
 fire.cli.override_firedb(persistent_firedb)
 
+@pytest.fixture(autouse=True)
+def setup_and_teardown():
+    """
+    Lidt et hack, der giver mulighed for at lave et automatisk rollback efter
+    hver test er afviklet. Gør det i mange tilfælde nemmere at spore sig ind på
+    den reelle fejl, fremfor at blive oversvømmet af PendingRollBackError.
+    """
+    # Her kan indføres setup-kode (før yield), men ikke behov for det nu
+
+    yield # Her køres den enkelte test
+
+    # Tear down efter test
+    persistent_firedb.session.rollback()
+
 
 @pytest.fixture
 def firedb():
