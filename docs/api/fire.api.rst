@@ -16,6 +16,5 @@ Subpackages
    :maxdepth: 3
 
    fire.api.firedb
-   fire.api.gama
    fire.api.model
    fire.api.niv

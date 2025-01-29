@@ -12,12 +12,6 @@ Module contents
 Submodules
 ----------
 
-.. automodule:: fire.cli.gama
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 .. automodule:: fire.cli.info
    :members:
    :undoc-members:

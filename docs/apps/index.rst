@@ -9,7 +9,5 @@ Kommandolinjeprogrammer
     niv
     indlæs
     grafik
-    gama
     luk
     ts
-
