@@ -77,6 +77,7 @@ class FireDbBase:
 
         self.sessionmaker = sessionmaker(bind=self.engine)
         self.session = self.sessionmaker(autoflush=False)
+        self.session.future = True
 
         @event.listens_for(self.sessionmaker, "before_flush")
         def listener(thissession, flush_context, instances):
