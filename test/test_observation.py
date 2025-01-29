@@ -19,7 +19,7 @@ from fire import uuid
 
 def test_observation(firedb: FireDb, observation: Observation):
     firedb.session.commit()
-    o1 = firedb.session.query(Observation).get(observation.objektid)
+    o1 = firedb.session.get(Observation, observation.objektid)
     assert o1.objektid == observation.objektid
 
 
