@@ -133,6 +133,7 @@ def punktsamling(firedb, sagsevent, punktfabrik, koordinatfabrik):
         ]
         + [punktfabrik() for _ in range(4)],
     )
+    firedb.session.add(pg)
     return pg
 
 
