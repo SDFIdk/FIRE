@@ -76,8 +76,7 @@ class FireDbBase:
         self.engine = self._create_engine()
 
         self.sessionmaker = sessionmaker(bind=self.engine)
-        self.session = self.sessionmaker(autoflush=False)
-        self.session.future = True
+        self.session = self.sessionmaker(autoflush=False, future=True)
 
         @event.listens_for(self.sessionmaker, "before_flush")
         def listener(thissession, flush_context, instances):
@@ -92,6 +91,7 @@ class FireDbBase:
             connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
             echo=self.debug,
             execution_options=self._exe_opt,
+            future=True,
         )
 
     def _luk_fikspunktregisterobjekt(
