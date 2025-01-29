@@ -24,25 +24,6 @@ RC_DEFAULTS = {
         "default_connection": "prod",
         "niv_open_files": "true",
     },
-    # se https://www.gnu.org/software/gama/manual/gama.html#Network-SQL-definition
-    "network-attributes": {
-        "axes-xy": "en",
-        "angles": "left-handed",
-        "epoch": 0.0,
-    },
-    # se https://www.gnu.org/software/gama/manual/gama.html#Network-parameters
-    "network-parameters": {
-        "algorithm": "gso",
-        "angles": 400,
-        "conf-pr": 0.95,
-        "cov-band": 0,
-        "ellipsoid": "grs80",
-        "latitude": 55.7,
-        "sigma-act": "apriori",
-        "sigma-apr": 1.0,
-        "tol-abs": 1000.0,
-        "update-constrained-coordinates": "no",
-    },
 }
 
 

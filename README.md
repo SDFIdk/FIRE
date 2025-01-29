@@ -21,8 +21,7 @@ masse andre attributter knyttet til punkterne.
 Indhold:
 
 *   En Python-pakke `fire` med API-modul [`fire.api`] til interaktion med den
-    bagvedliggende database samt arbejde med [GNU Gama][]-filer
-    [`fire.api.gama`].
+    bagvedliggende database.
 
     Med pakken kommer også kommandolinjeprogrammet `fire`, der indeholder en
     række brugbare underapplikationer, såsom `fire info`.
@@ -78,7 +77,7 @@ Installationsskridt:
 
     ```sh
     > cd C:\
-    C:\> 
+    C:\>
     ```
 
     Man kan i princippet selv vælge, hvor koden skal ligge, men vi gør det
