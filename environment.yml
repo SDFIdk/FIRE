@@ -8,13 +8,13 @@ dependencies:
   - gama=2.*
   - openpyxl=3.1.*
   - matplotlib=3.*
-  - numpy=2.1.*
-  - pyarrow=17.*
+  - numpy=2.2
+  - pyarrow=19.*
   - pandas=2.2.*
   - pyproj=3.7.*
   - python=3.11.*
   - rich=13.*
-  - scipy=1.14.*
-  - shapely=1.8.*
+  - scipy=1.15.*
+  - shapely=2.*
   - sqlalchemy=1.4.*
   - xmltodict=0.14.*
