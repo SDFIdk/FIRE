@@ -1312,6 +1312,80 @@ VALUES
 
 CREATE INDEX v_pres1_obs_geometri_idx ON v_pres1_obs (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=line');
 
+
+-- Alle nivellementobservationer inkl. diverse sagsinformationer.
+CREATE MATERIALIZED VIEW v_alle_niv_obs AS
+WITH
+	gi_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:GI' AND pi.registreringtil IS NULL
+	),
+	landsnr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	),
+	geometrier AS (
+		SELECT geometri, punktid FROM geometriobjekt go
+		WHERE go.registreringtil IS NULL
+	),
+	sager AS (
+		SELECT se.ID AS sagseventid, si.beskrivelse, sei.beskrivelse AS eventbeskrivelse, si.behandler, si.aktiv
+		FROM SAGSEVENT se
+		INNER JOIN SAGSINFO si ON se.SAGSID = si.SAGSID
+		INNER JOIN sagseventinfo sei ON se.id = sei.sagseventid
+		WHERE si.registreringtil IS NULL
+	)
+SELECT
+	COALESCE(og.ident, ol.ident) as opstillingspunkt_ident,
+	COALESCE(sg.ident, sl.ident) as sigtepunkt_ident,
+	sdo_geometry(
+		2002,
+		4326,
+		NULL,
+		sdo_elem_info_array (1,2,1),
+		sdo_ordinate_array (go1.geometri.sdo_point.x, go1.geometri.sdo_point.y, go2.geometri.sdo_point.x, go2.geometri.sdo_point.y)) geometri,
+	o.observationstidspunkt,
+	o.value1 koteforskel,
+	o.value2 nivlaengde,
+	o.value3 antal_opstillinger,
+	o.value4 eta1,
+	o.value5 spredning,
+	o.value6 centreringsfejl,
+	s.beskrivelse AS sagsbeskrivelse,
+	s.eventbeskrivelse,
+	s.behandler,
+	s.aktiv AS er_aktiv
+FROM observation o
+JOIN observationstype ot ON ot.observationstypeid=o.observationstypeid
+JOIN geometrier go1 ON go1.PUNKTID=o.opstillingspunktid
+JOIN geometrier go2 ON go2.PUNKTID=o.sigtepunktid
+LEFT JOIN landsnr ol ON ol.punktid = o.opstillingspunktid
+LEFT JOIN landsnr sl ON sl.punktid = o.sigtepunktid
+LEFT JOIN gi_ident og ON og.punktid = o.opstillingspunktid
+LEFT JOIN gi_ident sg ON sg.punktid = o.sigtepunktid
+LEFT JOIN sager s ON o.sagseventfraid = s.sagseventid
+WHERE
+	ot.observationstype IN ('geometrisk_koteforskel', 'trigonometrisk_koteforskel')
+;
+
+INSERT INTO
+  user_sdo_geom_metadata (table_name, column_name, diminfo, srid)
+VALUES
+  (
+    'v_alle_niv_obs',
+    'GEOMETRI',
+    MDSYS.SDO_DIM_ARRAY(
+      MDSYS.SDO_DIM_ELEMENT('Longitude', 7.0, 16.0, 0.005),
+      MDSYS.SDO_DIM_ELEMENT('Latitude', 54.0000, 59.0000, 0.005)
+    ),
+    4326
+  );
+
+CREATE INDEX v_alle_niv_obs_geometri_idx ON v_alle_niv_obs (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=line');
+
+
 -- Jessenpunkter
 CREATE MATERIALIZED VIEW v_jessenpunkter
 REFRESH ON DEMAND
