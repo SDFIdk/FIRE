@@ -1350,9 +1350,10 @@ SELECT
 	o.value1 koteforskel,
 	o.value2 nivlaengde,
 	o.value3 antal_opstillinger,
-	o.value4 eta1,
-	o.value5 spredning,
-	o.value6 centreringsfejl,
+	CASE o.observationstypeid WHEN 1 THEN o.value4 WHEN 2 THEN NULL     END AS eta1,
+	CASE o.observationstypeid WHEN 1 THEN o.value5 WHEN 2 THEN o.value4 END AS spredning,
+	CASE o.observationstypeid WHEN 1 THEN o.value6 WHEN 2 THEN o.value5 END AS centreringsfejl,
+	ot.observationstype,
 	s.beskrivelse AS sagsbeskrivelse,
 	s.eventbeskrivelse,
 	s.behandler,
@@ -1368,6 +1369,8 @@ LEFT JOIN gi_ident sg ON sg.punktid = o.sigtepunktid
 LEFT JOIN sager s ON o.sagseventfraid = s.sagseventid
 WHERE
 	ot.observationstype IN ('geometrisk_koteforskel', 'trigonometrisk_koteforskel')
+	AND o.fejlmeldt = 'false'
+	AND o.registreringtil IS NULL
 ;
 
 INSERT INTO
