@@ -158,11 +158,12 @@ WITH
 SELECT
   geometrier.geometri geometri,
   p.id punktid,
+  p.registreringfra as oprettelsesdato,
   landsnumre.landsnummer landsnr,
   gi_ident.ident gi_nr,
   koter.z dvr90_kote,
+  koter.t dvr90_t,
   koter.sz kotespredning,
-  koter.t beregningstidspunkt,
   koter.transformeret transformeret,
   beskrivelser.tekst beskrivelse,
   afmaerkning.tekst afmaerkning,
@@ -1314,7 +1315,10 @@ CREATE INDEX v_pres1_obs_geometri_idx ON v_pres1_obs (geometri) INDEXTYPE IS MDS
 
 
 -- Alle nivellementobservationer inkl. diverse sagsinformationer.
-CREATE MATERIALIZED VIEW v_alle_niv_obs AS
+CREATE MATERIALIZED VIEW v_alle_niv_obs
+REFRESH ON DEMAND
+START WITH SYSDATE NEXT SYSDATE + 1 / 24
+AS
 WITH
 	gi_ident AS (
 		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
