@@ -560,6 +560,12 @@ def læs_gama_output(
     koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
     varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
 
+    # Konverter til liste i tilfælde af der kun er blevet udjævnet ét punkt.
+    if isinstance(koteliste, dict):
+        koteliste = [koteliste]
+    if isinstance(varliste, dict):
+        varliste = [varliste]
+
     punkter = [punkt["id"] for punkt in koteliste]
     koter = [float(punkt["z"]) for punkt in koteliste]
     varianser = [float(var) for var in varliste]
