@@ -29,6 +29,7 @@ from fire.cli.niv import (
 )
 import fire.io.dataframe as frame
 from fire.io.regneark import arkdef
+from fire.io.formattering import forkort
 
 
 @niv.command()
@@ -1021,10 +1022,10 @@ def ilæg_tidsserie(
 
     # ================= 3A. SAGSEVENT REDIGER TIDSSERIE =================
     if ts_til_redigering:
-        tsnavne = "'" + "', '".join([ts.navn for ts in ts_til_redigering]) + "'"
+        tsnavne = forkort([f"'{ts.navn}'" for ts in ts_til_redigering])
         sagsevent_rediger_tidsserier = sag.ny_sagsevent(
             id=uuid(),
-            beskrivelse=f"Redigering af tidsserierne {tsnavne}",
+            beskrivelse=f"Redigering af tidsserierne {', '.join(tsnavne)}",
             tidsserier=ts_til_redigering,
         )
         fire.cli.firedb.indset_sagsevent(sagsevent_rediger_tidsserier, commit=False)
@@ -1047,10 +1048,10 @@ def ilæg_tidsserie(
 
     # ================= 3B. SAGSEVENT OPRET TIDSSERIE =================
     if ts_til_oprettelse:
-        tsnavne = "'" + "', '".join([ts.navn for ts in ts_til_oprettelse]) + "'"
+        tsnavne = forkort([f"'{ts.navn}'" for ts in ts_til_oprettelse])
         sagsevent_opret_tidsserier = sag.ny_sagsevent(
             id=uuid(),
-            beskrivelse=f"Oprettelse af tidsserierne {tsnavne}",
+            beskrivelse=f"Oprettelse af tidsserierne {', '.join(tsnavne)}",
             tidsserier=ts_til_oprettelse,
         )
         fire.cli.firedb.indset_sagsevent(sagsevent_opret_tidsserier, commit=False)
