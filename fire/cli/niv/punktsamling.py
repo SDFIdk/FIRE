@@ -1029,7 +1029,7 @@ def ilæg_tidsserie(
         )
         fire.cli.firedb.indset_sagsevent(sagsevent_rediger_tidsserier, commit=False)
         try:
-            fire.cli.firedb.session.flush()
+            fire.cli.firedb.session.flush([sagsevent_rediger_tidsserier,])
         except Exception as ex:
             # rul tilbage hvis databasen smider en exception
             fire.cli.firedb.session.rollback()
@@ -1055,7 +1055,7 @@ def ilæg_tidsserie(
         )
         fire.cli.firedb.indset_sagsevent(sagsevent_opret_tidsserier, commit=False)
         try:
-            fire.cli.firedb.session.flush()
+            fire.cli.firedb.session.flush([sagsevent_opret_tidsserier,])
         except Exception as ex:
             # rul tilbage hvis databasen smider en exception
             fire.cli.firedb.session.rollback()
