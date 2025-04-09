@@ -262,10 +262,10 @@ def ilæg_revision(
         1. Skabe overblik i omfattende revisionsregneark
         2. Øge effektiviteten af indlæsning, da kun punkter uden kryds tages i betragtning
 
-    Hvis en attributværdi skal ændres angives den nye værdi i kolonnen "Ny værdi". For
-    tekstattributter vil der allerede stå en kopi af den eksisterende værdi, så det er
-    nemt at lave små ændringer. Ved indlæsning i databasen medtages kun rækker hvor
-    "Ny værdi" afviger fra den oprindelige.
+    Hvis en attributværdi skal ændres angives den nye værdi i kolonnen "Ny værdi". Det gælder
+    uanset om attributten er en talat- eller tekstattribut. For tekstattributter vil der
+    allerede stå en kopi af den eksisterende værdi, så det er nemt at lave små ændringer. Ved
+    indlæsning i databasen medtages kun rækker hvor "Ny værdi" afviger fra den oprindelige.
 
     Hvis en attribut skal fjernes, gøres det ved at sætte "x" i kolonnen "Sluk". Det
     resulterer i at attributten afregistreres i databasen så den ikke længere fremgår
