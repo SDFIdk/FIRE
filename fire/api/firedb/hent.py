@@ -8,12 +8,13 @@ import re
 
 from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import aliased, joinedload
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 
 from fire.api.firedb.base import FireDbBase
 from fire.api.model import (
     Sag,
     Sagsevent,
+    Sagsinfo,
     Punkt,
     PunktSamling,
     PunktInformation,
@@ -225,6 +226,52 @@ class FireDbHent(FireDbBase):
         """
         return self.session.query(Sagsevent).filter(Sagsevent.id.ilike(f"{sagseventid}%")).one()
 
+    def hent_sager(
+        self,
+        søgetekst: str,
+        aktive: bool = True,
+        tid_fra: datetime = None,
+        tid_til: datetime = None,
+    ) -> list[Sag]:
+        """
+        Hent sager ud fra søgekriterier
+        """
+
+        try:
+            sag = self.hent_sag(søgetekst)
+        except (NoResultFound, MultipleResultsFound):
+            pass
+        else:
+            return [sag]
+
+        q = self.session.query(Sag).join(Sagsinfo)
+        q = q.filter(Sagsinfo._registreringtil == None)
+
+        if søgetekst is not None:
+            q = q.filter(Sagsinfo.beskrivelse.ilike(f"%{søgetekst or ''}%"))
+
+        fra_fejltekst = ""
+        if tid_fra:
+            fra_fejltekst = f"fra {tid_fra}"
+            q = q.filter(Sag._registreringfra >= tid_fra)
+
+        til_fejltekst = ""
+        if tid_til:
+            til_fejltekst = f"til {tid_til}"
+            q = q.filter(Sag._registreringfra < tid_til)
+
+        sager = q.all()
+
+        # Filtrer på aktive sager
+        if aktive:
+            sager = [s for s in sager if s.aktiv]
+
+        if not sager:
+            raise NoResultFound(
+                f"Ingen {'aktive ' if aktive else ''}sager med '{søgetekst}' fundet {fra_fejltekst} {til_fejltekst}"
+            )
+
+        return sager
 
     def hent_alle_sager(self, aktive=True) -> List[Sag]:
         """
