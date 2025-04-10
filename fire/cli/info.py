@@ -30,6 +30,10 @@ from fire.api.model import (
     Tidsserie,
     Grafik,
 )
+from fire.cli.click_types import Datetime
+
+# Dato-format til kommandolinie-argument.
+DATE_FORMAT = "%d-%m-%Y"
 
 
 @click.group()
@@ -734,7 +738,8 @@ def _optæl_punkter_i_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
     Genfundet: Alle genfundne punkter
     Beregnet: Alle punkter med nyberegnede koordinater
     Observeret: Alle observerede punkter
-    Besøgt: Alle punkter som har fået redigeret Punktinfo (bortset fra ATTR:tabtået)
+    Besøgt: Alle punkter som har fået redigeret Punktinfo eller indgår i nogen af
+    ovenstående kategorier.
 
     Fx. vil et Sagsevent som har redigeret punktbeskrivelsen og oprettet attributten
     NET:5D for punktet med id 'aabbccdd', samt genfundet punket 'eeffgghh' returnere
@@ -869,19 +874,102 @@ def _grupper_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
 @info.command()
 @fire.cli.default_options()
 @click.argument("sagsid", required=False)
-def sag(sagsid: str, **kwargs):
+@click.option(
+    "-df",
+    "--fra",
+    help=f"Hent sager fra og med denne dato. Angives på formen {DATE_FORMAT}.",
+    required=False,
+    type=Datetime(format=DATE_FORMAT),
+)
+@click.option(
+    "-dt",
+    "--til",
+    help=f"Hent sager til, men ikke med, denne dato. Angives på formen {DATE_FORMAT}.",
+    required=False,
+    type=Datetime(format=DATE_FORMAT),
+)
+@click.option(
+    "-a",
+    "--aktive",
+    is_flag=True,
+    default=False,
+    help="Hent kun aktive sager. Som standard hentes alle sager (også lukkede).",
+)
+@click.option(
+    "-r",
+    "--rapport",
+    is_flag=True,
+    default=False,
+    help="Udskriv rapport over fremsøgte sager.",
+)
+def sag(
+    sagsid: str,
+    fra: datetime.datetime,
+    til: datetime.datetime,
+    aktive: bool,
+    rapport: bool,
+    **kwargs):
     """
-    Information om en sag.
+    Fremsøg information om en eller flere sager.
 
-    Anføres **SAG** ikke sagsid listes alle aktive sager.
+    Fremsøger sager ud fra de angivne filterkriterier, og viser en liste over sagerne.
+    Hvis kun én sag findes som resultat af søgningen, vises uddybende detaljer om sagen.
+
+    **SAGSID** bruges til at søge på sagens id eller som fritekstsøgning på sagens navn
+    eller beskrivelse.
+
+    Derudover kan der søges på et givet tidsrum med ``-df/--fra`` og ``-dt/--til``. Flaget
+    ``-a/--aktive`` gør så søgningen kun viser de aktive sager.
+
+    Anføres ingen filterkriterier ikke listes alle sager.
+
+    Endeligt kan man med ``-r/--rapport`` vælge at få vist en simpel optælling af
+    punkterne i de(n) fremsøgte sag(er). Optællingen grupperer punkterne på kategorier som
+    giver mening ift. kommunal afrapportering:
+
+    \b
+        Oprettet    : Antal nyetablerede punkter
+        Tabtgået    : Antal tabtmeldte punkter
+        Genfundet   : Antal genfundne punkter
+        Beregnet    : Antal punkter med nyberegnede koordinater
+        Observeret  : Antal observerede punkter
+        Besøgt      : Antal punkter som har fået redigeret Punktinfo
+                      eller indgår i nogen af ovenstående kategorier.
+
+    **NB!** Optællingen kan ved store sager eller mange fremsøgte sager godt tage lidt tid.
+
+    **EKSEMPEL**
+
+    Vis alle aktive sager fra 2023::
+
+        fire info sag -a -df "01-01-2023" -dt "01-01-2024"
+
+    Vis alle sager indeholdende søgeteksten "KDI"::
+
+        fire info sag KDI
+
+    Fremsøg en enkelt sag og få vist uddybende information samt optælling::
+
+        fire info sag 2024_DMI_DROGDEN --rapport
+
+    Vis alle sager indeholdende søgeteksten "2024_VEDL" og lav samlet optælling::
+
+        fire info sag 2024_VEDL --rapport
+
     """
-    if sagsid:
-        try:
-            sag = fire.cli.firedb.hent_sag(sagsid)
-        except NoResultFound:
-            fire.cli.print(f"Fejl! {sagsid} ikke fundet!", fg="red", err=True)
-            raise SystemExit(1)
+    sager = []
+    sag = None
+    try:
+        sag = fire.cli.firedb.hent_sag(sagsid)
+    except (NoResultFound, MultipleResultsFound):
 
+        if sagsid or fra or til or aktive:
+            sager = fire.cli.firedb.hent_sager(søgetekst=sagsid, aktive=aktive, tid_fra=fra, tid_til=til)
+
+        if len(sager)==1:
+            sag = sager[0]
+
+    if sag:
         fire.cli.print(
             "------------------------- SAG -------------------------", bold=True
         )
@@ -900,8 +988,9 @@ def sag(sagsid: str, **kwargs):
             initial_indent=" " * 4,
             subsequent_indent=" " * 4,
         )
-        fire.cli.print(f"{beskrivelse}\n\n")
+        fire.cli.print(f"{beskrivelse}\n")
 
+        fire.cli.print(f"\n  Sagsevents    :\n")
         for sagsevent in sag.sagsevents:
             try:
                 beskrivelse = sagsevent.beskrivelse
@@ -918,15 +1007,34 @@ def sag(sagsid: str, **kwargs):
             sagseventid = sagsevent.id[0:8]
             fire.cli.print(f"[{tid}|{sagseventid}] {eventtype}: {beskrivelse}")
 
+        if rapport:
+            fire.cli.print(f"\n  Sagsoptælling :\n")
+            stats = _optæl_punkter_i_sagsevents(sag.sagsevents)
+            for k,v in stats.items():
+                fire.cli.print(f"    Antal {k}: {len(v)}")
+
         return
 
-    sager = fire.cli.firedb.hent_alle_sager()
+    if not sager:
+        sager = fire.cli.firedb.hent_alle_sager()
+        # Lav aldrig rapport-overblik over alle sager!
+        rapport = False
+
     fire.cli.print("Sagsid     Behandler           Beskrivelse", bold=True)
     fire.cli.print("---------  ------------------  -----------")
     for sag in sager:
         beskrivelse = sag.beskrivelse[0:70].strip().replace("\n", " ").replace("\r", "")
         fire.cli.print(f"{sag.id[0:8]}:  {sag.behandler:20}{beskrivelse}...")
 
+    if not rapport:
+        return
+
+    fire.cli.print(f"\n--- Optælling af alle fremsøgte sager ---")
+    alle_sagsevents = [se for sag in sager for se in sag.sagsevents]
+    stats = _optæl_punkter_i_sagsevents(alle_sagsevents)
+
+    for k,v in stats.items():
+        print(f"Antal {k}: {len(v)}")
 
 @info.command()
 @fire.cli.default_options()
