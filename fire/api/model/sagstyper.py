@@ -32,6 +32,27 @@ class EventType(enum.Enum):
     TIDSSERIE_MODIFICERET = 14
     TIDSSERIE_NEDLAGT = 15
 
+# fmt: off
+# Bestem hvilke data som tilknyttes et Sagsevent ud fra EventType
+EVENTTYPER = {
+    EventType.PUNKT_OPRETTET: ("punkter", "geometriobjekter"),
+    EventType.PUNKT_NEDLAGT: ("punkter_slettede", "geometriobjekter_slettede"),
+    EventType.KOORDINAT_BEREGNET: ("koordinater", "beregninger"),
+    EventType.KOORDINAT_NEDLAGT: ("koordinater_slettede","beregninger_slettede"),
+    EventType.OBSERVATION_INDSAT: ("observationer", None),
+    EventType.OBSERVATION_NEDLAGT: ("observationer_slettede", None),
+    EventType.PUNKTINFO_TILFOEJET: ("punktinformationer", None),
+    EventType.PUNKTINFO_FJERNET: ("punktinformationer_slettede", None),
+    EventType.GRAFIK_INDSAT: ("grafikker", None),
+    EventType.GRAFIK_NEDLAGT: ("grafikker_slettede", None),
+    EventType.PUNKTGRUPPE_MODIFICERET: ("punktsamlinger", None),
+    EventType.PUNKTGRUPPE_NEDLAGT: ("punktsamlinger_slettede", None),
+    EventType.TIDSSERIE_MODIFICERET: ("tidsserier", None),
+    EventType.TIDSSERIE_NEDLAGT: ("tidsserier_slettede", None),
+    EventType.KOMMENTAR: (None,),
+}
+# fmt: on
+
 
 class Sag(RegisteringFraObjekt):
     __tablename__ = "sag"
@@ -83,26 +104,6 @@ class Sag(RegisteringFraObjekt):
         if not id:
             id = fire.uuid()
 
-        # fmt: off
-        # Bestem EventType ud fra data tilknyttet sagsevent
-        eventtyper = {
-            EventType.PUNKT_OPRETTET: ("punkter", "geometriobjekter"),
-            EventType.PUNKT_NEDLAGT: ("punkter_slettede", "geometriobjekter_slettede"),
-            EventType.KOORDINAT_BEREGNET: ("koordinater", "beregninger"),
-            EventType.KOORDINAT_NEDLAGT: ("koordinater_slettede","beregninger_slettede"),
-            EventType.OBSERVATION_INDSAT: ("observationer", None),
-            EventType.OBSERVATION_NEDLAGT: ("observationer_slettede", None),
-            EventType.PUNKTINFO_TILFOEJET: ("punktinformationer", None),
-            EventType.PUNKTINFO_FJERNET: ("punktinformationer_slettede", None),
-            EventType.GRAFIK_INDSAT: ("grafikker", None),
-            EventType.GRAFIK_NEDLAGT: ("grafikker_slettede", None),
-            EventType.PUNKTGRUPPE_MODIFICERET: ("punktsamlinger", None),
-            EventType.PUNKTGRUPPE_NEDLAGT: ("punktsamlinger_slettede", None),
-            EventType.TIDSSERIE_MODIFICERET: ("tidsserier", None),
-            EventType.TIDSSERIE_NEDLAGT: ("tidsserier_slettede", None),
-        }
-        # fmt: on
-
         materialer = [SagseventInfoMateriale(materiale=m) for m in materialer]
         htmler = [SagseventInfoHtml(html=html) for html in htmler]
         si = SagseventInfo(
@@ -122,7 +123,7 @@ class Sag(RegisteringFraObjekt):
             )
 
         objekter = list(kwargs.keys())
-        for etype, (obligatorisk, valgfrit) in eventtyper.items():
+        for etype, (obligatorisk, valgfrit) in EVENTTYPER.items():
             if not obligatorisk in objekter:
                 continue
             objekter.remove(obligatorisk)
