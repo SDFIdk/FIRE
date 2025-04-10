@@ -16,6 +16,9 @@ import fire.cli
 from fire.ident import klargør_ident_til_søgning
 from fire.api.model import (
     EventType,
+    EVENTTYPER,
+    Sag,
+    Sagsevent,
     Punkt,
     PunktInformation,
     PunktInformationType,
@@ -716,6 +719,151 @@ def obstype(obstype: str, **kwargs):
             fire.cli.print(f"  {navn.replace('value','Værdi')}      :  {værdi}")
 
     fire.cli.print(f"  Sigtepunkt? :  {ot.sigtepunkt.value.title()}")
+
+
+def _optæl_punkter_i_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
+    """
+    Laver en optælling af unikke punkter som er berørt af en liste af sagseventets.
+
+    Der grupperes på kategorier som giver mening ift. kommunal afrapportering.
+
+    Returner en dict med unikke punktid'er for hver af følgende eventtyper:
+
+    Oprettet: Alle nyetablerede punkter
+    Tabtgået: Alle tabtmeldte punkter
+    Genfundet: Alle genfundne punkter
+    Beregnet: Alle punkter med nyberegnede koordinater
+    Observeret: Alle observerede punkter
+    Besøgt: Alle punkter som har fået redigeret Punktinfo (bortset fra ATTR:tabtået)
+
+    Fx. vil et Sagsevent som har redigeret punktbeskrivelsen og oprettet attributten
+    NET:5D for punktet med id 'aabbccdd', samt genfundet punket 'eeffgghh' returnere
+    dicten:
+
+    {
+        'oprettet': {},
+        'tabtgået': {},
+        'genfundet': {'eeffgghh'},
+        'beregnet': {},
+        'observeret': {},
+        'besøgt': {'aabbccdd', 'eeffgghh'},
+    }
+
+    """
+
+    # Tag sagsevents fra input-liste og gruppér dem
+    aggregeret_sagsevent = _grupper_sagsevents(sagsevent_liste)
+
+    stats = dict(
+        oprettet = set(),
+        tabtgået = set(),
+        genfundet = set(),
+        beregnet = set(),
+        observeret = set(),
+        besøgt = set(),
+    )
+
+    stats["oprettet"] = {p.id for p in aggregeret_sagsevent["punkter"]}
+
+    for pi in aggregeret_sagsevent["punktinformationer"]:
+        stats["besøgt"].add(pi.punktid)
+
+        # Alle dem hvor man har tilføjet attributten ATTR:tabtgået registreres som tabtgået
+        if pi.infotype.name == 'ATTR:tabtgået':
+            stats["tabtgået"].add(pi.punktid)
+
+    for pi in aggregeret_sagsevent["punktinformationer_slettede"]:
+        stats["besøgt"].add(pi.punktid)
+
+        # Alle dem hvor man har fjernet attributten ATTR:tabtgået registreres som genfundet
+        if pi.infotype.name == 'ATTR:tabtgået':
+            stats["genfundet"].add(pi.punktid)
+
+    # Fratræk overlap mellem genfundne og tabtgåede
+    overlap = stats["tabtgået"].intersection(stats["genfundet"])
+    stats["tabtgået"].difference_update(overlap)
+    stats["genfundet"].difference_update(overlap)
+
+
+    stats["beregnet"] = {k.punktid for k in aggregeret_sagsevent["koordinater"]}
+
+    stats["observeret"] = {
+        op
+        for o in aggregeret_sagsevent["observationer"]
+        for op in [o.sigtepunktid, o.opstillingspunktid]
+    }
+
+    # Oprettede, beregnede eller observerede punkter tæller også som besøgt.
+    stats["besøgt"].update(stats["oprettet"])
+    stats["besøgt"].update(stats["beregnet"])
+    stats["besøgt"].update(stats["observeret"])
+
+    return stats
+
+def _grupper_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
+    """
+    Samler alle FikspunktregisterObjekter der blev indsat eller slettet af Sagen.
+
+    Der returneres en `dict` som indeholder sættet af indsatte eller slettede
+    FikspunktregisterObjekter for hver af de nedenstående objekttyper:
+
+    {
+        punkter : ...
+        geometriobjekter : ...
+        beregninger: ...
+        koordinater: ...
+        observationer: ...
+        punktinformationer: ...
+        grafikker: ...
+        punktsamlinger: ...
+        tidsserier: ...
+        punkter_slettede: ...
+        geometriobjekter_slettede: ...
+        beregninger_slettede: ...
+        koordinater_slettede: ...
+        observationer_slettede: ...
+        punktinformationer_slettede: ...
+        grafikker_slettede: ...
+        punktsamlinger_slettede: ...
+        tidsserier_slettede: ...
+    }
+
+    Der fjernes overlap mellem indsatte og slettede Objekter. Fx. hvis
+    Punktinformationen "NET:5D" først er blevet indsat ved en fejl og dernæst slettet,
+    så vil den information ikke fremgå af oversigten.
+
+    (Dog er det lidt mere besværligt "den anden vej", da det indebærer en gruppering på
+    punktinfotypen). Dvs. hvis punktinformationen findes i forvejen, og den så slettes ved
+    en fejl, og dernæst tilføjes igen. Dette VIL fremgå af oversigten. Dog foretages der
+    netop en gruppering på ATTR:tabtgået, så denne vil fremtræde helt korrekt.
+
+    """
+    # Initialisér dict
+    fikspunktregisterobjekter = {obj: set() for _, objekter in EVENTTYPER.items() for obj in objekter if obj is not None}
+
+    for sagsevent in sagsevent_liste:
+        for dataobjekt in EVENTTYPER[sagsevent.eventtype]:
+            if dataobjekt is None:
+                continue
+            fikspunktregisterobjekter[dataobjekt].update(set(getattr(sagsevent, dataobjekt)))
+
+            # Det er muligt at indsætte/redigere en punktinformation som findes i forvejen.
+            # Når dette sker vil sagseventet have eventtype=PUNKTINFO_TILFOEJET, men både
+            # være mappet til "punktinformationer" og "punktinformationer_slettede".
+            # Nedenstående medtager de slettede punktinfos.
+            if sagsevent.eventtype == EventType.PUNKTINFO_TILFOEJET:
+                fikspunktregisterobjekter["punktinformationer_slettede"].update(set(getattr(sagsevent, "punktinformationer_slettede")))
+
+    # Træk overlap mellem oprettede og slettede objekter fra (det betyder at fx en punktinformation både er blevet tilføjet og slettet)
+    for k, v in fikspunktregisterobjekter.items():
+        try:
+            overlap = fikspunktregisterobjekter[k].intersection(fikspunktregisterobjekter[f"{k}_slettede"])
+        except KeyError:
+            continue
+        fikspunktregisterobjekter[k].difference_update(overlap)
+        fikspunktregisterobjekter[f"{k}_slettede"].difference_update(overlap)
+
+    return fikspunktregisterobjekter
 
 
 @info.command()
