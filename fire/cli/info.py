@@ -16,6 +16,9 @@ import fire.cli
 from fire.ident import klargør_ident_til_søgning
 from fire.api.model import (
     EventType,
+    EVENTTYPER,
+    Sag,
+    Sagsevent,
     Punkt,
     PunktInformation,
     PunktInformationType,
@@ -27,6 +30,10 @@ from fire.api.model import (
     Tidsserie,
     Grafik,
 )
+from fire.cli.click_types import Datetime
+
+# Dato-format til kommandolinie-argument.
+DATE_FORMAT = "%d-%m-%Y"
 
 
 @click.group()
@@ -718,22 +725,251 @@ def obstype(obstype: str, **kwargs):
     fire.cli.print(f"  Sigtepunkt? :  {ot.sigtepunkt.value.title()}")
 
 
+def _optæl_punkter_i_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
+    """
+    Laver en optælling af unikke punkter som er berørt af en liste af sagseventets.
+
+    Der grupperes på kategorier som giver mening ift. kommunal afrapportering.
+
+    Returner en dict med unikke punktid'er for hver af følgende eventtyper:
+
+    Oprettet: Alle nyetablerede punkter
+    Tabtgået: Alle tabtmeldte punkter
+    Genfundet: Alle genfundne punkter
+    Beregnet: Alle punkter med nyberegnede koordinater
+    Observeret: Alle observerede punkter
+    Besøgt: Alle punkter som har fået redigeret Punktinfo eller indgår i nogen af
+    ovenstående kategorier.
+
+    Fx. vil et Sagsevent som har redigeret punktbeskrivelsen og oprettet attributten
+    NET:5D for punktet med id 'aabbccdd', samt genfundet punket 'eeffgghh' returnere
+    dicten:
+
+    {
+        'oprettet': {},
+        'tabtgået': {},
+        'genfundet': {'eeffgghh'},
+        'beregnet': {},
+        'observeret': {},
+        'besøgt': {'aabbccdd', 'eeffgghh'},
+    }
+
+    """
+
+    # Tag sagsevents fra input-liste og gruppér dem
+    aggregeret_sagsevent = _grupper_sagsevents(sagsevent_liste)
+
+    stats = dict(
+        oprettet = set(),
+        tabtgået = set(),
+        genfundet = set(),
+        beregnet = set(),
+        observeret = set(),
+        besøgt = set(),
+    )
+
+    stats["oprettet"] = {p.id for p in aggregeret_sagsevent["punkter"]}
+
+    for pi in aggregeret_sagsevent["punktinformationer"]:
+        stats["besøgt"].add(pi.punktid)
+
+        # Alle dem hvor man har tilføjet attributten ATTR:tabtgået registreres som tabtgået
+        if pi.infotype.name == 'ATTR:tabtgået':
+            stats["tabtgået"].add(pi.punktid)
+
+    for pi in aggregeret_sagsevent["punktinformationer_slettede"]:
+        stats["besøgt"].add(pi.punktid)
+
+        # Alle dem hvor man har fjernet attributten ATTR:tabtgået registreres som genfundet
+        if pi.infotype.name == 'ATTR:tabtgået':
+            stats["genfundet"].add(pi.punktid)
+
+    # Fratræk overlap mellem genfundne og tabtgåede
+    overlap = stats["tabtgået"].intersection(stats["genfundet"])
+    stats["tabtgået"].difference_update(overlap)
+    stats["genfundet"].difference_update(overlap)
+
+
+    stats["beregnet"] = {k.punktid for k in aggregeret_sagsevent["koordinater"]}
+
+    stats["observeret"] = {
+        op
+        for o in aggregeret_sagsevent["observationer"]
+        for op in [o.sigtepunktid, o.opstillingspunktid]
+    }
+
+    # Oprettede, beregnede eller observerede punkter tæller også som besøgt.
+    stats["besøgt"].update(stats["oprettet"])
+    stats["besøgt"].update(stats["beregnet"])
+    stats["besøgt"].update(stats["observeret"])
+
+    return stats
+
+def _grupper_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
+    """
+    Samler alle FikspunktregisterObjekter der blev indsat eller slettet af Sagen.
+
+    Der returneres en `dict` som indeholder sættet af indsatte eller slettede
+    FikspunktregisterObjekter for hver af de nedenstående objekttyper:
+
+    {
+        punkter : ...
+        geometriobjekter : ...
+        beregninger: ...
+        koordinater: ...
+        observationer: ...
+        punktinformationer: ...
+        grafikker: ...
+        punktsamlinger: ...
+        tidsserier: ...
+        punkter_slettede: ...
+        geometriobjekter_slettede: ...
+        beregninger_slettede: ...
+        koordinater_slettede: ...
+        observationer_slettede: ...
+        punktinformationer_slettede: ...
+        grafikker_slettede: ...
+        punktsamlinger_slettede: ...
+        tidsserier_slettede: ...
+    }
+
+    Der fjernes overlap mellem indsatte og slettede Objekter. Fx. hvis
+    Punktinformationen "NET:5D" først er blevet indsat ved en fejl og dernæst slettet,
+    så vil den information ikke fremgå af oversigten.
+
+    (Dog er det lidt mere besværligt "den anden vej", da det indebærer en gruppering på
+    punktinfotypen). Dvs. hvis punktinformationen findes i forvejen, og den så slettes ved
+    en fejl, og dernæst tilføjes igen. Dette VIL fremgå af oversigten. Dog foretages der
+    netop en gruppering på ATTR:tabtgået, så denne vil fremtræde helt korrekt.
+
+    """
+    # Initialisér dict
+    fikspunktregisterobjekter = {obj: set() for _, objekter in EVENTTYPER.items() for obj in objekter if obj is not None}
+
+    for sagsevent in sagsevent_liste:
+        for dataobjekt in EVENTTYPER[sagsevent.eventtype]:
+            if dataobjekt is None:
+                continue
+            fikspunktregisterobjekter[dataobjekt].update(set(getattr(sagsevent, dataobjekt)))
+
+            # Det er muligt at indsætte/redigere en punktinformation som findes i forvejen.
+            # Når dette sker vil sagseventet have eventtype=PUNKTINFO_TILFOEJET, men både
+            # være mappet til "punktinformationer" og "punktinformationer_slettede".
+            # Nedenstående medtager de slettede punktinfos.
+            if sagsevent.eventtype == EventType.PUNKTINFO_TILFOEJET:
+                fikspunktregisterobjekter["punktinformationer_slettede"].update(set(getattr(sagsevent, "punktinformationer_slettede")))
+
+    # Træk overlap mellem oprettede og slettede objekter fra (det betyder at fx en punktinformation både er blevet tilføjet og slettet)
+    for k, v in fikspunktregisterobjekter.items():
+        try:
+            overlap = fikspunktregisterobjekter[k].intersection(fikspunktregisterobjekter[f"{k}_slettede"])
+        except KeyError:
+            continue
+        fikspunktregisterobjekter[k].difference_update(overlap)
+        fikspunktregisterobjekter[f"{k}_slettede"].difference_update(overlap)
+
+    return fikspunktregisterobjekter
+
+
 @info.command()
 @fire.cli.default_options()
 @click.argument("sagsid", required=False)
-def sag(sagsid: str, **kwargs):
+@click.option(
+    "-df",
+    "--fra",
+    help=f"Hent sager fra og med denne dato. Angives på formen {DATE_FORMAT}.",
+    required=False,
+    type=Datetime(format=DATE_FORMAT),
+)
+@click.option(
+    "-dt",
+    "--til",
+    help=f"Hent sager til, men ikke med, denne dato. Angives på formen {DATE_FORMAT}.",
+    required=False,
+    type=Datetime(format=DATE_FORMAT),
+)
+@click.option(
+    "-a",
+    "--aktive",
+    is_flag=True,
+    default=False,
+    help="Hent kun aktive sager. Som standard hentes alle sager (også lukkede).",
+)
+@click.option(
+    "-r",
+    "--rapport",
+    is_flag=True,
+    default=False,
+    help="Udskriv rapport over fremsøgte sager.",
+)
+def sag(
+    sagsid: str,
+    fra: datetime.datetime,
+    til: datetime.datetime,
+    aktive: bool,
+    rapport: bool,
+    **kwargs):
     """
-    Information om en sag.
+    Fremsøg information om en eller flere sager.
 
-    Anføres **SAG** ikke sagsid listes alle aktive sager.
+    Fremsøger sager ud fra de angivne filterkriterier, og viser en liste over sagerne.
+    Hvis kun én sag findes som resultat af søgningen, vises uddybende detaljer om sagen.
+
+    **SAGSID** bruges til at søge på sagens id eller som fritekstsøgning på sagens navn
+    eller beskrivelse.
+
+    Derudover kan der søges på et givet tidsrum med ``-df/--fra`` og ``-dt/--til``. Flaget
+    ``-a/--aktive`` gør så søgningen kun viser de aktive sager.
+
+    Anføres ingen filterkriterier ikke listes alle sager.
+
+    Endeligt kan man med ``-r/--rapport`` vælge at få vist en simpel optælling af
+    punkterne i de(n) fremsøgte sag(er). Optællingen grupperer punkterne på kategorier som
+    giver mening ift. kommunal afrapportering:
+
+    \b
+        Oprettet    : Antal nyetablerede punkter
+        Tabtgået    : Antal tabtmeldte punkter
+        Genfundet   : Antal genfundne punkter
+        Beregnet    : Antal punkter med nyberegnede koordinater
+        Observeret  : Antal observerede punkter
+        Besøgt      : Antal punkter som har fået redigeret Punktinfo
+                      eller indgår i nogen af ovenstående kategorier.
+
+    **NB!** Optællingen kan ved store sager eller mange fremsøgte sager godt tage lidt tid.
+
+    **EKSEMPEL**
+
+    Vis alle aktive sager fra 2023::
+
+        fire info sag -a -df "01-01-2023" -dt "01-01-2024"
+
+    Vis alle sager indeholdende søgeteksten "KDI"::
+
+        fire info sag KDI
+
+    Fremsøg en enkelt sag og få vist uddybende information samt optælling::
+
+        fire info sag 2024_DMI_DROGDEN --rapport
+
+    Vis alle sager indeholdende søgeteksten "2024_VEDL" og lav samlet optælling::
+
+        fire info sag 2024_VEDL --rapport
+
     """
-    if sagsid:
-        try:
-            sag = fire.cli.firedb.hent_sag(sagsid)
-        except NoResultFound:
-            fire.cli.print(f"Fejl! {sagsid} ikke fundet!", fg="red", err=True)
-            raise SystemExit(1)
+    sager = []
+    sag = None
+    try:
+        sag = fire.cli.firedb.hent_sag(sagsid)
+    except (NoResultFound, MultipleResultsFound):
 
+        if sagsid or fra or til or aktive:
+            sager = fire.cli.firedb.hent_sager(søgetekst=sagsid, aktive=aktive, tid_fra=fra, tid_til=til)
+
+        if len(sager)==1:
+            sag = sager[0]
+
+    if sag:
         fire.cli.print(
             "------------------------- SAG -------------------------", bold=True
         )
@@ -752,8 +988,9 @@ def sag(sagsid: str, **kwargs):
             initial_indent=" " * 4,
             subsequent_indent=" " * 4,
         )
-        fire.cli.print(f"{beskrivelse}\n\n")
+        fire.cli.print(f"{beskrivelse}\n")
 
+        fire.cli.print(f"\n  Sagsevents    :\n")
         for sagsevent in sag.sagsevents:
             try:
                 beskrivelse = sagsevent.beskrivelse
@@ -770,15 +1007,34 @@ def sag(sagsid: str, **kwargs):
             sagseventid = sagsevent.id[0:8]
             fire.cli.print(f"[{tid}|{sagseventid}] {eventtype}: {beskrivelse}")
 
+        if rapport:
+            fire.cli.print(f"\n  Sagsoptælling :\n")
+            stats = _optæl_punkter_i_sagsevents(sag.sagsevents)
+            for k,v in stats.items():
+                fire.cli.print(f"    Antal {k}: {len(v)}")
+
         return
 
-    sager = fire.cli.firedb.hent_alle_sager()
+    if not sager:
+        sager = fire.cli.firedb.hent_alle_sager()
+        # Lav aldrig rapport-overblik over alle sager!
+        rapport = False
+
     fire.cli.print("Sagsid     Behandler           Beskrivelse", bold=True)
     fire.cli.print("---------  ------------------  -----------")
     for sag in sager:
         beskrivelse = sag.beskrivelse[0:70].strip().replace("\n", " ").replace("\r", "")
         fire.cli.print(f"{sag.id[0:8]}:  {sag.behandler:20}{beskrivelse}...")
 
+    if not rapport:
+        return
+
+    fire.cli.print(f"\n--- Optælling af alle fremsøgte sager ---")
+    alle_sagsevents = [se for sag in sager for se in sag.sagsevents]
+    stats = _optæl_punkter_i_sagsevents(alle_sagsevents)
+
+    for k,v in stats.items():
+        print(f"Antal {k}: {len(v)}")
 
 @info.command()
 @fire.cli.default_options()
