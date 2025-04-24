@@ -73,10 +73,12 @@ class FireDbHent(FireDbBase):
 
         return punkter
 
-    def hent_punkter(self, ident: str) -> List[Punkt]:
+    def hent_punkter(self, ident: str, inkluder_historiske_identer: bool = False) -> List[Punkt]:
         """
         Returnerer alle punkter der matcher 'ident'
 
+        Sættes `inkluder_historiske_identer` til True, så søges der også iblandt
+        afregistrede identer.
         Hvis intet punkt findes udsendes en NoResultFound exception.
         """
         uuidmønster = re.compile(
@@ -99,7 +101,7 @@ class FireDbHent(FireDbBase):
                 .all()
             )
         else:
-            result = (
+            query = (
                 self.session.query(Punkt)
                 .options(
                     joinedload(Punkt.geometriobjekter),
@@ -112,7 +114,6 @@ class FireDbHent(FireDbBase):
                         PunktInformationType.name.startswith("IDENT:"),
                         PunktInformationType.name != "IDENT:refgeo_id",
                     ),
-                    PunktInformation._registreringtil == None,  # NOQA
                     or_(
                         PunktInformation.tekst == ident,
                         PunktInformation.tekst == f"FO  {ident}",
@@ -120,8 +121,12 @@ class FireDbHent(FireDbBase):
                     ),
                     Punkt._registreringtil == None,  # NOQA
                 )
-                .all()
             )
+
+            if not inkluder_historiske_identer:
+                query = query.filter(PunktInformation._registreringtil == None)
+
+            result = query.all()
 
         if not result:
             raise NoResultFound(f"Punkt med ident {ident} ikke fundet")

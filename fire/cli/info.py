@@ -537,7 +537,7 @@ def punkt(
     ident = klargør_ident_til_søgning(ident)
 
     try:
-        punkter = fire.cli.firedb.hent_punkter(ident)
+        punkter = fire.cli.firedb.hent_punkter(ident, inkluder_historiske_identer=historik)
     except NoResultFound:
         fire.cli.print(f"Fejl: Kunne ikke finde {ident}.", fg="red", err=True)
         raise SystemExit(1)
