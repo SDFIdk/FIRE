@@ -1358,6 +1358,7 @@ SELECT
 	CASE o.observationstypeid WHEN 1 THEN o.value5 WHEN 2 THEN o.value4 END AS spredning,
 	CASE o.observationstypeid WHEN 1 THEN o.value6 WHEN 2 THEN o.value5 END AS centreringsfejl,
 	ot.observationstype,
+	CASE WHEN o.value7 IS NULL THEN 0 ELSE o.value7 END AS landsdækkende_nivellement,
 	s.beskrivelse AS sagsbeskrivelse,
 	s.eventbeskrivelse,
 	s.behandler,
@@ -1391,6 +1392,77 @@ VALUES
   );
 
 CREATE INDEX v_alle_niv_obs_geometri_idx ON v_alle_niv_obs (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=line');
+
+-- Alt præcisionsnivellement. Filtreret ud fra skiftende præcisionskrav igennem tiden.
+CREATE MATERIALIZED VIEW v_praecisionsnivellement
+REFRESH ON DEMAND
+START WITH SYSDATE NEXT SYSDATE + 1 / 24
+AS
+WITH
+	gi_ident AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:GI' AND pi.registreringtil IS NULL
+	),
+	landsnr AS (
+		SELECT pi.punktid, pi.tekst ident FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='IDENT:landsnr' AND pi.registreringtil IS NULL
+	),
+	geometrier AS (
+		SELECT geometri, punktid FROM geometriobjekt go
+		WHERE go.registreringtil IS NULL
+	)
+SELECT
+	COALESCE(og.ident, ol.ident) as opstillingspunkt_ident,
+	COALESCE(sg.ident, sl.ident) as sigtepunkt_ident,
+	sdo_geometry(
+		2002,
+		4326,
+		NULL,
+		sdo_elem_info_array (1,2,1),
+		sdo_ordinate_array (go1.geometri.sdo_point.x, go1.geometri.sdo_point.y, go2.geometri.sdo_point.x, go2.geometri.sdo_point.y)) geometri,
+	o.observationstidspunkt,
+	o.value1 koteforskel,
+	o.value2 nivlaengde,
+	o.value3 antal_opstillinger,
+	CASE o.observationstypeid WHEN 1 THEN o.value4 WHEN 2 THEN NULL     END AS eta1,
+	CASE o.observationstypeid WHEN 1 THEN o.value5 WHEN 2 THEN o.value4 END AS spredning,
+	CASE o.observationstypeid WHEN 1 THEN o.value6 WHEN 2 THEN o.value5 END AS centreringsfejl,
+	ot.observationstype,
+	CASE WHEN o.value7 IS NULL THEN 0 ELSE o.value7 END AS landsdækkende_nivellement
+FROM observation o
+JOIN observationstype ot ON ot.observationstypeid=o.observationstypeid
+JOIN geometrier go1 ON go1.PUNKTID=o.opstillingspunktid
+JOIN geometrier go2 ON go2.PUNKTID=o.sigtepunktid
+LEFT JOIN landsnr ol ON ol.punktid = o.opstillingspunktid
+LEFT JOIN landsnr sl ON sl.punktid = o.sigtepunktid
+LEFT JOIN gi_ident og ON og.punktid = o.opstillingspunktid
+LEFT JOIN gi_ident sg ON sg.punktid = o.sigtepunktid
+WHERE
+	(
+		(ot.observationstype = 'geometrisk_koteforskel' and o.value5<=0.6) -- præcisionskrav for MGL
+		OR (ot.observationstype = 'trigonometrisk_koteforskel' and o.value4<=1.5 and extract(year from o.observationstidspunkt) >= 2020) -- mtl præc krav efter 2020
+		OR (ot.observationstype = 'trigonometrisk_koteforskel' and o.value4<=0.06 and extract(year from o.observationstidspunkt) < 2020) -- mtl præc krav før 2020
+	)
+	AND o.fejlmeldt = 'false'
+	AND o.registreringtil IS NULL
+;
+
+INSERT INTO
+  user_sdo_geom_metadata (table_name, column_name, diminfo, srid)
+VALUES
+  (
+    'v_praecisionsnivellement',
+    'GEOMETRI',
+    MDSYS.SDO_DIM_ARRAY(
+      MDSYS.SDO_DIM_ELEMENT('Longitude', 7.0, 16.0, 0.005),
+      MDSYS.SDO_DIM_ELEMENT('Latitude', 54.0000, 59.0000, 0.005)
+    ),
+    4326
+  );
+
+CREATE INDEX v_praecisionsnivellement_geometri_idx ON v_praecisionsnivellement (geometri) INDEXTYPE IS MDSYS.SPATIAL_INDEX PARAMETERS('layer_gtype=line');
 
 
 -- Jessenpunkter
