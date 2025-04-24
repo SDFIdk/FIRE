@@ -73,7 +73,9 @@ class FireDbHent(FireDbBase):
 
         return punkter
 
-    def hent_punkter(self, ident: str, inkluder_historiske_identer: bool = False) -> List[Punkt]:
+    def hent_punkter(
+        self, ident: str, inkluder_historiske_identer: bool = False
+    ) -> List[Punkt]:
         """
         Returnerer alle punkter der matcher 'ident'
 
@@ -229,7 +231,11 @@ class FireDbHent(FireDbBase):
         tilfælde af at søgningen med et partielt sagseventid resulterer i flere
         matches udsendes en sqlalchemy.orm.exc.MultipleResultsFound exception.
         """
-        return self.session.query(Sagsevent).filter(Sagsevent.id.ilike(f"{sagseventid}%")).one()
+        return (
+            self.session.query(Sagsevent)
+            .filter(Sagsevent.id.ilike(f"{sagseventid}%"))
+            .one()
+        )
 
     def hent_sager(
         self,

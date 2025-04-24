@@ -537,7 +537,9 @@ def punkt(
     ident = klargør_ident_til_søgning(ident)
 
     try:
-        punkter = fire.cli.firedb.hent_punkter(ident, inkluder_historiske_identer=historik)
+        punkter = fire.cli.firedb.hent_punkter(
+            ident, inkluder_historiske_identer=historik
+        )
     except NoResultFound:
         fire.cli.print(f"Fejl: Kunne ikke finde {ident}.", fg="red", err=True)
         raise SystemExit(1)
@@ -760,12 +762,12 @@ def _optæl_punkter_i_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
     aggregeret_sagsevent = _grupper_sagsevents(sagsevent_liste)
 
     stats = dict(
-        oprettet = set(),
-        tabtgået = set(),
-        genfundet = set(),
-        beregnet = set(),
-        observeret = set(),
-        besøgt = set(),
+        oprettet=set(),
+        tabtgået=set(),
+        genfundet=set(),
+        beregnet=set(),
+        observeret=set(),
+        besøgt=set(),
     )
 
     stats["oprettet"] = {p.id for p in aggregeret_sagsevent["punkter"]}
@@ -774,21 +776,20 @@ def _optæl_punkter_i_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
         stats["besøgt"].add(pi.punktid)
 
         # Alle dem hvor man har tilføjet attributten ATTR:tabtgået registreres som tabtgået
-        if pi.infotype.name == 'ATTR:tabtgået':
+        if pi.infotype.name == "ATTR:tabtgået":
             stats["tabtgået"].add(pi.punktid)
 
     for pi in aggregeret_sagsevent["punktinformationer_slettede"]:
         stats["besøgt"].add(pi.punktid)
 
         # Alle dem hvor man har fjernet attributten ATTR:tabtgået registreres som genfundet
-        if pi.infotype.name == 'ATTR:tabtgået':
+        if pi.infotype.name == "ATTR:tabtgået":
             stats["genfundet"].add(pi.punktid)
 
     # Fratræk overlap mellem genfundne og tabtgåede
     overlap = stats["tabtgået"].intersection(stats["genfundet"])
     stats["tabtgået"].difference_update(overlap)
     stats["genfundet"].difference_update(overlap)
-
 
     stats["beregnet"] = {k.punktid for k in aggregeret_sagsevent["koordinater"]}
 
@@ -804,6 +805,7 @@ def _optæl_punkter_i_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
     stats["besøgt"].update(stats["observeret"])
 
     return stats
+
 
 def _grupper_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
     """
@@ -844,25 +846,36 @@ def _grupper_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
 
     """
     # Initialisér dict
-    fikspunktregisterobjekter = {obj: set() for _, objekter in EVENTTYPER.items() for obj in objekter if obj is not None}
+    fikspunktregisterobjekter = {
+        obj: set()
+        for _, objekter in EVENTTYPER.items()
+        for obj in objekter
+        if obj is not None
+    }
 
     for sagsevent in sagsevent_liste:
         for dataobjekt in EVENTTYPER[sagsevent.eventtype]:
             if dataobjekt is None:
                 continue
-            fikspunktregisterobjekter[dataobjekt].update(set(getattr(sagsevent, dataobjekt)))
+            fikspunktregisterobjekter[dataobjekt].update(
+                set(getattr(sagsevent, dataobjekt))
+            )
 
             # Det er muligt at indsætte/redigere en punktinformation som findes i forvejen.
             # Når dette sker vil sagseventet have eventtype=PUNKTINFO_TILFOEJET, men både
             # være mappet til "punktinformationer" og "punktinformationer_slettede".
             # Nedenstående medtager de slettede punktinfos.
             if sagsevent.eventtype == EventType.PUNKTINFO_TILFOEJET:
-                fikspunktregisterobjekter["punktinformationer_slettede"].update(set(getattr(sagsevent, "punktinformationer_slettede")))
+                fikspunktregisterobjekter["punktinformationer_slettede"].update(
+                    set(getattr(sagsevent, "punktinformationer_slettede"))
+                )
 
     # Træk overlap mellem oprettede og slettede objekter fra (det betyder at fx en punktinformation både er blevet tilføjet og slettet)
     for k, v in fikspunktregisterobjekter.items():
         try:
-            overlap = fikspunktregisterobjekter[k].intersection(fikspunktregisterobjekter[f"{k}_slettede"])
+            overlap = fikspunktregisterobjekter[k].intersection(
+                fikspunktregisterobjekter[f"{k}_slettede"]
+            )
         except KeyError:
             continue
         fikspunktregisterobjekter[k].difference_update(overlap)
@@ -908,7 +921,8 @@ def sag(
     til: datetime.datetime,
     aktive: bool,
     rapport: bool,
-    **kwargs):
+    **kwargs,
+):
     """
     Fremsøg information om en eller flere sager.
 
@@ -964,9 +978,11 @@ def sag(
     except (NoResultFound, MultipleResultsFound):
 
         if sagsid or fra or til or aktive:
-            sager = fire.cli.firedb.hent_sager(søgetekst=sagsid, aktive=aktive, tid_fra=fra, tid_til=til)
+            sager = fire.cli.firedb.hent_sager(
+                søgetekst=sagsid, aktive=aktive, tid_fra=fra, tid_til=til
+            )
 
-        if len(sager)==1:
+        if len(sager) == 1:
             sag = sager[0]
 
     if sag:
@@ -1010,7 +1026,7 @@ def sag(
         if rapport:
             fire.cli.print(f"\n  Sagsoptælling :\n")
             stats = _optæl_punkter_i_sagsevents(sag.sagsevents)
-            for k,v in stats.items():
+            for k, v in stats.items():
                 fire.cli.print(f"    Antal {k}: {len(v)}")
 
         return
@@ -1033,8 +1049,9 @@ def sag(
     alle_sagsevents = [se for sag in sager for se in sag.sagsevents]
     stats = _optæl_punkter_i_sagsevents(alle_sagsevents)
 
-    for k,v in stats.items():
+    for k, v in stats.items():
         print(f"Antal {k}: {len(v)}")
+
 
 @info.command()
 @fire.cli.default_options()
@@ -1110,12 +1127,12 @@ def sagsevent(sagseventid: str, **kwargs) -> None:
         event = fire.cli.firedb.hent_sagsevent(sagseventid)
     except NoResultFound:
         fire.cli.print(f'Fejl! "{sagseventid}" ikke fundet!', fg="red", err=True)
-        raise SystemExit(1) # pylint: disable=raise-missing-from
+        raise SystemExit(1)  # pylint: disable=raise-missing-from
     except MultipleResultsFound:
         fire.cli.print(
             f'Fejl! Partielt UUID "{sagseventid}" ikke unikt!', fg="red", err=True
         )
-        raise SystemExit(1) # pylint: disable=raise-missing-from
+        raise SystemExit(1)  # pylint: disable=raise-missing-from
 
     fire.cli.print("\n")
     _header("SAGSEVENT", bold=True)
@@ -1145,8 +1162,8 @@ def sagsevent(sagseventid: str, **kwargs) -> None:
         if htmler:
             _header("Tilknyttede HTML-filer")
             for html in htmler:
-                match = re.search('<title>(.*?)</title>', html)
-                title = match.group(1) if match else 'Ingen HTML titel'
+                match = re.search("<title>(.*?)</title>", html)
+                title = match.group(1) if match else "Ingen HTML titel"
                 fire.cli.print(title)
 
     if event.koordinater:
