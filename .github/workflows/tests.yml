@@ -108,5 +108,5 @@ jobs:
 
     - name: Testsuite
       run: |
-        pytest --cov=fire --cov-report=xml --ignore=test/read/ --ignore=test/write/
+        SQLALCHEMY_SILENCE_UBER_WARNING=1 python -m pytest test --cov=fire --cov-report=xml --ignore=test/read/ --ignore=test/write/
         bash <(curl -s https://codecov.io/bash)

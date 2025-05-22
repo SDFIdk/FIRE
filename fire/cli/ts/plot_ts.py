@@ -234,6 +234,7 @@ def plot_hts_analyse(
     linreg: PolynomieRegression1D,
     statistik: StatistikHts,
     alpha: float = 0.05,
+    plot_errbars: bool = False,
 ):
     """
     Plot resultaterne af en Højdetidsserie-analyse.
@@ -256,14 +257,17 @@ def plot_hts_analyse(
     plt.rcParams["figure.autolayout"] = True
     plt.figure(figsize=(12, 9))
     ax = plt.subplot(111)
-    ax.errorbar(
-        x=linreg.x,
-        y=linreg.y,
-        yerr=np.sqrt(1 / linreg._W),
-        fmt="ko",
-        capsize=3,
-        label=f"Kote $\\pm$ std. afvigelse",
-    )
+    if plot_errbars:
+        ax.errorbar(
+            x=linreg.x,
+            y=linreg.y,
+            yerr=np.sqrt(1 / linreg._W),
+            fmt="ko",
+            capsize=3,
+            label=f"Kote $\\pm$ std. afvigelse",
+        )
+    else:
+        ax.plot(linreg.x, linreg.y, "k*", ms=5, label="Kote")
 
     ax.plot(
         x_præd,
@@ -418,10 +422,12 @@ def plot_tidsserier(
     plt.suptitle(titel)
     for i, ts in enumerate(tidsserier):
         x = np.array(ts.decimalår)
+        y = np.array(ts.kote) * skalafaktor
+
+        # Sorter tidsserier efter x
         idx_sorted = np.argsort(x)
         x = x[idx_sorted]
 
-        y = np.array(ts.kote) * skalafaktor
         y = y[idx_sorted]
         y = y - y[0]
 
@@ -434,25 +440,35 @@ def plot_tidsserier(
         )
 
         # Plot det sidste "nye" punkt og fremhæv det
-        if fremhæv_nyeste_punkt:
-            # udregn koteændringen
-            delta = y[-1] - y[-2]
+        if not fremhæv_nyeste_punkt:
+            continue
 
-            plt.plot(
-                x[-1],
-                y[-1],
-                marker="o",
-                mfc="none",
-                color=p[0].get_color(),
-                markersize=p[0].get_markersize() * 2,
-            )
+        plt.plot(
+            x[-1],
+            y[-1],
+            marker="o",
+            mfc="none",
+            color=p[0].get_color(),
+            markersize=p[0].get_markersize() * 2,
+        )
 
+        if len(y)<2:
             plt.text(
                 x[-1] + 2e-1,
                 y[-1],
-                f"$\\Delta$-kote {delta:.2f}",
+                f"Ny kote {y[-1]:.2f}",
                 color=p[0].get_color(),
             )
+            continue
+
+        # udregn koteændringen
+        delta = y[-1] - y[-2]
+        plt.text(
+            x[-1] + 2e-1,
+            y[-1],
+            f"$\\Delta$-kote {delta:.2f}",
+            color=p[0].get_color(),
+        )
 
     plt.xlabel("År")
     plt.ylabel(f"Normaliseret kote [{y_enhed}]")

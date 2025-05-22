@@ -12,6 +12,7 @@ from fire.api.model import (
 from fire.cli.ts import (
     _find_tidsserie,
     _udtræk_tidsserie,
+    skift_jessenpunkt,
 )
 from fire.cli.ts.statistik_ts import (
     StatistikHts,
@@ -221,6 +222,13 @@ def plot_hts(tidsserie: str, plottype: str, parametre: str, **kwargs) -> None:
     help="Minimum antal punkter i tidsserien.",
 )
 @click.option(
+    "--nyt-jessenpunkt",
+    required=False,
+    type=str,
+    default="",
+    help="Angiv ident for nyt referencepunkt som skal bruges i analysen"
+)
+@click.option(
     "--plot/--no-plot",
     is_flag=True,
     default=True,
@@ -232,18 +240,18 @@ def analyse_hts(
     fil: click.Path,
     nmin: int,
     plot: bool,
+    nyt_jessenpunkt: str,
     **kwargs,
 ):
     """
     Analysér en eller flere Højdetidsserier.
 
-    Der beregnes for hver af de valgte højdetidsserier et vægtet, lineært fit til
-    tidsserien. Som vægte anvendes de inverse koteusikkerheder.
+    Der beregnes for hver af de valgte højdetidsserier et lineært fit til tidsserien.
 
     Der vises et plot af alle tidsseriernes normaliserede koter. Dernæst vises et
     detaljeret plot af hver tidsserie med konfidensbånd og diverse andre
-    kvalitetsparametre for fittet. De detaljerede plots kan til/fravælges med
-    ``--plot/--no-plot``.
+    kvalitetsparametre for fittet. Plots kan til/fravælges med ``--plot/--no-plot``.
+
     Analyseresultaterne gemmes i csv-format hvis en sti angives med ``--fil``. Se
     nedenfor, for detaljer om analysen.
 
@@ -257,13 +265,16 @@ def analyse_hts(
     Tidsserier med meget få datapunkter filtreres fra i søgningen. Antallet kan vælges med
     ``--nmin``. Default-værdien er 3 datapunkter.
 
+    Parameteren ``--nyt-jessenpunkt`` angiver identen for det punkt som i analysen bruges
+    som nyt referencepunkt. Tidsserien for det valgte punkt trækkes fra de andre
+    tidsserier, hvilket dermed giver højdeforskellene ift. det valgte punkt. Bemærk at
+    dette er rent "beregningsteknisk", og altså bliver der ikke gemt nye koter i
+    databasen!
+
     **Statistisk analyse:**
 
-    Programmet beregner som nævnt et lineært fit ved brug af vægtet mindste kvadraters
-    metode (WLS). Som vægte anvendes koternes usikkerheder. I mange tilfælde er
-    usikkerhederne i databasen angivet til 0 mm (pga. nedrunding). I disse tilfælde
-    anvendes en værdi for usikkerheden på 0.5 mm.
-    Følgende er en beskrivelse af de nogle af statistiske parametre som programmet
+    Programmet beregner som nævnt et lineært fit ved brug af mindste kvadraters metode
+    (LS). Følgende er en beskrivelse af de nogle af statistiske parametre som programmet
     beregner og som fortjener forklaring::
 
     \b
@@ -291,12 +302,6 @@ def analyse_hts(
     I de detaljerede plots vises som nævnt konfidensbånd for fittet. Hertil anvendes
     signifikansniveau på 5%.
     """
-    # skaler data så der regnes og plottes i [mm] i stedet for [m]
-    skalafaktor = 1e3
-
-    # Minimum spredning
-    apriori_spredning = 0.5 # [mm]
-
     # Hent tidsserier som skal analyseres baseret på bruger input.
     try:
         # Antag først at der er givet en punktsamling
@@ -331,6 +336,12 @@ def analyse_hts(
     else:
         tidsserier: list[HøjdeTidsserie] = punktsamling.tidsserier
 
+    # Skift Jessenpunkt
+    if nyt_jessenpunkt:
+        nj = fire.cli.firedb.hent_punkt(nyt_jessenpunkt)
+        fire.cli.print(f"Skifter Jessenpunkt til {nyt_jessenpunkt}")
+        punktsamling, tidsserier  = skift_jessenpunkt(punktsamling, tidsserier, nj)
+
     # Filtrér desuden på minimum antal punkter, da de ikke kan filtreres via SQL
     tidsserier = [
         ts
@@ -341,33 +352,29 @@ def analyse_hts(
     if not tidsserier:
         raise SystemExit("Fandt ingen tidsserier")
 
+    # Sorter efter tidsserienavn
+    tidsserier = sorted(tidsserier, key=(lambda ts: ts.navn))
+
     for ts in tidsserier:
         print(f"Fandt {ts.navn}")
 
     # Beregn lineær regression for alle tidsserier samt statistik til rapportering.
     ts_statistik = {}
-    ts_fejlende = []
     for ts in tidsserier:
-        y = [skalafaktor * yy for yy in ts.kote]
+        # skaler data så der regnes og plottes i [mm] i stedet for [m]
+        y = [1e3 * yy for yy in ts.kote]
 
-        # Divider med 1000, for at få spredninger fra mm til m. Anvend derefter skalafaktor
-        # Hvis spredninger fra databasen er nul (ofte pga. nedrunding i det gamle system),
-        # så anvendes en apriori spredning på 0.5 mm.
-        y_vægte = [1/(skalafaktor * (sy if sy!=0 else apriori_spredning)/1e3)**2  for sy in ts.sz]
-
-        ts.forbered_lineær_regression(ts.decimalår, y, y_vægte = y_vægte)
+        ts.forbered_lineær_regression(ts.decimalår, y)
 
         try:
             ts.beregn_lineær_regression()
         except ValueError as e:
             print(f"Fejl ved løsning af tidsserien {ts.navn}:\n{e}")
             # Fjern tidsserien, så man stadig kan se plots af de tidsserier som ikke gav fejl
-            ts_fejlende.append(ts)
+            tidsserier.remove(ts)
             continue
 
         ts_statistik[ts.navn] = beregn_statistik_til_hts_rapport(ts)
-
-    tidsserier = list(set(tidsserier)-set(ts_fejlende))
 
     # Gem statistik
     if fil:
