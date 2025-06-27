@@ -82,6 +82,25 @@ def test_hent_punkt(firedb: FireDb, punkt: Punkt):
     s = p.sagsevent
     assert isinstance(s, Sagsevent)
 
+def test_hent_punkter(firedb: FireDb):
+    """
+    Test at alle punkter med ækvivalente GNSS ID'er fremsøges korrekt.
+
+    Historisk er GNSS ID navngivet med 4 tegn. Det har gennem tid skabt konflikt
+    med punkter i DK og GL, hvorfor de grønlandske punkter har fået præfixet "GL  ".
+    Sidenhen er 9-tegns GNSS ID'er kommet til, netop for at undgå denne
+    problemstilling. FIRE skal kunne fremsøge dem alle vha af 4-tegns betegnelsen,
+    som normalt bruges i daglig tale. Præfix og fuldt 9-tegns ID kan hjælpe med
+    at fjerne tvivl i tilfælde flere punkter dukker op i en søgning.
+    """
+    forventede_punkter = ["RDO1", "RDO100GRL", "GL  RDO1"]
+    punkter = firedb.hent_punkter("RDO1")
+
+    assert len(punkter) == 3
+    for punkt in punkter:
+        assert punkt.gnss_navn in forventede_punkter
+
+
 
 def test_hent_punkt(firedb: FireDb):
     """
@@ -89,12 +108,16 @@ def test_hent_punkt(firedb: FireDb):
     findes ens identer, hvor et eller flere har foranstillet landekode.
     Eksempelvis "SAND" og "FO  SAND". Her tester vi med "RDO1" og "GL  RDO1"
     der er opfundet til lejligheden.
+    Ligeledes testes om der skelnes korrekt mellem "RDO1" og "RDO100GRL".
     """
     punkt = firedb.hent_punkt("RDO1")
     assert punkt.gnss_navn == "RDO1"
 
     punkt = firedb.hent_punkt("GL  RDO1")
     assert punkt.gnss_navn == "GL  RDO1"
+
+    punkt = firedb.hent_punkt("RDO100GRL")
+    assert punkt.gnss_navn == "RDO100GRL"
 
 
 def test_hent_alle_punkter(firedb: FireDb):
@@ -229,7 +252,7 @@ def test_soeg_punkter(firedb: FireDb):
     punkter = firedb.soeg_punkter("%rd%")
 
     for punkt in punkter:
-        assert punkt.ident in ("RDIO", "RDO1", "GL  RDO1")
+        assert punkt.ident in ("RDIO", "RDO1", "GL  RDO1", "RDO100GRL")
 
     kun_et_punkt = firedb.soeg_punkter("K-63-%", antal=1)
     assert len(kun_et_punkt) == 1
