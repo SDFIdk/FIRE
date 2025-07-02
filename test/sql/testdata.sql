@@ -314,10 +314,12 @@ Insert into PUNKTINFO (REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID,INFOTYPEID
 Insert into PUNKTINFO (REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID,INFOTYPEID,TAL,TEKST,PUNKTID) values (to_timestamp_tz('2015-11-25 13:23:00','YYYY-MM-DD HH24:MI:SS'),null,'sagevent-aaaa-bbbb-0001-000000000002',346,null,'K-63-05436','4b4c5c17-32e8-495d-a598-cdf42e0892de');
 Insert into PUNKTINFO (REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID,INFOTYPEID,TAL,TEKST,PUNKTID) values (to_timestamp_tz('1991-02-03 00:34:00','YYYY-MM-DD HH24:MI:SS'),null,'sagevent-aaaa-bbbb-0001-000000000002',346,null,'K-63-09944','61c61847-ed54-4969-b94e-df74fd63f108');
 
--- Nedenstående punkt, "GL  RDO1" indsættes for at teste håndtering af dupletter blandt GNSS-identer i DK,
+-- "GL  RDO1" og RDO100GRL indsættes for at teste håndtering af dupletter blandt GNSS-identer i DK,
 -- GL og FO. Der er desværre et par punkter i FIRE som deler ident og kun adskilles af den foranstillede
--- landekode
+-- landekode. En af måder dubletter kan omgås er ved anvendelse af 9-tegns GNSS ID. Her er det dog fordelagtigt
+-- at kunne fremsøge punkterne ud fra de første fire tegn, altså "RDO1" i "RDO100GRL", da det bruges i daglige tale.
 Insert into PUNKTINFO (REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID,INFOTYPEID,TAL,TEKST,PUNKTID) values (to_timestamp_tz('1991-02-03 00:34:01','YYYY-MM-DD HH24:MI:SS'),null,'sagevent-aaaa-bbbb-0001-000000000002',347,null,'GL  RDO1','61c61847-ed54-4969-b94e-df74fd63f108');
+Insert into PUNKTINFO (REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID,INFOTYPEID,TAL,TEKST,PUNKTID) values (to_timestamp_tz('1991-02-03 00:34:02','YYYY-MM-DD HH24:MI:SS'),null,'sagevent-aaaa-bbbb-0001-000000000002',347,null,'RDO100GRL','47285c0d-791d-4ca4-8d4a-e5a0db9f0746');
 
 Insert into PUNKTINFO (REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID,INFOTYPEID,TAL,TEKST,PUNKTID) values (to_timestamp_tz('1991-02-03 00:34:00','YYYY-MM-DD HH24:MI:SS'),null,'sagevent-aaaa-bbbb-0001-000000000002',346,null,'K-63-09946','67e3987a-dc6b-49ee-8857-417ef35777af');
 Insert into PUNKTINFO (REGISTRERINGFRA,REGISTRERINGTIL,SAGSEVENTFRAID,INFOTYPEID,TAL,TEKST,PUNKTID) values (to_timestamp_tz('2015-11-25 13:23:00','YYYY-MM-DD HH24:MI:SS'),null,'sagevent-aaaa-bbbb-0001-000000000002',348,null,'G.I.2222','67e3987a-dc6b-49ee-8857-417ef35777af');

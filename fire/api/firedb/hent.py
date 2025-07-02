@@ -28,6 +28,7 @@ from fire.api.model import (
     Koordinat,
     Tidsserie,
 )
+from fire.ident import kan_være_gnssid
 
 
 class FireDbHent(FireDbBase):
@@ -88,6 +89,23 @@ class FireDbHent(FireDbBase):
         )
         kort_uuidmønster = re.compile(r"^[0-9A-Fa-f]{8}$")
 
+        basis_query = (
+            self.session.query(Punkt)
+            .options(
+                joinedload(Punkt.geometriobjekter),
+                joinedload(Punkt.koordinater),
+            )
+            .join(PunktInformation)
+            .join(PunktInformationType)
+            .filter(
+                and_(
+                    PunktInformationType.name.startswith("IDENT:"),
+                    PunktInformationType.name != "IDENT:refgeo_id",
+                ),
+                Punkt._registreringtil == None,  # NOQA
+            )
+        )
+
         if uuidmønster.match(ident):
             result = (
                 self.session.query(Punkt)
@@ -103,27 +121,19 @@ class FireDbHent(FireDbBase):
                 .all()
             )
         else:
-            query = (
-                self.session.query(Punkt)
-                .options(
-                    joinedload(Punkt.geometriobjekter),
-                    joinedload(Punkt.koordinater),
-                )
-                .join(PunktInformation)
-                .join(PunktInformationType)
-                .filter(
-                    and_(
-                        PunktInformationType.name.startswith("IDENT:"),
-                        PunktInformationType.name != "IDENT:refgeo_id",
-                    ),
-                    or_(
-                        PunktInformation.tekst == ident,
-                        PunktInformation.tekst == f"FO  {ident}",
-                        PunktInformation.tekst == f"GL  {ident}",
-                    ),
-                    Punkt._registreringtil == None,  # NOQA
-                )
+            filter = or_(
+                PunktInformation.tekst == ident,
+                PunktInformation.tekst == f"FO  {ident}",
+                PunktInformation.tekst == f"GL  {ident}",
             )
+            if kan_være_gnssid(ident):
+                filter_gnss = and_(
+                    PunktInformation.tekst.startswith(ident),
+                    PunktInformationType.name == 'IDENT:GNSS'
+                    )
+                filter = or_(filter, filter_gnss)
+
+            query = basis_query.filter(filter)
 
             if not inkluder_historiske_identer:
                 query = query.filter(PunktInformation._registreringtil == None)
