@@ -1076,10 +1076,34 @@ WITH
 		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
 		WHERE pit.infotype='IDENT:GNSS' AND pi.registreringtil IS NULL
 	),
+	townsite AS (
+		SELECT punktid, 'TOWN' AS sitetype
+		FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='ATTR:townsite' AND pi.registreringtil IS NULL
+	),
+	remotesite AS (
+		SELECT punktid, 'REMOTE' AS sitetype
+		FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='ATTR:remotesite' AND pi.registreringtil IS NULL
+	),
+	igs AS (
+		SELECT punktid, 'IGS' AS sitetype
+		FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='NET:IGS' AND pi.registreringtil IS NULL
+	),
+	afm AS (
+		SELECT punktid, pi.tekst afm
+		FROM punktinfo pi
+		JOIN punktinfotype pit ON pi.infotypeid=pit.infotypeid
+		WHERE pit.infotype='AFM:4650' AND pi.registreringtil IS NULL
+	),
 	gr96 AS (
 		SELECT k.punktid,k.t,k.x,k.y,k.z FROM koordinat k
 		JOIN sridtype st ON k.sridid=st.sridid
-		WHERE st.srid = 'EPSG:4909' AND k.registreringtil IS NULL
+		WHERE st.srid = 'GL:GR96(2021)' AND k.registreringtil IS NULL
 	),
 	geometrier AS (
 		SELECT geometri, punktid FROM geometriobjekt go
@@ -1093,16 +1117,23 @@ WITH
 SELECT
 	geometrier.geometri,
 	gnss_ident.ident GNSS_NAVN,
+	COALESCE(igs.sitetype, townsite.sitetype, remotesite.sitetype) AS SITE_TYPE,
+	afm.afm AS AFMÆRKNING,
 	gr96.t  GR96_T,
-	gr96.x  GR96_LON,
-	gr96.y  GR96_LAT,
-	gr96.z  GR96_ELLPSH
+	gr96.x  GR96_X,
+	gr96.y  GR96_Y,
+	gr96.z  GR96_Z
 FROM punkter
 LEFT JOIN gnss_ident ON punkter.punktid=gnss_ident.punktid
 LEFT JOIN gr96 ON punkter.punktid=gr96.punktid
+LEFT JOIN townsite ON punkter.punktid=townsite.punktid
+LEFT JOIN remotesite ON punkter.punktid=remotesite.punktid
+LEFT JOIN afm ON punkter.punktid=afm.punktid
+LEFT JOIN igs ON punkter.punktid=igs.punktid
 LEFT JOIN tabtgaaet ON punkter.punktid=tabtgaaet.punktid
 JOIN geometrier ON punkter.punktid=geometrier.punktid
 WHERE tabtgaaet.tabtgaaet IS NULL;
+
 
 INSERT INTO
   user_sdo_geom_metadata (table_name, column_name, diminfo, srid)
