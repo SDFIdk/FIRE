@@ -23,17 +23,8 @@ Indhold:
 *   En Python-pakke `fire` med API-modul [`fire.api`] til interaktion med den
     bagvedliggende database.
 
-    Med pakken kommer også kommandolinjeprogrammet `fire`, der indeholder en
+*   Kommandolinjeprogrammet `fire`, der indeholder en
     række brugbare underapplikationer, såsom `fire info`.
-
-*   Et QGIS-plugin kaldet `flame`, der tilbyder en grafisk brugerflade til
-    fikspunktsregisteret og adgang til beregningsprogrammellet i `fire`.
-
-    `flame` er endnu ikke klar til brug, men afventer en nærmere gennemgang.
-
-    Formålet med programmet er let at få vist punkter fra databasen i et
-    brugbart regi [QGIS]. Det skal eksempelvis være muligt at fremsøge alle
-    punkter inden for en given kommune, et givent distrikt osv.
 
 [GNU Gama]: https://www.gnu.org/software/gama/
 
