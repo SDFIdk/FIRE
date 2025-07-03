@@ -1,3 +1,5 @@
+import importlib.resources
+
 import click
 from pathlib import Path
 from pyproj import Transformer
@@ -25,7 +27,6 @@ from fire.cli.ts.statistik_ts import (
 
 from fire.cli.ts import (
     _find_tidsserie,
-    _print_tidsserieoversigt,
     _udtræk_tidsserie,
 )
 
@@ -74,7 +75,7 @@ GNSS_TS_ANALYSERBARE_PARAMETRE = {
     "u": "u",
 }
 
-DEFAULT_STI_UPLIFT_DATA = Path(__file__).parents[3] / Path("data/uplift")
+DEFAULT_STI_UPLIFT_DATA = importlib.resources.files("fire.data")
 
 
 @ts.command()
