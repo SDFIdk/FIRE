@@ -724,11 +724,3 @@ der er målt imellem, samt et singulært punkt; det nyetablerede ved Hjortholmve
 .. image:: figures/QGIS.PNG
   :width: 800
   :alt: Netopbygning vist i QGIS
-
-
-Der er blevet udviklet et plugin til QGIS, der hedder ``flame``. Med dette bør det
-være muligt let at få vist punkter fra databasen i et brugbart regi. Fx kan man fremsøge
-alle punkter inden for en given kommune, et givent distrikt osv.
-
-Pluginet er endnu ikke færdigudviklet og testet af, derfor afventer en nærmere gennemgang
-af det. Men der bliver udviklet på funktionaliteterne løbende og som behovet opstår.

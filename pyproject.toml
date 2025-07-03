@@ -1,0 +1,51 @@
+[project]
+name = "fire"
+dynamic = ["version"]
+description = "FIkspunktsREgister"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [
+  {name = "Klimadatastyrelsen", email = "gdl@kds.dk"},
+  {name = "Septima P/S", email = "kontakt@septima.dk"},
+]
+keywords = ["levelling", "database", "geodesy"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: Danish",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Utilities",
+]
+
+[project.scripts]
+fire = "fire.cli.main:fire_cmd"
+
+[project.entry-points."fire.cli.fire_commands"]
+"info" = "fire.cli.info:info"
+"niv" = "fire.cli.niv:niv"
+"søg" = "fire.cli.søg:søg"
+"grafik" = "fire.cli.grafik:grafik"
+"luk" = "fire.cli.luk:luk"
+"indlæs" = "fire.cli.indlæs:indlæs"
+"ts" = "fire.cli.ts:ts"
+"config" = "fire.cli.config:config"
+
+[build-system]
+requires = ['setuptools>=64']
+build-backend = 'setuptools.build_meta'
+
+[tool.setuptools.dynamic]
+version = {attr = "fire.__version__"}
+
+[tool.setuptools.package-data]
+"fire.data" = [
+    # Bruges i `fire ts analyse-gnss`. Grid indholdende absolut uplift-rate (DTU 2016).
+    # Dækker området 54.1-58° N, 7.7-13.1° E.
+    "dtu2016_abs.tif",
+]
