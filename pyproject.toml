@@ -47,3 +47,13 @@ version = {attr = "fire.__version__"}
 "fire.data" = [
     "dtu2016_abs.tif",
 ]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning:pytest_freezegun",
+]
