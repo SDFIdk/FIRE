@@ -2,6 +2,9 @@ from typing import (
     Mapping,
     Union,
 )
+from datetime import datetime
+from dataclasses import dataclass, asdict
+
 
 ArkDefinitionType = Mapping[str, Union[type, str]]
 "Regnearksdefinition (søjlenavne og -typer)"
@@ -24,6 +27,40 @@ NYETABLEREDE_PUNKTER: ArkDefinitionType = {
     "Højde over terræn": float,
     "uuid": str,
 }
+
+@dataclass
+class OBSKLASSE:
+    Journal: str
+    Sluk: str
+    # Fra-dato for observationens gyldighed
+    Fra: str
+    # Til-dato for observationens gyldighed
+    Til: str
+    # Koteforskel mellem opstillingspunktet og sigtepunktet
+    ΔH: float
+    # Nivellementlængde
+    L: float
+    Opst: int
+    # Empirisk spredning per afstandsenhed [mm * km ** -1/2]
+    σ: float
+    # Empirisk centreringsfejl per opstilling [ppm]
+    δ: float
+    # Kommentar i regnearket
+    Kommentar: str
+    # Observationstidspunkt
+    Hvornår: datetime
+    # Meteorologiske parametre
+    T: float
+    Sky: int
+    Sol: int
+    Vind: int
+    Sigt: int
+    # Projekt
+    Kilde: str
+    #
+    Type: str
+    # Observationspostens ID i databasen
+    uuid: str
 
 OBSERVATIONER: ArkDefinitionType = {
     # Journalnummer for observationen
