@@ -77,7 +77,7 @@ indsættes ugyldigt data i produktionsdatabasen.
 Kodestil
 --------
 
-`fire` kommandoen og QGIS pluginen Flame taler dansk til brugeren. Dokumentation
+`fire` kommandoen taler dansk til brugeren. Dokumentation
 skrives ligeledes på dansk. Det er tilladt at skrive kommentarer, funktions- og
 variabelnavne på engelsk. git commits bør så vidt muligt skrives på dansk.
 
@@ -143,18 +143,6 @@ GitHub er konfigureret sådan at man ikke kan lave ``git push`` direkte til ``ma
 For at inkludere kode i ``master`` kræves det at man laver et pull request med mindst
 et godkendt review fra en kollega, samt at alle CI tests gennemføres successfuldt.
 
-QGIS Plugin
-------------
-
-Flame pakkes til release ved brug af ``pb_tool``::
-
-    > cd flame
-    > pb_tool zip
-
-hvorefter filen ``flame_plugin.zip`` placeres i ``flame/zip``.
-
-Mere om ``pb_tool`` her https://github.com/g-sherman/plugin_build_tool.
-
 
 .. _testlokalt:
 
@@ -173,5 +161,3 @@ vær tålmodig.
 Kopier `ci`-opsætningen fra filen ``test/ci/fire.ini`` til din lokale `fire.ini` i din
 :envvar:`HOME`-mappe. Hvis Docker-billedet afvikles på en server skal `hostname` rettes
 til i under `ci`-opsætningen. Herefter burde det være muligt at køre test-suiten.
-
-
