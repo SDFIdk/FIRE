@@ -1,18 +1,21 @@
-import subprocess
-import webbrowser
 from pathlib import Path
-from math import hypot, sqrt
-from typing import Dict, Tuple, List
-from dataclasses import dataclass, asdict
+import webbrowser
 
 import click
-import xmltodict
-from pandas import DataFrame, Timestamp, isna
+from pandas import DataFrame
 
 from fire.api.model import (
     HøjdeTidsserie,
     Koordinat,
 )
+from fire.api.niv.regnemotor import (
+    RegneMotor,
+    GamaRegn,
+    DumRegn,
+    ValideringFejl,
+    UdjævningFejl,
+)
+
 from fire.io.regneark import arkdef
 import fire.cli
 
@@ -22,63 +25,35 @@ from fire.cli.ts.plot_ts import (
 
 from fire.cli.niv import (
     find_faneblad,
-    gyldighedstidspunkt,
     niv,
     skriv_punkter_geojson,
     skriv_observationer_geojson,
     skriv_ark,
     er_projekt_okay,
     hent_relevante_tidsserier,
-    udled_jessenpunkt_fra_punktoversigt
+    udled_jessenpunkt_fra_punktoversigt,
 )
 
-from fire.cli.niv._netoversigt import netanalyse
+from fire.cli.niv._netoversigt import byg_netgeometri_og_singulære
 
-
-@dataclass
-class Observationer:
-    journal: List[str]
-    sluk: List[str]
-    fra: List[str]
-    til: List[str]
-    delta_H: List[float]
-    L: List[int]
-    opst: List[int]
-    sigma: List[float]
-    delta: List[float]
-    kommentar: List[str]
-    hvornår: List[Timestamp]
-    T: List[float]
-    sky: List[float]
-    sol: List[float]
-    vind: List[float]
-    sigt: List[float]
-    kilde: List[str]
-    type: List[str]
-    uuid: List[str]
-
-
-@dataclass
-class Arbejdssæt:
-    punkt: List[int]
-    fasthold: List[str]
-    hvornår: List[Timestamp]
-    kote: List[float]
-    sigma: List[float]
-    ny_kote: List[float]
-    ny_sigma: List[float]
-    Delta_kote: List[float]
-    opløft: List[float]
-    system: List[str]
-    nord: List[float]
-    øst: List[float]
-    uuid: List[str]
-    udelad: List[str]
+motorvælger = {
+    "gama": GamaRegn,
+    "dum": DumRegn,
+}
 
 
 @niv.command()
 @fire.cli.default_options()
 @click.argument("projektnavn", nargs=1, type=str)
+@click.option(
+    "-M",
+    "--motor",
+    "MotorKlasse",
+    type=click.Choice(motorvælger.keys(), case_sensitive=False),
+    callback=lambda ctx, param, val: motorvælger[val],
+    default="gama",
+    help="Angiv regnemotor. Som standard anvendes GNU Gama.",
+)
 @click.option(
     "-P",
     "--plot",
@@ -87,7 +62,7 @@ class Arbejdssæt:
     default=False,
     help="Angiv om beregnede koter skal plottes som forlængelse af en tidsserie",
 )
-def regn(projektnavn: str, plot: bool, **kwargs) -> None:
+def regn(projektnavn: str, plot: bool, MotorKlasse: type[RegneMotor], **kwargs) -> None:
     """Beregn nye koter.
 
     Forudsat nivellementsobservationer allerede er indlæst i sagsregnearket
@@ -193,10 +168,12 @@ def regn(projektnavn: str, plot: bool, **kwargs) -> None:
         aktuelt_faneblad = "Punktoversigt"
         næste_faneblad = "Kontrolberegning"
         infiks = "-kon"
+        beregningstype = "kontrol"
     else:
         aktuelt_faneblad = "Kontrolberegning"
         næste_faneblad = "Endelig beregning"
         infiks = ""
+        beregningstype = "endelig"
 
     # Håndter fastholdte punkter og slukkede observationer.
     observationer = find_faneblad(projektnavn, "Observationer", arkdef.OBSERVATIONER)
@@ -207,50 +184,59 @@ def regn(projektnavn: str, plot: bool, **kwargs) -> None:
     if not kontrol:
         arbejdssæt["Hvornår"] = punktoversigt["Hvornår"]
 
-    arb_søjler = arbejdssæt.columns
-    obs_søjler = observationer.columns
-    # Konverter til dataklasse
-    observationer = obs_til_dataklasse(observationer)
-    arbejdssæt = arb_til_dataklasse(arbejdssæt)
+    # Inden regnemotoren sættes i gang tages der højde for slukkede observationer
+    observationer_uden_slukkede = observationer[observationer["Sluk"] != "x"]
 
-    # Lokalisér fastholdte punkter
-    fastholdte = find_fastholdte(arbejdssæt, kontrol)
-    if 0 == len(fastholdte):
-        fire.cli.print("Der skal fastholdes mindst et punkt i en beregning")
+    # Start regnemotoren!
+    motor = MotorKlasse.fra_dataframe(
+        observationer_uden_slukkede, arbejdssæt, projektnavn=projektnavn
+    )
+
+    # Tilføj "-kontrol" eller "-endelig" til alle filnavne
+    motor.filer = [
+        str(Path(fn).with_stem(f"{Path(fn).stem}-{beregningstype}"))
+        for fn in motor.filer
+    ]
+
+    try:
+        motor.valider_fastholdte()
+    except ValideringFejl as fejl:
+        fire.cli.print(f"FEJL: {fejl}", bg="red", fg="white")
         raise SystemExit(1)
 
-    if any([v for v in fastholdte.values() if isna(v)]):
+    # Analyser net
+    net_uden_ensomme, ensomme_subnet, estimerbare_punkter = motor.netanalyse()
+    if ensomme_subnet:
         fire.cli.print(
-            "Der skal angives koter for alle fastholdte punkter i en beregning"
+            f"ADVARSEL: Manglende fastholdt punkt i mindst et subnet! Forslag til fastholdte punkter i hvert subnet:",
+            bg="yellow",
+            fg="black",
+        )
+        for i, subn in enumerate(ensomme_subnet):
+            fire.cli.print(f"  Subnet {i}: {subn[0]}", fg="red")
+    resultater = byg_netgeometri_og_singulære(net_uden_ensomme, ensomme_subnet)
+
+    # Beregn nye koter for de ikke-fastholdte punkter...
+    fire.cli.print(
+        f"Fastholder {len(motor.fastholdte)} og beregner nye koter for {len(estimerbare_punkter)} punkter"
+    )
+
+    try:
+        motor.udjævn()
+    except UdjævningFejl as fejl:
+        fire.cli.print(
+            f"FEJL: {fejl}",
+            bg="red",
+            fg="white",
         )
         raise SystemExit(1)
 
-    # Ny netanalyse: Tag højde for slukkede observationer og fastholdte punkter.
-    resultater = netanalyse(projektnavn)
+    # Generer ny dataframe med resultaterne.
+    nye_punkter_df = motor.til_dataframe()
 
-    # Beregn nye koter for de ikke-fastholdte punkter...
-    forbundne_punkter = tuple(sorted(resultater["Netgeometri"]["Punkt"]))
-    estimerede_punkter = tuple(sorted(set(forbundne_punkter) - set(fastholdte)))
-    fire.cli.print(
-        f"Fastholder {len(fastholdte)} og beregner nye koter for {len(estimerede_punkter)} punkter"
-    )
-
-    # Skriv Gama-inputfil i XML-format
-    skriv_gama_inputfil(projektnavn, fastholdte, estimerede_punkter, observationer)
-
-    # Kør GNU Gama og skriv HTML rapport
-    htmlrapportnavn = gama_udjævn(projektnavn, kontrol)
-
-    # Indlæs nødvendige parametre til at skrive Gama output til xlsx
-    punkter, koter, varianser = læs_gama_output(projektnavn)
-    t_gyldig = gyldighedstidspunkt(projektnavn)
-
-    # Opdater arbejdssæt med GNU Gama output
-    beregning = opdater_arbejdssæt(punkter, koter, varianser, arbejdssæt, t_gyldig)
-    værdier = []
-    for _, værdi in asdict(beregning).items():
-        værdier.append(værdi)
-    beregning = DataFrame(list(zip(*værdier)), columns=arb_søjler)
+    # Opdater arbejdssæt med udjævningsresultat
+    beregning = opdater_arbejdssæt(arbejdssæt, nye_punkter_df)
+    beregning = beregning.reset_index()
     resultater[næste_faneblad] = beregning
 
     # Plot tidsserier forlænget med de nyberegnede koter.
@@ -321,10 +307,7 @@ def regn(projektnavn: str, plot: bool, **kwargs) -> None:
 
     # ...og beret om resultaterne
     skriv_punkter_geojson(projektnavn, resultater[næste_faneblad], infiks=infiks)
-    obs = []
-    for _, o in asdict(observationer).items():
-        obs.append(o)
-    observationer = DataFrame(list(zip(*obs)), columns=obs_søjler)
+
     skriv_observationer_geojson(
         projektnavn,
         resultater[næste_faneblad].set_index("Punkt"),
@@ -333,314 +316,31 @@ def regn(projektnavn: str, plot: bool, **kwargs) -> None:
     )
     skriv_ark(projektnavn, resultater)
     if fire.cli.firedb.config.getboolean("general", "niv_open_files"):
-        webbrowser.open_new_tab(htmlrapportnavn)
+        # åbn html output hvis motoren producerer et
+        if hasattr(motor, "html_out"):
+            webbrowser.open_new_tab(motor.html_out)
         fire.cli.print("Færdig! - åbner regneark og resultatrapport for check.")
         fire.cli.åbn_fil(f"{projektnavn}.xlsx")
 
 
-# -----------------------------------------------------------------------------
-def obs_til_dataklasse(obs: DataFrame):
-    return Observationer(
-        journal=list(obs["Journal"]),
-        sluk=list(obs["Sluk"]),
-        fra=list(obs["Fra"]),
-        til=list(obs["Til"]),
-        delta_H=list(obs["ΔH"]),
-        L=list(obs["L"]),
-        opst=list(obs["Opst"]),
-        sigma=list(obs["σ"]),
-        delta=list(obs["δ"]),
-        kommentar=list(obs["Kommentar"]),
-        hvornår=list(obs["Hvornår"]),
-        T=list(obs["T"]),
-        sky=list(obs["Sky"]),
-        sol=list(obs["Sol"]),
-        vind=list(obs["Vind"]),
-        sigt=list(obs["Sigt"]),
-        kilde=list(obs["Kilde"]),
-        type=list(obs["Type"]),
-        uuid=list(obs["uuid"]),
-    )
-
-
-def arb_til_dataklasse(arb: DataFrame):
-    return Arbejdssæt(
-        punkt=list(arb["Punkt"]),
-        fasthold=list(arb["Fasthold"]),
-        hvornår=list(arb["Hvornår"]),
-        kote=list(arb["Kote"]),
-        sigma=list(arb["σ"]),
-        ny_kote=list(arb["Ny kote"]),
-        ny_sigma=list(arb["Ny σ"]),
-        Delta_kote=list(arb["Δ-kote [mm]"]),
-        opløft=list(arb["Opløft [mm/år]"]),
-        system=list(arb["System"]),
-        nord=list(arb["Nord"]),
-        øst=list(arb["Øst"]),
-        uuid=list(arb["uuid"]),
-        udelad=list(arb["Udelad publikation"]),
-    )
-
-
-# ------------------------------------------------------------------------------
-def spredning(
-    observationstype: str,
-    afstand_i_m: float,
-    antal_opstillinger: float,
-    afstandsafhængig_spredning_i_mm: float,
-    centreringsspredning_i_mm: float,
-) -> float:
-    """Apriorispredning for nivellementsobservation
-
-    Fx.  MTL: spredning("mtl", 500, 3, 2, 0.5) = 1.25
-         MGL: spredning("MGL", 500, 3, 0.6, 0.01) = 0.4243
-         NUL: spredning("NUL", .....) = 0
-
-    Rejser ValueError ved ukendt observationstype eller
-    (via math.sqrt) ved negativ afstand_i_m.
-
-    Negative afstandsafhængig- eller centreringsspredninger
-    behandles som positive.
-
-    Observationstypen NUL benyttes til at sammenbinde disjunkte
-    undernet - det er en observation med forsvindende apriorifejl,
-    der eksakt reproducerer koteforskellen mellem to fastholdte
-    punkter
+def opdater_arbejdssæt(arbejdssæt: DataFrame, nye_koter: DataFrame):
     """
+    Opdater arbejdssæt med resultater fra en udjævning.
 
-    if "NUL" == observationstype.upper():
-        return 0
-
-    opstillingsafhængig = sqrt(antal_opstillinger * (centreringsspredning_i_mm**2))
-
-    if "MTL" == observationstype.upper():
-        afstandsafhængig = afstandsafhængig_spredning_i_mm * afstand_i_m / 1000
-        return hypot(afstandsafhængig, opstillingsafhængig)
-
-    if "MGL" == observationstype.upper():
-        afstandsafhængig = afstandsafhængig_spredning_i_mm * sqrt(afstand_i_m / 1000)
-        return hypot(afstandsafhængig, opstillingsafhængig)
-
-    raise ValueError(f"Ukendt observationstype: {observationstype}")
-
-
-# ------------------------------------------------------------------------------
-def find_fastholdte(arbejdssæt: Arbejdssæt, kontrol: bool) -> Dict[str, float]:
-    """Find fastholdte punkter til gama beregning"""
-    if kontrol:
-        # I kontrolberegningen markeres fastholdte punkter med "x" ...
-        relevante = [i for i, f in enumerate(arbejdssæt.fasthold) if f == "x"]
-    else:
-        # ... men i den endelige beregning kan andre tegn også bruges, fx
-        # "e". Formålet er, at let kunne skelne mellem punkter fastholdt
-        # i kontrolberegningen og yderligere punkter der fastholdes i
-        # den endelige beregning
-        relevante = [i for i, f in enumerate(arbejdssæt.fasthold) if f != ""]
-
-    fastholdte_punkter = (arbejdssæt.punkt[i] for i in relevante)
-    fastholdte_koter = (arbejdssæt.kote[i] for i in relevante)
-
-    return dict(zip(fastholdte_punkter, fastholdte_koter))
-
-
-def skriv_gama_inputfil(
-    projektnavn: str,
-    fastholdte: dict,
-    estimerede_punkter: Tuple[str, ...],
-    observationer: Observationer,
-):
+    Overskriver kun visse kolonner med udjævningsresultaterne. De andre kolonner i
+    arbejdssættet beholdes.
     """
-    Skriv gama-inputfil i XML-format
-    """
-    with open(f"{projektnavn}.xml", "wt") as gamafil:
-        # Preambel
-        gamafil.write(
-            f"<?xml version='1.0' ?><gama-local>\n"
-            f"<network angles='left-handed' axes-xy='en' epoch='0.0'>\n"
-            f"<parameters\n"
-            f"    algorithm='gso' angles='400' conf-pr='0.95'\n"
-            f"    cov-band='0' ellipsoid='grs80' latitude='55.7' sigma-act='aposteriori'\n"
-            f"    sigma-apr='1.0' tol-abs='1000.0'\n"
-            f"/>\n\n"
-            f"<description>\n"
-            f"    Nivellementsprojekt {ascii(projektnavn)}\n"  # Gama kaster op over Windows-1252 tegn > 127
-            f"</description>\n"
-            f"<points-observations>\n\n"
-        )
+    # Sæt Punkt til index, og tilføj nyberegnede punkter til indexet.
+    # NB: Dette er kun i tilfælde af at der er beregnede punkter, som ikke oprindeligt
+    # var i arbejdssættet.
+    arbejdssæt = arbejdssæt.set_index("Punkt")
+    arbejdssæt = arbejdssæt.reindex(nye_koter.index.union(arbejdssæt.index))
 
-        # Fastholdte punkter
-        gamafil.write("\n\n<!-- Fixed -->\n\n")
-        for punkt, kote in fastholdte.items():
-            gamafil.write(f"<point fix='Z' id='{punkt}' z='{kote}'/>\n")
-
-        # Punkter til udjævning
-        gamafil.write("\n\n<!-- Adjusted -->\n\n")
-        for punkt in estimerede_punkter:
-            gamafil.write(f"<point adj='z' id='{punkt}'/>\n")
-
-        # Observationer
-        gamafil.write("<height-differences>\n")
-        for sluk, fra, til, delta_H, L, type, opst, sigma, delta, journal in zip(
-            observationer.sluk,
-            observationer.fra,
-            observationer.til,
-            observationer.delta_H,
-            observationer.L,
-            observationer.type,
-            observationer.opst,
-            observationer.sigma,
-            observationer.delta,
-            observationer.journal,
-        ):
-            if sluk == "x":
-                continue
-            gamafil.write(
-                f"<dh from='{fra}' to='{til}' "
-                f"val='{delta_H:+.6f}' "
-                f"dist='{L:.5f}' stdev='{spredning(type, L, opst, sigma, delta):.5f}' "
-                f"extern='{journal}'/>\n"
-            )
-
-        # Postambel
-        gamafil.write(
-            "</height-differences>\n"
-            "</points-observations>\n"
-            "</network>\n"
-            "</gama-local>\n"
-        )
-
-
-def gama_udjævn(projektnavn: str, kontrol: bool):
-    # Lad GNU Gama om at køre udjævningen
-    if kontrol:
-        beregningstype = "kontrol"
-    else:
-        beregningstype = "endelig"
-
-    htmlrapportnavn = f"{projektnavn}-resultat-{beregningstype}.html"
-    ret = subprocess.run(
-        [
-            "gama-local",
-            f"{projektnavn}.xml",
-            "--xml",
-            f"{projektnavn}-resultat.xml",
-            "--html",
-            htmlrapportnavn,
-        ]
-    )
-    if ret.returncode:
-        if not Path(f"{projektnavn}-resultat.xml").is_file():
-            fire.cli.print(
-                "FEJL: Beregning ikke gennemført. Kontroller om nettet er sammenhængende, og ved flere net om der mangler fastholdte punkter.",
-                bg="red",
-                fg="white",
-            )
-            raise SystemExit(1)
-
-        fire.cli.print(
-            f"Check {projektnavn}-resultat-{beregningstype}.html", bg="red", fg="white"
-        )
-    return htmlrapportnavn
-
-
-def læs_gama_output(
-    projektnavn: str,
-) -> Tuple[List[str], List[float], List[float], Timestamp]:
-    """
-    Læser output fra GNU Gama og returnerer relevante parametre til at skrive xlsx fil
-    """
-    with open(f"{projektnavn}-resultat.xml") as resultat:
-        doc = xmltodict.parse(resultat.read())
-
-    # Sammenhængen mellem rækkefølgen af elementer i Gamas punktliste (koteliste
-    # herunder) og varianserne i covariansmatricens diagonal er uklart beskrevet:
-    # I Gamas xml-resultatfil antydes at der skal foretages en ombytning.
-    # Men rækkefølgen anvendt her passer sammen med det Gama præsenterer i
-    # html-rapportudgaven af beregningsresultatet.
-    koteliste = doc["gama-local-adjustment"]["coordinates"]["adjusted"]["point"]
-    varliste = doc["gama-local-adjustment"]["coordinates"]["cov-mat"]["flt"]
-
-    # Konverter til liste i tilfælde af der kun er blevet udjævnet ét punkt.
-    if isinstance(koteliste, dict):
-        koteliste = [koteliste]
-    if isinstance(varliste, dict):
-        varliste = [varliste]
-
-    punkter = [punkt["id"] for punkt in koteliste]
-    koter = [float(punkt["z"]) for punkt in koteliste]
-    varianser = [float(var) for var in varliste]
-    assert len(koter) == len(varianser), "Mismatch mellem antal koter og varianser"
-
-    return (punkter, koter, varianser)
-
-
-# ------------------------------------------------------------------------------
-def opdater_arbejdssæt(
-    punkter: List[str],
-    koter: List[float],
-    varianser: List[float],
-    arbejdssæt: Arbejdssæt,
-    tg: Timestamp,
-) -> Arbejdssæt:
-
-    if len(set(arbejdssæt.system)) > 1:
-        fire.cli.print(
-            "FEJL: Flere forskellige højdereferencesystemer er angivet!",
-            fg="white",
-            bg="red",
-            bold=True,
-        )
-        raise SystemExit()
-
-    kotesystem = arbejdssæt.system[0]
-
-    for punkt, ny_kote, var in zip(punkter, koter, varianser):
-        if punkt in arbejdssæt.punkt:
-            # Hvis punkt findes, sæt indeks til hvor det findes
-            i = arbejdssæt.punkt.index(punkt)
-
-            # Overskriv info i punkt der findes
-            arbejdssæt.ny_kote[i] = ny_kote
-            arbejdssæt.ny_sigma[i] = sqrt(var)
-
-            # Ændring i millimeter...
-            Delta = (ny_kote - arbejdssæt.kote[i]) * 1000.0
-            # ...men vi ignorerer ændringer under mikrometerniveau
-            if abs(Delta) < 0.001:
-                Delta = 0
-            arbejdssæt.Delta_kote[i] = Delta
-            dt = tg - arbejdssæt.hvornår[i]
-            dt = dt.total_seconds() / (365.25 * 86400)
-            # t = 0 forekommer ved genberegning af allerede registrerede koter
-            if dt == 0:
-                continue
-            arbejdssæt.opløft[i] = Delta / dt
-            arbejdssæt.hvornår[i] = tg
-        else:
-            # Tilføj nye punkter
-            arbejdssæt.punkt.append(punkt)
-            arbejdssæt.ny_sigma.append(sqrt(var))
-            arbejdssæt.hvornår.append(tg)
-            arbejdssæt.ny_kote.append(ny_kote)
-            arbejdssæt.system.append(kotesystem)
-
-            # Fyld
-            arbejdssæt.fasthold.append("")
-            arbejdssæt.kote.append(None)
-            arbejdssæt.sigma.append(None)
-            arbejdssæt.Delta_kote.append(None)
-            arbejdssæt.opløft.append(None)
-            arbejdssæt.øst.append(None)
-            arbejdssæt.nord.append(None)
-            arbejdssæt.uuid.append(None)
-            arbejdssæt.udelad.append("")
-
-    fastholdte = [i for i, f in enumerate(arbejdssæt.fasthold) if f != ""]
-    for i in fastholdte:
-        arbejdssæt.ny_kote[i] = None
-        arbejdssæt.ny_sigma[i] = None
-        arbejdssæt.Delta_kote[i] = None
-        arbejdssæt.ny_kote[i] = None
-        arbejdssæt.opløft[i] = None
+    # "=" operatoren joiner de to dataframes på index'et og opdaterer arbejdsættet hvor der er match
+    arbejdssæt["Hvornår"] = nye_koter["Hvornår"]
+    arbejdssæt["Ny kote"] = nye_koter["Ny kote"]
+    arbejdssæt["Ny σ"] = nye_koter["Ny σ"]
+    arbejdssæt["Δ-kote [mm]"] = nye_koter["Δ-kote [mm]"]
+    arbejdssæt["Opløft [mm/år]"] = nye_koter["Opløft [mm/år]"]
 
     return arbejdssæt
