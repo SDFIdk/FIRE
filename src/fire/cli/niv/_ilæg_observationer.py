@@ -6,10 +6,8 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from fire import uuid
 from fire.api.model import (
-    EventType,
-    Observation,
-    Sagsevent,
-    SagseventInfo,
+    TrigonometriskKoteforskel,
+    GeometriskKoteforskel,
 )
 from fire.io.regneark import arkdef
 import fire.io.dataframe as frame
@@ -105,37 +103,34 @@ def ilæg_observationer(projektnavn: str, sagsbehandler: str, **kwargs) -> None:
             gruppe = None
 
         if obs.Type.upper() == "MTL":
-            observation = Observation(
+            observation = TrigonometriskKoteforskel(
                 antal=1,
-                observationstype=obstype_trig,
                 observationstidspunkt=obs.Hvornår,
                 opstillingspunkt=punkt_fra,
                 sigtepunkt=punkt_til,
                 gruppe=gruppe,
                 id=uuid(),
-                value1=obs.ΔH,
-                value2=obs.L,
-                value3=obs.Opst,
-                value4=obs.σ,
-                value5=obs.δ,
+                koteforskel=obs.ΔH,
+                nivlængde=obs.L,
+                opstillinger=obs.Opst,
+                spredning_afstand=obs.σ,
+                spredning_centrering=obs.δ,
             )
-
         elif obs.Type.upper() == "MGL":
-            observation = Observation(
+            observation = GeometriskKoteforskel(
                 antal=1,
-                observationstype=obstype_geom,
                 observationstidspunkt=obs.Hvornår,
                 opstillingspunkt=punkt_fra,
                 sigtepunkt=punkt_til,
                 gruppe=gruppe,
                 id=uuid(),
-                value1=obs.ΔH,
-                value2=obs.L,
-                value3=obs.Opst,
-                value4=0.0,  # Refraktion, eta_1, er defineret som non-null, så vi sætter den til 0 istf. None
-                value5=obs.σ,
-                value6=obs.δ,
-                value7=0,  # 1,2,3 henviser til 1.,2.,3. præcisionsnivellement. 0 til "ingen af dem"
+                koteforskel=obs.ΔH,
+                nivlængde=obs.L,
+                opstillinger=obs.Opst,
+                eta_l=0.0,  # Refraktion, eta_1, er defineret som non-null, så vi sætter den til 0 istf. None
+                spredning_afstand=obs.σ,
+                spredning_centrering=obs.δ,
+                præcisionsnivellement=0,  # 1,2,3 henviser til 1.,2.,3. præcisionsnivellement. 0 til "ingen af dem"
             )
         else:
             fire.cli.print(
