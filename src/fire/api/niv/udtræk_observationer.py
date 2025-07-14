@@ -19,7 +19,7 @@ from typing import (
 from functools import partial
 
 import fiona
-from shapely import geometry
+import shapely
 import pandas as pd
 
 from fire.srid import SRID
@@ -110,9 +110,19 @@ def klargør_geometrifiler(geometrifiler: Iterable[str]) -> List[Geometry]:
             continue
 
         # Konvertér indhold til shapely-objekter
+        # Gentagne punkter fjernes på forhånd da det er en tydelig fejl
         delgeometrier = [
-            geometry.shape(delgeometri.get("geometry")) for delgeometri in geometri_data
+            shapely.remove_repeated_points(
+                shapely.geometry.shape(delgeometri.get("geometry")), 0)
+            for delgeometri in geometri_data
         ]
+
+        # Andre fejl, såsom "selvskærende" polygoner fanges her
+        for dg in delgeometrier:
+            if not dg.is_valid:
+                årsag = shapely.is_valid_reason(dg)
+                raise ValueError(f"Geometrien er ugyldig. Mulig årsag: {årsag}")
+
         # Opret Geometry-instanser
         klargjorte_geometrier.extend([Geometry(dgb.wkt) for dgb in delgeometrier])
         geometri_data.close()
@@ -155,7 +165,7 @@ def polygoner(punkter: Iterable[Punkt], buffer: int) -> Iterator[Geometry]:
     koordinatsæt = (punkt.geometri.koordinater for punkt in punkter)
 
     # Opbyg geometri for punkt-koordinater til søgning.
-    shapely_punkter = (geometry.Point(*koordinater) for koordinater in koordinatsæt)
+    shapely_punkter = (shapely.geometry.Point(*koordinater) for koordinater in koordinatsæt)
 
     # Lav den endelige søge-geometri ved at bruge den angivne buffer som
     # radius i en forsimplet cirkel (polygon) omkring koordinaterne.
@@ -183,6 +193,6 @@ def filtrer_præcisionsnivellement(
     return [
         o
         for o in observationer
-        if isinstance(o, GeometriskKoteforskel) and
-            o.præcisionsnivellement == præcisionsnivellement
+        if isinstance(o, GeometriskKoteforskel)
+        and o.præcisionsnivellement == præcisionsnivellement
     ]
