@@ -31,7 +31,7 @@ def new_cache() -> Mapping[str, dict]:
 
 
 class FireDbBase:
-    _dialect = "oracle+cx_oracle"
+    _dialect = "oracle+oracledb"
     _exe_opt = {}
 
     def __init__(self, db=None, connectionstring=None, debug=False):
@@ -88,7 +88,6 @@ class FireDbBase:
     def _create_engine(self):
         return create_engine(
             f"{self._dialect}://{self.connectionstring}",
-            connect_args={"encoding": "UTF-8", "nencoding": "UTF-8"},
             echo=self.debug,
             execution_options=self._exe_opt,
             # Nedenstående tvinger SQLAlchemy til at lave enkelte inserts frem for bulk inserts.

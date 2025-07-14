@@ -2,7 +2,7 @@ import getpass
 
 import click
 from sqlalchemy.exc import NoResultFound
-from cx_Oracle import DatabaseError
+from oracledb import DatabaseError
 
 import fire
 import fire.cli
