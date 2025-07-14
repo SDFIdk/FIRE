@@ -56,7 +56,7 @@ def test_filterkriterier():
     MGL, MTL = NivMetode.MGL, NivMetode.MTL
 
     # Nøgagtighed
-    P, K, D = Nøjagtighed.P, Nøjagtighed.K, Nøjagtighed.D
+    P, K, D, U = Nøjagtighed.P, Nøjagtighed.K, Nøjagtighed.D, Nøjagtighed.Ukendt
 
     test_data = (
         ([P, K, D], mgl, E[(D, MGL)]),
@@ -71,6 +71,16 @@ def test_filterkriterier():
         ([K], mtl, E[(K, MTL)]),
         ([D], mgl, E[(D, MGL)]),
         ([D], mtl, E[(D, MTL)]),
+        ([P, K, D, U], mgl, E[(U, MGL)]),
+        ([P, K, D, U], mtl, E[(U, MTL)]),
+        ([P, K, U], mgl, E[(U, MGL)]),
+        ([P, K, U], mtl, E[(U, MTL)]),
+        ([P, U], mgl, E[(U, MGL)]),
+        ([P, U], mtl, E[(U, MTL)]),
+        ([D, U], mgl, E[(U, MGL)]),
+        ([D, U], mtl, E[(U, MTL)]),
+        ([U], mgl, E[(U, MGL)]),
+        ([U], mtl, E[(U, MTL)]),
     )
     for nøjagtigheder, obstypeid, expected in test_data:
         spredning = filterkriterier(nøjagtigheder)

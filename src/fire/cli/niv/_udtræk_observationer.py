@@ -109,9 +109,9 @@ For geometrifiler sker det således:
     "--nøjagtighed",
     help="""Målenøjagtighed på observationer.
 
-Vælg mellem [P]ræcision, [K]valitet eller [D]etail.
+Vælg mellem [P]ræcision, [K]valitet, [D]etail eller [U]kendt.
 
-Er nøjagtighed ikke angivet, bliver det mildeste kriterium valgt (detail).
+Er nøjagtighed ukendt, bliver observationerne ikke filtreret på nøjagtighed.
 """,
     required=False,
     # Ville være rart, hvis click havde implementeret mulighed for at anvende Enum'er.
