@@ -1370,6 +1370,15 @@ WITH
 		FROM SAGSEVENT se
 		INNER JOIN SAGSINFO si ON se.SAGSID = si.SAGSID
 		INNER JOIN sagseventinfo sei ON se.id = sei.sagseventid
+		INNER JOIN (
+			-- Tag højde for at visse sagsevents har flere aktive beskrivelser,
+			-- hvilket førte til at der kom flere identiske observationer med i viewet.
+			SELECT se.id, MAX(sei.OBJEKTID) AS id_max
+			FROM SAGSEVENT se
+			INNER JOIN sagseventinfo sei ON se.id = sei.sagseventid
+			WHERE sei.REGISTRERINGTIL IS NULL
+			GROUP BY se.ID
+			) sei_max ON sei_max.id_max = sei.objektid
 		WHERE si.registreringtil IS NULL
 	)
 SELECT
@@ -1390,6 +1399,7 @@ SELECT
 	CASE o.observationstypeid WHEN 1 THEN o.value6 WHEN 2 THEN o.value5 END AS centreringsfejl,
 	ot.observationstype,
 	CASE WHEN o.value7 IS NULL THEN 0 ELSE o.value7 END AS landsdækkende_nivellement,
+	o.id,
 	s.beskrivelse AS sagsbeskrivelse,
 	s.eventbeskrivelse,
 	s.behandler,
