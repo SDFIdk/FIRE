@@ -46,9 +46,11 @@ EMPIRISK_SPREDNING: Mapping[Tuple[Nøjagtighed, NivMetode], float] = {
     (Nøjagtighed.Præcision, NivMetode.MotoriseretGeometriskNivellement): 0.6,
     (Nøjagtighed.Kvalitet, NivMetode.MotoriseretGeometriskNivellement): 1.0,
     (Nøjagtighed.Detail, NivMetode.MotoriseretGeometriskNivellement): 1.5,
+    (Nøjagtighed.Ukendt, NivMetode.MotoriseretGeometriskNivellement): 9999.9,
     (Nøjagtighed.Præcision, NivMetode.MotoriseretTrigonometriskNivellement): 1.5,
     (Nøjagtighed.Kvalitet, NivMetode.MotoriseretTrigonometriskNivellement): 2.0,
     (Nøjagtighed.Detail, NivMetode.MotoriseretTrigonometriskNivellement): 3.0,
+    (Nøjagtighed.Ukendt, NivMetode.MotoriseretTrigonometriskNivellement): 9999.9,
 }
 "Implementerer empiriske spredninger (brugt á priori) jævnfør nøjagtighedskrav i modulets dokumentation."
 
