@@ -129,8 +129,8 @@ class FireDbHent(FireDbBase):
             if kan_være_gnssid(ident):
                 filter_gnss = and_(
                     PunktInformation.tekst.startswith(ident),
-                    PunktInformationType.name == 'IDENT:GNSS'
-                    )
+                    PunktInformationType.name == "IDENT:GNSS",
+                )
                 filter = or_(filter, filter_gnss)
 
             query = basis_query.filter(filter)
@@ -426,16 +426,24 @@ class FireDbHent(FireDbBase):
         filtre = self._filter_observationer(
             g.geometri, geometri, afstand, tid_fra, tid_til
         )
-        return (
+
+        # Erfaringen viser at det går langt hurtigere at lave query på opstillingspunkter
+        # og sigtepunkter hver for sig
+        observationer = set(
             self.session.query(observationsklasse)
-            .join(
-                g,
-                g.punktid == observationsklasse.opstillingspunktid
-                or g.punktid == observationsklasse.sigtepunktid,
-            )
+            .join(g, g.punktid == observationsklasse.opstillingspunktid)
             .filter(filtre)
             .all()
         )
+
+        observationer.update(
+            self.session.query(observationsklasse)
+            .join(g, g.punktid == observationsklasse.sigtepunktid)
+            .filter(filtre)
+            .all()
+        )
+
+        return observationer
 
     def hent_srid(self, sridid: str) -> Srid:
         """

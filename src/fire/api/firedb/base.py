@@ -190,12 +190,19 @@ class FireDbBase:
         to_date: Optional[datetime] = None,
         observationsklasse: Observation = Observation,
     ):
-        exps = [
+        # Lav en lille buffer om geometrien for at gøre den gyldig
+        g2 = func.sdo_geom.sdo_buffer(g2, 0.005, 0.005)
+
+        # Gå med livrem og seler og brug Oracle's egen valideringsfunktion til geometrier
+        # Efter disse to manøvrer, skulle Oracle gerne returnere "forudsigelige" resultater
+        exps = [func.sdo_geom.validate_geometry(g2, 0.005) == "TRUE"]
+
+        exps.append(
             func.sdo_within_distance(
                 g1, g2, "distance=" + str(distance) + " unit=meter"
             )
             == "TRUE"
-        ]
+        )
         if from_date:
             exps.append(observationsklasse.observationstidspunkt >= from_date)
         if to_date:
