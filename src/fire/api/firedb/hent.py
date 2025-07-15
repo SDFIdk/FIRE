@@ -403,7 +403,7 @@ class FireDbHent(FireDbBase):
         tid_fra: Optional[datetime] = None,
         tid_til: Optional[datetime] = None,
         observationsklasse: Observation = Observation,
-    ) -> List[Observation]:
+    ) -> list[Observation]:
         """
         Parameters
         ----------
@@ -443,7 +443,7 @@ class FireDbHent(FireDbBase):
             .all()
         )
 
-        return observationer
+        return list(observationer)
 
     def hent_srid(self, sridid: str) -> Srid:
         """

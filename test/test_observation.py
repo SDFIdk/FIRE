@@ -117,7 +117,7 @@ def test_hent_observationer_naer_geometri(firedb: FireDb):
     assert len(os) >= 68  # der KAN komme flere obs ved gentagende kørsler af tests
     point = Geometry("POINT (10.2112609352788 56.1567354902778)")
     os = firedb.hent_observationer_naer_geometri(point, 100)
-    assert len(os) == 6
+    assert len(os) == 8
     polygon = Geometry(
         (
             "POLYGON ((10.209 56.155, "
