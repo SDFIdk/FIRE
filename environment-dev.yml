@@ -24,7 +24,7 @@ dependencies:
   - python=3.11.*
   - rich
   - scipy
-  - shapely=1.8.*
+  - shapely=2.*
   - sphinx-click
   - sphinx
   - sphinx_rtd_theme
