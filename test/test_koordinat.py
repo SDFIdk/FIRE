@@ -106,7 +106,7 @@ def test_fejlmeld_koordinat_enlig_koordinat(
     firedb.session.commit()
 
     firedb.fejlmeld_koordinat(
-        koordinat, Sagsevent(eventtype=EventType.KOORDINAT_BEREGNET, sag=sag), 
+        koordinat, Sagsevent(eventtype=EventType.KOORDINAT_BEREGNET, sag=sag),
     )
 
     assert koordinat.fejlmeldt is True

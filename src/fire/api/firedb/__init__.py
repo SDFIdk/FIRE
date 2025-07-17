@@ -231,11 +231,10 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
                 # KOORDINAT_UNIQ2_IDX constraint i databasen
                 forrige_koordinat.fejlmeldt = True
                 self.session.add(forrige_koordinat)
+                self.session.add(sagsevent)
                 self.session.flush()
 
                 sagsevent.koordinater = [ny_koordinat]
-
-                self.session.add(sagsevent)
 
         koordinat.fejlmeldt = True
         koordinat._registreringtil = func.current_timestamp()
@@ -244,6 +243,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
             koordinat._registreringtil = ny_koordinat._registreringfra
 
         self.session.add(koordinat)
+        self.session.add(sagsevent)
         if commit:
             self.session.commit()
 
