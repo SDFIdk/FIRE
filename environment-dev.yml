@@ -21,10 +21,10 @@ dependencies:
   - pytest-freezegun
   - pytest-mock
   - pytest
-  - python=3.11.*
+  - python=
   - rich
   - scipy
-  - shapely=2.*
+  - shapely
   - sphinx-click
   - sphinx
   - sphinx_rtd_theme

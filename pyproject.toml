@@ -5,7 +5,7 @@ description = "FIkspunktsREgister"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 authors = [
   {name = "Klimadatastyrelsen", email = "gdl@kds.dk"},
   {name = "Septima P/S", email = "kontakt@septima.dk"},
