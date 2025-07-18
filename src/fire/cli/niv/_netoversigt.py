@@ -7,7 +7,7 @@ import pandas as pd
 from fire.io.regneark import arkdef
 import fire.cli
 
-from . import (
+from fire.cli.niv import (
     find_faneblad,
     niv,
     skriv_ark,

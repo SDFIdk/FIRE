@@ -9,4 +9,4 @@ def søg():
     pass
 
 
-from .punkt import punkt
+from fire.cli.søg.punkt import punkt

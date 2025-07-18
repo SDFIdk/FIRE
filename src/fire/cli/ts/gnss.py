@@ -30,7 +30,7 @@ from fire.cli.ts import (
     _udtræk_tidsserie,
 )
 
-from . import ts
+from fire.cli.ts import ts
 
 
 GNSS_TS_PARAMETRE = {

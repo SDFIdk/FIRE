@@ -17,7 +17,7 @@ from fire.io.regneark import (
 import fire.io.dataframe as frame
 import fire.cli
 
-from . import (
+from fire.cli.niv import (
     find_faneblad,
     niv,
     skriv_punkter_geojson,

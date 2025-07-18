@@ -24,7 +24,7 @@ from fire.api.model.geometry import (
 from fire.io.regneark import arkdef
 import fire.io.dataframe as frame
 
-from . import (
+from fire.cli.niv import (
     bekræft,
     find_faneblad,
     find_sag,

@@ -783,18 +783,18 @@ og Click-kommandoobjektet
 . Uden præfix kan der ikke skelnes mellem de to.
 
 """
-from ._ilæg_nye_koter import ilæg_nye_koter
-from ._ilæg_nye_punkter import ilæg_nye_punkter
-from ._ilæg_observationer import ilæg_observationer
-from ._ilæg_revision import ilæg_revision
-from ._luk_sag import luk_sag
-from ._læs_observationer import læs_observationer
-from ._netoversigt import netoversigt
-from ._opret_sag import opret_sag
-from ._regn import regn
-from ._udtræk_observationer import udtræk_observationer
-from ._udtræk_revision import udtræk_revision
-from .punktsamling import (
+from fire.cli.niv._ilæg_nye_koter import ilæg_nye_koter
+from fire.cli.niv._ilæg_nye_punkter import ilæg_nye_punkter
+from fire.cli.niv._ilæg_observationer import ilæg_observationer
+from fire.cli.niv._ilæg_revision import ilæg_revision
+from fire.cli.niv._luk_sag import luk_sag
+from fire.cli.niv._læs_observationer import læs_observationer
+from fire.cli.niv._netoversigt import netoversigt
+from fire.cli.niv._opret_sag import opret_sag
+from fire.cli.niv._regn import regn
+from fire.cli.niv._udtræk_observationer import udtræk_observationer
+from fire.cli.niv._udtræk_revision import udtræk_revision
+from fire.cli.niv.punktsamling import (
     opret_punktsamling,
     udtræk_punktsamling,
     ilæg_punktsamling,

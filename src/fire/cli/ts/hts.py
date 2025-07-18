@@ -27,7 +27,7 @@ from fire.cli.ts.plot_ts import (
     plot_tidsserier,
 )
 
-from . import ts
+from fire.cli.ts import ts
 
 HTS_PARAMETRE = {
     "t": "t",

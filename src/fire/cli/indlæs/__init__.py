@@ -9,4 +9,4 @@ def indlæs():
     pass
 
 
-from .bernese import bernese
+from fire.cli.indlæs.bernese import bernese
