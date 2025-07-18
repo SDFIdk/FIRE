@@ -38,6 +38,7 @@ def test_afregistrering_koordinat(firedb: FireDb, sag: Sag, punkt: Punkt, srid: 
     se = Sagsevent(sag=sag, eventtype=EventType.KOORDINAT_BEREGNET)
     se.koordinater = [k1]
     firedb.session.add(se)
+    firedb.session.flush()
 
     k2 = Koordinat(
         punkt=punkt,
@@ -142,9 +143,9 @@ def test_afregistrering_sagsinfo(firedb: FireDb, sag: Sag):
     firedb.session.commit()
 
     si2 = Sagsinfo(
-        sag=sag, behandler="B00001", beskrivelse="Første udgave", aktiv=Boolean.TRUE
+        sag=sag, behandler="B00001", beskrivelse="Anden udgave", aktiv=Boolean.TRUE
     )
-    firedb.session.add(si1)
+    firedb.session.add(si2)
     firedb.session.commit()
 
     assert si1.registreringtil == si2.registreringfra
@@ -155,13 +156,13 @@ def test_afregistrering_sagseventinfo(firedb: FireDb, sagsevent: Sagsevent):
     """
     Test trigger sagseventinfo_bi_trg - Automatisk afrestrering af tidligere sagseventinfo.
     """
+    firedb.session.flush()
     si1 = SagseventInfo(sagsevent=sagsevent, beskrivelse="Første udgave")
-
     firedb.session.add(si1)
     firedb.session.commit()
 
-    si2 = SagseventInfo(sagsevent=sagsevent, beskrivelse="Første udgave")
-    firedb.session.add(si1)
+    si2 = SagseventInfo(sagsevent=sagsevent, beskrivelse="Anden udgave")
+    firedb.session.add(si2)
     firedb.session.commit()
 
     assert si1.registreringtil == si2.registreringfra

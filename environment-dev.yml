@@ -4,13 +4,13 @@ channels:
 dependencies:
   - black
   - click
-  - cx_oracle
   - fiona
   - gama
   - graphviz
   - matplotlib
   - numpy
   - openpyxl
+  - oracledb
   - pandas
   - pyarrow
   - pip
@@ -29,5 +29,5 @@ dependencies:
   - sphinx
   - sphinx_rtd_theme
   - sphinxcontrib-programoutput
-  - sqlalchemy=1.4.*
+  - sqlalchemy
   - xmltodict

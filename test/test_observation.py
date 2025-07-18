@@ -19,7 +19,7 @@ from fire import uuid
 
 def test_observation(firedb: FireDb, observation: Observation):
     firedb.session.commit()
-    o1 = firedb.session.query(Observation).get(observation.objektid)
+    o1 = firedb.session.get(Observation, observation.objektid)
     assert o1.objektid == observation.objektid
 
 
@@ -161,11 +161,6 @@ def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
 def test_indset_flere_observationer(firedb: FireDb, sag: Sag, punkt: Punkt):
     obstype = firedb.session.query(ObservationsType).first()
 
-    sagsevent = Sagsevent(sag=sag, id=uuid(), eventtype=EventType.OBSERVATION_INDSAT)
-    sagseventtekst = "Ilægning af flere observationer"
-    sagseventinfo = SagseventInfo(beskrivelse=sagseventtekst)
-    sagsevent.sagseventinfos.append(sagseventinfo)
-
     obs1 = Observation(
         antal=0,
         observationstype=obstype,
@@ -196,16 +191,11 @@ def test_indset_flere_observationer(firedb: FireDb, sag: Sag, punkt: Punkt):
         value8=0,
     )
 
-    firedb.indset_sagsevent(
-        Sagsevent(
-            sag=sag,
-            eventtype=EventType.OBSERVATION_INDSAT,
-            sagseventinfos=[
-                SagseventInfo(beskrivelse="Testindsættelse af flere observationer")
-            ],
-            observationer=[obs1, obs2],
-        )
+    sagsevent = sag.ny_sagsevent(
+        beskrivelse="Testindsættelse af flere observationer",
+        observationer=[obs1, obs2],
     )
+    firedb.indset_sagsevent(sagsevent)
 
 
 def test_luk_observation(

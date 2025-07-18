@@ -28,6 +28,7 @@ def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinat
         koordinater=punkt.koordinater,
     )
 
+    firedb.session.add(ts1)
     firedb.session.flush()
 
     assert isinstance(ts1, HøjdeTidsserie)
@@ -45,6 +46,7 @@ def test_opret_tidsserie(firedb, sagsevent, punkt, punktsamling, srid, koordinat
         koordinater=punkt.koordinater,
     )
 
+    firedb.session.add(ts2)
     firedb.session.flush()
 
     assert isinstance(ts2, HøjdeTidsserie)

@@ -3,7 +3,7 @@
 
 import enum
 
-import sqlalchemy.ext.declarative
+import sqlalchemy.orm
 from sqlalchemy import Column, Integer, DateTime, String, func
 from sqlalchemy.dialects.oracle import TIMESTAMP
 
@@ -85,7 +85,7 @@ class ReprBase(object):
 
 
 # base class for SQLAlchemy declarative models. Inherits ReprBase to get nicer __repr__ behaviour
-DeclarativeBase = sqlalchemy.ext.declarative.declarative_base(cls=ReprBase)
+DeclarativeBase = sqlalchemy.orm.declarative_base(cls=ReprBase)
 
 
 class RegisteringFraObjekt(DeclarativeBase):

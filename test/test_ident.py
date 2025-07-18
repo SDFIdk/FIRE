@@ -88,7 +88,7 @@ def test_integration_tilknyt_landsnumre(firedb):
     landsnumre = firedb.tilknyt_landsnumre(punkter, fikspunktstyper)
 
     for i, landsnummer in enumerate(landsnumre, n + 1):
-        assert landsnummer.tekst == f"K-63-0900{i}"
+        assert landsnummer.tekst == f"K-63-09{i:0>3}"
 
 
 def test_unit_tilknyt_landsnumre(dummydb, mocker):
