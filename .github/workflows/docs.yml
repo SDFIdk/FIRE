@@ -9,21 +9,17 @@ jobs:
       max-parallel: 2
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.11
+        python-version: 3.13
     - name: Add conda to system path
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install dependencies
       run: |
-        # Remove conda packages that are only available on Windows
-        sed -i '/msys2/d' environment-dev.yml
-        sed -i '/m2-zip/d' environment-dev.yml
-        #
         conda config --set always_yes yes --set changeps1 no
         conda update -q conda
         # Useful for debugging any issues with conda
@@ -44,7 +40,7 @@ jobs:
         touch ./docs/_build/.nojekyll
         #
     - name: Deploy docs
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       if: github.ref == 'refs/heads/1.9'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}

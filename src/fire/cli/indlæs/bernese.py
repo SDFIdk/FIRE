@@ -23,7 +23,7 @@ from fire.api.model import (
     Srid,
 )
 from fire.cli.niv import bekræft
-from . import indlæs
+from fire.cli.indlæs import indlæs
 
 SRIDINDEX = {
     "IGb08": "EPSG:9015",

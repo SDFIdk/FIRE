@@ -5,7 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import fire.cli
 from fire.ident import klargør_ident_til_søgning
-from . import søg
+from fire.cli.søg import søg
 
 
 @søg.command()

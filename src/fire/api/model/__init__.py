@@ -133,8 +133,8 @@ class Boolean(enum.Enum):
 
 
 # Expose these types
-from .geometry import *
-from .punkttyper import *
-from .sagstyper import *
-from .observationer import *
-from .tidsserier import *
+from fire.api.model.geometry import *
+from fire.api.model.punkttyper import *
+from fire.api.model.sagstyper import *
+from fire.api.model.observationer import *
+from fire.api.model.tidsserier import *

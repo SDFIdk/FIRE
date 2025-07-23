@@ -269,5 +269,5 @@ def skift_jessenpunkt(
     return ny_punktsamling, nye_tidsserier
 
 
-from .gnss import gnss
-from .hts import hts
+from fire.cli.ts.gnss import gnss
+from fire.cli.ts.hts import hts

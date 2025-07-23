@@ -137,7 +137,7 @@ def test_indset_observation(firedb: FireDb, sag: Sag, punkt: Punkt):
     obs1 = Observation(
         antal=0,
         observationstype=obstype,
-        observationstidspunkt=dt.datetime.utcnow(),
+        observationstidspunkt=dt.datetime.now(dt.UTC),
         opstillingspunkt=punkt,
         value1=0,
         value2=0,
@@ -164,7 +164,7 @@ def test_indset_flere_observationer(firedb: FireDb, sag: Sag, punkt: Punkt):
     obs1 = Observation(
         antal=0,
         observationstype=obstype,
-        observationstidspunkt=dt.datetime.utcnow(),
+        observationstidspunkt=dt.datetime.now(dt.UTC),
         opstillingspunkt=punkt,
         value1=0,
         value2=0,
@@ -179,7 +179,7 @@ def test_indset_flere_observationer(firedb: FireDb, sag: Sag, punkt: Punkt):
     obs2 = Observation(
         antal=0,
         observationstype=obstype,
-        observationstidspunkt=dt.datetime.utcnow(),
+        observationstidspunkt=dt.datetime.now(dt.UTC),
         opstillingspunkt=punkt,
         value1=1,
         value2=0,

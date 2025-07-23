@@ -20,7 +20,7 @@ from fire.cli.ts.plot_ts import (
     plot_tidsserier,
 )
 
-from . import (
+from fire.cli.niv import (
     find_faneblad,
     gyldighedstidspunkt,
     niv,
@@ -32,7 +32,7 @@ from . import (
     udled_jessenpunkt_fra_punktoversigt
 )
 
-from ._netoversigt import netanalyse
+from fire.cli.niv._netoversigt import netanalyse
 
 
 @dataclass

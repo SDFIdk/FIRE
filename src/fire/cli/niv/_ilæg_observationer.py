@@ -15,7 +15,7 @@ from fire.io.regneark import arkdef
 import fire.io.dataframe as frame
 import fire.cli
 
-from . import (
+from fire.cli.niv import (
     bekræft,
     find_faneblad,
     find_sag,

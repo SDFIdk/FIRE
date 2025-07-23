@@ -8,7 +8,7 @@ from click_plugins import with_plugins
 
 import fire
 
-entry_points = importlib.metadata.entry_points()["fire.cli.fire_commands"]
+entry_points = importlib.metadata.entry_points(group="fire.cli.fire_commands")
 
 @with_plugins(entry_points)
 @click.group()
