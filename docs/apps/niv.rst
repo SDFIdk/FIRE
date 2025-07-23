@@ -46,6 +46,8 @@ visualiseringsmateriale.
 
 :program:`fire niv luk-sag` arkiverer det afsluttende regneark og sætter sagens status til inaktiv.
 
+:program:`fire niv åbn-sag` genåbner en ellers lukket sag.
+
 Alle programmerne under :program:`fire niv` er bygget op om en "sag". En sag udgøres
 i al sin enkelhed af et Excel-regneark. Dette regneark, som har samme navn som sagen,
 registrerer al relevant information om en opmålingsopgave. Regnearket inddeles i
@@ -137,6 +139,10 @@ kommunal vedligeholdsopgave.
 
 .. click:: fire.cli.niv:luk_sag
   :prog: fire niv luk-sag
+  :nested: full
+
+.. click:: fire.cli.niv:åbn_sag
+  :prog: fire niv åbn-sag
   :nested: full
 
 .. click:: fire.cli.niv:opret_punktsamling
