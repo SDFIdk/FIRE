@@ -334,7 +334,7 @@ def find_parameter(projektnavn: str, parameter: str) -> str:
 
 
 # -----------------------------------------------------------------------------
-def find_sag(projektnavn: str) -> Sag:
+def find_sag(projektnavn: str, accepter_inaktiv=False) -> Sag:
     """Bomb hvis sag for projektnavn ikke er oprettet. Ellers returnér sagen"""
     if not os.path.isfile(f"{projektnavn}.xlsx"):
         fire.cli.print(
@@ -355,7 +355,7 @@ def find_sag(projektnavn: str) -> Sag:
             bg="red",
         )
         raise SystemExit(1)
-    if not sag.aktiv:
+    if not accepter_inaktiv and not sag.aktiv:
         fire.cli.print(
             f"Sag {sagsid} for {projektnavn} er markeret inaktiv. Genåbn for at gå videre."
         )
@@ -801,3 +801,4 @@ from fire.cli.niv.punktsamling import (
     ilæg_tidsserie,
     fjern_punkt_fra_punktsamling,
 )
+from fire.cli.niv._åbn_sag import åbn_sag

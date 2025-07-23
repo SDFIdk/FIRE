@@ -977,13 +977,17 @@ def sag(
         sag = fire.cli.firedb.hent_sag(sagsid)
     except (NoResultFound, MultipleResultsFound):
 
-        if sagsid or fra or til or aktive:
-            sager = fire.cli.firedb.hent_sager(
-                søgetekst=sagsid, aktive=aktive, tid_fra=fra, tid_til=til
-            )
+        try:
+            if sagsid or fra or til or aktive:
+                sager = fire.cli.firedb.hent_sager(
+                    søgetekst=sagsid, aktive=aktive, tid_fra=fra, tid_til=til
+                )
 
-        if len(sager) == 1:
-            sag = sager[0]
+            if len(sager) == 1:
+                sag = sager[0]
+        except NoResultFound as fejl:
+            fire.cli.print(fejl)
+            raise SystemExit
 
     if sag:
         fire.cli.print(
