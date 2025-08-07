@@ -3,6 +3,7 @@ from collections import Counter, deque
 from dataclasses import dataclass, astuple
 from datetime import datetime
 from functools import cached_property
+import networkx as nx
 from math import (
     hypot,
     sqrt,
@@ -12,8 +13,10 @@ from pathlib import Path
 import subprocess
 from typing import Self
 import xmltodict
+import uuid
 
 import pandas as pd
+import numpy as np
 
 # Smarte type hints
 PunktNavn = str
@@ -124,8 +127,9 @@ class RegneMotor(ABC):
         gamle_koter: list[InternKote],
         projektnavn: str = "fire",
     ):
-        self.observationer = observationer
-        self.gamle_koter = gamle_koter
+        # observationerne refereres internt med et unikt id som kan bruges i forskellige sammenhænge
+        self._observationer = {uuid.uuid4():o for o in observationer}
+        self._gamle_koter = {gk.punkt: gk for gk in gamle_koter}
         self.nye_koter: list[InternKote] = []
         self.projektnavn = projektnavn
 
@@ -145,6 +149,14 @@ class RegneMotor(ABC):
             raise FastholdtIkkeObserveret(
                 f"Observation(er) for fastholdte punkter: {', '.join(uobserverede_fastholdte_punkter)} er slukket eller mangler"
             )
+
+    @property
+    def observationer(self):
+        return self._observationer.values()
+
+    @property
+    def gamle_koter(self):
+        return self._gamle_koter.values()
 
     @classmethod
     def fra_dataframe(
@@ -271,42 +283,31 @@ class RegneMotor(ABC):
 
         Nettet reduceres for de ensomme punkter, da ensomme punkter ikke kan estimeres i udjævningen.
         """
-        net = self.opbyg_net()
 
-        # Undersøg om nettet består af flere ikke-sammenhængende subnet.
-        subnet = self.find_subnet(net)
+        # Find subnet
+        # weakly connected er at "lade som om" grafen er undirected, og så finde connectede subnet.
+        # component = subnet)
+        subnet = [set(c) for c in nx.weakly_connected_components(self.digraf)]
 
         # For hvert subnet undersøger vi om der findes et fastholdt punkt
-        ensomme_subnet = [
-            subn for subn in subnet if set(self.fastholdte.keys()).isdisjoint(subn)
-        ]
+        ensomme_subnet = [list(subn) for subn in subnet if set(self.fastholdte.keys()).isdisjoint(subn)]
 
         # Punkterne i de ensomme subnet skal ikke med i netgrafen
         ensomme_punkter = set().union(*ensomme_subnet)
-        for punkt in ensomme_punkter:
-            net.pop(punkt, None)
+        net_uden_ensomme = self.digraf.copy()
+        net_uden_ensomme.remove_nodes_from(ensomme_punkter)
 
-        # Estimerbare punkter er dem som er observerede, men ikke ensomme eller fastholdte.
-        estimerbare_punkter = list(set(net.keys()).difference(self.fastholdte.keys()))
+        # Det behøves faktisk ikke at konvertere her da byg_netgeometri_og_singulære
+        # faktisk virker med networkx Graph objektet, da Graph objekterne opfører sig som dicts
+        net_uden_ensomme = nx.to_dict_of_lists(net_uden_ensomme)
 
-        # Gem nettet og de estimerbare punkter så de kan bruges af motoren senere.
-        self.net = net
+         # Estimerbare punkter er dem som er observerede, men ikke ensomme eller fastholdte.
+        estimerbare_punkter = list(set(net_uden_ensomme.keys()).difference(self.fastholdte.keys()))
+
+        # Gem de estimerbare punkter så de kan bruges af motoren senere.
         self.estimerbare_punkter = estimerbare_punkter
 
-        return net, ensomme_subnet, estimerbare_punkter
-
-    def opbyg_net(self) -> NivNet:
-        """
-        Konstruer non-directed graf som markerer forbindelser mellem punkter.
-        """
-
-        net = {p: set() for p in self.observerede_punkter}
-
-        for obs in self.observationer:
-            net[obs.til].add(obs.fra)
-            net[obs.fra].add(obs.til)
-
-        return net
+        return net_uden_ensomme, ensomme_subnet, estimerbare_punkter
 
     @classmethod
     def find_subnet(cls, net: NivNet) -> list[NivSubnet]:
@@ -373,6 +374,278 @@ class RegneMotor(ABC):
                 liste_af_subnet.append(subnet)
 
         return liste_af_subnet
+
+    @cached_property
+    def digraf(self) -> nx.MultiDiGraph:
+        """
+        Byg en digraf ud fra observationerne
+
+        Returnerer et networkx MultiDiGraph objekt som kan indeholde flere parallelle (deraf Multi),
+        rettede (deraf Di(rectional)) linjer (kanter) mellem hvert punkt (knude).
+        Hver kant i grafen har en nøgle som refererer til en InternNivObservation.
+        """
+        digraf = nx.MultiDiGraph()
+        digraf.add_nodes_from(self.observerede_punkter)
+        for k, obs in self._observationer.items():
+            digraf.add_edge(obs.fra, obs.til, key=k)
+        return digraf
+
+
+    def lukkesum(self, min_længde: int = 3, metode: str = "mcb", **kwargs) -> dict[tuple[PunktNavn], dict]:
+        """
+        Find polygoner og beregn lukkesummer
+
+        Returnerer en dict hvor nøglerne er en tuple af punkter i polygonerne, og
+        værdierne er de beregnde statistike parametre, herunder lukkesummer, pakket ind i
+        endnu en dict.
+
+        Der kan vælges mellem følgende metoder til at finde polygoner:
+
+        **Simple Cycles**
+
+        Vælges med `metode='sc'` og anvender `networkx.simple_cycles`
+        Finder alle kredse i grafen. Vælg max-længde ved at sætte `length_bound`.
+
+        Advarsel: Hvis den analyserede graf er stor eller nettet har mange polygoner, så
+        vil antallet af polygoner eksplodere meget hurtigt!
+
+        **Cycle basis**
+        Vælges med `metode='cb'` og anvender `networkx.cycle_basis`
+        Finder et vilkårligt sæt af polygoner som udgør en "basis" for grafen.
+
+        Med basis forstås, at man kan konstruere alle andre polygoner i grafen ud fra
+        basisen.
+
+        Der returneres ikke altid de samme polygoner, og de overlapper ofte hinanden,
+        hvilket man sjældent er interesseret i. Dog kører denne algoritme meget hurtigt.
+
+        **Minimum Cycle Basis**
+        Vælges med `metode='mcb'` og anvender `networkx.minimum_cycle_basis`
+        Finder sættet af polygoner som udgør en "minimal basis" for grafen, og er den
+        anbefalede metode for normale nivellementopgaver.
+
+        Med minimal forstås at antallet af kanter langs polygonerne i den fundne basis er
+        minimeret (hvis hver kant har vægt=1).
+
+        Imodsætning til `simple_cycles` er det fundne antal polygoner ikke særlig stort, men
+        for store grafer kan kravet om "minimalitet" tage meget lang tid.
+
+        I praksis betyder det, som regel, at man ikke får polygoner som overlapper hinanden,
+        hvilket normalt er det man er interesseret i. I nogen tilfælde får man dog stadig
+        overlappende polygoner.
+
+        **Eksempel**
+        Givet nivellementnet som dette:
+        A ------ B ------ C
+        |        |        |
+        |        |        |
+        F ------ E ------ D
+
+        `minimum_cycle_basis` finder polygonerne A-B-E-F og B-C-D-E.
+
+        `simple_cycles` finder alle polygonerne, inkl. den store polygon A-B-C-D-E-F.
+
+        `cycle_basis` finder en tilfældig kombination af to af polygonerne.
+
+        Ønsker man at beregne lukkesummen af en bestemt polygon kan man bruge
+        `lukkesum_af_polygon` direkte.
+        """
+
+        metodevalg = {
+            "mcb": nx.minimum_cycle_basis,
+            "sc": nx.simple_cycles,
+            "cb": nx.cycle_basis,
+        }
+        try:
+            fun = metodevalg[metode]
+        except KeyError:
+            raise ValueError(f"Metodevalg ikke en af: {', '.join(metodevalg.keys())}")
+
+        # Konverterer fra MultiDiGraph til DiGraph først og dernæst til Graph.
+        # På denne måde sikrer vi at kun kanter med både frem- og tilbage-observationer bliver taget med.
+        graf = nx.DiGraph(self.digraf).to_undirected(reciprocal=True)
+
+        cykler = {
+            tuple(kreds): self.lukkesum_af_polygon(kreds, lukket=True)
+            for kreds in fun(graf, **kwargs)
+            if len(kreds) >= min_længde
+        }
+
+        return cykler
+
+
+    def lukkesum_af_polygon(self, kreds: list, lukket: bool = True) -> dict:
+        """
+        Beregn lukkesum og andre kvalitetsparametre for en nivellementspolygon
+
+        En polygon er givet ved punkterne i `kreds`. Der tages gennemsnit af parallelle
+        linjer.
+        Det antages at `kreds` er en egentlig (lukket) kreds, dvs. at først og sidste
+        punkt er forbundet. Sættes lukket=False angiver at kredsen er åben. Dette kan fx
+        bruges til at analysere blinde linjer.
+
+        Returnerer:
+            summa_rho           : float
+            lukkesum            : float
+            delta_H_frem_sum    : float
+            delta_H_tilb_sum    : float
+            afstand_frem_sum    : float
+            afstand_tilb_sum    : float
+            rho                 : list[float]
+            delta_H             : list[float]
+            afstand             : list[float]
+
+        Eksempel:
+        Givet et nivellementsnet:
+        A ------ B ------ E ------ F
+        |        |
+        |        |
+        D ------ C
+
+        Med følgende observationer:
+        Fra     Til     delta H
+        A       B        1.1
+        B       A       -1.
+        B       C        2.1
+        C       B       -2.
+        C       D        3.1
+        D       C       -3.
+        D       A       -6
+        A       D        5.7
+        B       E        2.5
+        E       B       -2.4
+        E       F        1.3
+        F       E       -1.2
+
+
+        > lukkesum_af_polygon([A,B,C,D])
+        Returnerer:
+        # Rho og deltaH for hver linje
+        A-B : rho = 0.1     deltaH = 1.05
+        B-C : rho = 0.1     deltaH = 2.05
+        C-D : rho = 0.1     deltaH = 3.05
+        D-A : rho = -0.3    deltaH = -5.85  <--- det hele "reddes" af sidste linje, hvilket måske er urealistisk
+
+        # Summa rho og lukkesum for frem og tilbage-nivellement.
+        summa_rho = 0
+        lukkesum = 0.3
+        delta_H_frem_sum = 0.3
+        delta_H_tilb_sum = -0.3
+
+        > lukkesum_af_polygon([B,E,F], lukket=False)
+        Returnerer:
+        # Rho for hver linje
+        B-E : rho = 0.1     deltaH = 2.45
+        E-F : rho = 0.1     deltaH = 1.25
+
+        # Summa rho og lukkesum for frem og tilbage-nivellement.
+        summa_rho = 0.2
+        lukkesum = 3.7
+        delta_H_frem_sum =  3.8
+        delta_H_tilb_sum = -3.6
+        """
+        def _hent_kant(knude, næste_knude) -> tuple[list, list]:
+            """
+            Hent alle linjer fra punkt til næste punkt i kredsen
+
+            Da der kan være flere parallelle linjer tages der for robusthed gennemsnittet
+            af de parallelle linjer. På den måde er det ligemeget om der er fx 2 frem og 1
+            tilbage niv.
+            Hvis der ikke er forbindelse mellem `knude` og `næste_knude` vil det udløse en
+            KeyError, som så vil blive fanget. Her kan man vælge om den skal fejle eller
+            ej. Det er lidt irriterende at den fejler hvis man er ved at regne på noget
+            der tager lang tid.)
+            """
+            try:
+                deltaH = [self._observationer[k].deltaH for k in self.digraf[knude][næste_knude].keys()]
+                afstand = [self._observationer[k].afstand for k in self.digraf[knude][næste_knude].keys()]
+                n = len(deltaH) # antallet af parallelle linjer
+            except KeyError:
+                print(f"Advarsel! Der er ikke forbindelse fra {knude} til {næste_knude}")
+                deltaH = [float("nan")]
+                afstand = [float("nan")]
+                n = 0
+            return np.mean(deltaH), np.mean(afstand), n
+
+        delta_H_frem_sum = 0
+        delta_H_tilb_sum = 0
+        afstand_frem_sum = 0
+        afstand_tilb_sum = 0
+        rho = []
+        deltaH =  []   # gennemsnitlig højdeforskel for hver observeret linje
+        afstande = []  # gennemsnitlig afstand for hver linje
+
+
+        knuder = kreds if lukket else kreds[:-1]
+        næste_knuder = kreds[1:]+kreds[:1] if lukket else kreds[1:]
+
+        for knude, næste_knude in zip(knuder, næste_knuder):
+
+            frem_deltaH, frem_afstand, n_frem = _hent_kant(knude, næste_knude)
+            tilb_deltaH, tilb_afstand, n_tilb = _hent_kant(næste_knude, knude)
+
+            # Vi vægter de enkelte frem- og tilbage-observationerne lige meget.
+            deltaH_mean  = (frem_deltaH*n_frem-tilb_deltaH*n_tilb)/(n_frem+n_tilb)
+            afstand_mean = (frem_afstand*n_frem+tilb_afstand*n_tilb)/(n_frem+n_tilb)
+
+            deltaH.append(deltaH_mean)
+            rho.append(frem_deltaH + tilb_deltaH)
+            afstande.append(afstand_mean)
+
+            delta_H_frem_sum += frem_deltaH
+            delta_H_tilb_sum += tilb_deltaH
+
+            afstand_frem_sum += frem_afstand
+            afstand_tilb_sum += tilb_afstand
+
+        # Udregning af summa rho og epsilon/lukkesum kan gøres på to måder:
+        # Metode 1
+        # summa_rho = sum(rho)
+        # epsilon   = sum(deltaH)
+        #
+        # Metode 2:
+        # summa_rho = delta_H_frem_sum + delta_H_tilb_sum
+        # epsilon   = (delta_H_frem_sum - delta_H_tilb_sum)/2
+        #
+        # De to metoder for summa_rho er ækvivalente. For epsilon er de kun ækvivalente
+        # hvis hver linje er målt lige mange gange frem og tilbage, hvilket skyldes måden
+        # vi regner deltaH på, som er en slags "gennemsnitlig" frem-observation for en
+        # given linje.
+        # Metode 1 laver et samlet "gennemsnit" af både frem- og tilbage-observationerne,
+        # hvor tilbage-observationerne ganges med -1.
+        # Metode 2 laver først gennemsnit af frem og tilbage-målinger for sig og dernæst
+        # et gennemsnit og de to frem- og tilbage-gennemsnit.
+        #
+        # For rho er der ikke umiddelbart nogen måde at vægte alle frem- og
+        # tilbage-observationer lige meget. rho regnes derfor som summen af de gennemsnitlige
+        # frem-målinger og de gennemsnitlige tilbage-målinger. Så dér vil observationer i
+        # retningen med færrest observationer have relativt større vægt.
+        #
+        # Ex: 200 frem målinger med deltaH=2 og 1 tilbage-måling med deltaH=-1:
+        # Metode 1 vil vægte de 201 målinger lige meget. Men metode 2 vil tage gennemsnittet af de 200 før der tages
+        # gennemsnittet af frem og tilbage, hvorved de 200 målinger vil have meget lidt vægt ift. den ene frem-måling:
+        # Metode 1:
+        #   rho = 1
+        #   deltaH_avg = 1.995
+        # Metode 2:
+        #   rho = 1
+        #   deltaH_avg = 1.5
+        #
+
+        summa_rho = np.sum(rho)
+        lukkesum = np.sum(deltaH)
+
+        return dict(
+            summa_rho=summa_rho,
+            lukkesum=lukkesum,
+            delta_H_frem_sum=delta_H_frem_sum,
+            delta_H_tilb_sum=delta_H_tilb_sum,
+            afstand_frem_sum=afstand_frem_sum,
+            afstand_tilb_sum=afstand_tilb_sum,
+            deltaH=deltaH,
+            rho=rho,
+            afstande=afstande,
+        )
 
     @abstractmethod
     def udjævn(self):

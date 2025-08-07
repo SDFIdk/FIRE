@@ -216,6 +216,8 @@ def regn(projektnavn: str, plot: bool, MotorKlasse: type[RegneMotor], **kwargs) 
             fire.cli.print(f"  Subnet {i}: {subn[0]}", fg="red")
     resultater = byg_netgeometri_og_singulære(net_uden_ensomme, ensomme_subnet)
 
+    motor.lukkesum()
+
     # Beregn nye koter for de ikke-fastholdte punkter...
     fire.cli.print(
         f"Fastholder {len(motor.fastholdte)} og beregner nye koter for {len(estimerbare_punkter)} punkter"
