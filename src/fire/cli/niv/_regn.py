@@ -1,6 +1,5 @@
 from pathlib import Path
 import webbrowser
-
 import click
 from pandas import DataFrame
 
@@ -14,6 +13,7 @@ from fire.api.niv.regnemotor import (
     DumRegn,
     ValideringFejl,
     UdjævningFejl,
+    skriv_polygoner_geojson,
 )
 
 from fire.io.regneark import arkdef
@@ -206,6 +206,7 @@ def regn(projektnavn: str, plot: bool, MotorKlasse: type[RegneMotor], **kwargs) 
 
     # Analyser net
     net_uden_ensomme, ensomme_subnet, estimerbare_punkter = motor.netanalyse()
+
     if ensomme_subnet:
         fire.cli.print(
             f"ADVARSEL: Manglende fastholdt punkt i mindst et subnet! Forslag til fastholdte punkter i hvert subnet:",
@@ -214,9 +215,14 @@ def regn(projektnavn: str, plot: bool, MotorKlasse: type[RegneMotor], **kwargs) 
         )
         for i, subn in enumerate(ensomme_subnet):
             fire.cli.print(f"  Subnet {i}: {subn[0]}", fg="red")
+
     resultater = byg_netgeometri_og_singulære(net_uden_ensomme, ensomme_subnet)
 
-    motor.lukkesum()
+    # Måske skal lukkesum bygges ind i netoversigt i stedet...
+    cykler = motor.lukkesum()
+
+    filnavn =f"{projektnavn}-{beregningstype}-polygoner.geojson"
+    skriv_polygoner_geojson(filnavn, motor._gamle_koter, cykler)
 
     # Beregn nye koter for de ikke-fastholdte punkter...
     fire.cli.print(
