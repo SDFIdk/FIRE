@@ -12,6 +12,7 @@ from typing import (
 import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import DatabaseError
 import packaging.version
 
 from fire.api.model import (
@@ -438,7 +439,7 @@ def punkt_feature(punkter: pd.DataFrame) -> Dict[str, str]:
             punkt = firedb.hent_punkt(punkter.at[i, "Punkt"])
             landsnr = punkt.landsnummer
             gi_nummer = punkt.ident if kan_være_gi_nummer(punkt.ident) else None
-        except NoResultFound:
+        except (NoResultFound, DatabaseError):
             landsnr = punkter.at[i, "Punkt"]
             gi_nummer = None
 
