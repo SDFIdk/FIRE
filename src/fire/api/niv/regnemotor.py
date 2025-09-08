@@ -9,6 +9,7 @@ from math import (
     sqrt,
     isnan,
 )
+import json
 from pathlib import Path
 import subprocess
 from typing import Self
@@ -495,7 +496,7 @@ class RegneMotor(ABC):
             delta_H             : list[float]
             afstand             : list[float]
 
-        Eksempel:
+        **Eksempler**
         Givet et nivellementsnet:
         A ------ B ------ E ------ F
         |        |
@@ -517,7 +518,7 @@ class RegneMotor(ABC):
         E       F        1.3
         F       E       -1.2
 
-
+        # Lukkesum af almindelig polygon
         > lukkesum_af_polygon([A,B,C,D])
         Returnerer:
         # Rho og deltaH for hver linje
@@ -532,6 +533,7 @@ class RegneMotor(ABC):
         delta_H_frem_sum = 0.3
         delta_H_tilb_sum = -0.3
 
+        # Lukkesum af blind linje
         > lukkesum_af_polygon([B,E,F], lukket=False)
         Returnerer:
         # Rho for hver linje
@@ -861,3 +863,38 @@ def _spredning(
         return hypot(afstandsafhængig, opstillingsafhængig)
 
     raise ValueError(f"Ukendt observationstype: {observationstype}")
+
+
+def polygon_feature(
+    punkter: dict[PunktNavn, InternKote],
+    polygoner: dict[tuple[PunktNavn], dict],
+    ):
+    """
+    for hver polygon tages laves en feature som indeholder de attributter givet.
+    antager for nu at polygoner er lukkede
+    """
+    for polygon, attributter in polygoner.items():
+        feature = {
+            "type": "Feature",
+            "properties": attributter,
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[punkter[pkt].øst, punkter[pkt].nord] for pkt in polygon+polygon[:1]]]
+            }
+        }
+
+        yield feature
+
+def skriv_polygoner_geojson(
+    filnavn: str,
+    punkter: dict[PunktNavn, InternKote],
+    polygoner: dict[tuple[PunktNavn], dict],
+):
+    til_json = {
+        "type": "FeatureCollection",
+        "Features": list(polygon_feature(punkter, polygoner)),
+    }
+    geojson = json.dumps(til_json, indent=4)
+
+    with open(filnavn, "wt") as polygonfil:
+        polygonfil.write(geojson)
