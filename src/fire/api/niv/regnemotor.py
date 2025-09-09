@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections import Counter, deque
+from collections import Counter, deque, defaultdict
 from dataclasses import dataclass, astuple
 from datetime import datetime
 from functools import cached_property
@@ -390,6 +390,46 @@ class RegneMotor(ABC):
         for k, obs in self._observationer.items():
             digraf.add_edge(obs.fra, obs.til, key=k)
         return digraf
+
+
+    def præaggreger_observationer(self):
+        """
+        En anden tilgang er at præaggregere alle linjer. For hver linje mellem to punkter, regner
+        man
+        mean(frem), mean(tilbage), mean(deltaH) = (sum(frem) - sum(tilbage))/(N_frem+N_tilbage), mean(afstand), samt rho = mean(frem)-mean(tilbage)
+
+        Ud fra disse kan man lave fx en geojson og markere de linjer som så skal indgå i polygonen, og summere op.
+        summa_rho = sum ( rho_i )        , for alle i i polygonen
+        lukkesum  = sum(mean(deltaH)_i)  , for alle i i polygonen
+        lukkesum_frem    = sum(mean(frem)_i)
+        lukkesum_tilbage = sum(mean(tilbage)_i)
+
+        Dette er nok det bedste at gøre hvis man gerne vil analyse på arbitrære polygoner, da det kan gøres nemt i QGIS.
+        Men så skal man selv være opmærksom i QGIS på at polygonen er lukket etc.
+
+        Det er forresten ikke altid at
+        lukkesum == (lukkesum_frem-lukkesum_tilbage)/2
+        idet der vil være forskel de steder hvor der ikke er lige mange frem og tilbage observationer.
+
+
+        """
+
+
+        obs_aggr = defaultdict(lambda: defaultdict(dict))
+        # Noget i den her stil, men det er ikke færdigt!!!
+        for k, o in self._observationer.items():
+            try:
+                N = obs_aggr[o.fra][o.til]["N"]
+                obs_aggr[o.fra][o.til]["dhmean"] = (obs_aggr[o.fra][o.til]["dhmean"]*N + o.deltaH)/(N+1)
+                obs_aggr[o.fra][o.til]["N"] += 1
+                obs_aggr[o.fra][o.til]["afstand"] += o.afstand
+            except KeyError:
+                obs_aggr[o.fra][o.til]["N"] = 1
+                obs_aggr[o.fra][o.til]["dhmean"] = o.deltaH
+                obs_aggr[o.fra][o.til]["afstand"] = o.afstand
+
+
+        return obs_aggr
 
 
     def lukkesum(self, min_længde: int = 3, metode: str = "mcb", **kwargs) -> dict[tuple[PunktNavn], dict]:
