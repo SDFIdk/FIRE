@@ -26,3 +26,8 @@ Submodules
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. automodule:: fire.api.niv.regnemotor
+   :members:
+   :undoc-members:
+   :show-inheritance:
