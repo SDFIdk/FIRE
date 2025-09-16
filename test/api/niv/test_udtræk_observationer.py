@@ -31,7 +31,6 @@ from fire.api.niv.udtræk_observationer import (
     observationer_inden_for_spredning,
     filtrer_præcisionsnivellement,
     timestamp,
-    punkter_til_geojson,
 )
 
 
@@ -223,37 +222,3 @@ def test_timestamp_string():
     result = timestamp()
     expected = "2021-11-01T212100"
     assert result == expected, f"Forventede, at {result!r} var {expected!r}."
-
-
-def test_punkter_til_geojson(ark_punktoversigt, række_punktoversigt):
-    # Arrange
-    øst = 8.0
-    nord = 55.0
-
-    række = {
-        **række_punktoversigt,
-        "Øst": øst,
-        "Nord": nord,
-    }
-    # `data`-parameteren i pd.DataFrame
-    # skal være en iterable med rækker.
-    data = [række.values()]
-    columns = række.keys()
-    df_række = pd.DataFrame(data=data, columns=columns)
-    ark = pd.concat([ark_punktoversigt, df_række], ignore_index=True)
-
-    # Act
-    geojson = punkter_til_geojson(ark)
-    print(geojson)
-
-    # Assert
-    properties = geojson["features"][0]["properties"]
-    geometry = geojson["features"][0]["geometry"]
-    check = (
-        (properties["Øst"], øst),
-        (properties["Nord"], nord),
-        (geometry["coordinates"][0], øst),
-        (geometry["coordinates"][1], nord),
-    )
-    for result, expected in check:
-        assert result == expected, f"Forventede, at {result!r} var {expected!r}."

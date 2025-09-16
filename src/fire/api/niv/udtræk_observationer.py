@@ -113,7 +113,8 @@ def klargør_geometrifiler(geometrifiler: Iterable[str]) -> List[Geometry]:
         # Gentagne punkter fjernes på forhånd da det er en tydelig fejl
         delgeometrier = [
             shapely.remove_repeated_points(
-                shapely.geometry.shape(delgeometri.get("geometry")), 0)
+                shapely.geometry.shape(delgeometri.get("geometry")), 0
+            )
             for delgeometri in geometri_data
         ]
 
@@ -128,24 +129,6 @@ def klargør_geometrifiler(geometrifiler: Iterable[str]) -> List[Geometry]:
         geometri_data.close()
 
     return klargjorte_geometrier
-
-
-def punkter_til_geojson(data: pd.DataFrame) -> dict:
-    """Konvertér punkter til geojson-tekststreng."""
-    return {
-        "type": "FeatureCollection",
-        "features": [
-            {
-                "type": "Feature",
-                "properties": {k: v for k, v in row.items()},
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": row[["Øst", "Nord"]].tolist(),
-                },
-            }
-            for _, row in data.iterrows()
-        ],
-    }
 
 
 def søgefunktioner_med_valgte_metoder(
@@ -165,7 +148,9 @@ def polygoner(punkter: Iterable[Punkt], buffer: int) -> Iterator[Geometry]:
     koordinatsæt = (punkt.geometri.koordinater for punkt in punkter)
 
     # Opbyg geometri for punkt-koordinater til søgning.
-    shapely_punkter = (shapely.geometry.Point(*koordinater) for koordinater in koordinatsæt)
+    shapely_punkter = (
+        shapely.geometry.Point(*koordinater) for koordinater in koordinatsæt
+    )
 
     # Lav den endelige søge-geometri ved at bruge den angivne buffer som
     # radius i en forsimplet cirkel (polygon) omkring koordinaterne.
