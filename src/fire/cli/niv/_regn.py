@@ -17,6 +17,10 @@ from fire.api.niv.regnemotor import (
 )
 
 from fire.io.regneark import arkdef
+from fire.io.geojson import (
+    skriv_punkter_geojson,
+    skriv_observationer_geojson,
+)
 import fire.cli
 
 from fire.cli.ts.plot_ts import (
@@ -26,8 +30,6 @@ from fire.cli.ts.plot_ts import (
 from fire.cli.niv import (
     find_faneblad,
     niv,
-    skriv_punkter_geojson,
-    skriv_observationer_geojson,
     skriv_ark,
     er_projekt_okay,
     hent_relevante_tidsserier,
