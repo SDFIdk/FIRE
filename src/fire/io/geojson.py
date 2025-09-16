@@ -9,6 +9,9 @@ import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import DatabaseError
 
+from fire.api.model import (
+    Punkt,
+)
 from fire.ident import kan_være_gi_nummer
 from fire.cli import firedb
 
@@ -110,7 +113,6 @@ def skriv_punkter_geojson(projektnavn: str, punkter: pd.DataFrame, infiks: str =
         punktfil.write(geojson)
 
 
-# ------------------------------------------------------------------------------
 def obs_feature(
     punkter: pd.DataFrame, observationer: pd.DataFrame, antal_målinger: dict[tuple, int]
 ) -> dict[str, str]:
@@ -181,3 +183,52 @@ def skriv_observationer_geojson(
     geojson = observationer_geojson(punkter, observationer)
     with open(filnavn, "wt") as obsfil:
         obsfil.write(geojson)
+
+
+def skriv_sagsrapport_geojson(filnavn: str, punkter: list[Punkt], attributter: dict):
+    """
+    Skriv geojson-fil med sagsstatistik for punkter til disk
+
+    Er en hjælpefunktion til ``fire info sag``
+
+    Punkternes attributter forventes indeholdt i en dict med attributternes navne som
+    nøgle og lister af punkt-uuider. Eksempelvis:
+
+    attributter = {
+        tabtgået     = [UUID_A, UUID_B, UUID_C],
+        oprettet     = [UUID_D, UUID_E, UUID_F],
+        observeret   = [UUID_A, UUID_B],
+        min_attribut = [UUID_X, UUID_Y],
+    }
+
+    """
+
+    def _punkt_feature(punkter: list[Punkt], attributter: dict):
+        for pkt in punkter:
+            properties = dict(id=str(pkt.landsnummer))
+            properties |= {
+                attribut: (pkt.id in punkter_med_attribut)
+                for attribut, punkter_med_attribut in attributter.items()
+            }
+
+            feature = {
+                "type": "Feature",
+                "properties": properties,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        pkt.geometri.koordinater[0],
+                        pkt.geometri.koordinater[1],
+                    ],
+                },
+            }
+            yield feature
+
+    til_json = {
+        "type": "FeatureCollection",
+        "Features": list(_punkt_feature(punkter, attributter)),
+    }
+    geojson = json.dumps(til_json, indent=4)
+
+    with open(filnavn, "wt") as punktfil:
+        punktfil.write(geojson)
