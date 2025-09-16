@@ -14,6 +14,7 @@ from pyproj.exceptions import CRSError
 
 import fire.cli
 from fire.ident import klargør_ident_til_søgning
+from fire.io.geojson import skriv_sagsrapport_geojson
 from fire.api.model import (
     EventType,
     EVENTTYPER,
@@ -911,16 +912,18 @@ def _grupper_sagsevents(sagsevent_liste: list[Sagsevent]) -> dict[set]:
 @click.option(
     "-r",
     "--rapport",
-    is_flag=True,
-    default=False,
-    help="Udskriv rapport over fremsøgte sager.",
+    type=str,
+    default=None,
+    is_flag=False,
+    flag_value="",
+    help="Udskriv rapport over fremsøgte sager. Gives et navn på rapporten skrives også en geojson-fil som oversigt.",
 )
 def sag(
     sagsid: str,
     fra: datetime.datetime,
     til: datetime.datetime,
     aktive: bool,
-    rapport: bool,
+    rapport: str,
     **kwargs,
 ):
     """
@@ -951,6 +954,7 @@ def sag(
                       eller indgår i nogen af ovenstående kategorier.
 
     **NB!** Optællingen kan ved store sager eller mange fremsøgte sager godt tage lidt tid.
+    Angiver man et filnavn ``--rapport sagsrapport.geojson``, skrives en rapporten som geojson med det angivne filnavn.
 
     **EKSEMPEL**
 
@@ -968,7 +972,7 @@ def sag(
 
     Vis alle sager indeholdende søgeteksten "2024_VEDL" og lav samlet optælling::
 
-        fire info sag 2024_VEDL --rapport
+        fire info sag 2024_VEDL --rapport "2024_VEDLIGEHOLD_rapport.geojson"
 
     """
     sager = []
@@ -1027,11 +1031,20 @@ def sag(
             sagseventid = sagsevent.id[0:8]
             fire.cli.print(f"[{tid}|{sagseventid}] {eventtype}: {beskrivelse}")
 
-        if rapport:
+        # hvis --rapport er sat, så tæller vi sagen op
+        if rapport is not None:
             fire.cli.print(f"\n  Sagsoptælling :\n")
             stats = _optæl_punkter_i_sagsevents(sag.sagsevents)
             for k, v in stats.items():
                 fire.cli.print(f"    Antal {k}: {len(v)}")
+
+        # hvis --rapport "filnavn" er sat så skriver vi også en geojson fil ud
+        if rapport == "":
+            return
+
+        punktider = list(set().union(*stats.values()))
+        punkter = fire.cli.firedb.hent_punkter_fra_uuid_liste(punktider)
+        skriv_sagsrapport_geojson(rapport, punkter, stats)
 
         return
 
@@ -1046,7 +1059,8 @@ def sag(
         beskrivelse = sag.beskrivelse[0:70].strip().replace("\n", " ").replace("\r", "")
         fire.cli.print(f"{sag.id[0:8]}:  {sag.behandler:20}{beskrivelse}...")
 
-    if not rapport:
+    # hvis --rapport er sat, så tæller vi sagerne op
+    if rapport is None:
         return
 
     fire.cli.print(f"\n--- Optælling af alle fremsøgte sager ---")
@@ -1055,6 +1069,14 @@ def sag(
 
     for k, v in stats.items():
         print(f"Antal {k}: {len(v)}")
+
+    # hvis --rapport "filnavn" er sat så skriver vi også en geojson fil ud
+    if rapport == "":
+        return
+
+    punktider = list(set().union(*stats.values()))
+    punkter = fire.cli.firedb.hent_punkter_fra_uuid_liste(punktider)
+    skriv_sagsrapport_geojson(rapport, punkter, stats)
 
 
 @info.command()
