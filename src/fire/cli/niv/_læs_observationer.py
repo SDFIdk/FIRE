@@ -14,14 +14,17 @@ from fire.io.regneark import (
     nyt_ark,
     arkdef,
 )
+from fire.io.geojson import (
+    skriv_punkter_geojson,
+    skriv_observationer_geojson,
+)
+
 import fire.io.dataframe as frame
 import fire.cli
 
 from fire.cli.niv import (
     find_faneblad,
     niv,
-    skriv_punkter_geojson,
-    skriv_observationer_geojson,
     skriv_ark,
     er_projekt_okay,
     KOTESYSTEMER,

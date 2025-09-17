@@ -47,10 +47,13 @@ import fire.cli
 from fire.cli.niv import (
     niv as niv_command_group,
     er_projekt_okay,
-    skriv_observationer_geojson,
-    skriv_punkter_geojson,
     KOTESYSTEMER,
 )
+from fire.io.geojson import (
+    skriv_punkter_geojson,
+    skriv_observationer_geojson,
+)
+
 from fire.typologi import (
     adskil_filnavne,
     adskil_identer,
