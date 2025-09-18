@@ -8,6 +8,7 @@ dependencies:
   - gama
   - graphviz
   - matplotlib
+  - networkx
   - numpy
   - openpyxl
   - oracledb
