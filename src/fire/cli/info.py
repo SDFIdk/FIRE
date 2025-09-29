@@ -1032,11 +1032,13 @@ def sag(
             fire.cli.print(f"[{tid}|{sagseventid}] {eventtype}: {beskrivelse}")
 
         # hvis --rapport er sat, så tæller vi sagen op
-        if rapport is not None:
-            fire.cli.print(f"\n  Sagsoptælling :\n")
-            stats = _optæl_punkter_i_sagsevents(sag.sagsevents)
-            for k, v in stats.items():
-                fire.cli.print(f"    Antal {k}: {len(v)}")
+        if rapport is None:
+            return
+
+        fire.cli.print(f"\n  Sagsoptælling :\n")
+        stats = _optæl_punkter_i_sagsevents(sag.sagsevents)
+        for k, v in stats.items():
+            fire.cli.print(f"    Antal {k}: {len(v)}")
 
         # hvis --rapport "filnavn" er sat så skriver vi også en geojson fil ud
         if rapport == "":
