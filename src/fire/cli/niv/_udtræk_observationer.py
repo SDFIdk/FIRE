@@ -275,12 +275,10 @@ def udtræk_observationer(
             fire.cli.print("Søg med punkterne som opstillingspunkt", fg="yellow")
             objekter = punkter
             # Forbereder søgefunktion med argumenter fastsat.
-            DVR90 = db.hent_srid(SRID.DVR90)
             funktion = db.hent_observationer_fra_opstillingspunkt
             fastholdte_argumenter = dict(
                 tid_fra=fra,
                 tid_til=til,
-                srid=DVR90,
                 kun_aktive=True,
                 sigtepunkter=punkter,
             )
