@@ -533,6 +533,33 @@ class GamaRegn(RegneMotor):
         self.kald_gama()
         self.nye_koter = self.læs_gama_outputfil()
 
+class EksempelRegn(GamaRegn):
+    """
+    En demonstration, der ikke skal bruges i den virkelige verden.
+
+    Her hardcodes filnavnene der bruges i GamaRegn. Det er åbenlyst bare
+    et eksempel, det har ikke meget værdi i sig selv. Men forestiller mig sig i
+    stedet at der findes en GeneriskRegneMotor, der har et væld af forskellige
+    parametre man kan justere på, fx hvilket tidesystem der skal regnes i, om
+    der skal korrigeres for uplift eller lignende. Alle de korrektioner Aslak har
+    arbejdet på at implementere. Med afsæt her i kan vi så lave en RegneMotor til
+    specifikke formål, eksempelvis en til udjævning af DVR90-koter og en til
+    EVRS-koter (i øvrigt et super fedt forslag, Aslak).
+
+    I kald til `fire niv regn` skal man så bare vælge hvilken motor man vil bruge
+    ved at sætte `-M`. Fx `fire niv regn -M DVR90`. Og skal man lave et eller
+    avanceret der afviger fra normen kan så bruge bruge
+
+    `fire niv regn -M generiskmotor -r tidesystem=meantide -r oceanloading=nejtak -r ...`
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            xml_in="gama_input.xml",
+            xml_out="gama_output.xml",
+            html_out="gama_rapport.html",
+            **kwargs,
+        )
 
 class DumRegn(RegneMotor):
     """Eksempel på en alternativ regnemotor"""
