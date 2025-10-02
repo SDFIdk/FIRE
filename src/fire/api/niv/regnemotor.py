@@ -539,14 +539,19 @@ class DumRegn(RegneMotor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._filer = []
 
     def udjævn(self):
         self.nye_koter = self.gamle_koter
 
     @property
     def filer(self) -> list:
-        """En liste af filer som DumRegn producerer"""
-        return None
+        """DumRegn producerer ingen filer, returnerer altid den samme tomme liste."""
+        return self._filer
+
+    @filer.setter
+    def filer(self, _):
+        """En dum setter, der ikke ændrer noget."""
 
 
 def _spredning(
