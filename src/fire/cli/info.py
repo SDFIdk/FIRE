@@ -297,6 +297,8 @@ def punktsamlingsrapport(punktsamlinger: list[PunktSamling], id: str = None):
     fire.cli.print(header, bold=True)
     fire.cli.print(subheader)
 
+    punktsamlinger = [ps for ps in punktsamlinger if ps.registreringtil is None]
+
     # Sortér Punktsamlinger efter Jessennummer, dernæst efter Punktsamlingsnavn
     punktsamlinger.sort(key=lambda x: (x.jessenpunkt.jessennummer, x.navn))
 
@@ -342,6 +344,8 @@ def tidsserierapport(tidsserier: list[Tidsserie]):
             return "Højde"
 
     for ts in tidsserier:
+        if ts.registreringtil is not None:
+            continue
         navn_ombrudt = textwrap.wrap(str(ts.navn), kolonnebredder[0])
         for navn_del in navn_ombrudt[:-1]:
             fire.cli.print(navn_del)
