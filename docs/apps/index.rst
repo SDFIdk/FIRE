@@ -8,6 +8,7 @@ Kommandolinjeprogrammer
     info
     niv
     indlæs
+    opret
     grafik
     luk
     ts
