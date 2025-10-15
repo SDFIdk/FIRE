@@ -35,6 +35,7 @@ fire = "fire.cli.main:fire_cmd"
 "indlæs" = "fire.cli.indlæs:indlæs"
 "ts" = "fire.cli.ts:ts"
 "config" = "fire.cli.config:config"
+"opret" = "fire.cli.opret:opret"
 
 [build-system]
 requires = ['setuptools>=64']
