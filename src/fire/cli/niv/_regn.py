@@ -192,6 +192,7 @@ def regn(
     observationer = find_faneblad(projektnavn, "Observationer", arkdef.OBSERVATIONER)
     punktoversigt = find_faneblad(projektnavn, "Punktoversigt", arkdef.PUNKTOVERSIGT)
     arbejdssæt = find_faneblad(projektnavn, aktuelt_faneblad, arkdef.PUNKTOVERSIGT)
+    parametre = find_faneblad(projektnavn, "Parametre", arkdef.PARAM)
 
     # Til den endelige beregning skal vi bruge de oprindelige observationsdatoer
     if not kontrol:
@@ -215,6 +216,7 @@ def regn(
                 bold=True,
                 bg="yellow",
             )
+            continue
 
         # konverter til float hvis der er givet en talværdi
         try:
@@ -242,6 +244,43 @@ def regn(
             bg="red",
         )
         raise SystemExit
+
+    # opdater Parametre i regneark (er vi kommet her til er alle angivne parametre gyldige)
+    beregningsparametre = {"regnemotor": MotorKlasse.__name__} | motorkwargs
+    for parameter, værdi in beregningsparametre.items():
+        # findes parameter allerede i regnearket?
+        findes_parameter = parameter in list(parametre["Navn"])
+        if not kontrol:
+            #kontrolværdi = find_parameter(projektnavn, parameter)
+            if not findes_parameter:
+                fire.cli.print(
+                        (
+                            f"ADVARSEL: {parameter}={værdi} sat i endelig beregning, "
+                            "kontrolberegning udført uden denne regneparameter!"
+                        ),
+                    bold=True,
+                    bg="yellow",
+                )
+            else:
+                kontrolværdi = parametre.loc[parametre["Navn"] == parameter]["Værdi"].to_string(index=False)
+
+                if kontrolværdi != værdi:
+                    fire.cli.print(
+                            (
+                                "ADVARSEL: Kontrolberegning udført med regneparameter "
+                                f"{parameter}={kontrolværdi}, {parameter}={værdi} sat i "
+                                "endelig beregning!"
+                            ),
+                        bold=True,
+                        bg="yellow",
+                    )
+        # parametre sættes as-is, brugeren må reagere på advarslen ovenfor hvis forskel
+        # i parametre er utilsigtet
+        if parametre[parametre["Navn"] == parameter].empty:
+            parametre.loc[len(parametre)] = [parameter, værdi]
+        else:
+            parametre.loc[parametre["Navn"] == parameter, "Værdi"] = værdi
+
 
     # Tilføj "-kontrol" eller "-endelig" til alle filnavne
     motor.filer = [
@@ -367,7 +406,7 @@ def regn(
         observationer,
         infiks=infiks,
     )
-    skriv_ark(projektnavn, resultater)
+    skriv_ark(projektnavn, resultater | {"Parametre": parametre})
     if fire.cli.firedb.config.getboolean("general", "niv_open_files"):
         # åbn html output hvis motoren producerer et
         if hasattr(motor, "html_out"):
