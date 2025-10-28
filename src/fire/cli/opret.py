@@ -352,7 +352,7 @@ def punktopret(
         fire.cli.print(e)
     else:
         spørgsmål = click.style(
-            "Er du sikker på at du vil oprettet punktet med ovenstående information?",
+            f"Er du sikker på at du vil oprette punktet i {fire.cli.firedb.db}-databasen med ovenstående information?",
             bg="red",
             fg="white",
         )
