@@ -28,7 +28,7 @@ import fire.cli
 PUNKTSKABELONER = {
     "PERMANENT": [
         "NET:CORS",
-        "IDENT:landsnummer",  # brug landsnummer-funktion
+        "IDENT:landsnr",  # brug landsnummer-funktion
         "IDENT:GI",  # brug tildel_gi_numre()
         "IDENT:GNSS",  # prompt
         "REGION:DK",  #
@@ -41,17 +41,17 @@ PUNKTSKABELONER = {
     "GNET": [
         "NET:GNET",
         "IDENT:GNSS",
+        "AFM:højde_over_terræn",
         "ATTR:beskrivelse",
         "ATTR:gnss_egnet",
         "REGION:GL",
-        "AFM:højde_over_terræn",
     ],
     "5D": [
         "NET:5D",
         "IDENT:landsnr",
         "IDENT:GI",
         "IDENT:GNSS",
-        "ATTR:højde_over_terræn",
+        "AFM:højde_over_terræn",
         "ATTR:beskrivelse",
         "ATTR:gnss_egnet",
         "REGION:DK",
@@ -117,7 +117,7 @@ def håndter_attr_beskrivelse(punkt: Punkt) -> PunktInformation:
 
 
 SPECIELLE_INFOTYPER = {
-    "IDENT:landsnummer": håndter_landsnummer,
+    "IDENT:landsnr": håndter_landsnummer,
     "IDENT:GI": håndter_gi_nummer,
     "ATTR:beskrivelse": håndter_attr_beskrivelse,
 }
@@ -181,6 +181,10 @@ def opret():
 
 def vis_skabelon(ctx, param, fikspunktstype):
     """Vis indholdet af en skabelon"""
+    # Hvis man ikke har brugt --skabelon, springes der ud med det samme, så resten af
+    # kommandoen kan få lov at køre
+    if fikspunktstype is None:
+        return None
 
     attributter = PUNKTSKABELONER[fikspunktstype]
 
@@ -340,7 +344,7 @@ def punktopret(
     try:
         fire.cli.firedb.indset_sagsevent(sagsevent_punktinfo_opret, commit=False)
         fire.cli.firedb.session.flush()
-        fire.cli.firedb.luk_sag(sag)
+        fire.cli.firedb.luk_sag(sag, commit=False)
         fire.cli.firedb.session.flush()
     except DatabaseError as e:
         fire.cli.firedb.session.rollback()
@@ -348,7 +352,7 @@ def punktopret(
         fire.cli.print(e)
     else:
         spørgsmål = click.style(
-            "Er du sikker på at du vil oprettet punktet med ovenstående information?",
+            f"Er du sikker på at du vil oprette punktet i {fire.cli.firedb.db}-databasen med ovenstående information?",
             bg="red",
             fg="white",
         )
