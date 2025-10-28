@@ -41,10 +41,10 @@ PUNKTSKABELONER = {
     "GNET": [
         "NET:GNET",
         "IDENT:GNSS",
+        "AFM:højde_over_terræn",
         "ATTR:beskrivelse",
         "ATTR:gnss_egnet",
         "REGION:GL",
-        "AFM:højde_over_terræn",
     ],
     "5D": [
         "NET:5D",
