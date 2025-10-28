@@ -51,7 +51,7 @@ PUNKTSKABELONER = {
         "IDENT:landsnr",
         "IDENT:GI",
         "IDENT:GNSS",
-        "ATTR:højde_over_terræn",
+        "AFM:højde_over_terræn",
         "ATTR:beskrivelse",
         "ATTR:gnss_egnet",
         "REGION:DK",
