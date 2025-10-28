@@ -181,6 +181,10 @@ def opret():
 
 def vis_skabelon(ctx, param, fikspunktstype):
     """Vis indholdet af en skabelon"""
+    # Hvis man ikke har brugt --skabelon, springes der ud med det samme, så resten af
+    # kommandoen kan få lov at køre
+    if fikspunktstype is None:
+        return None
 
     attributter = PUNKTSKABELONER[fikspunktstype]
 
