@@ -28,7 +28,7 @@ import fire.cli
 PUNKTSKABELONER = {
     "PERMANENT": [
         "NET:CORS",
-        "IDENT:landsnummer",  # brug landsnummer-funktion
+        "IDENT:landsnr",  # brug landsnummer-funktion
         "IDENT:GI",  # brug tildel_gi_numre()
         "IDENT:GNSS",  # prompt
         "REGION:DK",  #
@@ -117,7 +117,7 @@ def håndter_attr_beskrivelse(punkt: Punkt) -> PunktInformation:
 
 
 SPECIELLE_INFOTYPER = {
-    "IDENT:landsnummer": håndter_landsnummer,
+    "IDENT:landsnr": håndter_landsnummer,
     "IDENT:GI": håndter_gi_nummer,
     "ATTR:beskrivelse": håndter_attr_beskrivelse,
 }
