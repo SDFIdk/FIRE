@@ -344,7 +344,7 @@ def punktopret(
     try:
         fire.cli.firedb.indset_sagsevent(sagsevent_punktinfo_opret, commit=False)
         fire.cli.firedb.session.flush()
-        fire.cli.firedb.luk_sag(sag)
+        fire.cli.firedb.luk_sag(sag, commit=False)
         fire.cli.firedb.session.flush()
     except DatabaseError as e:
         fire.cli.firedb.session.rollback()
