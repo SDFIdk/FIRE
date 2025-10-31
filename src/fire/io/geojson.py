@@ -2,6 +2,7 @@
 Modul til håndtering af læsning og skrivning geojson-filer
 """
 
+from dataclasses import asdict
 import json
 import math
 
@@ -14,6 +15,14 @@ from fire.api.model import (
 )
 from fire.ident import kan_være_gi_nummer
 from fire.cli import firedb
+from fire.api.niv.datatyper import (
+    PunktNavn,
+    NivKote,
+)
+from fire.api.niv.lukkesum import (
+    LinjeStats,
+    LukkesumStats,
+)
 
 
 def _geojson_filnavn(projektnavn: str, infiks: str, variant: str):
@@ -232,3 +241,95 @@ def skriv_sagsrapport_geojson(filnavn: str, punkter: list[Punkt], attributter: d
 
     with open(filnavn, "wt") as punktfil:
         punktfil.write(geojson)
+
+
+def polygon_feature(
+    punkter: dict[str, NivKote],
+    polygoner: dict[tuple[PunktNavn], LukkesumStats | dict],
+):
+    """
+    For hver polygon laves en feature som indeholder de givne attributter.
+
+    Det antages mere eller mindre at `polygoner`, er output fra
+    `RegneMotor.beregn_lukkesummer`, og dermed at polygonerne er lukkede.
+    """
+    for polygon, attributter in polygoner.items():
+        try:
+            # Antag at "attributter" er en dataklasse der kan laves om til en dict
+            attrs = asdict(attributter)
+            attrs.pop("linjer")  # vi skal ikke have alle linjerne med i geojsonen
+        except TypeError:
+            # Ellers antager vi at det allerede en dict, som kan gemmes i json format.
+            pass
+
+        feature = {
+            "type": "Feature",
+            "properties": attrs,
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [punkter[pkt].øst, punkter[pkt].nord]
+                        for pkt in polygon + polygon[:1]
+                    ]
+                ],
+            },
+        }
+
+        yield feature
+
+
+def skriv_polygoner_geojson(
+    filnavn: str,
+    punkter: dict[PunktNavn, NivKote],
+    polygoner: dict[tuple[PunktNavn], LukkesumStats],
+):
+    til_json = {
+        "type": "FeatureCollection",
+        "Features": list(polygon_feature(punkter, polygoner)),
+    }
+    geojson = json.dumps(til_json, indent=4)
+
+    with open(filnavn, "wt") as polygonfil:
+        polygonfil.write(geojson)
+
+
+def netoversigt_linjer_feature(
+    punkter: dict[str, NivKote],
+    linjer: list[LinjeStats],
+):
+    """
+    For hver linje laves en feature som indeholder de givne `LinjeStats`.
+    """
+    for linje in linjer:
+        fra, til = linje.fra, linje.til
+        # Lav en LinjeStats dataklasse om til en dict
+        attrs = asdict(linje)
+
+        feature = {
+            "type": "Feature",
+            "properties": attrs,
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [punkter[fra].øst, punkter[fra].nord],
+                    [punkter[til].øst, punkter[til].nord],
+                ],
+            },
+        }
+
+        yield feature
+
+
+def skriv_netoversigt_linjer_geojson(
+    filnavn: str, punkter: dict[PunktNavn, NivKote], linjer: list[LinjeStats]
+):
+
+    til_json = {
+        "type": "FeatureCollection",
+        "Features": list(netoversigt_linjer_feature(punkter, linjer)),
+    }
+    geojson = json.dumps(til_json, indent=4)
+
+    with open(filnavn, "wt") as obsfil:
+        obsfil.write(geojson)
