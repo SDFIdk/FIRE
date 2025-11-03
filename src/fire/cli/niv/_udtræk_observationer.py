@@ -28,7 +28,7 @@ from fire.srid import SRID
 from fire.api.model.punkttyper import (
     Punkt,
 )
-from fire.api.niv.enums import (
+from fire.api.niv.datatyper import (
     NivMetode,
     Nøjagtighed,
 )

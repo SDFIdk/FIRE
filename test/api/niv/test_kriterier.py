@@ -1,4 +1,4 @@
-from fire.api.niv.enums import (
+from fire.api.niv.datatyper import (
     NivMetode,
     Nøjagtighed,
 )

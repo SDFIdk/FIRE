@@ -25,7 +25,7 @@ from fire.api.model import (
     GeometriskKoteforskel,
     TrigonometriskKoteforskel,
 )
-from fire.api.niv.enums import NivMetode
+from fire.api.niv.datatyper import NivMetode
 from fire.srid import SRID
 from fire.io.regneark import arkdef
 import fire.io.dataframe as frame

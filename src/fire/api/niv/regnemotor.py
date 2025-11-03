@@ -15,11 +15,20 @@ import xmltodict
 
 import pandas as pd
 
-# Smarte type hints
-PunktNavn = str
-# NivSubnet er en forsimplet udgave af et rigtigt net, som bare indeholder navnene på punkter som indgår
-NivSubnet = list[PunktNavn]
-NivNet = dict[PunktNavn, set[PunktNavn]]
+from fire import uuid
+from fire.api.niv.datatyper import (
+    PunktNavn,
+    NivNet,
+    NivSubnet,
+    NivKote,
+    NivObservation,
+)
+from fire.api.niv.lukkesum import (
+    LukkesumStats,
+    find_polygoner,
+    aggreger_multidigraf,
+    lukkesum_af_polygon,
+)
 
 
 class UdjævningFejl(Exception):
@@ -37,33 +46,6 @@ class ValideringFejl(Exception):
 class FastholdtIkkeObserveret(ValideringFejl):
     def __init__(self, uobserverede_fastholdte_punkter: list[PunktNavn] = None):
         self.uobserverede_fastholdte_punkter = uobserverede_fastholdte_punkter
-
-
-@dataclass
-class InternNivObservation:
-    """Almindelige, ukorrelerede nivellementobservationer"""
-
-    fra: PunktNavn
-    til: PunktNavn
-    dato: datetime
-    multiplicitet: int
-    afstand: float
-    deltaH: float
-    spredning: float
-    id: str  # kan bruges til journalnummeret, eller observations-id fra FIRE
-
-
-@dataclass
-class InternKote:
-    """Koter som enten indgår som input eller output til en beregning"""
-
-    punkt: PunktNavn  # kan både bruge ident, database id, eller uuid.
-    H: float
-    dato: datetime
-    spredning: float
-    fasthold: bool = False
-    nord: float = float("nan")
-    øst: float = float("nan")
 
 
 class RegneMotor(ABC):
