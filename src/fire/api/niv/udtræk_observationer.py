@@ -31,7 +31,7 @@ from fire.api.model import (
     TrigonometriskKoteforskel,
     Geometry,
 )
-from fire.api.niv.enums import (
+from fire.api.niv.datatyper import (
     NivMetode,
     Nøjagtighed,
 )

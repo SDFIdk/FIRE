@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from collections import Counter, deque
-from dataclasses import dataclass, astuple
+from dataclasses import astuple
 from datetime import datetime
 from functools import cached_property
+import networkx as nx
 from math import (
     hypot,
     sqrt,
@@ -15,11 +15,20 @@ import xmltodict
 
 import pandas as pd
 
-# Smarte type hints
-PunktNavn = str
-# NivSubnet er en forsimplet udgave af et rigtigt net, som bare indeholder navnene på punkter som indgår
-NivSubnet = list[PunktNavn]
-NivNet = dict[PunktNavn, set[PunktNavn]]
+from fire import uuid
+from fire.api.niv.datatyper import (
+    PunktNavn,
+    NivNet,
+    NivSubnet,
+    NivKote,
+    NivObservation,
+)
+from fire.api.niv.lukkesum import (
+    LukkesumStats,
+    find_polygoner,
+    aggreger_multidigraf,
+    lukkesum_af_polygon,
+)
 
 
 class UdjævningFejl(Exception):
@@ -39,33 +48,6 @@ class FastholdtIkkeObserveret(ValideringFejl):
         self.uobserverede_fastholdte_punkter = uobserverede_fastholdte_punkter
 
 
-@dataclass
-class InternNivObservation:
-    """Almindelige, ukorrelerede nivellementobservationer"""
-
-    fra: PunktNavn
-    til: PunktNavn
-    dato: datetime
-    multiplicitet: int
-    afstand: float
-    deltaH: float
-    spredning: float
-    id: str  # kan bruges til journalnummeret, eller observations-id fra FIRE
-
-
-@dataclass
-class InternKote:
-    """Koter som enten indgår som input eller output til en beregning"""
-
-    punkt: PunktNavn  # kan både bruge ident, database id, eller uuid.
-    H: float
-    dato: datetime
-    spredning: float
-    fasthold: bool = False
-    nord: float = float("nan")
-    øst: float = float("nan")
-
-
 class RegneMotor(ABC):
     """
     Øverste led i RegneMotor-hierarkiet til udjævning af nivellementsobservationer
@@ -75,7 +57,7 @@ class RegneMotor(ABC):
 
     En RegneMotor består basalt set af et sæt af observationer til et sæt fikspunkter,samt
     ét eller flere fastholdte punkter. Disse er hver defineret som lister af dataklasserne
-    InternNivObservation hhv. InternKote. Disse klasser indeholder de basale attributter
+    ``NivObservation`` hhv. ``NivKote``. Disse klasser indeholder de basale attributter
     nødvendige for nivellementberegninger.
 
     **Instantiering**
@@ -89,7 +71,7 @@ class RegneMotor(ABC):
 
     Udjævning af observationer foretages med `udjævn` som forventes at være implementeret
     i alle nedarvende klasser. Udjævningsresultaterne er tilgængelige i ``self.nye_koter``
-    som ``list[InternKote]``.
+    som ``list[NivKote]``.
 
     **Grafanalyse**
 
@@ -120,13 +102,14 @@ class RegneMotor(ABC):
 
     def __init__(
         self,
-        observationer: list[InternNivObservation],
-        gamle_koter: list[InternKote],
+        observationer: list[NivObservation],
+        gamle_koter: list[NivKote],
         projektnavn: str = "fire",
     ):
-        self.observationer = observationer
-        self.gamle_koter = gamle_koter
-        self.nye_koter: list[InternKote] = []
+        # observationerne refereres internt med et unikt id som kan bruges i forskellige sammenhænge
+        self._observationer = {uuid(): o for o in observationer}
+        self._gamle_koter = {gk.punkt: gk for gk in gamle_koter}
+        self.nye_koter: list[NivKote] = []
         self.projektnavn = projektnavn
 
     def valider_fastholdte(self):
@@ -146,6 +129,14 @@ class RegneMotor(ABC):
                 f"Observation(er) for fastholdte punkter: {', '.join(uobserverede_fastholdte_punkter)} er slukket eller mangler"
             )
 
+    @property
+    def observationer(self):
+        return self._observationer.values()
+
+    @property
+    def gamle_koter(self):
+        return self._gamle_koter.values()
+
     @classmethod
     def fra_dataframe(
         cls,
@@ -162,7 +153,7 @@ class RegneMotor(ABC):
             )
 
             observationer.append(
-                InternNivObservation(
+                NivObservation(
                     fra=obs["Fra"],
                     til=obs["Til"],
                     dato=obs["Hvornår"].to_pydatetime(),
@@ -177,7 +168,7 @@ class RegneMotor(ABC):
         gamle_koter = []
         for i, pkt in punkter_df.iterrows():
             gamle_koter.append(
-                InternKote(
+                NivKote(
                     punkt=pkt["Punkt"],
                     fasthold=(True if pkt["Fasthold"] else False),
                     dato=pkt["Hvornår"].to_pydatetime(),
@@ -265,114 +256,94 @@ class RegneMotor(ABC):
         """Foreningsmængden af opstillings- og sigtepunkter"""
         return self.opstillingspunkter.union(self.sigtepunkter)
 
+    @cached_property
+    def multidigraf(self) -> nx.MultiDiGraph:
+        """
+        Byg en digraf ud fra observationerne
+
+        Returnerer et networkx MultiDiGraph objekt som kan indeholde flere parallelle
+        (deraf Multi), rettede (deraf Di(rectional)) linjer (kanter) mellem hvert punkt
+        (knude). Hver kant i grafen har en nøgle som refererer til en ``NivObservation``.
+        """
+        multidigraf = nx.MultiDiGraph()
+        multidigraf.add_nodes_from(self.observerede_punkter)
+        for k, obs in self._observationer.items():
+            multidigraf.add_edge(obs.fra, obs.til, key=k, data=obs)
+        return multidigraf
+
     def netanalyse(self) -> tuple[NivNet, list[NivSubnet], list[PunktNavn]]:
         """
         Konstruér netgraf og find ensomme punkter
 
-        Nettet reduceres for de ensomme punkter, da ensomme punkter ikke kan estimeres i udjævningen.
+        Nettet reduceres for de ensomme punkter, da ensomme punkter ikke kan estimeres i
+        udjævningen.
         """
-        net = self.opbyg_net()
 
-        # Undersøg om nettet består af flere ikke-sammenhængende subnet.
-        subnet = self.find_subnet(net)
+        # Find subnet
+        # weakly connected er at "lade som om" grafen er undirected, og så finde connectede subnet.
+        # På formelt grafsprog er component=subnet
+        subnet = [set(c) for c in nx.weakly_connected_components(self.multidigraf)]
 
         # For hvert subnet undersøger vi om der findes et fastholdt punkt
         ensomme_subnet = [
-            subn for subn in subnet if set(self.fastholdte.keys()).isdisjoint(subn)
+            list(subn)
+            for subn in subnet
+            if set(self.fastholdte.keys()).isdisjoint(subn)
         ]
 
         # Punkterne i de ensomme subnet skal ikke med i netgrafen
         ensomme_punkter = set().union(*ensomme_subnet)
-        for punkt in ensomme_punkter:
-            net.pop(punkt, None)
+        net_uden_ensomme = self.multidigraf.copy()
+        net_uden_ensomme.remove_nodes_from(ensomme_punkter)
+
+        # Det behøves faktisk ikke at konvertere her da byg_netgeometri_og_singulære
+        # faktisk virker med networkx Graph objektet, da Graph objekterne opfører sig som dicts
+        net_uden_ensomme = nx.to_dict_of_lists(net_uden_ensomme)
 
         # Estimerbare punkter er dem som er observerede, men ikke ensomme eller fastholdte.
-        estimerbare_punkter = list(set(net.keys()).difference(self.fastholdte.keys()))
+        estimerbare_punkter = list(
+            set(net_uden_ensomme.keys()).difference(self.fastholdte.keys())
+        )
 
-        # Gem nettet og de estimerbare punkter så de kan bruges af motoren senere.
-        self.net = net
+        # Gem de estimerbare punkter så de kan bruges af motoren senere.
         self.estimerbare_punkter = estimerbare_punkter
 
-        return net, ensomme_subnet, estimerbare_punkter
+        return net_uden_ensomme, ensomme_subnet, estimerbare_punkter
 
-    def opbyg_net(self) -> NivNet:
+    def beregn_lukkesummer(
+        self, min_længde=3, metode: str = None, **kwargs
+    ) -> dict[tuple[PunktNavn], LukkesumStats]:
         """
-        Konstruer non-directed graf som markerer forbindelser mellem punkter.
+        Finder polygoner i nivellementnettet og beregner lukkesummer
+
+        Returnerer en dict hvor nøglerne er selve polygonerne, givet ved `kredse`, og
+        værdierne er de beregnde statistiske parametre, herunder lukkesummer, pakket ind i
+        dataklassen `LukkesumStats`.
+
+        Ønsker man at beregne lukkesummen af en bestemt polygon kan man bruge
+        `lukkesum_af_polygon` direkte.
         """
+        # Hvis metode ikke er eksplicit sat, så bruger vi simpelt tjek for at vælge
+        # metoden. Hvis der er mange observationer, så kan antallet af polygoner nemlig
+        # eksplodere, og det er derfor nødvendigt med en anden metode.
+        if metode is None:
+            metode = "mcb"
+            if len(self.observationer) > 1000:
+                metode = "cb"
 
-        net = {p: set() for p in self.observerede_punkter}
+        polygoner = find_polygoner(
+            self.multidigraf, min_længde=min_længde, metode=metode, **kwargs
+        )
 
-        for obs in self.observationer:
-            net[obs.til].add(obs.fra)
-            net[obs.fra].add(obs.til)
+        # Præaggreger observationer
+        digraf = aggreger_multidigraf(self.multidigraf)
 
-        return net
-
-    @classmethod
-    def find_subnet(cls, net: NivNet) -> list[NivSubnet]:
-        """
-        Find selvstændige net i et større net
-
-        Antager at nettet er non-directional. Dvs. peger A på B, skal B også pege på A. Ellers
-        kan resultaterne blive forskellige alt efter hvilket punkt som søgningen starter ud fra.
-
-        Eksempel: A og B peger på hinanden, og A og C peger på hinanden. Man kan komme fra
-        ethvert punkt til ethvert andet punkt.
-        {
-            A: [B,C]
-            B: [A]
-            C: [A]
+        lukkesummer = {
+            tuple(kreds): lukkesum_af_polygon(digraf, kreds, lukket=True).omregn_til_mm()
+            for kreds in polygoner
         }
 
-        A og B peger på hinanden, og C peger på A. Hvis søgningen starter i A eller
-        B, vil C fremgå som et separat subnet da man ikke kan komme fra A eller B til C.
-        Starter søgningen i C vil alle punkterne derimod fremgå i det samme subnet.
-        {
-            A: [B]
-            B: [A]
-            C: [A]
-        }
-
-        Bruger breadth first search (BFS).
-        Baseret på materiale fra: https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/
-        """
-
-        # Funktion til breadth first search
-        def bfs(net, besøgt, startpunkt, subnet: list = []):
-            # Initialiser kø
-            kø = deque()
-
-            # Marker nuværende punkt som besøgt og føj til kø
-            besøgt[startpunkt] = True
-            kø.append(startpunkt)
-
-            # Opbyg subnet
-            subnet.append(startpunkt)
-
-            # Loop over køen
-            while kø:
-                # Fjern nuværende punkt fra køen
-                nuværende_punkt = kø.popleft()
-
-                # Find naboer til nuværende punkt
-                # Hvis en nabo ikke har været besøgt, marker den da som besøgt og føj til kø
-                for nabo in net[nuværende_punkt]:
-                    if not besøgt[nabo]:
-                        besøgt[nabo] = True
-                        kø.append(nabo)
-
-                        # Opbyg subnet
-                        subnet.append(nabo)
-
-        besøgt = {punkt: False for punkt in net.keys()}
-        liste_af_subnet = []
-        for punkt in net.keys():
-            if not besøgt[punkt]:
-                subnet = []
-                bfs(net, besøgt, punkt, subnet)
-                liste_af_subnet.append(subnet)
-
-        return liste_af_subnet
+        return lukkesummer
 
     @abstractmethod
     def udjævn(self):
@@ -488,7 +459,7 @@ class GamaRegn(RegneMotor):
             # Hvis filen findes så bed bruger om at checke den.
             raise UdjævningFejl(f"Beregning ikke gennemført. Check {self.html_out}")
 
-    def læs_gama_outputfil(self) -> list[InternKote]:
+    def læs_gama_outputfil(self) -> list[NivKote]:
         """
         Læser output fra GNU Gama og returnerer relevante parametre til at skrive xlsx fil
         """
@@ -516,7 +487,7 @@ class GamaRegn(RegneMotor):
         nye_koter = []
         for punkt, var in zip(koteliste, varliste):
             nye_koter.append(
-                InternKote(
+                NivKote(
                     punkt=punkt["id"],
                     dato=self.gyldighedstidspunkt,
                     H=float(punkt["z"]),

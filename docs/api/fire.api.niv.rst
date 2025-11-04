@@ -17,7 +17,7 @@ Submodules
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: fire.api.niv.enums
+.. automodule:: fire.api.niv.datatyper
    :members:
    :undoc-members:
    :show-inheritance:

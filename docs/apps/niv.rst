@@ -129,6 +129,10 @@ kommunal vedligeholdsopgave.
   :prog: fire niv regn
   :nested: full
 
+.. click:: fire.cli.niv:netoversigt
+  :prog: fire niv netoversigt
+  :nested: full
+
 .. click:: fire.cli.niv:ilæg_observationer
   :prog: fire niv ilæg-observationer
   :nested: full
