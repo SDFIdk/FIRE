@@ -276,6 +276,19 @@ class Punkt(FikspunktregisterObjekt):
 
         return None
 
+    def gældende_koordinat(self, srid: str) -> Koordinat:
+        """Hent gældende koordinat af typen ``srid``"""
+        koordinatsæt = [
+            k
+            for k in self.koordinater
+            if k.registreringtil is None
+            and (k.srid.name == srid or k.srid.kortnavn == srid)
+        ]
+        if not koordinatsæt:
+            return None
+
+        return koordinatsæt[0]
+
     @property
     def landsnummer(self) -> str:
         _landsnummer = self._hent_ident_af_type("IDENT:landsnr")
