@@ -197,6 +197,20 @@ def test_identer(firedb: FireDb):
     assert len(punkt.identer) == 3  # kort uuid 8e5e57f8 er også en ident
 
 
+def test_gældende_koordinat(firedb: FireDb):
+
+    punkt = firedb.hent_punkt("301b8578-8cc8-48a8-8446-541f31482f86")
+
+    gældende_igb08 = punkt.gældende_koordinat("IGb08")
+    assert (gældende_igb08.x, gældende_igb08.y, gældende_igb08.z) == (3501320.65413, 629366.09336, 5276291.21746)
+
+    gældende_dvr90 = punkt.gældende_koordinat("DVR90")
+    assert gældende_dvr90.z == 14.1311
+
+    gældende_findes_ikke = punkt.gældende_koordinat("FINDES IKKE")
+    assert gældende_findes_ikke is None
+
+
 def test_punkt_cache(firedb: FireDb):
     punkt = firedb.hent_punkt("8e5e57f8-d3c4-45f2-a2a9-492f52d7df1c")
 
