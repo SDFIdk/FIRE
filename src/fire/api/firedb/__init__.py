@@ -47,6 +47,7 @@ class FireDb(FireDbLuk, FireDbHent, FireDbIndset):
             .filter(
                 PunktInformationType.name.startswith("IDENT:"),
                 PunktInformation.tekst.ilike(ident),
+                PunktInformation._registreringtil == None,
                 Punkt._registreringtil == None,  # NOQA
             )
             .order_by(PunktInformation.tekst)
