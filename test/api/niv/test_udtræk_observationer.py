@@ -24,7 +24,6 @@ from fire.api.niv.kriterier import (
 # Funktioner til test
 from fire.api.niv.udtræk_observationer import (
     filterkriterier,
-    polygoner,
     klargør_geometrifiler,
     søgefunktioner_med_valgte_metoder,
     brug_alle_på_alle,

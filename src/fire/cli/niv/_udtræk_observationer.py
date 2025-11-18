@@ -34,7 +34,6 @@ from fire.api.niv.datatyper import (
 )
 from fire.api.niv.udtræk_observationer import (
     filterkriterier,
-    polygoner,
     klargør_geometrifiler,
     søgefunktioner_med_valgte_metoder,
     brug_alle_på_alle,
@@ -292,10 +291,13 @@ def udtræk_observationer(
         else:  # Buffer > 0
             # Vi søger observationer og punkter i nærheden af identernes placering.
             fire.cli.print(f"Søg inden for {buffer:d} m af punkterne.", fg="yellow")
-            objekter = polygoner(punkter, buffer)
+
+            # Udtræk punkternes geometrier
+            objekter = (punkt.geometri.geometri for punkt in punkter)
+
             # Forbereder søgefunktion med argumenter fastsat.
             funktion = db.hent_observationer_naer_geometri
-            fastholdte_argumenter = dict(afstand=0, tid_fra=fra, tid_til=til)
+            fastholdte_argumenter = dict(afstand=buffer, tid_fra=fra, tid_til=til)
             forberedt_søgefunktion = partial(funktion, **fastholdte_argumenter)
 
         # Byg søgefunktioner (én for hver valgt metode)
