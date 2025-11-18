@@ -101,7 +101,8 @@ def punkt(uuid: str, sagsbehandler, **kwargs) -> None:
         fire.cli.print(f"Der opstod en fejl - punkt id {uuid} IKKE lukket!")
         print(e)
     else:
-        tekst = f"Er du sikker på at du vil lukke punktet {punkt.ident} ({uuid})?"
+        tekst = click.style(f"Du forbinder til {db.db}-databasen.", bg="red", fg="white")
+        tekst += f"\nEr du sikker på at du vil lukke punktet {punkt.ident} ({uuid})?"
         spørgsmål = f"{STOP}\n\n" + click.style(tekst, bg="red", fg="white")
         spørgsmål += "\n\n\nLukning af punktet KAN IKKE rulles tilbage. Denne ændring er irreversibel,\n"
         spørgsmål += "tænkt dig grundigt om inden du siger ja."
@@ -181,7 +182,8 @@ def koordinat(objektid: str, sagsbehandler, **kwargs) -> None:
         )
         print(e)
     else:
-        tekst = f"""
+        tekst = click.style(f"Du forbinder til {db.db}-databasen.", bg="red", fg="white")
+        tekst += f"""
 Er du sikker på at du vil lukke {punkt.ident}'s {srid.name}-koordinat med objektid={objektid}:
 
   {koordinat.registreringfra=}
@@ -265,7 +267,8 @@ def observation(objektid: str, sagsbehandler, **kwargs) -> None:
         )
         print(e)
     else:
-        tekst = f"""Er du sikker på at du vil lukke observationen med {objektid}:
+        tekst = click.style(f"Du forbinder til {db.db}-databasen.", bg="red", fg="white")
+        tekst += f"""\nEr du sikker på at du vil lukke observationen med {objektid=:}:
 
         {repr(obs)}
 """
@@ -330,7 +333,8 @@ def punktsamling(objektid: str, sagsbehandler, **kwargs) -> None:
         )
         print(e)
     else:
-        tekst = f"""Er du sikker på at du vil lukke punktsamlingen med {objektid}:
+        tekst = click.style(f"Du forbinder til {db.db}-databasen.", bg="red", fg="white")
+        tekst += f"""\nEr du sikker på at du vil lukke punktsamlingen med {objektid=:}:
 
         {repr(ps)}
 """
@@ -397,7 +401,8 @@ def tidsserie(objektid: str, sagsbehandler, **kwargs) -> None:
         )
         print(e)
     else:
-        tekst = f"""Er du sikker på at du vil lukke tidsserien med {objektid}:
+        tekst = click.style(f"Du forbinder til {db.db}-databasen.", bg="red", fg="white")
+        tekst += f"""\nEr du sikker på at du vil lukke tidsserien med {objektid=:}:
 
         {repr(ts)}
 """
