@@ -46,6 +46,7 @@ import fire.cli
 from fire.cli.niv import (
     niv as niv_command_group,
     er_projekt_okay,
+    skriv_ark,
     KOTESYSTEMER,
 )
 from fire.io.geojson import (
@@ -361,10 +362,7 @@ def udtræk_observationer(
     }
 
     # Skriv til regneark
-    fire.cli.print(f"Skriver til {ofname}...")
-    read_and_update = "r+b"
-    with open(ofname, read_and_update) as output:
-        skriv_data(output, faner)
+    skriv_ark(projektnavn, faner)
 
     # GeoJSON primært til hurtig kontrolcheck af resultaternes placering
     fire.cli.print(f"Gem punkter og observationer som .geojson-fil...")
