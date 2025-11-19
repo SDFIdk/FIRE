@@ -26,8 +26,8 @@ from fire.cli.ts.statistik_ts import (
 )
 
 from fire.cli.ts import (
-    _find_tidsserie,
     _udtræk_tidsserie,
+    _print_tidsserieoversigt,
 )
 
 from fire.cli.ts import ts
@@ -97,17 +97,27 @@ i tidsserien.  Se ``fire ts gnss --help`` for yderligere detaljer.""",
     type=click.Path(writable=True),
     help="Skriv den udtrukne tidsserie til Excel fil.",
 )
+@click.option(
+    "--srid",
+    "-s",
+    required=False,
+    type=str,
+    help="Filtrer tidsserier på srid. Fx `-s IGb08`.",
+)
 @fire.cli.default_options()
-def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
+def gnss(objekt: str, parametre: str, fil: click.Path, srid: str, **kwargs) -> None:
     """
     Udtræk en GNSS tidsserie.
 
-
-    "OBJEKT" sættes til enten et punkt eller et specifik navngiven tidsserie.
-    Hvis "OBJEKT" er et punkt udskrives en oversigt over de tilgængelige
-    tidsserier til dette punkt. Hvis "OBJEKT" er en tidsserie udskrives
-    tidsserien på skærmen. Hvilke parametre der udskrives kan specificeres
-    i en kommasepareret liste med ``--parametre``. Følgende parametre kan vælges::
+    "OBJEKT" sættes til enten et punkt eller en søgetekst på tidsserienavn.
+    Hvis "OBJEKT" er et punkt udskrives en oversigt over de tilgængelige tidsserier til
+    dette punkt.
+    Ellers søges der blandt alle tidsserier, hvor "OBJEKT" indgår i navnet. `-s/--srid` kan
+    bruges til at filtrere yderligere på srid.
+    Findes der flere tidsserier, skrives en oversigt over dem, og hvis der kun findes én
+    tidsserie udskrives tidsserien på skærmen. Hvilke parametre der udskrives kan
+    specificeres i en kommasepareret liste med ``--parametre``. Følgende parametre kan
+    vælges::
 
     \b
         t               Tidspunkt for koordinatobservation
@@ -146,23 +156,39 @@ def gnss(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     \b
     **EKSEMPLER**
 
-    Vis alle tidsserier for punktet RDIO::
+    Vis alle tidsserier for punktet TILS::
 
-        fire ts gnss RDIO
+        fire ts gnss TILS
 
-    Vis tidsserien 'RDIO_5D_IGb08' med standardparametre::
+    Vis alle tidsserier hvor 'LS' indgår i navnet, og som har referencerammen IGb08::
 
-        fire ts gnss RDIO_5D_IGb08
+        fire ts gnss LS --srid IGb08
+
+    Vis tidsserien 'TILS_5D_IGb08' med standardparametre::
+
+        fire ts gnss TILS_5D_IGb08
 
     Vis tidsserie med brugerdefinerede parametre::
 
-        fire ts gnss RDIO_5D_IGb08 --parametre decimalår,n,e,u,sx,sy,sz
+        fire ts gnss TILS_5D_IGb08 --parametre decimalår,n,e,u,sx,sy,sz
 
     Gem tidsserie med samtlige tilgængelige parametre::
 
-        fire ts gnss RDIO_5D_IGb08 -p alle -f RDIO_5D_IGb08.xlsx
+        fire ts gnss TILS_5D_IGb08 -p alle -f TILS_5D_IGb08.xlsx
     """
-    _udtræk_tidsserie(objekt, GNSSTidsserie, GNSS_TS_PARAMETRE, parametre, fil)
+
+    # Hvis ingen søgekriterier er givet, så henter vi en liste over alle tidsserier
+    if not objekt:
+        tidsserier = (
+            fire.cli.firedb.session.query(GNSSTidsserie)
+            .filter(GNSSTidsserie._registreringtil == None)
+            .all()
+            )  # NOQA
+
+        _print_tidsserieoversigt(tidsserier)
+        return
+
+    _udtræk_tidsserie(objekt, GNSSTidsserie, srid, GNSS_TS_PARAMETRE, parametre, fil)
 
 
 @ts.command()
@@ -267,7 +293,9 @@ def plot_gnss(tidsserie: str, plottype: str, parametre: str, **kwargs) -> None:
     }
 
     try:
-        tidsserie = _find_tidsserie(GNSSTidsserie, tidsserie)
+        tidsserie = fire.cli.firedb.hent_tidsserie(tidsserie)
+        if not isinstance(tidsserie, GNSSTidsserie):
+            raise NoResultFound
     except NoResultFound:
         raise SystemExit("Tidsserie ikke fundet")
 

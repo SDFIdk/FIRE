@@ -29,90 +29,88 @@ def ts():
 
 
 def _print_tidsserieoversigt(
-    tidsserieklasse: type[Tidsserie], punkt: Punkt = None
+    tidsserier: list[Tidsserie],
 ) -> None:
     """
-    Oversigt over tidsserier af en bestemt types
+    Print en oversigt over en liste af tidsserier
 
     raises:     SystemExit
     """
 
-    def identgnss(punkt: Punkt):
-        return punkt.gnss_navn
-
-    def identident(punkt: Punkt):
-        return punkt.ident
-
-    if tidsserieklasse == GNSSTidsserie:
-        foretrukken_ident = identgnss
-    else:
-        foretrukken_ident = identident
-
-    if punkt:
-        tidsserier = [ts for ts in punkt.tidsserier if isinstance(ts, tidsserieklasse)]
-    else:
-        tidsserier = (
-            fire.cli.firedb.session.query(tidsserieklasse)
-            .filter(tidsserieklasse._registreringtil == None)
-            .all()
-        )  # NOQA
-
-    if not tidsserier:
-        raise SystemExit("Fandt ingen tidsserier")
+    def foretrukken_ident(ts: Tidsserie):
+        if isinstance(ts, GNSSTidsserie):
+            return ts.punkt.gnss_navn
+        elif isinstance(ts, HøjdeTidsserie):
+            return ts.punkt.ident
 
     tabel = Table("Ident", "Tidsserienavn", "Referenceramme", box=box.SIMPLE)
 
     # Sorter tidsserier efter punkt
-    tidsserier.sort(key=lambda ts: (foretrukken_ident(ts.punkt)))
+    tidsserier.sort(key=lambda ts: (foretrukken_ident(ts)))
 
     for ts in tidsserier:
-        tabel.add_row(foretrukken_ident(ts.punkt), ts.navn, ts.referenceramme)
+        tabel.add_row(foretrukken_ident(ts), ts.navn, ts.referenceramme)
 
     console = Console()
     console.print(tabel)
 
-
-def _find_tidsserie(tidsserieklasse: type[Tidsserie], tidsserienavn: str) -> Tidsserie:
-    """
-    Find en navngiven tidsserie
-
-    raises:     NoResultFound
-    """
-    tidsserie = (
-        fire.cli.firedb.session.query(tidsserieklasse)
-        .filter(
-            tidsserieklasse._registreringtil == None,
-            func.lower(tidsserieklasse.navn) == func.lower(tidsserienavn),
-        )
-        .one()
-    )  # NOQA
-
-    return tidsserie
-
-
 def _udtræk_tidsserie(
     objekt: str,
     tidsserieklasse: type[Tidsserie],
+    srid: str,
     parametre_alle: dict[str, str],
     parametre: str,
     fil: click.Path,
 ):
-    if not objekt:
-        _print_tidsserieoversigt(tidsserieklasse)
-        raise SystemExit
+    """
+    Find tidsserier hvor `objekt` indgår i navnet eller i punktets ident.
 
-    # Prøv først med at søg efter specifik tidsserie
-    try:
-        tidsserie = _find_tidsserie(tidsserieklasse, objekt)
-    except NoResultFound:
+    Hjælpefunktion til fire ts gnss/hts. Søger på tidsserienavnet ud fra `objekt` og
+    filtrerer resultaterne efter `srid` og de valgte tidsserietyper (GNSS/HTS).
+    Findes ingen resultater, søges der i stedet efter tidsserier hørende til et punkt med
+    `objekt` som ident.
+    """
+    if srid is not None:
+        try:
+            srid = fire.cli.firedb.hent_srid(srid)
+        except NoResultFound:
+            raise SystemExit(f"Srid '{srid}' ikke fundet i databasen.")
+        srid_filter = lambda ts: ts.srid == srid
+    else:
+        srid_filter = lambda ts: True
+
+    # Prøv først at søge med objekt som søgestreng på tidsserienavn og filtrer på srid
+    tidsserier = fire.cli.firedb.hent_tidsserier(objekt, tidsserieklasse=tidsserieklasse)
+    tidsserier = [ts for ts in tidsserier if srid_filter(ts)]
+
+    # Hvis ingen tidsserier, prøver vi med objekt som ident
+    if not tidsserier:
         try:
             punkt = fire.cli.firedb.hent_punkt(objekt)
         except NoResultFound:
             raise SystemExit("Punkt eller tidsserie ikke fundet")
+        else:
+            # Udtræk punktets tidsserier og filtrer på ts-type og srid
+            tidsserier=[ts for ts in punkt.tidsserier if isinstance(ts, tidsserieklasse) and srid_filter(ts)]
 
-        _print_tidsserieoversigt(tidsserieklasse, punkt)
-        raise SystemExit
+    if not tidsserier:
+        raise SystemExit("Fandt ingen tidsserier")
 
+    # Print oversigt over fundne tidsserier
+    _print_tidsserieoversigt(tidsserier)
+
+    # Hvis der kun blev fundet én tidsserie så printer vi den
+    if len(tidsserier)==1:
+        _print_tidsserie(tidsserier[0], parametre_alle, parametre, fil)
+
+
+def _print_tidsserie(
+    tidsserie: Tidsserie,
+    parametre_alle: dict[str, str],
+    parametre: str,
+    fil: click.Path,
+):
+    """Print en tabel over en tidsserie med de givne parametre """
     if parametre.lower() == "alle":
         parametre = ",".join(parametre_alle.keys())
 
