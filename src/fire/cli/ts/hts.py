@@ -10,7 +10,6 @@ from fire.api.model import (
     HøjdeTidsserie,
 )
 from fire.cli.ts import (
-    _find_tidsserie,
     _udtræk_tidsserie,
     skift_jessenpunkt,
 )
@@ -61,12 +60,13 @@ def hts(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     """
     Udtræk en Højdetidsserie.
 
-
-    "OBJEKT" sættes til enten et punkt eller et specifik navngiven tidsserie.
-    Hvis "OBJEKT" er et punkt udskrives en oversigt over de tilgængelige
-    tidsserier til dette punkt. Hvis "OBJEKT" er en tidsserie udskrives
-    tidsserien på skærmen. Hvilke parametre der udskrives kan specificeres
-    i en kommasepareret liste med ``--parametre``. Følgende parametre kan vælges::
+    "OBJEKT" sættes til enten et punkt eller en søgetekst på tidsserienavn.
+    Hvis "OBJEKT" er et punkt udskrives en oversigt over de tilgængelige tidsserier til
+    dette punkt.
+    Ellers søges der blandt alle tidsserier, hvor "OBJEKT" indgår i navnet. Findes der
+    flere tidsserier, skrives en oversigt over dem, og hvis der kun findes én tidsserie
+    udskrives tidsserien på skærmen. Hvilke parametre der udskrives kan specificeres i en
+    kommasepareret liste med ``--parametre``. Følgende parametre kan vælges::
 
     \b
         t               Tidspunkt for koordinatobservation
@@ -81,24 +81,27 @@ def hts(objekt: str, parametre: str, fil: click.Path, **kwargs) -> None:
     \b
     **EKSEMPLER**
 
-    Vis alle tidsserier for punktet RDIO::
+    Vis alle tidsserier for punktet SUL3::
 
-        fire ts hts RDIO
+        fire ts hts SUL3
 
-    Vis tidsserien G.I.2133_HTS_81066 med standardparametre::
+     Vis alle tidsserier hvor '81103' indgår i navnet::
 
-        fire ts hts G.I.2133_HTS_81066
+        fire ts hts 81103
+
+    Vis tidsserien SUL3_HTS_81103 med standardparametre::
+
+        fire ts hts SUL3_HTS_81103
 
     Vis tidsserie med brugerdefinerede parametre::
 
-        fire ts hts G.I.2133_HTS_81066 --parametre decimalår,kote,sz
+        fire ts hts SUL3_HTS_81103 --parametre decimalår,kote,sz
 
     Gem tidsserie med samtlige tilgængelige parametre::
 
-        fire ts hts G.I.2133_HTS_81066 -p alle -f G.I.2133_HTS_81066.xlsx
+        fire ts hts SUL3_HTS_81103 -p alle -f SUL3_HTS_81103.xlsx
     """
-    _udtræk_tidsserie(objekt, HøjdeTidsserie, HTS_PARAMETRE, parametre, fil)
-
+    _udtræk_tidsserie(objekt, HøjdeTidsserie, None, HTS_PARAMETRE, parametre, fil)
     return
 
 @ts.command()
@@ -185,7 +188,9 @@ def plot_hts(tidsserie: str, plottype: str, parametre: str, **kwargs) -> None:
     }
 
     try:
-        tidsserie = _find_tidsserie(HøjdeTidsserie, tidsserie)
+        tidsserie = fire.cli.firedb.hent_tidsserie(tidsserie)
+        if not isinstance(tidsserie, HøjdeTidsserie):
+            raise NoResultFound
     except NoResultFound:
         raise SystemExit("Højdetidsserie ikke fundet")
 

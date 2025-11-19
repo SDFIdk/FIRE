@@ -3,6 +3,7 @@ from sqlalchemy.exc import NoResultFound
 
 import fire
 from fire.api.model import (
+    GNSSTidsserie,
     HøjdeTidsserie,
 )
 from fire.api.model.observationer import (
@@ -90,6 +91,20 @@ def test_hent_tidsserie_fra_navn(firedb):
 
     with pytest.raises(NoResultFound):
         firedb.hent_tidsserie("Findes ikke")
+
+
+def test_hent_tidsserier_fra_søgetekst(firedb):
+    tidsserier = firedb.hent_tidsserier("HTS_AARHUS", tidsserieklasse=HøjdeTidsserie)
+
+    assert len(tidsserier) == 3
+
+    tidsserier = firedb.hent_tidsserier("_5D_IG", tidsserieklasse=GNSSTidsserie)
+
+    assert len(tidsserier) == 2
+
+    tidsserier = firedb.hent_tidsserier("Findes ikke")
+
+    assert len(tidsserier) == 0
 
 
 def test_tidsserie_koordinater_observationer(firedb):

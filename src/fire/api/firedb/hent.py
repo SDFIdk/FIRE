@@ -209,9 +209,37 @@ class FireDbHent(FireDbBase):
         """
         return (
             self.session.query(Tidsserie)
-            .filter(Tidsserie.navn == navn, Tidsserie._registreringtil == None)  # NOQA
+            .filter(
+                Tidsserie.navn.ilike(navn),
+                Tidsserie._registreringtil == None,
+            )  # NOQA
             .one()
         )
+
+    def hent_tidsserier(
+            self,
+            navn: str,
+            tidsserieklasse: type[Tidsserie]=Tidsserie,
+        ) -> Tidsserie:
+        """
+        Hent tidsserier ud fra på søgekriterier.
+
+        Der søges på tidsserienavne som indeholder søgeteksten `navn` og der filtreres
+        yderligere på Tidsserie-type.
+        """
+
+        filtre = [
+            tidsserieklasse._registreringtil == None,
+            tidsserieklasse.navn.ilike(f"%{navn or ''}%"),
+        ]
+
+        tidsserier = (
+            self.session.query(tidsserieklasse)
+            .filter(*filtre)
+            .all()
+        )  # NOQA
+
+        return tidsserier
 
     def hent_geometri_objekt(self, punktid: str) -> GeometriObjekt:
         go = aliased(GeometriObjekt)
