@@ -4,6 +4,7 @@ from datetime import datetime
 from functools import cached_property
 import networkx as nx
 from math import (
+    ceil,
     hypot,
     sqrt,
     isnan,
@@ -339,7 +340,9 @@ class RegneMotor(ABC):
         digraf = aggreger_multidigraf(self.multidigraf)
 
         lukkesummer = {
-            tuple(kreds): lukkesum_af_polygon(digraf, kreds, lukket=True).omregn_til_mm()
+            tuple(kreds): lukkesum_af_polygon(
+                digraf, kreds, lukket=True
+            ).omregn_til_mm()
             for kreds in polygoner
         }
 
@@ -552,6 +555,20 @@ def _spredning(
 
     if "NUL" == observationstype.upper():
         return 0
+
+    # I tilfælde af 0 antal opstillinger, sjusser vi os til antallet ved brug af
+    # gennemsnitlig længde pr. opstilling på 75 m, beregnet ved:
+    #
+    # SELECT MEDIAN(value2/value3), AVG(value2/value3)
+    # FROM OBSERVATION o
+    # WHERE value3 > 0 -- mindst 1 opstilling
+    # 	AND OBSERVATIONSTYPEID = 1 -- MGL
+    # 	AND REGISTRERINGTIL IS NULL
+    #
+    # Se også beskrivelsen her: https://github.com/SDFIdk/FIRE/issues/852
+
+    if antal_opstillinger == 0:
+        antal_opstillinger = ceil(afstand_i_m / 75)
 
     opstillingsafhængig = sqrt(antal_opstillinger * (centreringsspredning_i_mm**2))
 
