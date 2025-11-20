@@ -1,4 +1,7 @@
+from datetime import datetime as dt
 import pytest
+
+import numpy as np
 
 import fire
 from fire.cli import FireDb
@@ -7,6 +10,7 @@ from fire.api.model import (
     HøjdeTidsserie,
     GNSSTidsserie,
 )
+from fire.api.model.tidsserier import til_decimalår
 
 
 def test_tidsserie_attributter(firedb: FireDb):
@@ -32,3 +36,22 @@ def test_tidsserie_attributter(firedb: FireDb):
     for k, sz in zip(ts.kote, ts.sz):
         assert isinstance(k, float)
         assert isinstance(sz, float)
+
+
+def test_til_decimålår(firedb: FireDb):
+
+    assert til_decimalår(dt(3000, 1, 1, 0, 0)) == 3000
+    assert til_decimalår(dt(2025, 1, 1, 0, 0)) == 2025
+    assert til_decimalår(dt(1700, 1, 1, 0, 0)) == 1700
+
+    # Tjek at to ens datoer i forskellige år giver samme fraktion
+    fraktion_1 = til_decimalår(dt(987, 10, 11, 0, 0)) - 987
+    fraktion_2 = til_decimalår(dt(2345, 10, 11, 0, 0)) - 2345
+
+    assert np.isclose(fraktion_1, fraktion_2)
+
+    # Tjek at vi kan regne en tidsserie om til decimalår
+    ts = firedb.hent_tidsserie("RDIO_5D_IGb08")
+    assert len(ts.decimalår) == 10
+
+    return
