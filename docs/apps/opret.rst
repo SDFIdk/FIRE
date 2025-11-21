@@ -8,6 +8,6 @@ typer indhold i FIRE databasen.
 
 .. program-output:: fire opret --help
 
-.. click:: fire.cli.opret:punkt
+.. click:: fire.cli.opret:punktopret
   :prog: fire opret punkt
   :nested: full
