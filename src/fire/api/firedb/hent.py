@@ -217,10 +217,10 @@ class FireDbHent(FireDbBase):
         )
 
     def hent_tidsserier(
-            self,
-            navn: str,
-            tidsserieklasse: type[Tidsserie]=Tidsserie,
-        ) -> Tidsserie:
+        self,
+        navn: str,
+        tidsserieklasse: type[Tidsserie] = Tidsserie,
+    ) -> Tidsserie:
         """
         Hent tidsserier ud fra på søgekriterier.
 
@@ -409,10 +409,11 @@ class FireDbHent(FireDbBase):
         afstand: float,
         tid_fra: Optional[datetime] = None,
         tid_til: Optional[datetime] = None,
-    ) -> List[Observation]:
+        kun_aktive: bool = True,
+    ) -> list[Observation]:
         g1 = aliased(GeometriObjekt)
         g2 = aliased(GeometriObjekt)
-        return (
+        query = (
             self.session.query(Observation)
             .join(g1, Observation.opstillingspunktid == g1.punktid)
             .join(g2, g2.punktid == punkt.id)
@@ -421,8 +422,12 @@ class FireDbHent(FireDbBase):
                     g1.geometri, g2.geometri, afstand, tid_fra, tid_til
                 )
             )
-            .all()
         )
+
+        if kun_aktive:
+            query = query.filter(Observation._registreringtil == None)
+
+        return query.all()
 
     def hent_observationer_naer_geometri(
         self,
@@ -431,6 +436,7 @@ class FireDbHent(FireDbBase):
         tid_fra: Optional[datetime] = None,
         tid_til: Optional[datetime] = None,
         observationsklasse: Observation = Observation,
+        kun_aktive: bool = True,
     ) -> list[Observation]:
         """
         Parameters
@@ -447,13 +453,16 @@ class FireDbHent(FireDbBase):
 
         Returns
         -------
-        List[Observation]
+        list[Observation]
             En liste af alle de Observation'er der matcher søgekriterierne.
         """
         g = aliased(GeometriObjekt)
         filtre = self._filter_observationer(
             g.geometri, geometri, afstand, tid_fra, tid_til
         )
+
+        if kun_aktive:
+            filtre = and_(filtre, observationsklasse._registreringtil == None)
 
         # Erfaringen viser at det går langt hurtigere at lave query på opstillingspunkter
         # og sigtepunkter hver for sig
