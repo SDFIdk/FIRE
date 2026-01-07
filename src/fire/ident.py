@@ -6,6 +6,8 @@ Ident-værktøjer
 import re
 from typing import Iterable
 
+from fire.api.model.punkttyper import Ident
+
 
 # Vær mindre pedantisk mht. foranstillede nuller hvis identen er et landsnummer
 LANDSNUMMERMØNSTER = re.compile("^[0-9]*-[0-9]*-[0-9]*$")
@@ -145,6 +147,20 @@ def klargør_ident_til_søgning(ident: str) -> str:
         ident = reformater_gi_nummer(ident)
 
     return ident
+
+def bestem_identtype(ident: str) -> Ident.IdentType:
+    if (
+        kan_være_landsnummer(ident) or
+        kan_være_købstadsnummer(ident) or
+        kan_være_vandstandsbræt(ident)
+    ):
+        return Ident.IdentType.LANDSNR
+
+    if kan_være_gnssid(ident):
+        return Ident.IdentType.GNSS
+
+    if kan_være_gi_nummer(ident):
+        return Ident.IdentType.GI
 
 
 def klargør_identer_til_søgning(identer: Iterable[str]):
