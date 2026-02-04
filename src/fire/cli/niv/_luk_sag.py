@@ -1,4 +1,3 @@
-
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
@@ -82,18 +81,20 @@ def luk_sag(projektnavn: str, sagsbehandler, **kwargs) -> None:
             f"Der opstod en fejl - sag {sag.id} for '{projektnavn}' IKKE lukket!"
         )
         fire.cli.print(f"Mulig årsag: {ex}")
+        raise SystemExit(1)
+
+    spørgsmål = click.style(
+        f"Er du sikker på at du vil lukke sagen {projektnavn}?",
+        bg="red",
+        fg="white",
+    )
+    if bekræft(spørgsmål):
+        fire.cli.firedb.session.commit()
+        fire.cli.print(f"Sag {sag.id} for '{projektnavn}' lukket!")
     else:
-        spørgsmål = click.style(
-            f"Er du sikker på at du vil lukke sagen {projektnavn}?",
-            bg="red",
-            fg="white",
-        )
-        if bekræft(spørgsmål):
-            fire.cli.firedb.session.commit()
-            fire.cli.print(f"Sag {sag.id} for '{projektnavn}' lukket!")
-        else:
-            fire.cli.firedb.session.rollback()
-            fire.cli.print(f"Sag {sag.id} for '{projektnavn}' IKKE lukket!")
+        fire.cli.firedb.session.rollback()
+        fire.cli.print(f"Sag {sag.id} for '{projektnavn}' IKKE lukket!")
+        return
 
     # Generer dokumentation til fanebladet "Sagsgang"
     # -----------------------------------------------
