@@ -302,7 +302,10 @@ def find_faneblad(
             )
             raise SystemExit(1)
 
-        return raw.astype(arkdef).replace("nan", "")
+        raw = raw.astype(arkdef)
+        raw[raw.select_dtypes(str).columns] = raw.select_dtypes(str).fillna("")
+
+        return raw
 
     except Exception as ex:
         if ignore_failure:
