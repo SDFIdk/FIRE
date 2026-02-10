@@ -11,7 +11,7 @@ dependencies:
   - networkx=3.*
   - numpy=2.*
   - pyarrow=20.*
-  - pandas=2.*
+  - pandas=3.*
   - pyproj=3.7.*
   - python=3.13.*
   - rich=14.*

@@ -10,6 +10,7 @@ from typing import (
 import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
+from openpyxl.worksheet.worksheet import Worksheet
 import packaging.version
 
 from fire.api.model import (
@@ -22,7 +23,6 @@ from fire.api.model import (
 from fire.io.regneark import arkdef
 import fire.cli
 from fire.cli import firedb, grøn
-
 
 # Kotesystemer som understøttes i niv-modulet
 KOTESYSTEMER = {
@@ -132,6 +132,38 @@ def anvendte(arkdef: Dict) -> str:
     if (n < 1) or (n > 26):
         return ""
     return "A:" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[n - 1]
+
+
+def påfør_df_style(df: pd.DataFrame) -> pd.io.formats.style.Styler:
+    """
+    Påfør en style til en dataframe inden den gemmes som excel
+
+    Efter pandas 3 er alt styling som default fjernet når en DataFrame gemmes som Excel.
+    Vi sætter derfor her eksplicit style til den tidligere default, som var at kolonnenavne
+    gemmes med fed skrift og fuldt optrukne cellekanter.
+
+    For mere info se: https://pandas.pydata.org/docs/user_guide/io.html#style-and-formatting
+    """
+    # Hvis dataframen ikke har nogen kolonner, som fx. fanebladet "Projektforside", så går
+    # der ged i den
+    if len(df.columns) == 0:
+        return df
+
+    css = "border: 1px solid black; font-weight: bold;"
+    return df.style.map_index(lambda x: css, axis=1)
+
+
+def juster_kolonnebredder(faneblad: Worksheet):
+    """Juster fanebladets kolonnebredder
+
+    For hver kolonne sættes bredden lig længden af den længste celle + 1.
+    For at begrænse bredden ved meget lange tekstfelter som fx. fikspunktbeskrivelser,
+    anvendes en maximal bredde på 40.
+    """
+    max_bredde = 40
+    for kolonne in faneblad.columns:
+        kolonnebredde = min(max([len(str(row.value)) for row in kolonne])+1, max_bredde)
+        faneblad.column_dimensions[kolonne[0].column_letter].width = kolonnebredde
 
 
 # -----------------------------------------------------------------------------
@@ -264,14 +296,16 @@ def skriv_ark(
     # Derved bliver de nye faneblade umiddelbart synlige, når arket åbnes.
     try:
         with pd.ExcelWriter(fil) as writer:
-            for navn in nye_faneblade:
-                nye_faneblade[navn].replace("nan", "").to_excel(
-                    writer, sheet_name=navn, index=False
-                )
-            for navn in gamle_faneblade:
-                gamle_faneblade[navn].replace("nan", "").to_excel(
-                    writer, sheet_name=navn, index=False
-                )
+            for navn, df in nye_faneblade.items():
+                stylet_df = påfør_df_style(df)
+                stylet_df.to_excel(writer, sheet_name=navn, index=False)
+                juster_kolonnebredder(writer.sheets[navn])
+
+            for navn, df in gamle_faneblade.items():
+                stylet_df = påfør_df_style(df)
+                stylet_df.to_excel(writer, sheet_name=navn, index=False)
+                juster_kolonnebredder(writer.sheets[navn])
+
     except Exception as ex:
         fire.cli.print(f"Kan ikke skrive opdateret '{fil}'!")
         if gamle_navne:
@@ -302,7 +336,10 @@ def find_faneblad(
             )
             raise SystemExit(1)
 
-        return raw.astype(arkdef).replace("nan", "")
+        raw = raw.astype(arkdef)
+        raw[raw.select_dtypes(str).columns] = raw.select_dtypes(str).fillna("")
+
+        return raw
 
     except Exception as ex:
         if ignore_failure:
