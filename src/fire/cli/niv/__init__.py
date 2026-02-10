@@ -10,6 +10,7 @@ from typing import (
 import click
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
+from openpyxl.worksheet.worksheet import Worksheet
 import packaging.version
 
 from fire.api.model import (
@@ -151,6 +152,20 @@ def påfør_df_style(df: pd.DataFrame) -> pd.io.formats.style.Styler:
     css = "border: 1px solid black; font-weight: bold;"
     return df.style.map_index(lambda x: css, axis=1)
 
+
+def juster_kolonnebredder(faneblad: Worksheet):
+    """Juster fanebladets kolonnebredder
+
+    For hver kolonne sættes bredden lig længden af den længste celle + 1.
+    For at begrænse bredden ved meget lange tekstfelter som fx. fikspunktbeskrivelser,
+    anvendes en maximal bredde på 40.
+    """
+    max_bredde = 40
+    for kolonne in faneblad.columns:
+        kolonnebredde = min(max([len(str(row.value)) for row in kolonne])+1, max_bredde)
+        faneblad.column_dimensions[kolonne[0].column_letter].width = kolonnebredde
+
+
 # -----------------------------------------------------------------------------
 def skriv_ark(
     projektnavn: str, nye_faneblade: Dict[str, pd.DataFrame], suffix: str = ""
@@ -284,10 +299,12 @@ def skriv_ark(
             for navn, df in nye_faneblade.items():
                 stylet_df = påfør_df_style(df)
                 stylet_df.to_excel(writer, sheet_name=navn, index=False)
+                juster_kolonnebredder(writer.sheets[navn])
 
             for navn, df in gamle_faneblade.items():
                 stylet_df = påfør_df_style(df)
                 stylet_df.to_excel(writer, sheet_name=navn, index=False)
+                juster_kolonnebredder(writer.sheets[navn])
 
     except Exception as ex:
         fire.cli.print(f"Kan ikke skrive opdateret '{fil}'!")
