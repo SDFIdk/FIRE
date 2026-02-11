@@ -13,6 +13,7 @@ from pyproj import CRS
 from pyproj.exceptions import CRSError
 
 import fire.cli
+from fire.cli.info import info
 from fire.ident import klargør_ident_til_søgning
 from fire.io.geojson import skriv_sagsrapport_geojson
 from fire.api.model import (
@@ -35,14 +36,6 @@ from fire.cli.click_types import Datetime
 
 # Dato-format til kommandolinie-argument.
 DATE_FORMAT = "%d-%m-%Y"
-
-
-@click.group()
-def info():
-    """
-    Information om objekter i FIRE
-    """
-    pass
 
 
 def observation_linje(obs: Observation) -> str:
