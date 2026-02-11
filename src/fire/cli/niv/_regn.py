@@ -11,6 +11,8 @@ from fire.api.model import (
 from fire.api.niv.regnemotor import (
     RegneMotor,
     GamaRegn,
+    GeodætiskRegn,
+    DVR90Regn,
     DumRegn,
     ValideringFejl,
     UdjævningFejl,
@@ -40,6 +42,9 @@ from fire.cli.niv._netoversigt import byg_netgeometri_og_singulære
 
 motorvælger = {
     "gama": GamaRegn,
+    "geod": GeodætiskRegn,
+    "dvr90": DVR90Regn,
+    "DVR90": DVR90Regn,
     "dum": DumRegn,
 }
 
@@ -61,7 +66,7 @@ motorvælger = {
     "--regneparameter",
     "regneparametre",
     multiple=True,
-    help="Regnemotorspecifikke parametre. Sættes på formen 'parameter=værdi'. Flere parametre kan sættes i samme kommando."
+    help="Regnemotorspecifikke parametre. Sættes på formen 'parameter=værdi'. Flere parametre kan sættes i samme kommando.",
 )
 @click.option(
     "-P",
@@ -229,7 +234,10 @@ def regn(
     # Start regnemotoren!
     try:
         motor = MotorKlasse.fra_dataframe(
-            observationer_uden_slukkede, arbejdssæt, projektnavn=projektnavn, **motorkwargs
+            observationer_uden_slukkede,
+            arbejdssæt,
+            projektnavn=projektnavn,
+            **motorkwargs,
         )
     except TypeError as error:
         # Fejlbeskeden vi kan få er på formen:
@@ -246,31 +254,40 @@ def regn(
         raise SystemExit
 
     # opdater Parametre i regneark (er vi kommet her til er alle angivne parametre gyldige)
-    beregningsparametre = {"regnemotor": MotorKlasse.__name__} | motorkwargs
+    beregningsparametre = {"regnemotor": MotorKlasse.__name__}
+    beregningsparametre.update(motor.parametre)
     for parameter, værdi in beregningsparametre.items():
+        # Værdi for beregningsparameter omsættes til en streng
+        if værdi is None:
+            værdi = ""
+        else:
+            værdi = str(værdi)
+
         # findes parameter allerede i regnearket?
         findes_parameter = parameter in list(parametre["Navn"])
         if not kontrol:
-            #kontrolværdi = find_parameter(projektnavn, parameter)
+            # kontrolværdi = find_parameter(projektnavn, parameter)
             if not findes_parameter:
                 fire.cli.print(
-                        (
-                            f"ADVARSEL: {parameter}={værdi} sat i endelig beregning, "
-                            "kontrolberegning udført uden denne regneparameter!"
-                        ),
+                    (
+                        f"ADVARSEL: {parameter}={værdi} sat i endelig beregning, "
+                        "kontrolberegning udført uden denne regneparameter!"
+                    ),
                     bold=True,
                     bg="yellow",
                 )
             else:
-                kontrolværdi = parametre.loc[parametre["Navn"] == parameter]["Værdi"].to_string(index=False)
+                kontrolværdi = parametre.loc[parametre["Navn"] == parameter][
+                    "Værdi"
+                ].to_string(index=False)
 
                 if kontrolværdi != værdi:
                     fire.cli.print(
-                            (
-                                "ADVARSEL: Kontrolberegning udført med regneparameter "
-                                f"{parameter}={kontrolværdi}, {parameter}={værdi} sat i "
-                                "endelig beregning!"
-                            ),
+                        (
+                            "ADVARSEL: Kontrolberegning udført med regneparameter "
+                            f"{parameter}={kontrolværdi}, {parameter}={værdi} sat i "
+                            "endelig beregning!"
+                        ),
                         bold=True,
                         bg="yellow",
                     )
@@ -280,7 +297,6 @@ def regn(
             parametre.loc[len(parametre)] = [parameter, værdi]
         else:
             parametre.loc[parametre["Navn"] == parameter, "Værdi"] = værdi
-
 
     # Tilføj "-kontrol" eller "-endelig" til alle filnavne
     motor.filer = [
