@@ -19,6 +19,9 @@ from fire.cli.info._info import (
     sag,
     sagsevent,
 )
+from fire.cli.info._koordinater import (
+    koordinater
+)
 
 # ... og visse hjælpefunktioner som bruges andre steder
 from fire.cli.info._info import (
