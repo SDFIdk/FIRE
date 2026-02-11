@@ -12,6 +12,10 @@ typer indhold i FIRE databasen.
   :prog: fire info punkt
   :nested: full
 
+.. click:: fire.cli.info:koordinater
+  :prog: fire info koordinater
+  :nested: full
+
 .. click:: fire.cli.info:sag
   :prog: fire info sag
   :nested: full
