@@ -19,6 +19,7 @@ from fire.api.model import (
     PunktSamling,
     PunktInformation,
     PunktInformationType,
+    PunktInformationTypeAnvendelse,
     GeometriObjekt,
     Grafik,
     Observation,
@@ -142,6 +143,50 @@ class FireDbHent(FireDbBase):
 
         if not result:
             raise NoResultFound(f"Punkt med ident {ident} ikke fundet")
+
+        return result
+
+    def hent_punkter_med_flag(
+        self, infotype: PunktInformationType, inkluder_historiske: bool = False
+    ) -> list[Punkt]:
+        """
+        Returnerer alle punkter der har en given FLAG-infotype
+
+        Bruges fx til at hente alle 5D-punkterne (NET:5D) eller alle punkter på Færøerne
+        (REGION:FO). Sættes `inkluder_historiske` til True, så søges der også iblandt
+        afregistrede attributter.
+
+        Der kan potentielt returneres mange punkter med denne, så brug den klogt. Det
+        frarådes derfor at søge på de meget almindelige infotyper, som fx. REGION:DK eller
+        ATTR:højdefikspunkt, da disse vil resultere i ca. 650.000 hhv. 250.000 punkter.
+
+        Hvis intet punkt findes udsendes en NoResultFound exception.
+        """
+
+        if not infotype.anvendelse == PunktInformationTypeAnvendelse.FLAG:
+            raise ValueError(f"Ugyldig infotype, fik {infotype}.")
+
+        query = (
+            self.session.query(Punkt)
+            .options(
+                joinedload(Punkt.geometriobjekter),
+                joinedload(Punkt.koordinater),
+            )
+            .join(PunktInformation)
+            .join(PunktInformationType)
+            .filter(
+                PunktInformationType.name == infotype.name,
+                Punkt._registreringtil == None,  # NOQA
+            )
+        )
+
+        if not inkluder_historiske:
+            query = query.filter(PunktInformation._registreringtil == None)
+
+        result = query.all()
+
+        if not result:
+            raise NoResultFound(f"Ingen punkter med attributten {infotype.name} fundet")
 
         return result
 

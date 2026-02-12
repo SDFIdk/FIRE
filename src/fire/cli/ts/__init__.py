@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 import click
 import pandas as pd
@@ -17,6 +18,7 @@ from fire.api.model import (
     Punkt,
     PunktSamling,
     Koordinat,
+    Srid,
 )
 
 
@@ -26,6 +28,29 @@ def ts():
     Håndtering af koordinattidsserier.
     """
     pass
+
+
+def bestem_labels(srid: Srid):
+    """Bestem kolonnenavne til en tabel ud fra en Srid"""
+
+    tid = ["t", "decimalår"]
+    xyz = ["x", "y", "z"]
+    sxyz = ["sx", "sy", "sz"]
+    labels_xyz = [srid.x, srid.y, srid.z]
+    labels_sxyz = ["sx [mm]", "sy [mm]", "sz [mm]"]
+
+    # Fjern de steder hvor srid.x y eller z er None
+    indekser = [i for i, lab in enumerate(labels_xyz) if lab is not None]
+
+    xyz = [xyz[i] for i in indekser]
+    sxyz = [sxyz[i] for i in indekser]
+    labels_xyz = [labels_xyz[i] for i in indekser]
+    labels_sxyz = [labels_sxyz[i] for i in indekser]
+
+    parms = tid + xyz + sxyz
+    labels = tid + labels_xyz + labels_sxyz
+
+    return parms, labels
 
 
 def _print_tidsserieoversigt(
@@ -54,6 +79,7 @@ def _print_tidsserieoversigt(
     console = Console()
     console.print(tabel)
 
+
 def _udtræk_tidsserie(
     objekt: str,
     tidsserieklasse: type[Tidsserie],
@@ -80,7 +106,9 @@ def _udtræk_tidsserie(
         srid_filter = lambda ts: True
 
     # Prøv først at søge med objekt som søgestreng på tidsserienavn og filtrer på srid
-    tidsserier = fire.cli.firedb.hent_tidsserier(objekt, tidsserieklasse=tidsserieklasse)
+    tidsserier = fire.cli.firedb.hent_tidsserier(
+        objekt, tidsserieklasse=tidsserieklasse
+    )
     tidsserier = [ts for ts in tidsserier if srid_filter(ts)]
 
     # Hvis ingen tidsserier, prøver vi med objekt som ident
@@ -91,7 +119,11 @@ def _udtræk_tidsserie(
             raise SystemExit("Punkt eller tidsserie ikke fundet")
         else:
             # Udtræk punktets tidsserier og filtrer på ts-type og srid
-            tidsserier=[ts for ts in punkt.tidsserier if isinstance(ts, tidsserieklasse) and srid_filter(ts)]
+            tidsserier = [
+                ts
+                for ts in punkt.tidsserier
+                if isinstance(ts, tidsserieklasse) and srid_filter(ts)
+            ]
 
     if not tidsserier:
         raise SystemExit("Fandt ingen tidsserier")
@@ -100,7 +132,7 @@ def _udtræk_tidsserie(
     _print_tidsserieoversigt(tidsserier)
 
     # Hvis der kun blev fundet én tidsserie så printer vi den
-    if len(tidsserier)==1:
+    if len(tidsserier) == 1:
         _print_tidsserie(tidsserier[0], parametre_alle, parametre, fil)
 
 
@@ -110,7 +142,7 @@ def _print_tidsserie(
     parametre: str,
     fil: click.Path,
 ):
-    """Print en tabel over en tidsserie med de givne parametre """
+    """Print en tabel over én tidsserie med de givne parametre"""
     if parametre.lower() == "alle":
         parametre = ",".join(parametre_alle.keys())
 
@@ -124,7 +156,70 @@ def _print_tidsserie(
         overskrifter.append(p)
         kolonner.append(tidsserie.__getattribute__(parametre_alle[p]))
 
-    tabel = Table(*overskrifter, box=box.SIMPLE)
+    _print_tabel(
+        overskrifter,
+        kolonner,
+    )
+
+    if not fil:
+        return
+
+    _gem_tabel(overskrifter, kolonner, fil)
+
+
+def _print_tidsserier(
+    tidsserier: list[Tidsserie],
+    fil: click.Path,
+):
+    """
+    Print en tabel over flere tidsserier med de givne parametre
+
+    Alle tidsserierne skal have samme Srid
+    """
+    srid = tidsserier[0].srid
+    if not all(ts.srid == srid for ts in tidsserier):
+        fire.cli.print("Fejl: Alle tidsserierne skal have samme Srid", fg="red")
+        raise SystemExit(1)
+
+    overskrifter = ["Navn", "Srid"]
+
+    # Bestem kolonnenavne ud fra Sriden på første Tidsserie
+    parametre, labels = bestem_labels(srid)
+    overskrifter.extend(labels)
+
+    kolonner = [[] for i in range(len(overskrifter))]
+    navne, srider = zip(
+        *[
+            (ts.navn, (ts.srid.kortnavn or ts.srid.name))
+            for ts in tidsserier
+            for _ in range(len(ts))
+        ]
+    )
+    kolonner[0] = navne
+    kolonner[1] = srider
+    for ts in tidsserier:
+        for idx, p in enumerate(parametre, 2):
+            kolonner[idx].extend(ts.__getattribute__(p))
+
+    _print_tabel(
+        overskrifter,
+        kolonner,
+    )
+
+    if not fil:
+        return
+
+    _gem_tabel(overskrifter, kolonner, fil)
+
+
+def _print_tabel(overskrifter: list, kolonner: list[list]):
+
+    # Erstat "[" med "\\[" så console.Print ikke opfatter det der står inde i [parentesen]
+    # som et "markup tag", se https://rich.readthedocs.io/en/latest/markup.html#
+    # Tiltænkt steder hvor kolonnen fx hedder "Kote [m]" eller "sz [mm]"
+    overskrifter = [re.sub(r"\[(?=.*\])", "\\[", o) for o in overskrifter]
+
+    tabel = Table(*overskrifter, box=box.SIMPLE, header_style="")
     data = list(zip(*kolonner))
 
     def klargør_celle(input):
@@ -134,6 +229,7 @@ def _print_tidsserie(
             return f"{input:.4f}"
         if not input:
             return ""
+        return str(input)
 
     for række in data:
         tabel.add_row(
@@ -143,9 +239,8 @@ def _print_tidsserie(
     console = Console()
     console.print(tabel)
 
-    if not fil:
-        raise SystemExit
 
+def _gem_tabel(overskrifter: list, kolonner: list[list], fil: click.Path):
     data = {
         overskrift: kolonne for (overskrift, kolonne) in zip(overskrifter, kolonner)
     }

@@ -190,7 +190,7 @@ class Punkt(FikspunktregisterObjekt):
     @reconstructor
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._identer = []
+        self._identer: list[Ident] = []
 
     def _populer_identer(self):
         """
@@ -265,11 +265,9 @@ class Punkt(FikspunktregisterObjekt):
                 return True
         return False
 
-    def _hent_ident_af_type(self, identtype: str) -> str:
-        numre = []
-        for punktinfo in self.punktinformationer:
-            if punktinfo.infotype.name == identtype and not punktinfo.registreringtil:
-                numre.append(punktinfo.tekst)
+    def _hent_ident_af_type(self, identtype: Ident.IdentType) -> str:
+        self._populer_identer()
+        numre = [ident.tekst for ident in self._identer if ident._type == identtype]
 
         if numre:
             return sorted(numre)[0]
@@ -291,7 +289,7 @@ class Punkt(FikspunktregisterObjekt):
 
     @property
     def landsnummer(self) -> str:
-        _landsnummer = self._hent_ident_af_type("IDENT:landsnr")
+        _landsnummer = self._hent_ident_af_type(Ident.IdentType.LANDSNR)
 
         if _landsnummer:
             return _landsnummer
@@ -300,11 +298,11 @@ class Punkt(FikspunktregisterObjekt):
 
     @property
     def gnss_navn(self) -> str:
-        return self._hent_ident_af_type("IDENT:GNSS")
+        return self._hent_ident_af_type(Ident.IdentType.GNSS)
 
     @property
     def jessennummer(self) -> str:
-        return self._hent_ident_af_type("IDENT:jessen")
+        return self._hent_ident_af_type(Ident.IdentType.JESSEN)
 
     def __lt__(self, other: Punkt) -> bool:
         return self.landsnummer < other.landsnummer

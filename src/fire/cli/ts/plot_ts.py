@@ -46,6 +46,7 @@ def plot_tidsserie(
     ts: Tidsserie,
     plot_funktion: Callable,
     parametre: list = ["n", "e", "u"],
+    ylabels: list = [],
     y_enhed: str = "m",
 ):
     """
@@ -54,27 +55,25 @@ def plot_tidsserie(
     Denne funktion håndterer figuropsætningen, og kalder ``plot_funktion``, som
     forventes at foretage selve plottingen af data.
     """
-    n_parm = min(len(parametre), 3)
+    # Plot max 3 parametre
+    parametre = parametre[:3]
+    n_parm = len(parametre)
+
+    if not ylabels:
+        ylabels = [TS_PLOTTING_LABELS.get(parm, parm) for parm in parametre]
 
     skalafaktor = ENHEDER_SKALAFAKTOR[y_enhed]
 
     ax = plt.figure()
     plt.suptitle(ts.navn)
 
-    for i, parm in enumerate(parametre, start=1):
-        if i > 3:
-            break
+    for i, (parm, ylabel) in enumerate(zip(parametre, ylabels), start=1):
 
         y = [skalafaktor * yy for yy in getattr(ts, parm)]
 
-        try:
-            label = TS_PLOTTING_LABELS[parm]
-        except KeyError:
-            label = parm
-
         ax = plt.subplot(int(f"{n_parm}{1}{i}"))
         plot_funktion(ts.decimalår, y, y_enhed=y_enhed)
-        plt.ylabel(f"{label} [{y_enhed}]")
+        plt.ylabel(f"{ylabel} [{y_enhed}]")
         plt.grid()
 
     # Vis kun xlabel for nederste subplot
@@ -330,9 +329,9 @@ def plot_data(x: list, y: list, **kwargs):
     plt.plot(
         x,
         y,
-        ".",
-        markersize=4,
-        color="black",
+        "o",
+        markersize=6,
+        color="blue",
     )
 
 
@@ -452,7 +451,7 @@ def plot_tidsserier(
             markersize=p[0].get_markersize() * 2,
         )
 
-        if len(y)<2:
+        if len(y) < 2:
             plt.text(
                 x[-1] + 2e-1,
                 y[-1],
